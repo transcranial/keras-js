@@ -3,10 +3,10 @@ import ops from 'ndarray-ops'
 import cwise from 'cwise'
 
 /**
- * Softmax activation function. In-place operation.
- * @param {Tensor} x
- * @returns {Tensor} `this`
- */
+* Softmax activation function. In-place operation.
+* @param {Tensor} x
+* @returns {Tensor} `this`
+*/
 export function softmax (x) {
   if (x.tensor.shape.length === 1) {
     ops.expeq(x.tensor)
@@ -32,10 +32,10 @@ const _softplus = cwise({
 })
 
 /**
- * Softplus activation function. In-place operation.
- * @param {Tensor} x
- * @returns {Tensor} `this`
- */
+* Softplus activation function. In-place operation.
+* @param {Tensor} x
+* @returns {Tensor} `this`
+*/
 export function softplus (x) {
   _softplus(x.tensor)
   return this
@@ -49,22 +49,22 @@ const _softsign = cwise({
 })
 
 /**
- * Softsign activation function. In-place operation.
- * @param {Tensor} x
- * @returns {Tensor} `this`
- */
+* Softsign activation function. In-place operation.
+* @param {Tensor} x
+* @returns {Tensor} `this`
+*/
 export function softsign (x) {
   _softsign(x.tensor)
   return this
 }
 
 /**
- * ReLU activation function. In-place operation.
- * @param {Tensor} x
- * @param {Number} alpha
- * @param {Number} maxValue
- * @returns {Tensor} `this`
- */
+* ReLU activation function. In-place operation.
+* @param {Tensor} x
+* @param {Number} alpha
+* @param {Number} maxValue
+* @returns {Tensor} `this`
+*/
 export function relu (x, opts = {}) {
   const { alpha = 0, maxValue = null } = opts
   let neg
@@ -91,10 +91,10 @@ const _tanh = cwise({
 })
 
 /**
- * Tanh activation function. In-place operation.
- * @param {Tensor} x
- * @returns {Tensor} `this`
- */
+* Tanh activation function. In-place operation.
+* @param {Tensor} x
+* @returns {Tensor} `this`
+*/
 export function tanh (x) {
   _tanh(x.tensor)
   return this
@@ -108,10 +108,10 @@ const _sigmoid = cwise({
 })
 
 /**
- * Sigmoid activation function. In-place operation.
- * @param {Tensor} x
- * @returns {Tensor} `this`
- */
+* Sigmoid activation function. In-place operation.
+* @param {Tensor} x
+* @returns {Tensor} `this`
+*/
 export function sigmoid (x) {
   _sigmoid(x.tensor)
   return this
@@ -132,20 +132,20 @@ const _hardSigmoid = cwise({
 })
 
 /**
- * Hard-sigmoid activation function. In-place operation.
- * @param {Tensor} x
- * @returns {Tensor} `this`
- */
+* Hard-sigmoid activation function. In-place operation.
+* @param {Tensor} x
+* @returns {Tensor} `this`
+*/
 export function hardSigmoid (x) {
   _hardSigmoid(x.tensor)
   return this
 }
 
 /**
- * Linear activation function. In-place operation.
- * @param {Tensor} x
- * @returns {Tensor} `this`
- */
+* Linear activation function. In-place operation.
+* @param {Tensor} x
+* @returns {Tensor} `this`
+*/
 export function linear (x) {
   return this
 }

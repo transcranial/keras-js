@@ -18,8 +18,9 @@
   <script>mocha.setup('bdd')</script>
   <script src="/test/test-utils.js"></script>
   <script src="/test/activations.js"></script>
+  <script src="/test/layers/core.js"></script>
   <script>
-    mocha.checkLeaks();
+    // mocha.checkLeaks();
     mocha.globals(['jQuery']);
     mocha.run();
   </script>

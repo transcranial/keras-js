@@ -24,7 +24,7 @@
     "webgl",
     "gpu"
   ],
-  "author": "Leon Chen",
+  "author": "Leon Chen <leon@md.ai>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/transcranial/keras-js/issues"
@@ -33,7 +33,8 @@
   "dependencies": {
     "cwise": "^1.0.9",
     "ndarray": "^1.0.18",
-    "ndarray-ops": "^1.2.2"
+    "ndarray-ops": "^1.2.2",
+    "ndarray-squeeze": "^1.0.2"
   },
   "devDependencies": {
     "babel-core": "^6.13.2",

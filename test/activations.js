@@ -1,13 +1,13 @@
 /* eslint-env browser, mocha */
 
-const assert = chai.assert
-const activations = KerasJS.activations
-
-const styles = testUtils.styles
-const approxEquals = testUtils.approxEquals
-const logTime = testUtils.logTime
-
 describe('activations', function () {
+  const assert = chai.assert
+  const styles = testUtils.styles
+  const approxEquals = testUtils.approxEquals
+  const logTime = testUtils.logTime
+
+  const activations = KerasJS.activations
+
   /*********************************************************
    * softmax
    *********************************************************/

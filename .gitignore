@@ -2,5 +2,6 @@
 node_modules/
 npm-debug.log
 
-# jupyter notebooks
-notebooks/
+# jupyter
+notebooks/**/.ipynb_checkpoints/
+notebooks/_scratchpad.ipynb
