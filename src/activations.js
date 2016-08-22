@@ -1,5 +1,6 @@
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
+import cwise from 'cwise'
 
 /**
  * Softmax activation function. In-place operation.
@@ -23,12 +24,38 @@ export function softmax (x) {
   return this
 }
 
-export function softplus (x) {
+const _softplus = cwise({
+  args: ['array'],
+  body: function (_x) {
+    _x = Math.log(Math.exp(_x) + 1)
+  }
+})
 
+/**
+ * Softplus activation function. In-place operation.
+ * @param {Tensor} x
+ * @returns {Tensor} `this`
+ */
+export function softplus (x) {
+  _softplus(x.tensor)
+  return this
 }
 
-export function softsign (x) {
+const _softsign = cwise({
+  args: ['array'],
+  body: function (_x) {
+    _x /= 1 + Math.abs(_x)
+  }
+})
 
+/**
+ * Softsign activation function. In-place operation.
+ * @param {Tensor} x
+ * @returns {Tensor} `this`
+ */
+export function softsign (x) {
+  _softsign(x.tensor)
+  return this
 }
 
 /**
@@ -56,18 +83,69 @@ export function relu (x, opts = {}) {
   return this
 }
 
+const _tanh = cwise({
+  args: ['array'],
+  body: function (_x) {
+    _x = Math.tanh(_x)
+  }
+})
+
+/**
+ * Tanh activation function. In-place operation.
+ * @param {Tensor} x
+ * @returns {Tensor} `this`
+ */
 export function tanh (x) {
-
+  _tanh(x.tensor)
+  return this
 }
 
+const _sigmoid = cwise({
+  args: ['array'],
+  body: function (_x) {
+    _x = 1 / (1 + Math.exp(-_x))
+  }
+})
+
+/**
+ * Sigmoid activation function. In-place operation.
+ * @param {Tensor} x
+ * @returns {Tensor} `this`
+ */
 export function sigmoid (x) {
-
+  _sigmoid(x.tensor)
+  return this
 }
 
+// Reference hard sigmoid with slope and shift values from theano, see
+// https://github.com/Theano/Theano/blob/master/theano/tensor/nnet/sigm.py
+const _hardSigmoid = cwise({
+  args: ['array'],
+  body: function (_x) {
+    _x = (_x * 0.2) + 0.5
+    if (_x <= 0) {
+      _x = 0
+    } else if (_x >= 1) {
+      _x = 1
+    }
+  }
+})
+
+/**
+ * Hard-sigmoid activation function. In-place operation.
+ * @param {Tensor} x
+ * @returns {Tensor} `this`
+ */
 export function hardSigmoid (x) {
-
+  _hardSigmoid(x.tensor)
+  return this
 }
 
+/**
+ * Linear activation function. In-place operation.
+ * @param {Tensor} x
+ * @returns {Tensor} `this`
+ */
 export function linear (x) {
-  return x
+  return this
 }
