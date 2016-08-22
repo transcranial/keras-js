@@ -1,0 +1,27 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Keras-js | Mocha Tests</title>
+  <link href="https://cdn.rawgit.com/mochajs/mocha/v3.0.2/mocha.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="mocha"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/3.0.2/mocha.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/3.5.0/chai.min.js"></script>
+
+  <script src="/lib/gpu.min.js"></script>
+  <script src="/lib/weblas.js"></script>
+  <script src="/dist/keras.js"></script>
+
+  <script>mocha.setup('bdd')</script>
+  <script src="/test/test-utils.js"></script>
+  <script src="/test/activations.js"></script>
+  <script>
+    mocha.checkLeaks();
+    mocha.globals(['jQuery']);
+    mocha.run();
+  </script>
+</body>
+</html>
