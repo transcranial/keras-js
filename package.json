@@ -1,29 +1,28 @@
 {
   "name": "keras-js",
   "version": "0.0.1",
-  "description": "Run trained Keras models in JavaScript. Works in the browser or Node.js.",
-  "main": "lib/index.js",
+  "description": "Run trained Keras models in your browser, GPU-powered using WebGL.",
   "scripts": {
     "lint": "standard src test",
-    "test": "ava --verbose",
-    "check": "npm run lint && npm run test",
-    "compile": "rimraf lib && babel src -d lib",
-    "build": "echo \"No build step currently.\"",
-    "prepublish": "npm run check && npm run compile && npm run build"
+    "watch": "webpack src/index.js dist/keras.js --watch --config webpack.dev.config.js",
+    "build": "npm run lint && webpack --config webpack.prod.config.js",
+    "server": "http-server . -p 9001"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/transcranial/keras-js.git"
   },
   "keywords": [
-    "Keras",
+    "keras",
     "deep",
     "learning",
     "machine",
     "learning",
     "neural",
     "networks",
-    "javascript"
+    "javascript",
+    "webgl",
+    "gpu"
   ],
   "author": "Leon Chen",
   "license": "MIT",
@@ -32,39 +31,38 @@
   },
   "homepage": "https://github.com/transcranial/keras-js#readme",
   "dependencies": {
-    "vectorious": "^4.3.2"
+    "ndarray": "^1.0.18",
+    "ndarray-ops": "^1.2.2"
   },
   "devDependencies": {
-    "ava": "^0.16.0",
-    "babel-cli": "^6.11.4",
     "babel-core": "^6.13.2",
     "babel-eslint": "^6.1.2",
+    "babel-loader": "^6.2.5",
     "babel-plugin-transform-class-properties": "^6.11.5",
+    "babel-plugin-transform-object-rest-spread": "^6.8.0",
     "babel-preset-es2015": "^6.13.2",
-    "babel-register": "^6.11.6",
-    "rimraf": "^2.5.4",
-    "standard": "^8.0.0-beta.5"
+    "http-server": "^0.9.0",
+    "standard": "^8.0.0-beta.5",
+    "webpack": "^1.13.2"
   },
   "standard": {
-    "parser": "babel-eslint"
+    "parser": "babel-eslint",
+    "globals": [
+      "KerasJS",
+      "chai",
+      "testUtils",
+      "weblas",
+      "GPU",
+      "performance"
+    ]
   },
   "babel": {
     "presets": [
       "es2015"
     ],
     "plugins": [
-      "transform-class-properties"
+      "transform-class-properties",
+      "transform-object-rest-spread"
     ]
-  },
-  "ava": {
-    "files": [
-      "tests/**/*.js"
-    ],
-    "concurrency": 4,
-    "failFast": true,
-    "require": [
-      "babel-register"
-    ],
-    "babel": "inherit"
   }
 }

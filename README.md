@@ -1,6 +1,6 @@
 # Keras.js
 
-Run trained Keras models in JavaScript. Works in the browser or Node.js.
+Run trained [Keras](https://github.com/fchollet/keras) models in your browser, GPU-powered using WebGL.
 
 ##### Why?
 
