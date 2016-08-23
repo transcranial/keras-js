@@ -32,9 +32,14 @@
   "homepage": "https://github.com/transcranial/keras-js#readme",
   "dependencies": {
     "cwise": "^1.0.9",
+    "lodash": "^4.15.0",
     "ndarray": "^1.0.18",
+    "ndarray-blas-level2": "^1.1.0",
     "ndarray-ops": "^1.2.2",
-    "ndarray-squeeze": "^1.0.2"
+    "ndarray-squeeze": "^1.0.2",
+    "ndarray-tile": "^1.0.3",
+    "ndarray-unpack": "^1.0.0",
+    "ndarray-unsqueeze": "^1.0.3"
   },
   "devDependencies": {
     "babel-core": "^6.13.2",
@@ -52,7 +57,7 @@
     "globals": [
       "KerasJS",
       "chai",
-      "testUtils",
+      "testGlobals",
       "weblas",
       "GPU",
       "performance"
