@@ -1,7 +1,14 @@
 import ndarray from 'ndarray'
 import squeeze from 'ndarray-squeeze'
 
+/**
+* Layer class
+*/
 export class Layer {
+  /**
+  * Creates a layer
+  * @param {Object} [attrs] - layer attributes
+  */
   constructor (attrs = {}) {
     this.name = attrs.name
   }
@@ -11,7 +18,6 @@ export class Layer {
 
   params = []
   weights = {}
-  weblasWeights = {}
 
   /**
   * Method for setting layer weights
@@ -19,15 +25,12 @@ export class Layer {
   * as well as weblas pipeline tensors if possible (which are in GPU memory)
   * see https://github.com/waylonflinn/weblas/wiki/Pipeline
   *
-  * @param {Tensor[]} weightsArr
+  * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
   */
   setWeights = weightsArr => {
     this.params.forEach((p, i) => {
       this.weights[p] = weightsArr[i]
     })
-
-    // create weblas pipeline tensor weights
-    this.createWeblasWeights()
   }
 
   /**
@@ -35,6 +38,8 @@ export class Layer {
   * 2-D only
   */
   createWeblasWeights = () => {
+    this.weblasWeights = {}
+
     this.params.forEach((p, i) => {
       if (this.weights[p].tensor.shape.length === 1) {
         const shape = [1, this.weights[p].tensor.shape[0]]
@@ -47,9 +52,9 @@ export class Layer {
   }
 
   /**
-  * Sync weblas pipeline tensor weights
+  * Transfer weblas pipeline tensor weights
   */
-  syncWeblasWeights = () => {
+  transferWeblasWeights = () => {
     this.params.forEach((p, i) => {
       if (this.weblasWeights[p]) {
         const shape = this.weblasWeights[p].shape
@@ -69,5 +74,6 @@ export class Layer {
         delete this.weblasWeights[p]
       }
     })
+    delete this.weblasWeights
   }
 }

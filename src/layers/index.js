@@ -1,3 +1,21 @@
-import { Dense } from './core'
+import {
+  Dense,
+  Activation,
+  Dropout,
+  Flatten,
+  Reshape,
+  Permute,
+  RepeatVector,
+  Merge
+} from './core'
 
-export { Dense }
+export {
+  Dense,
+  Activation,
+  Dropout,
+  Flatten,
+  Reshape,
+  Permute,
+  RepeatVector,
+  Merge
+}
