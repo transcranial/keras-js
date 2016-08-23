@@ -1,4 +1,4 @@
-import {
+export {
   Dense,
   Activation,
   Dropout,
@@ -10,12 +10,10 @@ import {
 } from './core'
 
 export {
-  Dense,
-  Activation,
-  Dropout,
-  Flatten,
-  Reshape,
-  Permute,
-  RepeatVector,
-  Merge
-}
+  LeakyReLU,
+  PReLU,
+  ELU,
+  ParametricSoftplus,
+  ThresholdedReLU,
+  SReLU
+} from './advanced_activations'

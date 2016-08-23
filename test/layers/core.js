@@ -534,5 +534,298 @@ describe('Layers: Core', function () {
       assert.deepEqual(t2.tensor.shape, shapeExpected)
       assert.isTrue(approxEquals(t2.tensor, dataExpected))
     })
+
+    it('should produce expected values in concat mode (1D)', function () {
+      console.log('\n%cmode: concat (1D)', styles.h3)
+      let testLayer1a = new layers.Dense(2)
+      let testLayer1b = new layers.Dense(2)
+      let testLayer2 = new layers.Merge({ mode: 'concat', concatAxis: -1 })
+      testLayer1a.setWeights([
+        new KerasJS.Tensor([0.1, 0.4, 0.5, 0.1, 1, -2, 0, 0.3, 0.2, 0.1, 3, 0], [6, 2]),
+        new KerasJS.Tensor([0.5, 0.7], [2])
+      ])
+      testLayer1b.setWeights([
+        new KerasJS.Tensor([1, 0, -0.9, 0.6, -0.7, 0, 0.2, 0.4, 0, 0, -1, 2.3], [6, 2]),
+        new KerasJS.Tensor([0.1, -0.2], [2])
+      ])
+      let ta = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      let tb = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      ta = testLayer1a.call(ta)
+      tb = testLayer1b.call(tb)
+      console.log('%cin', styles.h4, stringifyCondensed([ta.tensor, tb.tensor]))
+      const startTime = performance.now()
+      let t = testLayer2.call([ta, tb])
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array([7.3, -0.21, -2.45, 4.48])
+      const shapeExpected = [4]
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+
+    it('should produce expected values in concat mode (2D, concatAxis=-1)', function () {
+      console.log('\n%cmode: concat (2D, concatAxis=-1)', styles.h3)
+      let testLayer1a = new layers.Dense(2)
+      let testLayer2a = new layers.RepeatVector(3)
+      let testLayer1b = new layers.Dense(2)
+      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer3 = new layers.Merge({ mode: 'concat', concatAxis: -1 })
+      testLayer1a.setWeights([
+        new KerasJS.Tensor([0.1, 0.4, 0.5, 0.1, 1, -2, 0, 0.3, 0.2, 0.1, 3, 0], [6, 2]),
+        new KerasJS.Tensor([0.5, 0.7], [2])
+      ])
+      testLayer1b.setWeights([
+        new KerasJS.Tensor([1, 0, -0.9, 0.6, -0.7, 0, 0.2, 0.4, 0, 0, -1, 2.3], [6, 2]),
+        new KerasJS.Tensor([0.1, -0.2], [2])
+      ])
+      let ta = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      let tb = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      ta = testLayer1a.call(ta)
+      ta = testLayer2a.call(ta)
+      tb = testLayer1b.call(tb)
+      tb = testLayer2b.call(tb)
+      console.log('%cin', styles.h4, stringifyCondensed([ta.tensor, tb.tensor]))
+      const startTime = performance.now()
+      let t = testLayer3.call([ta, tb])
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array([7.3, -0.21, -2.45, 4.48, 7.3, -0.21, -2.45, 4.48, 7.3, -0.21, -2.45, 4.48])
+      const shapeExpected = [3, 4]
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+
+    it('should produce expected values in concat mode (2D, concatAxis=-2)', function () {
+      console.log('\n%cmode: concat (2D, concatAxis=-2)', styles.h3)
+      let testLayer1a = new layers.Dense(2)
+      let testLayer2a = new layers.RepeatVector(3)
+      let testLayer1b = new layers.Dense(2)
+      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer3 = new layers.Merge({ mode: 'concat', concatAxis: -2 })
+      testLayer1a.setWeights([
+        new KerasJS.Tensor([0.1, 0.4, 0.5, 0.1, 1, -2, 0, 0.3, 0.2, 0.1, 3, 0], [6, 2]),
+        new KerasJS.Tensor([0.5, 0.7], [2])
+      ])
+      testLayer1b.setWeights([
+        new KerasJS.Tensor([1, 0, -0.9, 0.6, -0.7, 0, 0.2, 0.4, 0, 0, -1, 2.3], [6, 2]),
+        new KerasJS.Tensor([0.1, -0.2], [2])
+      ])
+      let ta = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      let tb = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      ta = testLayer1a.call(ta)
+      ta = testLayer2a.call(ta)
+      tb = testLayer1b.call(tb)
+      tb = testLayer2b.call(tb)
+      console.log('%cin', styles.h4, stringifyCondensed([ta.tensor, tb.tensor]))
+      const startTime = performance.now()
+      let t = testLayer3.call([ta, tb])
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array([7.3, -0.21, 7.3, -0.21, 7.3, -0.21, -2.45, 4.48, -2.45, 4.48, -2.45, 4.48])
+      const shapeExpected = [6, 2]
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+
+    it('should produce expected values in concat mode (2D, concatAxis=1)', function () {
+      console.log('\n%cmode: concat (2D, concatAxis=1)', styles.h3)
+      let testLayer1a = new layers.Dense(2)
+      let testLayer2a = new layers.RepeatVector(3)
+      let testLayer1b = new layers.Dense(2)
+      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer3 = new layers.Merge({ mode: 'concat', concatAxis: 1 })
+      testLayer1a.setWeights([
+        new KerasJS.Tensor([0.1, 0.4, 0.5, 0.1, 1, -2, 0, 0.3, 0.2, 0.1, 3, 0], [6, 2]),
+        new KerasJS.Tensor([0.5, 0.7], [2])
+      ])
+      testLayer1b.setWeights([
+        new KerasJS.Tensor([1, 0, -0.9, 0.6, -0.7, 0, 0.2, 0.4, 0, 0, -1, 2.3], [6, 2]),
+        new KerasJS.Tensor([0.1, -0.2], [2])
+      ])
+      let ta = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      let tb = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      ta = testLayer1a.call(ta)
+      ta = testLayer2a.call(ta)
+      tb = testLayer1b.call(tb)
+      tb = testLayer2b.call(tb)
+      console.log('%cin', styles.h4, stringifyCondensed([ta.tensor, tb.tensor]))
+      const startTime = performance.now()
+      let t = testLayer3.call([ta, tb])
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array([7.3, -0.21, 7.3, -0.21, 7.3, -0.21, -2.45, 4.48, -2.45, 4.48, -2.45, 4.48])
+      const shapeExpected = [6, 2]
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+
+    it('should produce expected values in concat mode (2D, concatAxis=2)', function () {
+      console.log('\n%cmode: concat (2D, concatAxis=2)', styles.h3)
+      let testLayer1a = new layers.Dense(2)
+      let testLayer2a = new layers.RepeatVector(3)
+      let testLayer1b = new layers.Dense(2)
+      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer3 = new layers.Merge({ mode: 'concat', concatAxis: 2 })
+      testLayer1a.setWeights([
+        new KerasJS.Tensor([0.1, 0.4, 0.5, 0.1, 1, -2, 0, 0.3, 0.2, 0.1, 3, 0], [6, 2]),
+        new KerasJS.Tensor([0.5, 0.7], [2])
+      ])
+      testLayer1b.setWeights([
+        new KerasJS.Tensor([1, 0, -0.9, 0.6, -0.7, 0, 0.2, 0.4, 0, 0, -1, 2.3], [6, 2]),
+        new KerasJS.Tensor([0.1, -0.2], [2])
+      ])
+      let ta = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      let tb = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      ta = testLayer1a.call(ta)
+      ta = testLayer2a.call(ta)
+      tb = testLayer1b.call(tb)
+      tb = testLayer2b.call(tb)
+      console.log('%cin', styles.h4, stringifyCondensed([ta.tensor, tb.tensor]))
+      const startTime = performance.now()
+      let t = testLayer3.call([ta, tb])
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array([7.3, -0.21, -2.45, 4.48, 7.3, -0.21, -2.45, 4.48, 7.3, -0.21, -2.45, 4.48])
+      const shapeExpected = [3, 4]
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+
+    it('should produce expected values in dot mode (2D x 2D, dotAxes=1)', function () {
+      console.log('\n%cmode: dot (2D x 2D, dotAxes=1)', styles.h3)
+      let testLayer1a = new layers.Dense(2)
+      let testLayer2a = new layers.RepeatVector(3)
+      let testLayer1b = new layers.Dense(2)
+      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer3 = new layers.Merge({ mode: 'dot', dotAxes: 1 })
+      testLayer1a.setWeights([
+        new KerasJS.Tensor([0.1, 0.4, 0.5, 0.1, 1, -2, 0, 0.3, 0.2, 0.1, 3, 0], [6, 2]),
+        new KerasJS.Tensor([0.5, 0.7], [2])
+      ])
+      testLayer1b.setWeights([
+        new KerasJS.Tensor([1, 0, -0.9, 0.6, -0.7, 0, 0.2, 0.4, 0, 0, -1, 2.3], [6, 2]),
+        new KerasJS.Tensor([0.1, -0.2], [2])
+      ])
+      let ta = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      let tb = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      ta = testLayer1a.call(ta)
+      ta = testLayer2a.call(ta)
+      tb = testLayer1b.call(tb)
+      tb = testLayer2b.call(tb)
+      console.log('%cin', styles.h4, stringifyCondensed([ta.tensor, tb.tensor]))
+      const startTime = performance.now()
+      let t = testLayer3.call([ta, tb])
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array([-53.655003, 98.112007, 1.5435, -2.8224])
+      const shapeExpected = [2, 2]
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+
+    it('should produce expected values in dot mode (2D x 2D, dotAxes=2)', function () {
+      console.log('\n%cmode: dot (2D x 2D, dotAxes=2)', styles.h3)
+      let testLayer1a = new layers.Dense(2)
+      let testLayer2a = new layers.RepeatVector(3)
+      let testLayer1b = new layers.Dense(2)
+      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer3 = new layers.Merge({ mode: 'dot', dotAxes: 2 })
+      testLayer1a.setWeights([
+        new KerasJS.Tensor([0.1, 0.4, 0.5, 0.1, 1, -2, 0, 0.3, 0.2, 0.1, 3, 0], [6, 2]),
+        new KerasJS.Tensor([0.5, 0.7], [2])
+      ])
+      testLayer1b.setWeights([
+        new KerasJS.Tensor([1, 0, -0.9, 0.6, -0.7, 0, 0.2, 0.4, 0, 0, -1, 2.3], [6, 2]),
+        new KerasJS.Tensor([0.1, -0.2], [2])
+      ])
+      let ta = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      let tb = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      ta = testLayer1a.call(ta)
+      ta = testLayer2a.call(ta)
+      tb = testLayer1b.call(tb)
+      tb = testLayer2b.call(tb)
+      console.log('%cin', styles.h4, stringifyCondensed([ta.tensor, tb.tensor]))
+      const startTime = performance.now()
+      let t = testLayer3.call([ta, tb])
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array([-18.8258, -18.8258, -18.8258, -18.8258, -18.8258, -18.8258, -18.8258, -18.8258, -18.8258])
+      const shapeExpected = [3, 3]
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+
+    it('should produce expected values in cos mode (2D x 2D, dotAxes=1)', function () {
+      console.log('\n%cmode: cos (2D x 2D, dotAxes=1)', styles.h3)
+      let testLayer1a = new layers.Dense(2)
+      let testLayer2a = new layers.RepeatVector(3)
+      let testLayer1b = new layers.Dense(2)
+      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer3 = new layers.Merge({ mode: 'cos', dotAxes: 1 })
+      testLayer1a.setWeights([
+        new KerasJS.Tensor([0.1, 0.4, 0.5, 0.1, 1, -2, 0, 0.3, 0.2, 0.1, 3, 0], [6, 2]),
+        new KerasJS.Tensor([0.5, 0.7], [2])
+      ])
+      testLayer1b.setWeights([
+        new KerasJS.Tensor([1, 0, -0.9, 0.6, -0.7, 0, 0.2, 0.4, 0, 0, -1, 2.3], [6, 2]),
+        new KerasJS.Tensor([0.1, -0.2], [2])
+      ])
+      let ta = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      let tb = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      ta = testLayer1a.call(ta)
+      ta = testLayer2a.call(ta)
+      tb = testLayer1b.call(tb)
+      tb = testLayer2b.call(tb)
+      console.log('%cin', styles.h4, stringifyCondensed([ta.tensor, tb.tensor]))
+      const startTime = performance.now()
+      let t = testLayer3.call([ta, tb])
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array([-1.0, 7.972744, 0.125427, -1.0])
+      const shapeExpected = [1, 2, 2]
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+
+    it('should produce expected values in cos mode (2D x 2D, dotAxes=2)', function () {
+      console.log('\n%cmode: cos (2D x 2D, dotAxes=2)', styles.h3)
+      let testLayer1a = new layers.Dense(2)
+      let testLayer2a = new layers.RepeatVector(3)
+      let testLayer1b = new layers.Dense(2)
+      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer3 = new layers.Merge({ mode: 'cos', dotAxes: 2 })
+      testLayer1a.setWeights([
+        new KerasJS.Tensor([0.1, 0.4, 0.5, 0.1, 1, -2, 0, 0.3, 0.2, 0.1, 3, 0], [6, 2]),
+        new KerasJS.Tensor([0.5, 0.7], [2])
+      ])
+      testLayer1b.setWeights([
+        new KerasJS.Tensor([1, 0, -0.9, 0.6, -0.7, 0, 0.2, 0.4, 0, 0, -1, 2.3], [6, 2]),
+        new KerasJS.Tensor([0.1, -0.2], [2])
+      ])
+      let ta = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      let tb = new KerasJS.Tensor([0, 0.2, 0.5, -0.1, 1, 2], [6])
+      ta = testLayer1a.call(ta)
+      ta = testLayer2a.call(ta)
+      tb = testLayer1b.call(tb)
+      tb = testLayer2b.call(tb)
+      console.log('%cin', styles.h4, stringifyCondensed([ta.tensor, tb.tensor]))
+      const startTime = performance.now()
+      let t = testLayer3.call([ta, tb])
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array([-0.504843, -0.504843, -0.504843, -0.504843, -0.504843, -0.504843, -0.504843, -0.504843, -0.504843])
+      const shapeExpected = [1, 3, 3]
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
   })
 })

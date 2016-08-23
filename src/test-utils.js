@@ -8,7 +8,7 @@ import isFinite from 'lodash/isFinite'
 * stride/offset prevents us from comparing the array data
 * element-wise directly.
 */
-export function approxEquals (ndarrayOut, dataExpected, tol = 1e-6) {
+export function approxEquals (ndarrayOut, dataExpected, tol = 1e-5) {
   const a = flattenDeep(unpack(ndarrayOut))
   const b = dataExpected
   if (a.length !== b.length) return false

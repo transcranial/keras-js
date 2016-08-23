@@ -35,6 +35,8 @@
     "lodash": "^4.15.0",
     "ndarray": "^1.0.18",
     "ndarray-blas-level2": "^1.1.0",
+    "ndarray-concat-rows": "^1.0.1",
+    "ndarray-gemm": "^1.0.0",
     "ndarray-ops": "^1.2.2",
     "ndarray-squeeze": "^1.0.2",
     "ndarray-tile": "^1.0.3",

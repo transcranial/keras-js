@@ -3,10 +3,12 @@ import Tensor from '../tensor'
 import { Layer } from '../engine/topology'
 import ndarray from 'ndarray'
 import { gemv } from 'ndarray-blas-level2'
+import gemm from 'ndarray-gemm'
 import ops from 'ndarray-ops'
 import unpack from 'ndarray-unpack'
 import unsqueeze from 'ndarray-unsqueeze'
 import tile from 'ndarray-tile'
+import concatFirstAxis from 'ndarray-concat-rows'
 import flattenDeep from 'lodash/flattenDeep'
 import isEqual from 'lodash/isEqual'
 import isInteger from 'lodash/isInteger'
@@ -300,7 +302,7 @@ export class Merge extends Layer {
   * @returns {boolean} valid
   */
   _validateInputs = inputs => {
-    const shapes = inputs.map(x => x.tensor.shape)
+    const shapes = inputs.map(x => x.tensor.shape.slice())
     if (['sum', 'mul', 'ave', 'cos', 'max'].indexOf(this.mode) > -1) {
       if (!shapes.every(shape => isEqual(shape, shapes[0]))) {
         throw new Error(`${this.name} [Merge layer] All input shapes must be the same for mode ${this.mode}.`)
@@ -314,7 +316,7 @@ export class Merge extends Layer {
         if (this.dotAxes < 0) {
           this.dotAxes = [shapes[0].length + this.dotAxes, shapes[1].length + this.dotAxes]
         } else {
-          this.dotAxes = [this.dotAxes, this.dotAxes]
+          this.dotAxes = [this.dotAxes - 1, this.dotAxes - 1]
         }
       }
       if (shapes[0][this.dotAxes[0]] !== shapes[1][this.dotAxes[1]]) {
@@ -344,15 +346,15 @@ export class Merge extends Layer {
     let output
     let outputShape
     if (['sum', 'mul', 'ave', 'max'].indexOf(this.mode) > -1) {
-      outputShape = inputs[0].tensor.shape
+      outputShape = inputs[0].tensor.shape.slice()
       output = new Tensor([], outputShape)
     } else if (this.mode === 'concat') {
-      outputShape = inputs[0].tensor.shape
+      outputShape = inputs[0].tensor.shape.slice()
       const _concatAxis = this.concatAxis < 0
         ? outputShape.length + this.concatAxis
-        : this.concatAxis
+        : this.concatAxis - 1
       inputs.slice(1, inputs.length).forEach(x => {
-        const d = x.tensor.shape.slice(_concatAxis)[0]
+        const d = x.tensor.shape.slice()[_concatAxis]
         outputShape[_concatAxis] += d
       })
       output = new Tensor([], outputShape)
@@ -361,7 +363,6 @@ export class Merge extends Layer {
       let shape2 = inputs[1].tensor.shape.slice()
       shape1.splice(this.dotAxes[0], 1)
       shape2.splice(this.dotAxes[1], 1)
-      shape2.splice(0, 1)
       outputShape = shape1.concat(shape2)
       if (outputShape.length === 1) {
         outputShape.push(1)
@@ -384,13 +385,56 @@ export class Merge extends Layer {
       }
       ops.divseq(output.tensor, inputs.length)
     } else if (this.mode === 'max') {
-      ops.assigns(output.tensor, inputs[0].tensor)
+      ops.assign(output.tensor, inputs[0].tensor)
       for (let i = 1; i < inputs.length; i++) {
         ops.maxeq(output.tensor, inputs[i].tensor)
       }
     } else if (this.mode === 'concat') {
-    } else if (this.mode === 'cos') {
+      const _concatAxis = this.concatAxis < 0
+        ? inputs[0].tensor.shape.length + this.concatAxis
+        : this.concatAxis - 1
+      if (_concatAxis === 0) {
+        concatFirstAxis(output.tensor, inputs.map(x => x.tensor))
+      } else {
+        let dimsAxisSwap = [_concatAxis]
+        for (let i = 0; i < inputs[0].tensor.shape.length; i++) {
+          if (i !== _concatAxis) dimsAxisSwap.push(i)
+        }
+        concatFirstAxis(
+          output.tensor.transpose(...dimsAxisSwap),
+          inputs.map(x => x.tensor.transpose(...dimsAxisSwap))
+        )
+      }
     } else if (this.mode === 'dot') {
+      if (inputs[0].tensor.shape.length === 2 && inputs[1].tensor.shape.length === 2) {
+        if (this.dotAxes[0] === 0 && this.dotAxes[1] === 0) {
+          gemm(output.tensor, inputs[0].tensor.transpose(1, 0), inputs[1].tensor)
+        } else if (this.dotAxes[0] === 1 && this.dotAxes[1] === 1) {
+          gemm(output.tensor, inputs[0].tensor, inputs[1].tensor.transpose(1, 0))
+        }
+      } else {
+        throw new Error(`${this.name} [Merge layer] dot mode for 3+ dim tensors not yet implemented.`)
+      }
+    } else if (this.mode === 'cos') {
+      if (inputs[0].tensor.shape.length === 2 && inputs[1].tensor.shape.length === 2) {
+        let a = new Tensor([], output.tensor.shape)
+        let b = new Tensor([], output.tensor.shape)
+        if (this.dotAxes[0] === 0 && this.dotAxes[1] === 0) {
+          gemm(a.tensor, inputs[0].tensor.transpose(1, 0), inputs[0].tensor)
+          gemm(b.tensor, inputs[1].tensor.transpose(1, 0), inputs[1].tensor)
+          gemm(output.tensor, inputs[0].tensor.transpose(1, 0), inputs[1].tensor)
+        } else if (this.dotAxes[0] === 1 && this.dotAxes[1] === 1) {
+          gemm(a.tensor, inputs[0].tensor, inputs[0].tensor.transpose(1, 0))
+          gemm(b.tensor, inputs[1].tensor, inputs[1].tensor.transpose(1, 0))
+          gemm(output.tensor, inputs[0].tensor, inputs[1].tensor.transpose(1, 0))
+        }
+        ops.muleq(a.tensor, b.tensor)
+        ops.sqrteq(a.tensor)
+        ops.diveq(output.tensor, a.tensor)
+        output.tensor = unsqueeze(output.tensor, 0)
+      } else {
+        throw new Error(`${this.name} [Merge layer] cos mode for 3+ dim tensors not yet implemented.`)
+      }
     }
 
     return output
