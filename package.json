@@ -51,7 +51,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.8.0",
     "babel-preset-es2015": "^6.13.2",
     "http-server": "^0.9.0",
-    "standard": "^8.0.0-beta.5",
+    "standard": "^8.0.0",
     "webpack": "^1.13.2"
   },
   "standard": {
