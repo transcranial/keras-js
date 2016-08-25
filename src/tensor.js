@@ -19,19 +19,18 @@ export default class Tensor {
   */
   constructor (data, shape, options = {}) {
     this._type = options.type || Float32Array
-    const TypedArray = this._type
 
-    if (data && data.length && data instanceof TypedArray) {
+    if (data && data.length && data instanceof this._type) {
       checkShape(data, shape)
       this.tensor = ndarray(data, shape)
     } else if (data && data.length && data instanceof Array) {
       checkShape(data, shape)
-      this.tensor = ndarray(new TypedArray(data), shape)
+      this.tensor = ndarray(new this._type(data), shape)
     } else if (!data.length && shape.length) {
       // if shape present but data not provided, initialize with 0s
-      this.tensor = ndarray(new TypedArray(shape.reduce((a, b) => a * b, 1)), shape)
+      this.tensor = ndarray(new this._type(shape.reduce((a, b) => a * b, 1)), shape)
     } else {
-      this.tensor = ndarray(new TypedArray([]), [])
+      this.tensor = ndarray(new this._type([]), [])
     }
 
     // turn on weblas
@@ -76,6 +75,19 @@ export default class Tensor {
     if (this.weblasTensor) {
       this.weblasTensor.delete()
       delete this.weblasTensor
+    }
+  }
+
+  /**
+  * Replaces data in the underlying ndarray.
+  */
+  replaceTensorData = data => {
+    if (data && data.length && data instanceof this._type) {
+      this.tensor.data = data
+    } else if (data && data.length && data instanceof Array) {
+      this.tensor.data = new this._type(data)
+    } else {
+      this.tensor = new this._type([])
     }
   }
 

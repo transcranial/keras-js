@@ -1,4 +1,13 @@
 export {
+  LeakyReLU,
+  PReLU,
+  ELU,
+  ParametricSoftplus,
+  ThresholdedReLU,
+  SReLU
+} from './advanced_activations'
+
+export {
   Dense,
   Activation,
   Dropout,
@@ -10,10 +19,5 @@ export {
 } from './core'
 
 export {
-  LeakyReLU,
-  PReLU,
-  ELU,
-  ParametricSoftplus,
-  ThresholdedReLU,
-  SReLU
-} from './advanced_activations'
+  Convolution2D
+} from './convolutional'

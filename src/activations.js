@@ -1,6 +1,6 @@
-import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
 import cwise from 'cwise'
+import Tensor from './tensor'
 
 /**
 * Softmax activation function. In-place operation.
@@ -69,16 +69,16 @@ export function relu (x, opts = {}) {
   const { alpha = 0, maxValue = null } = opts
   let neg
   if (alpha !== 0) {
-    neg = ndarray(new x._type(x.tensor.data.length), x.tensor.shape)
-    ops.mins(neg, x.tensor, 0.0)
-    ops.mulseq(neg, alpha)
+    neg = new Tensor([], x.tensor.shape)
+    ops.mins(neg.tensor, x.tensor, 0.0)
+    ops.mulseq(neg.tensor, alpha)
   }
   ops.maxseq(x.tensor, 0.0)
   if (maxValue) {
     ops.minseq(x.tensor, maxValue)
   }
   if (neg) {
-    ops.addeq(x.tensor, neg)
+    ops.addeq(x.tensor, neg.tensor)
   }
   return this
 }
