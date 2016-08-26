@@ -18,7 +18,7 @@ describe('core layer: Dense', function () {
 
   describe('CPU', function () {
     before(function () {
-      console.log('\n%cDense', styles.h2)
+      console.log('\n%cCPU', styles.h2)
     })
 
     it('[core.Dense.0] [CPU] should produce expected values', function () {
@@ -82,7 +82,7 @@ describe('core layer: Dense', function () {
 
   describe('CPU', function () {
     before(function () {
-      console.log('\n%cDense', styles.h2)
+      console.log('\n%cGPU', styles.h2)
     })
 
     it('[core.Dense.3] [GPU] should produce expected values', function () {

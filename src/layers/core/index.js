@@ -6,6 +6,8 @@ import Reshape from './Reshape'
 import Permute from './Permute'
 import RepeatVector from './RepeatVector'
 import Merge from './Merge'
+import Highway from './Highway'
+import MaxoutDense from './MaxoutDense'
 
 export {
   Dense,
@@ -15,5 +17,7 @@ export {
   Reshape,
   Permute,
   RepeatVector,
-  Merge
+  Merge,
+  Highway,
+  MaxoutDense
 }
