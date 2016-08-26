@@ -1,6 +1,6 @@
 /* eslint-env browser, mocha */
 
-describe('Layers: Core', function () {
+describe('core layer: Merge', function () {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -9,407 +9,16 @@ describe('Layers: Core', function () {
   const layers = KerasJS.layers
 
   before(function () {
-    console.log('\n%cLayers: Core', styles.h1)
+    console.log('\n%ccore layer: Merge', styles.h1)
   })
 
   /*********************************************************
-  * Dense
+  * sum
   *********************************************************/
 
-  describe('Dense', function () {
+  describe('sum', function () {
     before(function () {
-      console.log('\n%cDense', styles.h2)
-    })
-
-    it('[core.Dense.0] [CPU] should produce expected values', function () {
-      const key = 'core.Dense.0'
-      console.log(`\n%c[${key}] [CPU] test 1`, styles.h3)
-      let testLayer = new layers.Dense(2)
-      testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-
-    it('[core.Dense.1] [CPU] should produce expected values, with sigmoid activation function', function () {
-      const key = 'core.Dense.1'
-      console.log(`\n%c[${key}] [CPU] test 2 (with sigmoid activation)`, styles.h3)
-      let testLayer = new layers.Dense(2, { activation: 'sigmoid' })
-      testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-
-    it('[core.Dense.2] [CPU] should produce expected values, with softplus activation function and no bias', function () {
-      const key = 'core.Dense.2'
-      console.log(`\n%c[${key}] [CPU] test 3 (with softplus activation and no bias)`, styles.h3)
-      let testLayer = new layers.Dense(2, { activation: 'softplus', bias: false })
-      testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-
-    it('[core.Dense.3] [GPU] should produce expected values', function () {
-      const key = 'core.Dense.3'
-      console.log(`\n%c[${key}] [GPU] test 1`, styles.h3)
-      let testLayer = new layers.Dense(2)
-      testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape, { useWeblas: true })
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-
-    it('[core.Dense.4] [GPU] should produce expected values, with sigmoid activation function', function () {
-      const key = 'core.Dense.4'
-      console.log(`\n%c[${key}] [GPU] test 2 (with sigmoid activation)`, styles.h3)
-      let testLayer = new layers.Dense(2, { activation: 'sigmoid' })
-      testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape, { useWeblas: true })
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-
-    it('[core.Dense.5] [GPU] should produce expected values, with softplus activation function and no bias', function () {
-      const key = 'core.Dense.5'
-      console.log(`\n%c[${key}] [GPU] test 3 (with softplus activation and no bias)`, styles.h3)
-      let testLayer = new layers.Dense(2, { activation: 'softplus', bias: false })
-      testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape, { useWeblas: true })
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-  })
-
-  /*********************************************************
-  * Activation
-  *********************************************************/
-
-  describe('Activation', function () {
-    before(function () {
-      console.log('\n%cActivation', styles.h2)
-    })
-
-    it('[core.Activation.0] should produce expected values for tanh activation following Dense layer', function () {
-      const key = 'core.Activation.0'
-      console.log(`\n%c[${key}] test 1 (tanh)`, styles.h3)
-      let testLayer1 = new layers.Dense(2)
-      testLayer1.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      t = testLayer1.call(t)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      let testLayer2 = new layers.Activation('tanh')
-      const startTime = performance.now()
-      t = testLayer2.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-
-    it('[core.Activation.1] should produce expected values for hardSigmoid activation following Dense layer', function () {
-      const key = 'core.Activation.1'
-      console.log(`\n%c[${key}] test 2 (hardSigmoid)`, styles.h3)
-      let testLayer1 = new layers.Dense(2)
-      testLayer1.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      t = testLayer1.call(t)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      let testLayer2 = new layers.Activation('hardSigmoid')
-      const startTime = performance.now()
-      t = testLayer2.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-  })
-
-  /*********************************************************
-  * Dropout
-  *********************************************************/
-
-  describe('Dropout', function () {
-    before(function () {
-      console.log('\n%cDropout', styles.h2)
-    })
-
-    it('[core.Dropout.0] should just pass through tensor during test time', function () {
-      const key = 'core.Dropout.0'
-      console.log(`\n%c[${key}] should pass through`, styles.h3)
-      let testLayer1 = new layers.Dense(2)
-      testLayer1.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      t = testLayer1.call(t)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      let testLayer2 = new layers.Dropout(0.5)
-      const startTime = performance.now()
-      t = testLayer2.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-  })
-
-  /*********************************************************
-  * Flatten
-  *********************************************************/
-
-  describe('Flatten', function () {
-    before(function () {
-      console.log('\n%cFlatten', styles.h2)
-    })
-
-    it('[core.Flatten.0] should do nothing for 1D', function () {
-      const key = 'core.Flatten.0'
-      console.log(`\n%c[${key}] 1D`, styles.h3)
-      let testLayer = new layers.Flatten()
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-
-    it('[core.Flatten.1] should flatten 2D', function () {
-      const key = 'core.Flatten.1'
-      console.log(`\n%c[${key}] 2D`, styles.h3)
-      let testLayer = new layers.Flatten()
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-
-    it('[core.Flatten.2] should flatten 3D', function () {
-      const key = 'core.Flatten.2'
-      console.log(`\n%c[${key}] 3D`, styles.h3)
-      let testLayer = new layers.Flatten()
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-  })
-
-  /*********************************************************
-  * Reshape
-  *********************************************************/
-
-  describe('Reshape', function () {
-    before(function () {
-      console.log('\n%cReshape', styles.h2)
-    })
-
-    it('[core.Reshape.0] should be able to go from shape [6] -> [2, 3]', function () {
-      const key = 'core.Reshape.0'
-      console.log(`\n%c[${key}] shape [6] -> [2, 3]`, styles.h3)
-      let testLayer = new layers.Reshape([2, 3])
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-
-    it('[core.Reshape.1] should be able to go from shape [3, 2] -> [6]', function () {
-      const key = 'core.Reshape.1'
-      console.log(`\n%c[${key}] shape [3, 2] -> [6]`, styles.h3)
-      let testLayer = new layers.Reshape([6])
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-
-    it('[core.Reshape.2] should be able to go from shape [3, 2, 2] -> [4, 3]', function () {
-      const key = 'core.Reshape.2'
-      console.log(`\n%c[${key}] shape [3, 2, 2] -> [4, 3]`, styles.h3)
-      let testLayer = new layers.Reshape([4, 3])
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-  })
-
-  /*********************************************************
-  * Permute
-  *********************************************************/
-
-  describe('Permute', function () {
-    before(function () {
-      console.log('\n%cPermute', styles.h2)
-    })
-
-    it('[core.Permute.0] should be able to go from shape [3, 2] -> [2, 3]', function () {
-      const key = 'core.Permute.0'
-      console.log(`\n%c[${key}] shape [3, 2] -> [2, 3]`, styles.h3)
-      let testLayer = new layers.Permute([2, 1])
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-
-    it('[core.Permute.1] should be able to go from shape [2, 3, 4] -> [4, 3, 2]', function () {
-      const key = 'core.Permute.1'
-      console.log(`\n%c[${key}] shape [2, 3, 4] -> [4, 3, 2]`, styles.h3)
-      let testLayer = new layers.Permute([3, 2, 1])
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-  })
-
-  /*********************************************************
-  * RepeatVector
-  *********************************************************/
-
-  describe('RepeatVector', function () {
-    before(function () {
-      console.log('\n%cRepeatVector', styles.h2)
-    })
-
-    it('[core.RepeatVector.0] should be able to go from shape [6] -> [7, 6]', function () {
-      const key = 'core.RepeatVector.0'
-      console.log(`\n%c[${key}] repeat vector, shape [6] -> [7, 6]`, styles.h3)
-      let testLayer = new layers.RepeatVector(7)
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-  })
-
-  /*********************************************************
-  * Merge
-  *********************************************************/
-
-  describe('Merge', function () {
-    before(function () {
-      console.log('\n%cMerge', styles.h2)
+      console.log('\n%csum', styles.h2)
     })
 
     it('[core.Merge.0] should produce expected values in sum mode', function () {
@@ -435,6 +44,16 @@ describe('Layers: Core', function () {
       assert.deepEqual(t2.tensor.shape, shapeExpected)
       assert.isTrue(approxEquals(t2.tensor, dataExpected))
     })
+  })
+
+  /*********************************************************
+  * mul
+  *********************************************************/
+
+  describe('mul', function () {
+    before(function () {
+      console.log('\n%cmul', styles.h2)
+    })
 
     it('[core.Merge.1] should produce expected values in mul mode', function () {
       const key = 'core.Merge.1'
@@ -458,6 +77,16 @@ describe('Layers: Core', function () {
       const shapeExpected = TEST_DATA[key].expected.shape
       assert.deepEqual(t2.tensor.shape, shapeExpected)
       assert.isTrue(approxEquals(t2.tensor, dataExpected))
+    })
+  })
+
+  /*********************************************************
+  * ave
+  *********************************************************/
+
+  describe('ave', function () {
+    before(function () {
+      console.log('\n%cave', styles.h2)
     })
 
     it('[core.Merge.2] should produce expected values in ave mode', function () {
@@ -483,6 +112,16 @@ describe('Layers: Core', function () {
       assert.deepEqual(t2.tensor.shape, shapeExpected)
       assert.isTrue(approxEquals(t2.tensor, dataExpected))
     })
+  })
+
+  /*********************************************************
+  * max
+  *********************************************************/
+
+  describe('max', function () {
+    before(function () {
+      console.log('\n%cmax', styles.h2)
+    })
 
     it('[core.Merge.3] should produce expected values in max mode', function () {
       const key = 'core.Merge.3'
@@ -506,6 +145,16 @@ describe('Layers: Core', function () {
       const shapeExpected = TEST_DATA[key].expected.shape
       assert.deepEqual(t2.tensor.shape, shapeExpected)
       assert.isTrue(approxEquals(t2.tensor, dataExpected))
+    })
+  })
+
+  /*********************************************************
+  * concat
+  *********************************************************/
+
+  describe('concat', function () {
+    before(function () {
+      console.log('\n%cconcat', styles.h2)
     })
 
     it('[core.Merge.4] should produce expected values in concat mode (1D)', function () {
@@ -643,6 +292,16 @@ describe('Layers: Core', function () {
       assert.deepEqual(t.tensor.shape, shapeExpected)
       assert.isTrue(approxEquals(t.tensor, dataExpected))
     })
+  })
+
+  /*********************************************************
+  * dot
+  *********************************************************/
+
+  describe('dot', function () {
+    before(function () {
+      console.log('\n%cdot', styles.h2)
+    })
 
     it('[core.Merge.9] should produce expected values in dot mode (2D x 2D, dotAxes=1)', function () {
       const key = 'core.Merge.9'
@@ -698,6 +357,16 @@ describe('Layers: Core', function () {
       const shapeExpected = TEST_DATA[key].expected.shape
       assert.deepEqual(t.tensor.shape, shapeExpected)
       assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+  })
+
+  /*********************************************************
+  * cos
+  *********************************************************/
+
+  describe('cos', function () {
+    before(function () {
+      console.log('\n%ccos', styles.h2)
     })
 
     it('[core.Merge.11] should produce expected values in cos mode (2D x 2D, dotAxes=1)', function () {

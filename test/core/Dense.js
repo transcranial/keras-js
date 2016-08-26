@@ -1,6 +1,6 @@
 /* eslint-env browser, mocha */
 
-describe('advanced activation layers', function () {
+describe('core layer: Dense', function () {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -9,22 +9,23 @@ describe('advanced activation layers', function () {
   const layers = KerasJS.layers
 
   before(function () {
-    console.log('\n%cadvanced activation layers', styles.h1)
+    console.log('\n%ccore layer: Dense', styles.h1)
   })
 
   /*********************************************************
-  * LeakyReLU
+  * CPU
   *********************************************************/
 
-  describe('LeakyReLU', function () {
+  describe('CPU', function () {
     before(function () {
-      console.log('\n%cLeakyReLU', styles.h2)
+      console.log('\n%cDense', styles.h2)
     })
 
-    it('[advanced_activations.LeakyReLU.0] should produce expected values', function () {
-      const key = 'advanced_activations.LeakyReLU.0'
-      console.log(`\n%c[${key}] alpha=0.4`, styles.h3)
-      let testLayer = new layers.LeakyReLU(0.4)
+    it('[core.Dense.0] [CPU] should produce expected values', function () {
+      const key = 'core.Dense.0'
+      console.log(`\n%c[${key}] [CPU] test 1`, styles.h3)
+      let testLayer = new layers.Dense(2)
+      testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
       const startTime = performance.now()
@@ -37,21 +38,29 @@ describe('advanced activation layers', function () {
       assert.deepEqual(t.tensor.shape, shapeExpected)
       assert.isTrue(approxEquals(t.tensor, dataExpected))
     })
-  })
 
-  /*********************************************************
-  * PReLU
-  *********************************************************/
-
-  describe('PReLU', function () {
-    before(function () {
-      console.log('\n%cPReLU', styles.h2)
+    it('[core.Dense.1] [CPU] should produce expected values, with sigmoid activation function', function () {
+      const key = 'core.Dense.1'
+      console.log(`\n%c[${key}] [CPU] test 2 (with sigmoid activation)`, styles.h3)
+      let testLayer = new layers.Dense(2, { activation: 'sigmoid' })
+      testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+      const startTime = performance.now()
+      t = testLayer.call(t)
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
+      const shapeExpected = TEST_DATA[key].expected.shape
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
     })
 
-    it('[advanced_activations.PReLU.0] should produce expected values', function () {
-      const key = 'advanced_activations.PReLU.0'
-      console.log(`\n%c[${key}] weights: alphas`, styles.h3)
-      let testLayer = new layers.PReLU()
+    it('[core.Dense.2] [CPU] should produce expected values, with softplus activation function and no bias', function () {
+      const key = 'core.Dense.2'
+      console.log(`\n%c[${key}] [CPU] test 3 (with softplus activation and no bias)`, styles.h3)
+      let testLayer = new layers.Dense(2, { activation: 'softplus', bias: false })
       testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -68,47 +77,20 @@ describe('advanced activation layers', function () {
   })
 
   /*********************************************************
-  * ELU
+  * CPU
   *********************************************************/
 
-  describe('ELU', function () {
+  describe('CPU', function () {
     before(function () {
-      console.log('\n%cELU', styles.h2)
+      console.log('\n%cDense', styles.h2)
     })
 
-    it('[advanced_activations.ELU.0] should produce expected values', function () {
-      const key = 'advanced_activations.ELU.0'
-      console.log(`\n%c[${key}] alpha=1.1`, styles.h3)
-      let testLayer = new layers.ELU(1.1)
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-  })
-
-  /*********************************************************
-  * ParametricSoftplus
-  *********************************************************/
-
-  describe('ParametricSoftplus', function () {
-    before(function () {
-      console.log('\n%cParametricSoftplus', styles.h2)
-    })
-
-    it('[advanced_activations.ParametricSoftplus.0] should produce expected values', function () {
-      const key = 'advanced_activations.ParametricSoftplus.0'
-      console.log(`\n%c[${key}] weights: alphas, betas`, styles.h3)
-      let testLayer = new layers.ParametricSoftplus()
+    it('[core.Dense.3] [GPU] should produce expected values', function () {
+      const key = 'core.Dense.3'
+      console.log(`\n%c[${key}] [GPU] test 1`, styles.h3)
+      let testLayer = new layers.Dense(2)
       testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape, { useWeblas: true })
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
       const startTime = performance.now()
       t = testLayer.call(t)
@@ -120,50 +102,31 @@ describe('advanced activation layers', function () {
       assert.deepEqual(t.tensor.shape, shapeExpected)
       assert.isTrue(approxEquals(t.tensor, dataExpected))
     })
-  })
 
-  /*********************************************************
-  * ThresholdedReLU
-  *********************************************************/
-
-  describe('ThresholdedReLU', function () {
-    before(function () {
-      console.log('\n%cThresholdedReLU', styles.h2)
-    })
-
-    it('[advanced_activations.ThresholdedReLU.0] should produce expected values', function () {
-      const key = 'advanced_activations.ThresholdedReLU.0'
-      console.log(`\n%c[${key}] theta=0.9`, styles.h3)
-      let testLayer = new layers.ThresholdedReLU(0.9)
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
-  })
-
-  /*********************************************************
-  * SReLU
-  *********************************************************/
-
-  describe('SReLU', function () {
-    before(function () {
-      console.log('\n%cSReLU', styles.h2)
-    })
-
-    it('[advanced_activations.SReLU.0] should produce expected values', function () {
-      const key = 'advanced_activations.SReLU.0'
-      console.log(`\n%c[${key}] weights: t_left, a_left, t_right, a_right`, styles.h3)
-      let testLayer = new layers.SReLU()
+    it('[core.Dense.4] [GPU] should produce expected values, with sigmoid activation function', function () {
+      const key = 'core.Dense.4'
+      console.log(`\n%c[${key}] [GPU] test 2 (with sigmoid activation)`, styles.h3)
+      let testLayer = new layers.Dense(2, { activation: 'sigmoid' })
       testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape, { useWeblas: true })
+      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+      const startTime = performance.now()
+      t = testLayer.call(t)
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
+      const shapeExpected = TEST_DATA[key].expected.shape
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+
+    it('[core.Dense.5] [GPU] should produce expected values, with softplus activation function and no bias', function () {
+      const key = 'core.Dense.5'
+      console.log(`\n%c[${key}] [GPU] test 3 (with softplus activation and no bias)`, styles.h3)
+      let testLayer = new layers.Dense(2, { activation: 'softplus', bias: false })
+      testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape, { useWeblas: true })
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
       const startTime = performance.now()
       t = testLayer.call(t)
