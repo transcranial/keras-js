@@ -6,15 +6,15 @@ import ops from 'ndarray-ops'
 import cwise from 'cwise'
 
 /**
-* Highway layer class
-* From Keras docs: Densely connected highway network, a natural extension of LSTMs to feedforward networks.
-*/
+ * Highway layer class
+ * From Keras docs: Densely connected highway network, a natural extension of LSTMs to feedforward networks.
+ */
 export default class Highway extends Layer {
   /**
-  * Creates a Highway layer
-  * @param {number} outputDim - output dimension size
-  * @param {Object} [attrs] - layer attributes
-  */
+   * Creates a Highway layer
+   * @param {number} outputDim - output dimension size
+   * @param {Object} [attrs] - layer attributes
+   */
   constructor (attrs = {}) {
     super(attrs)
     const {
@@ -28,8 +28,8 @@ export default class Highway extends Layer {
     this.bias = bias
 
     /**
-    * Layer weights specification
-    */
+     * Layer weights specification
+     */
     this.params = this.bias ? ['W', 'b', 'W_carry', 'b_carry'] : ['W', 'W_carry']
   }
 
@@ -41,10 +41,10 @@ export default class Highway extends Layer {
   })
 
   /**
-  * Method for layer computational logic
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   call = x => {
     let y = new Tensor([], [this.weights.W.tensor.shape[1]])
     if (this.bias) {

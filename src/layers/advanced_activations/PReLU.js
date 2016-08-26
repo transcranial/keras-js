@@ -2,24 +2,22 @@ import Layer from '../../engine/Layer'
 import cwise from 'cwise'
 
 /**
-* PReLU advanced activation layer class
-* reference code:
-* ```
-* pos = K.relu(x)
-* neg = self.alphas * (x - abs(x)) * 0.5
-* return pos + neg
-* ```
-*/
+ * PReLU advanced activation layer class
+ * reference code:
+ * ```
+ * pos = K.relu(x)
+ * neg = self.alphas * (x - abs(x)) * 0.5
+ * return pos + neg
+ * ```
+ */
 export default class PReLU extends Layer {
   /**
-  * Creates a PReLU activation layer
-  */
+   * Creates a PReLU activation layer
+   */
   constructor () {
     super({})
 
-    /**
-    * Layer weights specification
-    */
+    // Layer weights specification
     this.params = ['alphas']
   }
 
@@ -31,10 +29,10 @@ export default class PReLU extends Layer {
   })
 
   /**
-  * Method for layer computational logic
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   call = x => {
     this._compute(x.tensor, this.weights.alphas.tensor)
     return x

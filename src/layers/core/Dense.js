@@ -5,14 +5,14 @@ import { gemv } from 'ndarray-blas-level2'
 import ops from 'ndarray-ops'
 
 /**
-* Dense layer class
-*/
+ * Dense layer class
+ */
 export default class Dense extends Layer {
   /**
-  * Creates a Dense layer
-  * @param {number} outputDim - output dimension size
-  * @param {Object} [attrs] - layer attributes
-  */
+   * Creates a Dense layer
+   * @param {number} outputDim - output dimension size
+   * @param {Object} [attrs] - layer attributes
+   */
   constructor (outputDim, attrs = {}) {
     super(attrs)
     const {
@@ -26,36 +26,32 @@ export default class Dense extends Layer {
     this.inputDim = inputDim
     this.bias = bias
 
-    /**
-    * Layer weights specification
-    */
+    // Layer weights specification
     this.params = this.bias ? ['W', 'b'] : ['W']
 
-    /**
-    * Input shape specification
-    */
+    // Input shape specification
     if (this.inputDim) {
       this.inputShape = [this.inputDim]
     }
   }
 
   /**
-  * Method for layer computational logic
-  *
-  * x = W^T * x + b
-  *
-  * weblas notes:
-  * sgemm(M, N, K, alpha, A, B, beta, C), where A, B, C are Float32Array
-  * - alpha * A * B + beta * C
-  * - A has shape M x N
-  * - B has shape N x K
-  * - C has shape M x K
-  * pipeline.sgemm(alpha, A, B, beta, C), where A, B, C are weblas.pipeline.Tensor here
-  * - alpha * A * B^T + beta * C
-  *
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Method for layer computational logic
+   *
+   * x = W^T * x + b
+   *
+   * weblas notes:
+   * sgemm(M, N, K, alpha, A, B, beta, C), where A, B, C are Float32Array
+   * - alpha * A * B + beta * C
+   * - A has shape M x N
+   * - B has shape N x K
+   * - C has shape M x K
+   * pipeline.sgemm(alpha, A, B, beta, C), where A, B, C are weblas.pipeline.Tensor here
+   * - alpha * A * B^T + beta * C
+   *
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   call = x => {
     if (x._useWeblas) {
       // x is mutable, so create on every call

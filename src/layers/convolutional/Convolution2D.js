@@ -7,16 +7,16 @@ import unpack from 'ndarray-unpack'
 import flattenDeep from 'lodash/flattenDeep'
 
 /**
-* Convolution2D layer class
-*/
+ * Convolution2D layer class
+ */
 export default class Convolution2D extends Layer {
   /**
-  * Creates a Convolution2D layer
-  * @param {number} nbFilter - Number of convolution filters to use.
-  * @param {number} nbRow - Number of rows in the convolution kernel.
-  * @param {number} nbCol - Number of columns in the convolution kernel.
-  * @param {Object} [attrs] - layer attributes
-  */
+   * Creates a Convolution2D layer
+   * @param {number} nbFilter - Number of convolution filters to use.
+   * @param {number} nbRow - Number of rows in the convolution kernel.
+   * @param {number} nbCol - Number of columns in the convolution kernel.
+   * @param {Object} [attrs] - layer attributes
+   */
   constructor (nbFilter, nbRow, nbCol, attrs = {}) {
     super(attrs)
     const {
@@ -47,19 +47,18 @@ export default class Convolution2D extends Layer {
 
     this.bias = bias
 
-    /**
-    * Layer weights specification
-    */
+    // Layer weights specification
     this.params = this.bias ? ['W', 'b'] : ['W']
   }
 
   /**
-  * Method for computing output dimensions based on input dimensions, kernel size, and padding mode
-  * For tensorflow implementation of padding, see:
-  * https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/common_shape_fns.cc
-  * @param {Tensor} x
-  * @returns {number[]} [outputRows, outputCols, outputChannels]
-  */
+   * Method for computing output dimensions and padding, based on input
+   * dimensions, kernel size, and padding mode.
+   * For tensorflow implementation of padding, see:
+   * https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/common_shape_fns.cc
+   * @param {Tensor} x
+   * @returns {number[]} [outputRows, outputCols, outputChannels]
+   */
   _calcOutputShape = x => {
     const inputRows = x.tensor.shape[0]
     const inputCols = x.tensor.shape[1]
@@ -89,10 +88,10 @@ export default class Convolution2D extends Layer {
   }
 
   /**
-  * Pad input tensor if necessary, for borderMode='same'
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Pad input tensor if necessary, for borderMode='same'
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   _padInput = x => {
     if (this.borderMode === 'same') {
       const [inputRows, inputCols, inputChannels] = x.tensor.shape
@@ -112,10 +111,10 @@ export default class Convolution2D extends Layer {
   }
 
   /**
-  * Convert input image to column matrix
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Convert input image to column matrix
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   _im2col = x => {
     const [inputRows, inputCols, inputChannels] = x.tensor.shape
     const nbRow = this.kernelShape[1]
@@ -144,10 +143,10 @@ export default class Convolution2D extends Layer {
   }
 
   /**
-  * Convert filter weights to row matrix
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Convert filter weights to row matrix
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   _w2row = x => {
     const inputChannels = x.tensor.shape[2]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
@@ -168,10 +167,10 @@ export default class Convolution2D extends Layer {
   }
 
   /**
-  * Method for layer computational logic
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   call = x => {
     this._calcOutputShape(x)
     this._padInput(x)

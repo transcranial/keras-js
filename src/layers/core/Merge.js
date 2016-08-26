@@ -8,13 +8,13 @@ import isEqual from 'lodash/isEqual'
 import isInteger from 'lodash/isInteger'
 
 /**
-* Merge layer class
-*/
+ * Merge layer class
+ */
 export default class Merge extends Layer {
   /**
-  * Creates a Merge layer
-  * @param {Object} [attrs] - layer attributes
-  */
+   * Creates a Merge layer
+   * @param {Object} [attrs] - layer attributes
+   */
   constructor (attrs = {}) {
     super(attrs)
     const {
@@ -39,10 +39,10 @@ export default class Merge extends Layer {
   }
 
   /**
-  * Internal method for validating inputs
-  * @param {Tensor[]} inputs
-  * @returns {boolean} valid
-  */
+   * Internal method for validating inputs
+   * @param {Tensor[]} inputs
+   * @returns {boolean} valid
+   */
   _validateInputs = inputs => {
     const shapes = inputs.map(x => x.tensor.shape.slice())
     if (['sum', 'mul', 'ave', 'cos', 'max'].indexOf(this.mode) > -1) {
@@ -75,10 +75,10 @@ export default class Merge extends Layer {
   }
 
   /**
-  * Method for layer computational logic
-  * @param {Tensor[]} inputs
-  * @returns {Tensor} `this`
-  */
+   * Method for layer computational logic
+   * @param {Tensor[]} inputs
+   * @returns {Tensor} `this`
+   */
   call = inputs => {
     const valid = this._validateInputs(inputs)
     if (!valid) {

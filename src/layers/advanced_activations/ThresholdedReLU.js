@@ -2,13 +2,13 @@ import Layer from '../../engine/Layer'
 import cwise from 'cwise'
 
 /**
-* ThresholdedReLU advanced activation layer class
-*/
+ * ThresholdedReLU advanced activation layer class
+ */
 export default class ThresholdedReLU extends Layer {
   /**
-  * Creates a ThresholdedReLU activation layer
-  * @param {number} theta - float >= 0. Threshold location of activation.
-  */
+   * Creates a ThresholdedReLU activation layer
+   * @param {number} theta - float >= 0. Threshold location of activation.
+   */
   constructor (theta = 1.0) {
     super({})
     this.theta = theta
@@ -22,10 +22,10 @@ export default class ThresholdedReLU extends Layer {
   })
 
   /**
-  * Method for layer computational logic
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   call = x => {
     this._compute(x.tensor, this.theta)
     return x

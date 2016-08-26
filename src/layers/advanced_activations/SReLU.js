@@ -2,19 +2,17 @@ import Layer from '../../engine/Layer'
 import cwise from 'cwise'
 
 /**
-* SReLU advanced activation layer class
-* S-shaped Rectified Linear Unit
-*/
+ * SReLU advanced activation layer class
+ * S-shaped Rectified Linear Unit
+ */
 export default class SReLU extends Layer {
   /**
-  * Creates a SReLU activation layer
-  */
+   * Creates a SReLU activation layer
+   */
   constructor () {
     super({})
 
-    /**
-    * Layer weights specification
-    */
+    // Layer weights specification
     this.params = ['t_left', 'a_left', 't_right', 'a_right']
   }
 
@@ -31,10 +29,10 @@ export default class SReLU extends Layer {
   })
 
   /**
-  * Method for layer computational logic
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   call = x => {
     this._compute(
       x.tensor,

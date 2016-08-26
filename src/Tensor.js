@@ -8,15 +8,15 @@ const checkShape = (data, shape) => {
 }
 
 /**
-* Tensor class
-*/
+ * Tensor class
+ */
 export default class Tensor {
   /**
-  * Creates a tensor
-  * @param {(TypedArray|Array)} data
-  * @param {Array} shape
-  * @param {Object} [options]
-  */
+   * Creates a tensor
+   * @param {(TypedArray|Array)} data
+   * @param {Array} shape
+   * @param {Object} [options]
+   */
   constructor (data, shape, options = {}) {
     this._type = options.type || Float32Array
 
@@ -43,10 +43,10 @@ export default class Tensor {
   }
 
   /**
-  * Create weblas pipeline tensor in GPU memory
-  * 2-D only
-  * see https://github.com/waylonflinn/weblas/wiki/Pipeline
-  */
+   * Create weblas pipeline tensor in GPU memory
+   * 2-D only
+   * see https://github.com/waylonflinn/weblas/wiki/Pipeline
+   */
   createWeblasTensor = () => {
     if (this.tensor.shape.length === 1) {
       const shape = [1, this.tensor.shape[0]]
@@ -58,8 +58,8 @@ export default class Tensor {
   }
 
   /**
-  * Transfers weblas pipeline tensor from GPU memory
-  */
+   * Transfers weblas pipeline tensor from GPU memory
+   */
   transferWeblasTensor = () => {
     if (this.weblasTensor) {
       const shape = this.weblasTensor.shape
@@ -69,8 +69,8 @@ export default class Tensor {
   }
 
   /**
-  * Delete weblas pipeline tensor
-  */
+   * Delete weblas pipeline tensor
+   */
   deleteWeblasTensor = () => {
     if (this.weblasTensor) {
       this.weblasTensor.delete()
@@ -79,8 +79,8 @@ export default class Tensor {
   }
 
   /**
-  * Replaces data in the underlying ndarray.
-  */
+   * Replaces data in the underlying ndarray.
+   */
   replaceTensorData = data => {
     if (data && data.length && data instanceof this._type) {
       this.tensor.data = data

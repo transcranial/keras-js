@@ -4,18 +4,18 @@ import { gemv } from 'ndarray-blas-level2'
 import ops from 'ndarray-ops'
 
 /**
-* MaxoutDense layer class
-* From Keras docs: takes the element-wise maximum of nb_feature Dense(input_dim, output_dim) linear layers
-* Note that `nb_feature` is implicit in the weights tensors, with shapes:
-* - W: [nb_feature, input_dim, output_dim]
-* - b: [nb_feature, output_dim]
-*/
+ * MaxoutDense layer class
+ * From Keras docs: takes the element-wise maximum of nb_feature Dense(input_dim, output_dim) linear layers
+ * Note that `nb_feature` is implicit in the weights tensors, with shapes:
+ * - W: [nb_feature, input_dim, output_dim]
+ * - b: [nb_feature, output_dim]
+ */
 export default class MaxoutDense extends Layer {
   /**
-  * Creates a MaxoutDense layer
-  * @param {number} outputDim - output dimension size
-  * @param {Object} [attrs] - layer attributes
-  */
+   * Creates a MaxoutDense layer
+   * @param {number} outputDim - output dimension size
+   * @param {Object} [attrs] - layer attributes
+   */
   constructor (outputDim, attrs = {}) {
     super(attrs)
     const {
@@ -26,17 +26,15 @@ export default class MaxoutDense extends Layer {
     this.inputDim = inputDim
     this.bias = bias
 
-    /**
-    * Layer weights specification
-    */
+    // Layer weights specification
     this.params = this.bias ? ['W', 'b'] : ['W']
   }
 
   /**
-  * Method for layer computational logic
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   call = x => {
     const nbFeature = this.weights.W.tensor.shape[0]
 

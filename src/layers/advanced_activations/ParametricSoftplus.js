@@ -2,19 +2,17 @@ import Layer from '../../engine/Layer'
 import cwise from 'cwise'
 
 /**
-* ParametricSoftplus advanced activation layer class
-* alpha * log(1 + exp(beta * X))
-*/
+ * ParametricSoftplus advanced activation layer class
+ * alpha * log(1 + exp(beta * X))
+ */
 export default class ParametricSoftplus extends Layer {
   /**
-  * Creates a ParametricSoftplus activation layer
-  */
+   * Creates a ParametricSoftplus activation layer
+   */
   constructor () {
     super({})
 
-    /**
-    * Layer weights specification
-    */
+    // Layer weights specification
     this.params = ['alphas', 'betas']
   }
 
@@ -26,10 +24,10 @@ export default class ParametricSoftplus extends Layer {
   })
 
   /**
-  * Method for layer computational logic
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   call = x => {
     this._compute(x.tensor, this.weights.alphas.tensor, this.weights.betas.tensor)
     return x

@@ -4,23 +4,23 @@ import unpack from 'ndarray-unpack'
 import flattenDeep from 'lodash/flattenDeep'
 
 /**
-* Flatten layer class
-* Turns tensor into 1-d. Note there is no concept of batch size in these layers (single-batch).
-* We use ndarray-unpack first, as ndarray striding/offsets precludes us from simply using x.tensor.data
-*/
+ * Flatten layer class
+ * Turns tensor into 1-d. Note there is no concept of batch size in these layers (single-batch).
+ * We use ndarray-unpack first, as ndarray striding/offsets precludes us from simply using x.tensor.data
+ */
 export default class Flatten extends Layer {
   /**
-  * Creates a Flatten layer
-  */
+   * Creates a Flatten layer
+   */
   constructor () {
     super({})
   }
 
   /**
-  * Method for layer computational logic
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   call = x => {
     if (x.tensor.shape.length > 1) {
       const shape = [x.tensor.shape.reduce((a, b) => a * b, 1)]

@@ -3,11 +3,11 @@ import flattenDeep from 'lodash/flattenDeep'
 import isFinite from 'lodash/isFinite'
 
 /**
-* Compares an ndarray's data element-wise to dataExpected,
-* within a certain tolerance. We unpack the ndarray first since
-* stride/offset prevents us from comparing the array data
-* element-wise directly.
-*/
+ * Compares an ndarray's data element-wise to dataExpected,
+ * within a certain tolerance. We unpack the ndarray first since
+ * stride/offset prevents us from comparing the array data
+ * element-wise directly.
+ */
 export function approxEquals (ndarrayOut, dataExpected, tol = 1e-5) {
   const a = flattenDeep(unpack(ndarrayOut))
   const b = dataExpected

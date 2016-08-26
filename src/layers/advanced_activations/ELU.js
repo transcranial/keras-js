@@ -2,13 +2,13 @@ import Layer from '../../engine/Layer'
 import cwise from 'cwise'
 
 /**
-* ELU advanced activation layer class
-*/
+ * ELU advanced activation layer class
+ */
 export default class ELU extends Layer {
   /**
-  * Creates a ELU activation layer
-  * @param {number} alpha - scale for the negative factor
-  */
+   * Creates a ELU activation layer
+   * @param {number} alpha - scale for the negative factor
+   */
   constructor (alpha = 1.0) {
     super({})
     this.alpha = alpha
@@ -22,10 +22,10 @@ export default class ELU extends Layer {
   })
 
   /**
-  * Method for layer computational logic
-  * @param {Tensor} x
-  * @returns {Tensor} x
-  */
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
   call = x => {
     this._compute(x.tensor, this.alpha)
     return x
