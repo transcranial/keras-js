@@ -31,7 +31,7 @@ export default class Convolution2D extends Layer {
 
     this.activation = activations[activation]
 
-    if (['valid', 'same'].indexOf(borderMode) > -1) {
+    if (borderMode === 'valid' || borderMode === 'same') {
       this.borderMode = borderMode
     } else {
       throw new Error(`${this.name} [Convolution2D layer] Invalid borderMode.`)
@@ -39,10 +39,10 @@ export default class Convolution2D extends Layer {
 
     this.subsample = subsample
 
-    if (['tf', 'th'].indexOf(dimOrdering) > -1) {
-      this.dimOrdering = dimOrdering
+    if (dimOrdering !== 'tf') {
+      throw new Error(`${this.name} [Convolution2D layer] Only tf dim ordering supported currently.`)
     } else {
-      throw new Error(`${this.name} [Convolution2D layer] Invalid dimOrdering.`)
+      this.dimOrdering = dimOrdering
     }
 
     this.bias = bias
