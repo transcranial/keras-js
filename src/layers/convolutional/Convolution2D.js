@@ -125,7 +125,7 @@ export default class Convolution2D extends Layer {
     const nbPatches = outputRows * outputCols
     const patchLen = nbRow * nbCol * inputChannels
 
-    const imColsMat = new Tensor([], [patchLen, nbPatches])
+    const imColsMat = new Tensor([], [nbPatches, patchLen])
 
     let patch = new Tensor([], [patchLen])
     let n = 0
@@ -135,7 +135,7 @@ export default class Convolution2D extends Layer {
           x.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0)
         ))
         patch.replaceTensorData(patchData)
-        ops.assign(imColsMat.tensor.pick(null, n), patch.tensor)
+        ops.assign(imColsMat.tensor.pick(n, null), patch.tensor)
         n += 1
       }
     }
@@ -153,7 +153,7 @@ export default class Convolution2D extends Layer {
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const patchLen = nbRow * nbCol * inputChannels
 
-    const wRowsMat = new Tensor([], [nbFilter, patchLen])
+    const wRowsMat = new Tensor([], [patchLen, nbFilter])
 
     let patch = new Tensor([], [patchLen])
     for (let n = 0; n < nbFilter; n++) {
@@ -161,7 +161,7 @@ export default class Convolution2D extends Layer {
         this.weights.W.tensor.pick(null, null, null, n)
       ))
       patch.replaceTensorData(patchData)
-      ops.assign(wRowsMat.tensor.pick(n, null), patch.tensor)
+      ops.assign(wRowsMat.tensor.pick(null, n), patch.tensor)
     }
 
     return wRowsMat
@@ -183,19 +183,31 @@ export default class Convolution2D extends Layer {
     const outputRows = this.outputShape[0]
     const outputCols = this.outputShape[1]
     const nbPatches = outputRows * outputCols
-    const matMul = new Tensor([], [nbFilter, nbPatches])
+    const matMul = new Tensor([], [nbPatches, nbFilter])
     if (this.bias) {
       for (let n = 0; n < nbFilter; n++) {
-        ops.assigns(matMul.tensor.pick(n, null), this.weights.b.tensor.get(n))
+        ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
       }
     }
-    gemm(matMul.tensor, wRowsMat.tensor, imColsMat.tensor, 1, 1)
+
+    if (x._useWeblas) {
+      const bias = this.bias
+        ? this.weights.b.tensor.data
+        : new Float32Array(wRowsMat.tensor.shape[1])
+      matMul.tensor.data = weblas.sgemm(
+        imColsMat.tensor.shape[0], wRowsMat.tensor.shape[1], imColsMat.tensor.shape[1], // M, N, K
+        1, imColsMat.tensor.data, wRowsMat.tensor.data, // alpha, A, B
+        1, bias // beta, C
+      )
+    } else {
+      gemm(matMul.tensor, imColsMat.tensor, wRowsMat.tensor, 1, 1)
+    }
 
     let output = new Tensor([], this.outputShape)
     let outputChannel = new Tensor([], [outputRows, outputCols])
     for (let n = 0; n < nbFilter; n++) {
       const outputChannelData = flattenDeep(unpack(
-        matMul.tensor.pick(n, null)
+        matMul.tensor.pick(null, n)
       ))
       outputChannel.replaceTensorData(outputChannelData)
       ops.assign(output.tensor.pick(null, null, n), outputChannel.tensor)
