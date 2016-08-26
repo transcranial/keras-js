@@ -1,6 +1,6 @@
-import * as activations from '../activations'
-import Tensor from '../tensor'
-import { Layer } from '../engine/topology'
+import * as activations from '../../activations'
+import Tensor from '../../Tensor'
+import Layer from '../../engine/Layer'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 import unpack from 'ndarray-unpack'
@@ -9,7 +9,7 @@ import flattenDeep from 'lodash/flattenDeep'
 /**
 * Convolution2D layer class
 */
-export class Convolution2D extends Layer {
+export default class Convolution2D extends Layer {
   /**
   * Creates a Convolution2D layer
   * @param {number} nbFilter - Number of convolution filters to use.
@@ -54,7 +54,9 @@ export class Convolution2D extends Layer {
   }
 
   /**
-  * Method for computing output dimensions based on input dimensions and kernel size
+  * Method for computing output dimensions based on input dimensions, kernel size, and padding mode
+  * For tensorflow implementation of padding, see:
+  * https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/common_shape_fns.cc
   * @param {Tensor} x
   * @returns {number[]} [outputRows, outputCols, outputChannels]
   */
@@ -62,21 +64,60 @@ export class Convolution2D extends Layer {
     const inputRows = x.tensor.shape[0]
     const inputCols = x.tensor.shape[1]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
-    const paddingRow = this.borderMode === 'same' ? Math.floor(nbRow / 2) : 0
-    const paddingCol = this.borderMode === 'same' ? Math.floor(nbCol / 2) : 0
-    const outputRows = (inputRows + 2 * paddingRow - nbRow) / this.subsample[0] + 1
-    const outputCols = (inputCols + 2 * paddingCol - nbCol) / this.subsample[1] + 1
+
+    const outputRows = this.borderMode === 'same'
+      ? Math.floor((inputRows + this.subsample[0] - 1) / this.subsample[0])
+      : Math.floor((inputRows - nbRow + this.subsample[0]) / this.subsample[0])
+    const outputCols = this.borderMode === 'same'
+      ? Math.floor((inputCols + this.subsample[1] - 1) / this.subsample[1])
+      : Math.floor((inputCols - nbCol + this.subsample[1]) / this.subsample[1])
     const outputChannels = nbFilter
+
+    const paddingRow = this.borderMode === 'same'
+      ? Math.max(0, Math.floor((outputRows - 1) * this.subsample[0] + nbRow - inputRows))
+      : 0
+    const paddingCol = this.borderMode === 'same'
+      ? Math.max(0, Math.floor((outputCols - 1) * this.subsample[1] + nbCol - inputCols))
+      : 0
+    const paddingRowBefore = Math.floor(paddingRow / 2)
+    const paddingRowAfter = paddingRow - paddingRowBefore
+    const paddingColBefore = Math.floor(paddingCol / 2)
+    const paddingColAfter = paddingCol - paddingColBefore
+
     this.outputShape = [outputRows, outputCols, outputChannels]
+    this.inputPadding = [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter]
   }
 
   /**
-  * image to column matrix
+  * Pad input tensor if necessary, for borderMode='same'
+  * @param {Tensor} x
+  * @returns {Tensor} x
+  */
+  _padInput = x => {
+    if (this.borderMode === 'same') {
+      const [inputRows, inputCols, inputChannels] = x.tensor.shape
+      const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.inputPadding
+      const newRows = inputRows + paddingRowBefore + paddingRowAfter
+      const newCols = inputCols + paddingColBefore + paddingColAfter
+      let _x = new Tensor([], [newRows, newCols, inputChannels])
+      ops.assign(
+        _x.tensor
+          .hi(inputRows + paddingRowBefore, inputCols + paddingColBefore, inputChannels)
+          .lo(paddingRowBefore, paddingColBefore, 0),
+        x.tensor
+      )
+      x.tensor = _x.tensor
+    }
+    return x
+  }
+
+  /**
+  * Convert input image to column matrix
   * @param {Tensor} x
   * @returns {Tensor} x
   */
   _im2col = x => {
-    const inputChannels = x.tensor.shape[2]
+    const [inputRows, inputCols, inputChannels] = x.tensor.shape
     const nbRow = this.kernelShape[1]
     const nbCol = this.kernelShape[2]
     const outputRows = this.outputShape[0]
@@ -88,8 +129,8 @@ export class Convolution2D extends Layer {
 
     let patch = new Tensor([], [patchLen])
     let n = 0
-    for (let i = 0; i < outputRows; i += this.subsample[0]) {
-      for (let j = 0; j < outputCols; j += this.subsample[1]) {
+    for (let i = 0; i <= inputRows - nbRow; i += this.subsample[0]) {
+      for (let j = 0; j <= inputCols - nbCol; j += this.subsample[1]) {
         const patchData = flattenDeep(unpack(
           x.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0)
         ))
@@ -103,7 +144,7 @@ export class Convolution2D extends Layer {
   }
 
   /**
-  * filters to row matrix
+  * Convert filter weights to row matrix
   * @param {Tensor} x
   * @returns {Tensor} x
   */
@@ -133,6 +174,7 @@ export class Convolution2D extends Layer {
   */
   call = x => {
     this._calcOutputShape(x)
+    this._padInput(x)
 
     const imColsMat = this._im2col(x)
     const wRowsMat = this._w2row(x)

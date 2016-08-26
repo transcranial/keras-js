@@ -1,4 +1,4 @@
-import Tensor from './tensor'
+import Tensor from './Tensor'
 import * as activations from './activations'
 import * as layers from './layers'
 

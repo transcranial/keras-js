@@ -1,6 +1,6 @@
 import ops from 'ndarray-ops'
 import cwise from 'cwise'
-import Tensor from './tensor'
+import Tensor from './Tensor'
 
 /**
 * Softmax activation function. In-place operation.

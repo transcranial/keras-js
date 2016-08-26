@@ -4,7 +4,7 @@ import squeeze from 'ndarray-squeeze'
 /**
 * Layer class
 */
-export class Layer {
+export default class Layer {
   /**
   * Creates a layer
   * @param {Object} [attrs] - layer attributes
