@@ -39,16 +39,35 @@ export default class Convolution2D extends Layer {
 
     this.subsample = subsample
 
-    if (dimOrdering !== 'tf') {
-      throw new Error(`${this.name} [Convolution2D layer] Only tf dim ordering supported currently.`)
-    } else {
+    if (dimOrdering === 'tf' || dimOrdering === 'th') {
       this.dimOrdering = dimOrdering
+    } else {
+      throw new Error(`${this.name} [Convolution2D layer] Only tf and th dim ordering are allowed.`)
     }
 
     this.bias = bias
 
     // Layer weights specification
     this.params = this.bias ? ['W', 'b'] : ['W']
+  }
+
+  /**
+   * Method for setting layer weights. Extends `super` method.
+   * W weight tensor is converted to `tf` mode if in `th` mode.
+   * In `tf` mode, W weight tensor has shape [nbRow, nbCol, inputChannels, nbFilter]
+   * In `th` mode, W weight tensor has shape [nbFilter, inputChannels, nbRow, nbCol]
+   * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
+   */
+  setWeights = weightsArr => {
+    if (this.dimOrdering === 'th') {
+      const weightsArrTheano = weightsArr.map(w => {
+        w.tensor = w.tensor.transpose(3, 2, 0, 1)
+        return w
+      })
+      super.setWeights(weightsArrTheano)
+    } else {
+      super.setWeights(weightsArr)
+    }
   }
 
   /**
@@ -172,6 +191,11 @@ export default class Convolution2D extends Layer {
    * @returns {Tensor} x
    */
   call = x => {
+    // convert to tf ordering
+    if (this.dimOrdering === 'th') {
+      x.tensor = x.tensor.transpose(2, 0, 1)
+    }
+
     this._calcOutputShape(x)
     this._padInput(x)
 
