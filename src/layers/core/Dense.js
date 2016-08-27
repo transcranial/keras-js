@@ -46,43 +46,28 @@ export default class Dense extends Layer {
    * - A has shape M x N
    * - B has shape N x K
    * - C has shape M x K
-   * pipeline.sgemm(alpha, A, B, beta, C), where A, B, C are weblas.pipeline.Tensor here
-   * - alpha * A * B^T + beta * C
    *
    * @param {Tensor} x
    * @returns {Tensor} x
    */
   call = x => {
-    if (x._useWeblas) {
-      // x is mutable, so create on every call
-      x.createWeblasTensor()
-      if (!this.weblasWeights) {
-        // layer weights are immutable, so only create if not already existing
-        this.createWeblasWeights()
-      }
-
-      const bias = this.bias
-        ? this.weblasWeights.b
-        : new weblas.pipeline.Tensor([1, this.outputDim], new Float32Array(this.outputDim))
-
-      x.weblasTensor = weblas.pipeline.sgemm(
-        1.0,
-        x.weblasTensor,
-        this.weblasWeights.W.transpose(true),
-        1.0,
-        bias
-      )
-
-      // activation function in CPU memory
-      x.transferWeblasTensor()
-    } else {
-      let y = new Tensor([], [this.outputDim])
-      if (this.bias) {
-        ops.assign(y.tensor, this.weights.b.tensor)
-      }
-      gemv(1.0, this.weights.W.tensor.transpose(1, 0), x.tensor, 1.0, y.tensor)
-      x.tensor = y.tensor
+    let y = new Tensor([], [this.outputDim])
+    if (this.bias) {
+      ops.assign(y.tensor, this.weights.b.tensor)
     }
+    if (x._useWeblas) {
+      const bias = this.bias
+        ? this.weights.b.tensor.data
+        : new Float32Array(this.outputDim)
+      y.tensor.data = weblas.sgemm(
+        1, this.weights.W.tensor.shape[1], x.tensor.shape[0], // M, N, K
+        1, x.tensor.data, this.weights.W.tensor.data, // alpha, A, B
+        1, bias // beta, C
+      )
+    } else {
+      gemv(1.0, this.weights.W.tensor.transpose(1, 0), x.tensor, 1.0, y.tensor)
+    }
+    x.tensor = y.tensor
 
     this.activation(x)
 
