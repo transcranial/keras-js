@@ -4,6 +4,9 @@ import Convolution3D from './Convolution3D'
 import UpSampling1D from './UpSampling1D'
 import UpSampling2D from './UpSampling2D'
 import UpSampling3D from './UpSampling3D'
+import ZeroPadding1D from './ZeroPadding1D'
+import ZeroPadding2D from './ZeroPadding2D'
+import ZeroPadding3D from './ZeroPadding3D'
 
 export {
   Convolution1D,
@@ -11,5 +14,8 @@ export {
   Convolution3D,
   UpSampling1D,
   UpSampling2D,
-  UpSampling3D
+  UpSampling3D,
+  ZeroPadding1D,
+  ZeroPadding2D,
+  ZeroPadding3D
 }
