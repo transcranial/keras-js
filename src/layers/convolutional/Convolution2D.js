@@ -103,7 +103,8 @@ export default class Convolution2D extends Layer {
   }
 
   /**
-   * Pad input tensor if necessary, for borderMode='same'
+   * Pad input tensor if necessary, for borderMode='same'.
+   * See above for notes on calculating padding.
    * @param {Tensor} x
    * @returns {Tensor} x
    */
