@@ -47,7 +47,7 @@ export default class Tensor {
    * 2-D only
    * see https://github.com/waylonflinn/weblas/wiki/Pipeline
    */
-  createWeblasTensor = () => {
+  createWeblasTensor () {
     if (this.tensor.shape.length === 1) {
       const shape = [1, this.tensor.shape[0]]
       this.weblasTensor = new weblas.pipeline.Tensor(shape, this.tensor.data)
@@ -60,7 +60,7 @@ export default class Tensor {
   /**
    * Transfers weblas pipeline tensor from GPU memory
    */
-  transferWeblasTensor = () => {
+  transferWeblasTensor () {
     if (this.weblasTensor) {
       const shape = this.weblasTensor.shape
       const arr = this.weblasTensor.transfer(true)
@@ -71,7 +71,7 @@ export default class Tensor {
   /**
    * Delete weblas pipeline tensor
    */
-  deleteWeblasTensor = () => {
+  deleteWeblasTensor () {
     if (this.weblasTensor) {
       this.weblasTensor.delete()
       delete this.weblasTensor
@@ -81,7 +81,7 @@ export default class Tensor {
   /**
    * Replaces data in the underlying ndarray.
    */
-  replaceTensorData = data => {
+  replaceTensorData (data) {
     if (data && data.length && data instanceof this._type) {
       this.tensor.data = data
     } else if (data && data.length && data instanceof Array) {

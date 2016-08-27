@@ -58,16 +58,12 @@ export default class Convolution2D extends Layer {
    * In `th` mode, W weight tensor has shape [nbFilter, inputChannels, nbRow, nbCol]
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
-  setWeights = weightsArr => {
+  setWeights (weightsArr) {
     if (this.dimOrdering === 'th') {
-      const weightsArrTheano = weightsArr.map(w => {
-        w.tensor = w.tensor.transpose(3, 2, 0, 1)
-        return w
-      })
-      super.setWeights(weightsArrTheano)
-    } else {
-      super.setWeights(weightsArr)
+      // W
+      weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 1, 0)
     }
+    super.setWeights(weightsArr)
   }
 
   /**
@@ -193,7 +189,7 @@ export default class Convolution2D extends Layer {
   call = x => {
     // convert to tf ordering
     if (this.dimOrdering === 'th') {
-      x.tensor = x.tensor.transpose(2, 0, 1)
+      x.tensor = x.tensor.transpose(1, 2, 0)
     }
 
     this._calcOutputShape(x)
@@ -238,6 +234,11 @@ export default class Convolution2D extends Layer {
     x.tensor = output.tensor
 
     this.activation(x)
+
+    // convert back to th ordering if necessary
+    if (this.dimOrdering === 'th') {
+      x.tensor = x.tensor.transpose(2, 0, 1)
+    }
 
     return x
   }

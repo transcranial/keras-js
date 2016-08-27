@@ -43,7 +43,7 @@ export default class Merge extends Layer {
    * @param {Tensor[]} inputs
    * @returns {boolean} valid
    */
-  _validateInputs = inputs => {
+  _validateInputs (inputs) {
     const shapes = inputs.map(x => x.tensor.shape.slice())
     if (['sum', 'mul', 'ave', 'cos', 'max'].indexOf(this.mode) > -1) {
       if (!shapes.every(shape => isEqual(shape, shapes[0]))) {

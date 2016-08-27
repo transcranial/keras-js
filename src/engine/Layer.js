@@ -27,7 +27,7 @@ export default class Layer {
    *
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
-  setWeights = weightsArr => {
+  setWeights (weightsArr) {
     this.params.forEach((p, i) => {
       this.weights[p] = weightsArr[i]
     })
@@ -37,7 +37,7 @@ export default class Layer {
    * Create weblas pipeline tensor weights
    * 2-D only
    */
-  createWeblasWeights = () => {
+  createWeblasWeights () {
     this.weblasWeights = {}
 
     this.params.forEach((p, i) => {
@@ -54,7 +54,7 @@ export default class Layer {
   /**
    * Transfer weblas pipeline tensor weights
    */
-  transferWeblasWeights = () => {
+  transferWeblasWeights () {
     this.params.forEach((p, i) => {
       if (this.weblasWeights[p]) {
         const shape = this.weblasWeights[p].shape
@@ -67,7 +67,7 @@ export default class Layer {
   /**
    * Delete weblas pipeline tensor weights
    */
-  deleteWeblasWeights = () => {
+  deleteWeblasWeights () {
     this.params.forEach((p, i) => {
       if (this.weblasWeights[p]) {
         this.weblasWeights[p].delete()
