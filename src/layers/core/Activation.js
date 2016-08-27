@@ -10,7 +10,7 @@ export default class Activation extends Layer {
    * @param {string} activation - name of activation function
    */
   constructor (activation, attrs = {}) {
-    super({})
+    super(attrs)
     this.activation = activations[activation]
   }
 

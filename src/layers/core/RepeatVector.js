@@ -12,8 +12,8 @@ export default class RepeatVector extends Layer {
    * Creates a RepeatVector layer
    * @param {number} n
    */
-  constructor (n) {
-    super({})
+  constructor (n, attrs = {}) {
+    super(attrs)
     this.n = n
   }
 

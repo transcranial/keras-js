@@ -12,8 +12,8 @@ export default class Flatten extends Layer {
   /**
    * Creates a Flatten layer
    */
-  constructor () {
-    super({})
+  constructor (attrs = {}) {
+    super(attrs)
   }
 
   /**

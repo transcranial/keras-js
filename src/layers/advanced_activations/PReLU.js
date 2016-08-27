@@ -14,8 +14,8 @@ export default class PReLU extends Layer {
   /**
    * Creates a PReLU activation layer
    */
-  constructor () {
-    super({})
+  constructor (attrs = {}) {
+    super(attrs)
 
     // Layer weights specification
     this.params = ['alphas']

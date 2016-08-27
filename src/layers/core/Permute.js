@@ -10,8 +10,8 @@ export default class Permute extends Layer {
    * Creates a Permute layer
    * @param {number[]} dims
    */
-  constructor (dims) {
-    super({})
+  constructor (dims, attrs = {}) {
+    super(attrs)
     this.dims = dims.map(dim => dim - 1)
   }
 

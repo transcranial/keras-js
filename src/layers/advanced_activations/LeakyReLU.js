@@ -9,8 +9,8 @@ export default class LeakyReLU extends Layer {
    * Creates a LeakyReLU activation layer
    * @param {number} alpha - negative slope coefficient
    */
-  constructor (alpha = 0.3) {
-    super({})
+  constructor (alpha = 0.3, attrs = {}) {
+    super(attrs)
     this.alpha = alpha
   }
 

@@ -9,8 +9,8 @@ export default class SReLU extends Layer {
   /**
    * Creates a SReLU activation layer
    */
-  constructor () {
-    super({})
+  constructor (attrs = {}) {
+    super(attrs)
 
     // Layer weights specification
     this.params = ['t_left', 'a_left', 't_right', 'a_right']

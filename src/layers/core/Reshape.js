@@ -13,8 +13,8 @@ export default class Reshape extends Layer {
    * Creates a Reshape layer
    * @param {number[]} shape
    */
-  constructor (shape) {
-    super({})
+  constructor (shape, attrs = {}) {
+    super(attrs)
     this.shape = shape
   }
 

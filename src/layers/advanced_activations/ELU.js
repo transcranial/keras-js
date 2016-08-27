@@ -9,8 +9,8 @@ export default class ELU extends Layer {
    * Creates a ELU activation layer
    * @param {number} alpha - scale for the negative factor
    */
-  constructor (alpha = 1.0) {
-    super({})
+  constructor (alpha = 1.0, attrs = {}) {
+    super(attrs)
     this.alpha = alpha
   }
 

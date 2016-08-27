@@ -9,8 +9,8 @@ export default class ThresholdedReLU extends Layer {
    * Creates a ThresholdedReLU activation layer
    * @param {number} theta - float >= 0. Threshold location of activation.
    */
-  constructor (theta = 1.0) {
-    super({})
+  constructor (theta = 1.0, attrs = {}) {
+    super(attrs)
     this.theta = theta
   }
 

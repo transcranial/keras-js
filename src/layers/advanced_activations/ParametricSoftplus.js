@@ -9,8 +9,8 @@ export default class ParametricSoftplus extends Layer {
   /**
    * Creates a ParametricSoftplus activation layer
    */
-  constructor () {
-    super({})
+  constructor (attrs = {}) {
+    super(attrs)
 
     // Layer weights specification
     this.params = ['alphas', 'betas']
