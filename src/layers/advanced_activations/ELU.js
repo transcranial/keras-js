@@ -26,7 +26,7 @@ export default class ELU extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     this._compute(x.tensor, this.alpha)
     return x
   }

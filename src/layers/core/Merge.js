@@ -79,7 +79,7 @@ export default class Merge extends Layer {
    * @param {Tensor[]} inputs
    * @returns {Tensor} `this`
    */
-  call = inputs => {
+  call (inputs) {
     const valid = this._validateInputs(inputs)
     if (!valid) {
       throw new Error(`${this.name} [Merge layer] Invalid inputs to call method.`)

@@ -56,7 +56,7 @@ export default class Convolution1D extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     x.tensor = unsqueeze(x.tensor).transpose(1, 0, 2)
     const conv2dOutput = this._conv2d.call(x)
     x.tensor = squeeze(conv2dOutput.tensor).transpose(1, 0, 2)

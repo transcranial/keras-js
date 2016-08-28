@@ -20,7 +20,7 @@ export default class Permute extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     if (this.dims.length !== x.tensor.shape.length) {
       throw new Error(`${this.name} [Permute layer] The specified dims permutation must match the number of dimensions.`)
     }

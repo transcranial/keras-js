@@ -23,7 +23,7 @@ export default class Reshape extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     if (this.shape.reduce((a, b) => a * b, 1) !== x.tensor.size) {
       throw new Error(`${this.name} [Reshape layer] The total size of new array must be unchanged in reshape layer.`)
     }

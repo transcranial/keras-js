@@ -33,7 +33,7 @@ export default class SReLU extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     this._compute(
       x.tensor,
       this.weights.t_left.tensor,

@@ -20,7 +20,7 @@ export default class UpSampling1D extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     const inputShape = x.tensor.shape
     const outputShape = [inputShape[0] * this.length, inputShape[1]]
     let y = new Tensor([], outputShape)

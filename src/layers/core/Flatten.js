@@ -21,7 +21,7 @@ export default class Flatten extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     if (x.tensor.shape.length > 1) {
       const shape = [x.tensor.shape.reduce((a, b) => a * b, 1)]
       x.tensor = ndarray(new x._type(flattenDeep(unpack(x.tensor))), shape)

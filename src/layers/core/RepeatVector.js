@@ -22,7 +22,7 @@ export default class RepeatVector extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     if (x.tensor.shape.length !== 1) {
       throw new Error(`${this.name} [RepeatVector layer] Only 1D tensor inputs allowed.`)
     }

@@ -19,7 +19,7 @@ export default class Dropout extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     return x
   }
 }

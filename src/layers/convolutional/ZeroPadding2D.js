@@ -25,7 +25,7 @@ export default class ZeroPadding2D extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     // convert to tf ordering
     if (this.dimOrdering === 'th') {
       x.tensor = x.tensor.transpose(1, 2, 0)

@@ -50,7 +50,7 @@ export default class Dense extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     let y = new Tensor([], [this.outputDim])
     if (this.bias) {
       ops.assign(y.tensor, this.weights.b.tensor)

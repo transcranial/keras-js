@@ -74,7 +74,7 @@ export default class Convolution2D extends Layer {
    * @param {Tensor} x
    * @returns {number[]} [outputRows, outputCols, outputChannels]
    */
-  _calcOutputShape = x => {
+  _calcOutputShape (x) {
     const inputRows = x.tensor.shape[0]
     const inputCols = x.tensor.shape[1]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
@@ -108,7 +108,7 @@ export default class Convolution2D extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  _padInput = x => {
+  _padInput (x) {
     if (this.borderMode === 'same') {
       const [inputRows, inputCols, inputChannels] = x.tensor.shape
       const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.inputPadding
@@ -131,7 +131,7 @@ export default class Convolution2D extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  _im2col = x => {
+  _im2col (x) {
     const [inputRows, inputCols, inputChannels] = x.tensor.shape
     const nbRow = this.kernelShape[1]
     const nbCol = this.kernelShape[2]
@@ -163,7 +163,7 @@ export default class Convolution2D extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  _w2row = x => {
+  _w2row (x) {
     const inputChannels = x.tensor.shape[2]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const patchLen = nbRow * nbCol * inputChannels
@@ -187,7 +187,7 @@ export default class Convolution2D extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     // convert to tf ordering
     if (this.dimOrdering === 'th') {
       x.tensor = x.tensor.transpose(1, 2, 0)

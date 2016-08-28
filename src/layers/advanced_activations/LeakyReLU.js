@@ -19,7 +19,7 @@ export default class LeakyReLU extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call = x => {
+  call (x) {
     relu(x, { alpha: this.alpha })
     return x
   }
