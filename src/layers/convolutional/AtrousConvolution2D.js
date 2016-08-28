@@ -1,15 +1,16 @@
-import * as activations from '../../activations'
 import Tensor from '../../Tensor'
-import Layer from '../../engine/Layer'
+import Convolution2D from './Convolution2D'
 import ops from 'ndarray-ops'
-import gemm from 'ndarray-gemm'
 import unpack from 'ndarray-unpack'
 import flattenDeep from 'lodash/flattenDeep'
 
 /**
  * AtrousConvolution2D layer class
+ * This class extends the Convolution2D layer class, and overrides the methods
+ * `_calcOutputShape` and `_im2col` by creating filter dilations based on the
+ * specified `atrousRate`.
  */
-export default class AtrousConvolution2D extends Layer {
+export default class AtrousConvolution2D extends Convolution2D {
   /**
    * Creates a AtrousConvolution2D layer
    * @param {number} nbFilter - Number of convolution filters to use.
@@ -18,55 +19,11 @@ export default class AtrousConvolution2D extends Layer {
    * @param {Object} [attrs] - layer attributes
    */
   constructor (nbFilter, nbRow, nbCol, attrs = {}) {
-    super(attrs)
+    super(nbFilter, nbRow, nbCol, attrs)
     const {
-      activation = 'linear',
-      borderMode = 'valid',
-      subsample = [1, 1],
-      atrousRate = [1, 1],
-      dimOrdering = 'tf',
-      bias = true
+      atrousRate = [1, 1]
     } = attrs
-
-    this.kernelShape = [nbFilter, nbRow, nbCol]
-
-    this.activation = activations[activation]
-
-    if (borderMode === 'valid' || borderMode === 'same') {
-      this.borderMode = borderMode
-    } else {
-      throw new Error(`${this.name} [AtrousConvolution2D layer] Invalid borderMode.`)
-    }
-
-    this.subsample = subsample
-
     this.atrousRate = atrousRate
-
-    if (dimOrdering === 'tf' || dimOrdering === 'th') {
-      this.dimOrdering = dimOrdering
-    } else {
-      throw new Error(`${this.name} [AtrousConvolution2D layer] Only tf and th dim ordering are allowed.`)
-    }
-
-    this.bias = bias
-
-    // Layer weights specification
-    this.params = this.bias ? ['W', 'b'] : ['W']
-  }
-
-  /**
-   * Method for setting layer weights. Extends `super` method.
-   * W weight tensor is converted to `tf` mode if in `th` mode.
-   * In `tf` mode, W weight tensor has shape [nbRow, nbCol, inputChannels, nbFilter]
-   * In `th` mode, W weight tensor has shape [nbFilter, inputChannels, nbRow, nbCol]
-   * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
-   */
-  setWeights (weightsArr) {
-    if (this.dimOrdering === 'th') {
-      // W
-      weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 1, 0)
-    }
-    super.setWeights(weightsArr)
   }
 
   /**
@@ -77,7 +34,7 @@ export default class AtrousConvolution2D extends Layer {
    * @param {Tensor} x
    * @returns {number[]} [outputRows, outputCols, outputChannels]
    */
-  _calcOutputShape = x => {
+  _calcOutputShape (x) {
     const inputRows = x.tensor.shape[0]
     const inputCols = x.tensor.shape[1]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
@@ -110,35 +67,11 @@ export default class AtrousConvolution2D extends Layer {
   }
 
   /**
-   * Pad input tensor if necessary, for borderMode='same'.
-   * See above for notes on calculating padding.
-   * @param {Tensor} x
-   * @returns {Tensor} x
-   */
-  _padInput = x => {
-    if (this.borderMode === 'same') {
-      const [inputRows, inputCols, inputChannels] = x.tensor.shape
-      const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.inputPadding
-      const newRows = inputRows + paddingRowBefore + paddingRowAfter
-      const newCols = inputCols + paddingColBefore + paddingColAfter
-      let _x = new Tensor([], [newRows, newCols, inputChannels])
-      ops.assign(
-        _x.tensor
-          .hi(inputRows + paddingRowBefore, inputCols + paddingColBefore, inputChannels)
-          .lo(paddingRowBefore, paddingColBefore, 0),
-        x.tensor
-      )
-      x.tensor = _x.tensor
-    }
-    return x
-  }
-
-  /**
    * Convert input image to column matrix
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  _im2col = x => {
+  _im2col (x) {
     const [inputRows, inputCols, inputChannels] = x.tensor.shape
     const nbRow = this.kernelShape[1]
     const nbCol = this.kernelShape[2]
@@ -170,91 +103,5 @@ export default class AtrousConvolution2D extends Layer {
     }
 
     return imColsMat
-  }
-
-  /**
-   * Convert filter weights to row matrix
-   * @param {Tensor} x
-   * @returns {Tensor} x
-   */
-  _w2row = x => {
-    const inputChannels = x.tensor.shape[2]
-    const [nbFilter, nbRow, nbCol] = this.kernelShape
-    const patchLen = nbRow * nbCol * inputChannels
-
-    const wRowsMat = new Tensor([], [patchLen, nbFilter])
-
-    let patch = new Tensor([], [patchLen])
-    for (let n = 0; n < nbFilter; n++) {
-      const patchData = flattenDeep(unpack(
-        this.weights.W.tensor.pick(null, null, null, n)
-      ))
-      patch.replaceTensorData(patchData)
-      ops.assign(wRowsMat.tensor.pick(null, n), patch.tensor)
-    }
-
-    return wRowsMat
-  }
-
-  /**
-   * Method for layer computational logic
-   * @param {Tensor} x
-   * @returns {Tensor} x
-   */
-  call = x => {
-    // convert to tf ordering
-    if (this.dimOrdering === 'th') {
-      x.tensor = x.tensor.transpose(1, 2, 0)
-    }
-
-    this._calcOutputShape(x)
-    this._padInput(x)
-
-    const imColsMat = this._im2col(x)
-    const wRowsMat = this._w2row(x)
-
-    const nbFilter = this.kernelShape[0]
-    const outputRows = this.outputShape[0]
-    const outputCols = this.outputShape[1]
-    const nbPatches = outputRows * outputCols
-    const matMul = new Tensor([], [nbPatches, nbFilter])
-    if (this.bias) {
-      for (let n = 0; n < nbFilter; n++) {
-        ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
-      }
-    }
-
-    if (x._useWeblas) {
-      const bias = this.bias
-        ? this.weights.b.tensor.data
-        : new Float32Array(wRowsMat.tensor.shape[1])
-      matMul.tensor.data = weblas.sgemm(
-        imColsMat.tensor.shape[0], wRowsMat.tensor.shape[1], imColsMat.tensor.shape[1], // M, N, K
-        1, imColsMat.tensor.data, wRowsMat.tensor.data, // alpha, A, B
-        1, bias // beta, C
-      )
-    } else {
-      gemm(matMul.tensor, imColsMat.tensor, wRowsMat.tensor, 1, 1)
-    }
-
-    let output = new Tensor([], this.outputShape)
-    let outputChannel = new Tensor([], [outputRows, outputCols])
-    for (let n = 0; n < nbFilter; n++) {
-      const outputChannelData = flattenDeep(unpack(
-        matMul.tensor.pick(null, n)
-      ))
-      outputChannel.replaceTensorData(outputChannelData)
-      ops.assign(output.tensor.pick(null, null, n), outputChannel.tensor)
-    }
-    x.tensor = output.tensor
-
-    this.activation(x)
-
-    // convert back to th ordering if necessary
-    if (this.dimOrdering === 'th') {
-      x.tensor = x.tensor.transpose(2, 0, 1)
-    }
-
-    return x
   }
 }
