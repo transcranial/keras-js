@@ -72,7 +72,6 @@ export default class Convolution2D extends Layer {
    * For tensorflow implementation of padding, see:
    * https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/common_shape_fns.cc
    * @param {Tensor} x
-   * @returns {number[]} [outputRows, outputCols, outputChannels]
    */
   _calcOutputShape (x) {
     const inputRows = x.tensor.shape[0]

@@ -73,7 +73,6 @@ export default class Convolution3D extends Layer {
    * For tensorflow implementation of padding, see:
    * https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/common_shape_fns.cc
    * @param {Tensor} x
-   * @returns {number[]} [outputDim1, outputDim2, outputDim3, outputChannels]
    */
   _calcOutputShape (x) {
     const inputDim1 = x.tensor.shape[0]
