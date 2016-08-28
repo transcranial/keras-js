@@ -1,6 +1,7 @@
 import Convolution1D from './Convolution1D'
 import Convolution2D from './Convolution2D'
 import AtrousConvolution2D from './AtrousConvolution2D'
+import SeparableConvolution2D from './SeparableConvolution2D'
 import Deconvolution2D from './Deconvolution2D'
 import Convolution3D from './Convolution3D'
 import UpSampling1D from './UpSampling1D'
@@ -14,6 +15,7 @@ export {
   Convolution1D,
   Convolution2D,
   AtrousConvolution2D,
+  SeparableConvolution2D,
   Deconvolution2D,
   Convolution3D,
   UpSampling1D,
