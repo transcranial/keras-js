@@ -143,8 +143,8 @@ export default class Convolution2D extends Layer {
 
     let patch = new Tensor([], [patchLen])
     let n = 0
-    for (let i = 0; i <= inputRows - nbRow; i += this.subsample[0]) {
-      for (let j = 0; j <= inputCols - nbCol; j += this.subsample[1]) {
+    for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.subsample[0]) {
+      for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.subsample[1]) {
         const patchData = flattenDeep(unpack(
           x.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0)
         ))

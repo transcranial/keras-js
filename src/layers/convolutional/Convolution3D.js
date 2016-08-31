@@ -159,9 +159,9 @@ export default class Convolution3D extends Layer {
 
     let patch = new Tensor([], [patchLen])
     let n = 0
-    for (let i = 0; i <= inputDim1 - kernelDim1; i += this.subsample[0]) {
-      for (let j = 0; j <= inputDim2 - kernelDim2; j += this.subsample[1]) {
-        for (let k = 0; k <= inputDim3 - kernelDim3; k += this.subsample[2]) {
+    for (let i = 0, limit = inputDim1 - kernelDim1; i <= limit; i += this.subsample[0]) {
+      for (let j = 0, limit = inputDim2 - kernelDim2; j <= limit; j += this.subsample[1]) {
+        for (let k = 0, limit = inputDim3 - kernelDim3; k <= limit; k += this.subsample[2]) {
           const patchData = flattenDeep(unpack(
             x.tensor.hi(i + kernelDim1, j + kernelDim2, k + kernelDim3, inputChannels).lo(i, j, k, 0)
           ))

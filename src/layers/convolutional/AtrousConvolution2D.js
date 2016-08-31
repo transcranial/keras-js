@@ -87,8 +87,8 @@ export default class AtrousConvolution2D extends Convolution2D {
 
     let patch = new Tensor([], [patchLen])
     let n = 0
-    for (let i = 0; i <= inputRows - nbRowDilated; i += this.subsample[0]) {
-      for (let j = 0; j <= inputCols - nbColDilated; j += this.subsample[1]) {
+    for (let i = 0, limit = inputRows - nbRowDilated; i <= limit; i += this.subsample[0]) {
+      for (let j = 0, limit = inputCols - nbColDilated; j <= limit; j += this.subsample[1]) {
         const patchData = flattenDeep(unpack(
           x.tensor
             .hi(i + nbRowDilated, j + nbColDilated, inputChannels)
