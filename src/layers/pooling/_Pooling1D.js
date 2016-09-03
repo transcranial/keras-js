@@ -7,7 +7,7 @@ import ops from 'ndarray-ops'
  */
 export default class _Pooling1D extends Layer {
   /**
-   * Creates a _Pooling1D activation layer
+   * Creates a _Pooling1D layer
    */
   constructor (attrs = {}) {
     super(attrs)

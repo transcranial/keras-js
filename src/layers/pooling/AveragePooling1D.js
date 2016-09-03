@@ -5,7 +5,7 @@ import _Pooling1D from './_Pooling1D'
  */
 export default class AveragePooling1D extends _Pooling1D {
   /**
-   * Creates a AveragePooling1D activation layer
+   * Creates a AveragePooling1D layer
    */
   constructor (attrs = {}) {
     super(attrs)

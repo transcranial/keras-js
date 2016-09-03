@@ -1,6 +1,6 @@
 /* eslint-env browser, mocha */
 
-describe('convolutional layer: MaxPooling1D', function () {
+describe('pooling layer: MaxPooling1D', function () {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -48,11 +48,11 @@ describe('convolutional layer: MaxPooling1D', function () {
   ]
 
   before(function () {
-    console.log('\n%cconvolutional layer: MaxPooling1D', styles.h1)
+    console.log('\n%cpooling layer: MaxPooling1D', styles.h1)
   })
 
   testParams.forEach(({ inputShape, attrs }, i) => {
-    const key = `convolutional.MaxPooling1D.${i}`
+    const key = `pooling.MaxPooling1D.${i}`
     const [inputLength, inputFeatures] = inputShape
     const title = `[${key}] test: ${inputLength}x${inputFeatures} input, poolLength='${attrs.poolLength}', stride=${attrs.stride}, borderMode=${attrs.borderMode}`
 

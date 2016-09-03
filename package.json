@@ -6,7 +6,7 @@
     "lint": "standard src test",
     "watch": "webpack src/index.js dist/keras.js --watch --config webpack.dev.config.js",
     "build": "npm run lint && webpack --config webpack.prod.config.js",
-    "server": "http-server . -p 9001"
+    "server": "http-server . -p 3000"
   },
   "repository": {
     "type": "git",
