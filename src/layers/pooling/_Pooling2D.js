@@ -136,12 +136,12 @@ export default class _Pooling2D extends Layer {
         }
 
         ops.assign(patch.tensor, x.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0))
-        for (let k = 0; k < inputChannels; k++) {
+        for (let c = 0; c < inputChannels; c++) {
           if (this.poolingFunc === 'max') {
-            y.tensor.set(_i, _j, k, ops.sup(patch.tensor.pick(null, null, k)))
+            y.tensor.set(_i, _j, c, ops.sup(patch.tensor.pick(null, null, c)))
           } else if (this.poolingFunc === 'average') {
             let nbCellsEffective = (nbRow - nbRowInPadding) * (nbCol - nbColInPadding)
-            y.tensor.set(_i, _j, k, ops.sum(patch.tensor.pick(null, null, k)) / nbCellsEffective)
+            y.tensor.set(_i, _j, c, ops.sum(patch.tensor.pick(null, null, c)) / nbCellsEffective)
           }
         }
       }
