@@ -1,6 +1,9 @@
+.DS_Store
+
 # Node.js
 node_modules/
 npm-debug.log
+npm-debug.log*
 
 # jupyter
 notebooks/**/.ipynb_checkpoints/
