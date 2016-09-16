@@ -1,6 +1,17 @@
+const path = require('path')
 const webpack = require('webpack')
 
 module.exports = {
+  entry: [
+    'babel-polyfill',
+    path.join(__dirname, 'src/index')
+  ],
+  output: {
+    path: path.join(__dirname, 'dist'),
+    filename: 'keras.min.js',
+    library: 'KerasJS',
+    libraryTarget: 'umd'
+  },
   module: {
     loaders: [
       {
@@ -9,10 +20,6 @@ module.exports = {
         exclude: /node_modules/
       }
     ]
-  },
-  output: {
-    library: 'KerasJS',
-    libraryTarget: 'umd'
   },
   resolve: {
     extensions: ['', '.js']
