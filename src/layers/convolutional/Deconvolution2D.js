@@ -1,6 +1,6 @@
 import * as activations from '../../activations'
 import Tensor from '../../Tensor'
-import Layer from '../../engine/Layer'
+import Layer from '../../Layer'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 import unpack from 'ndarray-unpack'

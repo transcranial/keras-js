@@ -1,4 +1,4 @@
-import Layer from '../../engine/Layer'
+import Layer from '../../Layer'
 import ndarray from 'ndarray'
 import unpack from 'ndarray-unpack'
 import flattenDeep from 'lodash/flattenDeep'

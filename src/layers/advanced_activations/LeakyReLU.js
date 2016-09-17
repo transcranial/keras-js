@@ -1,4 +1,4 @@
-import Layer from '../../engine/Layer'
+import Layer from '../../Layer'
 import { relu } from '../../activations'
 
 /**

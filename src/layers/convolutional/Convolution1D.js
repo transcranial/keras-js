@@ -1,4 +1,4 @@
-import Layer from '../../engine/Layer'
+import Layer from '../../Layer'
 import Convolution2D from './Convolution2D'
 import squeeze from 'ndarray-squeeze'
 import unsqueeze from 'ndarray-unsqueeze'

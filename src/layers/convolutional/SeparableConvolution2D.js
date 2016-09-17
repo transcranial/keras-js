@@ -1,6 +1,6 @@
 import * as activations from '../../activations'
 import Tensor from '../../Tensor'
-import Layer from '../../engine/Layer'
+import Layer from '../../Layer'
 import Convolution2D from './Convolution2D'
 import ops from 'ndarray-ops'
 

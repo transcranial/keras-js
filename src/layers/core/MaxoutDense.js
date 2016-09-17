@@ -1,5 +1,5 @@
 import Tensor from '../../Tensor'
-import Layer from '../../engine/Layer'
+import Layer from '../../Layer'
 import { gemv } from 'ndarray-blas-level2'
 import ops from 'ndarray-ops'
 

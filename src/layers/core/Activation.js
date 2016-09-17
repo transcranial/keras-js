@@ -1,5 +1,5 @@
 import * as activations from '../../activations'
-import Layer from '../../engine/Layer'
+import Layer from '../../Layer'
 
 /**
  * Activation layer class

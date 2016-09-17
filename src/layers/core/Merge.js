@@ -1,5 +1,5 @@
 import Tensor from '../../Tensor'
-import Layer from '../../engine/Layer'
+import Layer from '../../Layer'
 import gemm from 'ndarray-gemm'
 import ops from 'ndarray-ops'
 import unsqueeze from 'ndarray-unsqueeze'

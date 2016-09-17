@@ -1,4 +1,4 @@
-import Layer from '../../engine/Layer'
+import Layer from '../../Layer'
 import unsqueeze from 'ndarray-unsqueeze'
 import tile from 'ndarray-tile'
 
