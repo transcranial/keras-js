@@ -1,8 +1,8 @@
 import sys
 import os
 import h5py
+import numpy as np
 import json
-import gzip
 
 
 class Encoder(object):
@@ -32,6 +32,7 @@ class Encoder(object):
         f = hdf5_file['model_weights']
 
         layer_names = [n.decode('utf8') for n in f.attrs['layer_names']]
+        offset = 0
         for layer_name in layer_names:
             g = f[layer_name]
             weight_names = [n.decode('utf8') for n in g.attrs['weight_names']]
@@ -41,20 +42,22 @@ class Encoder(object):
                     meta['layer_name'] = layer_name
                     meta['weight_name'] = weight_name
                     weight_value = g[weight_name].value
-                    bytearr = weight_value.tobytes()
+                    bytearr = weight_value.astype(np.float32).tobytes()
                     self.weights += bytearr
-                    meta['size'] = len(bytearr)
+                    meta['offset'] = offset
+                    meta['length'] = len(bytearr) / 4
                     meta['shape'] = list(weight_value.shape)
                     meta['type'] = 'float32'
                     self.metadata.append(meta)
+                    offset += len(bytearr)
 
         hdf5_file.close()
 
     def save(self):
         """Saves weights data (gzipped binary) and weights metadata (json)
         """
-        weights_filepath = '{}_weights.buf.gz'.format(os.path.splitext(self.weights_hdf5_filepath)[0])
-        with gzip.open(weights_filepath, mode='wb', compresslevel=9) as f:
+        weights_filepath = '{}_weights.buf'.format(os.path.splitext(self.weights_hdf5_filepath)[0])
+        with open(weights_filepath, mode='wb') as f:
             f.write(self.weights)
         metadata_filepath = '{}_metadata.json'.format(os.path.splitext(self.weights_hdf5_filepath)[0])
         with open(metadata_filepath, mode='w') as f:
