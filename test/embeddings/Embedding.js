@@ -1,6 +1,6 @@
 /* eslint-env browser, mocha */
 
-describe.only('embeddings layer: Embedding', function () {
+describe('embeddings layer: Embedding', function () {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
