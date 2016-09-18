@@ -1,5 +1,4 @@
 /* global XMLHttpRequest */
-import Promise from 'bluebird'
 import toPairs from 'lodash/toPairs'
 import mapKeys from 'lodash/mapKeys'
 import camelCase from 'lodash/camelCase'
@@ -88,21 +87,19 @@ export default class Model {
    * Model initialization
    * @returns {Promise}
    */
-  async initialize () {
+  initialize () {
     const dataTypes = ['model', 'weights', 'metdata']
-    try {
-      // get data
-      await Promise.all(dataTypes.map(type => {
-        return this.dataRequest(type, this.config.headers)
-      }))
-      // create layers
+    return Promise.all(
+      dataTypes.map(type => this.dataRequest(type, this.config.headers))
+    )
+    .then(() => {
       this.createLayers()
       return Promise.resolve()
-    } catch (err) {
+    })
+    .catch(err => {
       console.log(err)
       this.interrupt()
-      return Promise.reject(err)
-    }
+    })
   }
 
   /**
@@ -202,6 +199,6 @@ export default class Model {
    * Predict API
    */
   predict (data) {
-    
+
   }
 }
