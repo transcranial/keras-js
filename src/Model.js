@@ -3,7 +3,10 @@ import Promise from 'bluebird'
 import toPairs from 'lodash/toPairs'
 import mapKeys from 'lodash/mapKeys'
 import camelCase from 'lodash/camelCase'
-import * as layers from '../layers'
+import find from 'lodash/find'
+import * as layers from './layers'
+import Input from './Input'
+import Tensor from './Tensor'
 
 /**
  * Model class
@@ -139,18 +142,66 @@ export default class Model {
 
     if (modelClass === 'Sequential') {
       const modelConfig = this.data.model.config
+      const inputName = 'input'
 
       modelConfig.forEach((layerConfig, index) => {
+        // create Input node at start
+        if (index === 0) {
+          const layer = new Input({
+            name: inputName,
+            inputShape: layerConfig.batch_input_shape.slice(1)
+          })
+          this.modelLayers.set(inputName, layer)
+          this.modelDAG[inputName] = {
+            name: inputName,
+            outbound: []
+          }
+        }
+
         const layerClass = layerConfig.class_name
         if (layerClass in layers) {
           const attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
           const layer = new layers[layerClass](attrs)
-          this.modelLayers.set(attrs.name, layer)
-          this.modelDAG[
+
+          // layer weights
+          if (layer.params && layer.params.length) {
+            const weights = layer.params.map(param => {
+              const paramMetadata = find(this.data.metadata, meta => {
+                const weightRE = new RegExp(`^${layerConfig.name}_${param}`)
+                return meta.layer_name === layerConfig.name &&
+                  weightRE.test(meta.weight_name)
+              })
+              if (!paramMetadata) {
+                throw new Error(`[Model] error loading weights.`)
+              }
+
+              const { offset, length, shape } = paramMetadata
+              return new Tensor(new Float32Array(this.data.weights, offset, length), shape)
+            })
+            layer.setWeights(weights)
+          }
+
+          this.modelLayers.set(layerConfig.name, layer)
+          this.modelDAG[layerConfig.name] = {
+            name: layerConfig.name,
+            outbound: []
+          }
+          if (index === 0) {
+            this.modelDAG[inputName].outbound.push(layerConfig.name)
+          } else {
+            this.modelDAG[modelConfig[index - 1].name].outbound.push(layerConfig.name)
+          }
         } else {
           throw new Error(`Layer ${layerClass} specified in model configuration is not implemented!`)
         }
       })
     }
+  }
+
+  /**
+   * Predict API
+   */
+  predict (data) {
+    
   }
 }

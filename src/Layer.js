@@ -11,13 +11,10 @@ export default class Layer {
    */
   constructor (attrs = {}) {
     this.name = attrs.name
+
+    this.params = []
+    this.weights = {}
   }
-
-  inboundNodes = []
-  outboundNodes = []
-
-  params = []
-  weights = {}
 
   /**
    * Method for setting layer weights
@@ -31,6 +28,15 @@ export default class Layer {
     this.params.forEach((p, i) => {
       this.weights[p] = weightsArr[i]
     })
+  }
+
+  /**
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
+  call (x) {
+    return x
   }
 
   /**
