@@ -45,7 +45,7 @@ class Encoder(object):
                     bytearr = weight_value.astype(np.float32).tobytes()
                     self.weights += bytearr
                     meta['offset'] = offset
-                    meta['length'] = len(bytearr) / 4
+                    meta['length'] = len(bytearr) // 4
                     meta['shape'] = list(weight_value.shape)
                     meta['type'] = 'float32'
                     self.metadata.append(meta)
