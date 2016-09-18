@@ -3,6 +3,11 @@ import toPairs from 'lodash/toPairs'
 import mapKeys from 'lodash/mapKeys'
 import camelCase from 'lodash/camelCase'
 import find from 'lodash/find'
+import keys from 'lodash/keys'
+import values from 'lodash/values'
+import sum from 'lodash/sum'
+import isEqual from 'lodash/isEqual'
+import every from 'lodash/every'
 import * as layers from './layers'
 import Input from './Input'
 import Tensor from './Tensor'
@@ -21,7 +26,7 @@ export default class Model {
    * @param {object} [config.headers] - any additional HTTP headers required for resource fetching
    */
   constructor (filepaths, config = {}) {
-    if (filepaths.model && filepaths.weights && filepaths.metadata) {
+    if (!filepaths.model || !filepaths.weights || !filepaths.metadata) {
       throw new Error('File paths must be declared for model, weights, and metadata.')
     }
     this.filepaths = filepaths
@@ -53,11 +58,21 @@ export default class Model {
       metadata: null
     }
 
+    // XHR progress
+    this.xhrProgress = {
+      model: 0,
+      weights: 0,
+      metadata: 0
+    }
+
     // map of model layers
-    this.modelLayers = new Map()
+    this.modelLayersMap = new Map()
 
     // directed acyclic graph of model network
     this.modelDAG = {}
+
+    // input tensors
+    this.inputTensors = {}
 
     this._ready = this.initialize()
   }
@@ -88,7 +103,7 @@ export default class Model {
    * @returns {Promise}
    */
   initialize () {
-    const dataTypes = ['model', 'weights', 'metdata']
+    const dataTypes = ['model', 'weights', 'metadata']
     return Promise.all(
       dataTypes.map(type => this.dataRequest(type, this.config.headers))
     )
@@ -117,12 +132,27 @@ export default class Model {
       xhr.onload = e => {
         this.data[type] = xhr.response
         this.xhrs[type] = null
+        this.xhrProgress[type] = 100
         resolve()
+      }
+      xhr.onprogress = e => {
+        if (e.lengthComputable) {
+          const percentComplete = Math.round(100 * e.loaded / e.total)
+          this.xhrProgress[type] = percentComplete
+        }
       }
       xhr.onerror = e => reject(e)
       xhr.send(null)
       this.xhrs[type] = xhr
     })
+  }
+
+  /**
+   * Loading progress calculated from all the XHRs combined.
+   */
+  getLoadingProgress () {
+    const progressValues = values(this.xhrProgress)
+    return Math.round(sum(progressValues) / progressValues.length)
   }
 
   /**
@@ -141,21 +171,25 @@ export default class Model {
       const modelConfig = this.data.model.config
       const inputName = 'input'
 
-      modelConfig.forEach((layerConfig, index) => {
+      modelConfig.forEach((layerDef, index) => {
+        const layerClass = layerDef.class_name
+        const layerConfig = layerDef.config
+
         // create Input node at start
         if (index === 0) {
+          const inputShape = layerConfig.batch_input_shape.slice(1)
           const layer = new Input({
             name: inputName,
-            inputShape: layerConfig.batch_input_shape.slice(1)
+            inputShape
           })
-          this.modelLayers.set(inputName, layer)
+          this.modelLayersMap.set(inputName, layer)
           this.modelDAG[inputName] = {
             name: inputName,
             outbound: []
           }
+          this.inputTensors[inputName] = new Tensor([], inputShape)
         }
 
-        const layerClass = layerConfig.class_name
         if (layerClass in layers) {
           const attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
           const layer = new layers[layerClass](attrs)
@@ -178,7 +212,7 @@ export default class Model {
             layer.setWeights(weights)
           }
 
-          this.modelLayers.set(layerConfig.name, layer)
+          this.modelLayersMap.set(layerConfig.name, layer)
           this.modelDAG[layerConfig.name] = {
             name: layerConfig.name,
             outbound: []
@@ -186,7 +220,8 @@ export default class Model {
           if (index === 0) {
             this.modelDAG[inputName].outbound.push(layerConfig.name)
           } else {
-            this.modelDAG[modelConfig[index - 1].name].outbound.push(layerConfig.name)
+            const prevLayerConfig = modelConfig[index - 1].config
+            this.modelDAG[prevLayerConfig.name].outbound.push(layerConfig.name)
           }
         } else {
           throw new Error(`Layer ${layerClass} specified in model configuration is not implemented!`)
@@ -198,7 +233,17 @@ export default class Model {
   /**
    * Predict API
    */
-  predict (data) {
+  predict (inputData) {
+    const inputNames = keys(this.inputTensors)
+    if (!isEqual(keys(inputData), inputNames)) {
+      throw new Error('predict() must take an object where the keys are the named inputs of the model.')
+    }
+    if (!every(inputNames, inputName => inputData[inputName] instanceof Float32Array)) {
+      throw new Error('predict() must take an object where the values are the flattened data as Float32Array.')
+    }
 
+    inputNames.forEach(inputName => {
+      this.inputTensors[inputName].tensor.data = inputData[inputName]
+    })
   }
 }
