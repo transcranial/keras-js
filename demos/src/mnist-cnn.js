@@ -1,5 +1,6 @@
 /* global Vue */
 import debounce from 'lodash/debounce'
+import range from 'lodash/range'
 
 const getMidpoint = (p1, p2) => {
   const [x1, y1] = p1
@@ -29,28 +30,39 @@ export const MnistCnn = Vue.extend({
     <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
       Loading...{{ loadingProgress }}%
     </div>
-    <div class="input-container">
-      <div class="input-label">Draw any digit (0-9) here <span class="arrow">⤸</span></div>
-      <div class="canvas-container">
-        <canvas
-          id="input-canvas" width="240" height="240"
-          v-on:mousedown="activateDraw"
-          v-on:mouseup="deactivateDraw"
-          v-on:mousemove="draw"
-          v-on:touchstart="activateDraw"
-          v-on:touchend="deactivateDraw"
-          v-on:touchmove="draw"
-        ></canvas>
-        <canvas id="input-canvas-scaled" width="28" height="28" style="display: none;"></canvas>
-      </div>
-      <div class="input-clear" v-on:click="clear">
-        <i class="material-icons">clear</i>CLEAR
-      </div>
-    </div>
     <div class="columns">
       <div class="column">
+        <div class="input-container">
+          <div class="input-label">Draw any digit (0-9) here <span class="arrow">⤸</span></div>
+          <div class="canvas-container">
+            <canvas
+              id="input-canvas" width="240" height="240"
+              @mousedown="activateDraw"
+              @mouseup="deactivateDraw"
+              @mousemove="draw"
+              @touchstart="activateDraw"
+              @touchend="deactivateDraw"
+              @touchmove="draw"
+            ></canvas>
+            <canvas id="input-canvas-scaled" width="28" height="28" style="display: none;"></canvas>
+          </div>
+          <div class="input-clear" v-on:click="clear">
+            <i class="material-icons">clear</i>CLEAR
+          </div>
+        </div>
       </div>
       <div class="column">
+        <div class="output">
+          <div class="output-class"
+            v-bind:class="{ 'predicted': i === predictedClass }"
+            v-for="i in outputClasses"
+          >
+            <div class="output-label">{{ i }}</div>
+            <div class="output-bar"
+              style="height: {{ Math.round(100 * output[i]) }}px; background: rgba(27, 188, 155, {{ output[i].toFixed(2) }});"
+            ></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -64,9 +76,9 @@ export const MnistCnn = Vue.extend({
         metadata: '/demos/mnist_cnn/mnist_cnn_metadata.json'
       }),
       modelLoading: true,
-      inputData: {
-        'input': new Float32Array(784)
-      },
+      input: new Float32Array(784),
+      output: new Float32Array(10),
+      outputClasses: range(10),
       drawing: false,
       strokes: []
     }
@@ -75,6 +87,12 @@ export const MnistCnn = Vue.extend({
   computed: {
     loadingProgress: function () {
       return this.model.getLoadingProgress()
+    },
+    predictedClass: function () {
+      if (this.output.reduce((a, b) => a + b, 0) === 0) {
+        return -1
+      }
+      return this.output.reduce((argmax, n, i) => n > this.output[argmax] ? i : argmax, 0)
     }
   },
 
@@ -96,6 +114,9 @@ export const MnistCnn = Vue.extend({
     clear: function (e) {
       const ctx = document.getElementById('input-canvas').getContext('2d')
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+      const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d')
+      ctxScaled.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+      this.output = new Float32Array(10)
       this.drawing = false
       this.strokes = []
     },
@@ -108,14 +129,14 @@ export const MnistCnn = Vue.extend({
     deactivateDraw: function (e) {
       this.drawing = false
       this.processCanvasData()
-      this.model.predict(this.inputData)
+      this.output = this.model.predict({ input: this.input }).output
     },
     draw: function (e) {
       if (!this.drawing) return
 
       const ctx = document.getElementById('input-canvas').getContext('2d')
 
-      ctx.lineWidth = 12
+      ctx.lineWidth = 15
       ctx.lineJoin = ctx.lineCap = 'round'
       ctx.strokeStyle = '#393E46'
 
@@ -144,14 +165,17 @@ export const MnistCnn = Vue.extend({
         ctx.stroke()
       }
     },
-    processCanvasData: function () {
+    processCanvasData: debounce(function () {
+      const ctx = document.getElementById('input-canvas').getContext('2d')
       const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d')
+      ctxScaled.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
       ctxScaled.drawImage(document.getElementById('input-canvas'), 0, 0)
       const imageDataScaled = ctxScaled.getImageData(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
       const { data } = imageDataScaled
+      this.input = new Float32Array(784)
       for (let i = 0, len = data.length; i < len; i += 4) {
-        this.inputData['input'][i / 4] = data[i + 3] / 255
+        this.input[i / 4] = data[i + 3] / 255
       }
-    }
+    }, 200, { leading: true, trailing: true })
   }
 })

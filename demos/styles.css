@@ -92,6 +92,12 @@ body {
   border-radius: 10px;
 }
 
+.demo.mnist-cnn .column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .demo.mnist-cnn .input-container {
   display: inline-flex;
   flex-direction: column;
@@ -141,4 +147,41 @@ body {
 .demo.mnist-cnn .input-clear:hover {
   color: rgba(27, 188, 155, 0.3);
   cursor: pointer;
+}
+
+.demo.mnist-cnn .output {
+  height: 160px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.demo.mnist-cnn .output .output-class {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border-bottom: 2px solid rgba(27, 188, 155, 0.3);
+}
+
+.demo.mnist-cnn .output .output-class.predicted {
+  border-bottom-color: #1BBC9B;
+}
+
+.demo.mnist-cnn .output .output-class .output-label {
+  font-family: 'Inconsolata', sans-serif;
+  font-size: 1.5rem;
+  color: #69707a;
+}
+
+.demo.mnist-cnn .output .output-class .output-bar {
+  width: 8px;
+  background: #EEEEEE;
+  transition: height 0.2s ease-out;
+}
+
+.demo.mnist-cnn .output .output-class.predicted .output-label {
+  color: #1BBC9B;
 }
