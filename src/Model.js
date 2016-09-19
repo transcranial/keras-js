@@ -249,8 +249,17 @@ export default class Model {
    */
   * traverseDAG (nodes) {
     if (nodes.length === 0) {
+      // Stopping criterion:
+      // an output node will have 0 outbound nodes.
       return true
     } else if (nodes.length === 1) {
+      // Where computational logic lives for a given layer node
+      // - Makes sure results are available from inbound layer nodes
+      // - Keeps generator going until results are available from inbound layer nodes
+      //   (important for Merge layer nodes where multiple inbound nodes may
+      //    complete asynchronously)
+      // - Runs computation for current layer node: .call()
+      // - Starts new generator function for outbound nodes
       const node = nodes[0]
       const { layerClass, inbound, outbound } = this.modelDAG[node]
       if (layerClass !== 'Input') {
