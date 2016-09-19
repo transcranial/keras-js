@@ -15,7 +15,7 @@ describe('core layer: RepeatVector', function () {
   it('[core.RepeatVector.0] should be able to go from shape [6] -> [7, 6]', function () {
     const key = 'core.RepeatVector.0'
     console.log(`\n%c[${key}] repeat vector, shape [6] -> [7, 6]`, styles.h3)
-    let testLayer = new layers.RepeatVector(7)
+    let testLayer = new layers.RepeatVector({ n: 7 })
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
     const startTime = performance.now()

@@ -9,13 +9,15 @@ import unsqueeze from 'ndarray-unsqueeze'
 export default class Convolution1D extends Layer {
   /**
    * Creates a Convolution1D layer
-   * @param {number} nbFilter - Number of convolution filters to use.
-   * @param {number} filterLength - Length of 1D convolution kernel.
+   * @param {number} attrs.nbFilter - Number of convolution filters to use.
+   * @param {number} attrs.filterLength - Length of 1D convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
-  constructor (nbFilter, filterLength, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
     const {
+      nbFilter = 1,
+      filterLength = 1,
       activation = 'linear',
       borderMode = 'valid',
       subsampleLength = 1,
@@ -33,7 +35,10 @@ export default class Convolution1D extends Layer {
     // Convolution1D is actually a shim on top of Convolution2D, where
     // all of the computational action is performed
     // Note that Keras uses `th` dim ordering here.
-    this._conv2d = new Convolution2D(nbFilter, filterLength, 1, {
+    this._conv2d = new Convolution2D({
+      nbFilter,
+      nbRow: filterLength,
+      nbCol: 1,
       activation,
       borderMode,
       subsample: [subsampleLength, 1],

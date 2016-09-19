@@ -10,14 +10,17 @@ import ops from 'ndarray-ops'
 export default class SeparableConvolution2D extends Layer {
   /**
    * Creates a SeparableConvolution2D layer
-   * @param {number} nbFilter - Number of convolution filters to use.
-   * @param {number} nbRow - Number of rows in the convolution kernel.
-   * @param {number} nbCol - Number of columns in the convolution kernel.
+   * @param {number} attrs.nbFilter - Number of convolution filters to use.
+   * @param {number} attrs.nbRow - Number of rows in the convolution kernel.
+   * @param {number} attrs.nbCol - Number of columns in the convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
-  constructor (nbFilter, nbRow, nbCol, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
     const {
+      nbFilter = 1,
+      nbRow = 1,
+      nbCol = 1,
       activation = 'linear',
       borderMode = 'valid',
       subsample = [1, 1],
@@ -53,10 +56,10 @@ export default class SeparableConvolution2D extends Layer {
     // SeparableConvolution2D has two components: depthwise, and pointwise.
     // Activation function and bias is applied at the end.
     // Subsampling (striding) only performed on depthwise part, not the pointwise part.
-    const depthwiseConvAttrs = { activation: 'linear', borderMode, subsample, dimOrdering, bias: false }
-    const pointwiseConvAttrs = { activation: 'linear', borderMode, subsample: [1, 1], dimOrdering, bias: false }
-    this._depthwiseConv = new Convolution2D(this.depthMultiplier, nbRow, nbCol, depthwiseConvAttrs)
-    this._pointwiseConv = new Convolution2D(nbFilter, 1, 1, pointwiseConvAttrs)
+    const depthwiseConvAttrs = { nbFilter: this.depthMultiplier, nbRow, nbCol, activation: 'linear', borderMode, subsample, dimOrdering, bias: false }
+    const pointwiseConvAttrs = { nbFilter, nbRow: 1, nbCol: 1, activation: 'linear', borderMode, subsample: [1, 1], dimOrdering, bias: false }
+    this._depthwiseConv = new Convolution2D(depthwiseConvAttrs)
+    this._pointwiseConv = new Convolution2D(pointwiseConvAttrs)
   }
 
   /**

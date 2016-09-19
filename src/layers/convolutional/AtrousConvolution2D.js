@@ -13,13 +13,13 @@ import flattenDeep from 'lodash/flattenDeep'
 export default class AtrousConvolution2D extends Convolution2D {
   /**
    * Creates a AtrousConvolution2D layer
-   * @param {number} nbFilter - Number of convolution filters to use.
-   * @param {number} nbRow - Number of rows in the convolution kernel.
-   * @param {number} nbCol - Number of columns in the convolution kernel.
+   * @param {number} attrs.nbFilter - Number of convolution filters to use.
+   * @param {number} attrs.nbRow - Number of rows in the convolution kernel.
+   * @param {number} attrs.nbCol - Number of columns in the convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
-  constructor (nbFilter, nbRow, nbCol, attrs = {}) {
-    super(nbFilter, nbRow, nbCol, attrs)
+  constructor (attrs = {}) {
+    super(attrs)
     const {
       atrousRate = [1, 1]
     } = attrs

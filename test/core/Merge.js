@@ -24,8 +24,8 @@ describe('core layer: Merge', function () {
     it('[core.Merge.0] should produce expected values in sum mode', function () {
       const key = 'core.Merge.0'
       console.log(`\n%c[${key}] mode: sum`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer1b = new layers.Dense(2)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
       let testLayer2 = new layers.Merge({ mode: 'sum' })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -59,8 +59,8 @@ describe('core layer: Merge', function () {
     it('[core.Merge.1] should produce expected values in mul mode', function () {
       const key = 'core.Merge.1'
       console.log(`\n%c[${key}] mode: mul`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer1b = new layers.Dense(2)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
       let testLayer2 = new layers.Merge({ mode: 'mul' })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -94,8 +94,8 @@ describe('core layer: Merge', function () {
     it('[core.Merge.2] should produce expected values in ave mode', function () {
       const key = 'core.Merge.2'
       console.log(`\n%c[${key}] mode: ave`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer1b = new layers.Dense(2)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
       let testLayer2 = new layers.Merge({ mode: 'ave' })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -129,8 +129,8 @@ describe('core layer: Merge', function () {
     it('[core.Merge.3] should produce expected values in max mode', function () {
       const key = 'core.Merge.3'
       console.log(`\n%c[${key}] mode: max`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer1b = new layers.Dense(2)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
       let testLayer2 = new layers.Merge({ mode: 'max' })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -164,8 +164,8 @@ describe('core layer: Merge', function () {
     it('[core.Merge.4] should produce expected values in concat mode (1D)', function () {
       const key = 'core.Merge.4'
       console.log(`\n%c[${key}] mode: concat (1D)`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer1b = new layers.Dense(2)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
       let testLayer2 = new layers.Merge({ mode: 'concat', concatAxis: -1 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -189,10 +189,10 @@ describe('core layer: Merge', function () {
     it('[core.Merge.5] should produce expected values in concat mode (2D, concatAxis=-1)', function () {
       const key = 'core.Merge.5'
       console.log(`\n%c[${key}] mode: concat (2D, concatAxis=-1)`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer2a = new layers.RepeatVector(3)
-      let testLayer1b = new layers.Dense(2)
-      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer2a = new layers.RepeatVector({ n: 3 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
+      let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Merge({ mode: 'concat', concatAxis: -1 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -218,10 +218,10 @@ describe('core layer: Merge', function () {
     it('[core.Merge.6] should produce expected values in concat mode (2D, concatAxis=-2)', function () {
       const key = 'core.Merge.6'
       console.log(`\n%c[${key}] mode: concat (2D, concatAxis=-2)`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer2a = new layers.RepeatVector(3)
-      let testLayer1b = new layers.Dense(2)
-      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer2a = new layers.RepeatVector({ n: 3 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
+      let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Merge({ mode: 'concat', concatAxis: -2 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -247,10 +247,10 @@ describe('core layer: Merge', function () {
     it('[core.Merge.7] should produce expected values in concat mode (2D, concatAxis=1)', function () {
       const key = 'core.Merge.7'
       console.log(`\n%c[${key}] mode: concat (2D, concatAxis=1)`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer2a = new layers.RepeatVector(3)
-      let testLayer1b = new layers.Dense(2)
-      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer2a = new layers.RepeatVector({ n: 3 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
+      let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Merge({ mode: 'concat', concatAxis: 1 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -276,10 +276,10 @@ describe('core layer: Merge', function () {
     it('[core.Merge.8] should produce expected values in concat mode (2D, concatAxis=2)', function () {
       const key = 'core.Merge.8'
       console.log(`\n%c[${key}] mode: concat (2D, concatAxis=2)`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer2a = new layers.RepeatVector(3)
-      let testLayer1b = new layers.Dense(2)
-      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer2a = new layers.RepeatVector({ n: 3 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
+      let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Merge({ mode: 'concat', concatAxis: 2 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -315,10 +315,10 @@ describe('core layer: Merge', function () {
     it('[core.Merge.9] should produce expected values in dot mode (2D x 2D, dotAxes=1)', function () {
       const key = 'core.Merge.9'
       console.log(`\n%c[${key}] mode: dot (2D x 2D, dotAxes=1)`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer2a = new layers.RepeatVector(3)
-      let testLayer1b = new layers.Dense(2)
-      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer2a = new layers.RepeatVector({ n: 3 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
+      let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Merge({ mode: 'dot', dotAxes: 1 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -344,10 +344,10 @@ describe('core layer: Merge', function () {
     it('[core.Merge.10] should produce expected values in dot mode (2D x 2D, dotAxes=2)', function () {
       const key = 'core.Merge.10'
       console.log(`\n%c[${key}] mode: dot (2D x 2D, dotAxes=2)`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer2a = new layers.RepeatVector(3)
-      let testLayer1b = new layers.Dense(2)
-      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer2a = new layers.RepeatVector({ n: 3 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
+      let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Merge({ mode: 'dot', dotAxes: 2 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -383,10 +383,10 @@ describe('core layer: Merge', function () {
     it('[core.Merge.11] should produce expected values in cos mode (2D x 2D, dotAxes=1)', function () {
       const key = 'core.Merge.11'
       console.log(`\n%c[${key}] mode: cos (2D x 2D, dotAxes=1)`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer2a = new layers.RepeatVector(3)
-      let testLayer1b = new layers.Dense(2)
-      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer2a = new layers.RepeatVector({ n: 3 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
+      let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Merge({ mode: 'cos', dotAxes: 1 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -412,10 +412,10 @@ describe('core layer: Merge', function () {
     it('[core.Merge.12] should produce expected values in cos mode (2D x 2D, dotAxes=2)', function () {
       const key = 'core.Merge.12'
       console.log(`\n%c[${key}] mode: cos (2D x 2D, dotAxes=2)`, styles.h3)
-      let testLayer1a = new layers.Dense(2)
-      let testLayer2a = new layers.RepeatVector(3)
-      let testLayer1b = new layers.Dense(2)
-      let testLayer2b = new layers.RepeatVector(3)
+      let testLayer1a = new layers.Dense({ outputDim: 2 })
+      let testLayer2a = new layers.RepeatVector({ n: 3 })
+      let testLayer1b = new layers.Dense({ outputDim: 2 })
+      let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Merge({ mode: 'cos', dotAxes: 2 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))

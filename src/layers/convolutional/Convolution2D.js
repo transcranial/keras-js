@@ -12,14 +12,17 @@ import flattenDeep from 'lodash/flattenDeep'
 export default class Convolution2D extends Layer {
   /**
    * Creates a Convolution2D layer
-   * @param {number} nbFilter - Number of convolution filters to use.
-   * @param {number} nbRow - Number of rows in the convolution kernel.
-   * @param {number} nbCol - Number of columns in the convolution kernel.
+   * @param {number} attrs.nbFilter - Number of convolution filters to use.
+   * @param {number} attrs.nbRow - Number of rows in the convolution kernel.
+   * @param {number} attrs.nbCol - Number of columns in the convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
-  constructor (nbFilter, nbRow, nbCol, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
     const {
+      nbFilter = 1,
+      nbRow = 3,
+      nbCol = 3,
       activation = 'linear',
       borderMode = 'valid',
       subsample = [1, 1],

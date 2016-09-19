@@ -12,16 +12,20 @@ import flattenDeep from 'lodash/flattenDeep'
 export default class Deconvolution2D extends Layer {
   /**
    * Creates a Deconvolution2D layer
-   * @param {number} nbFilter - Number of convolution filters to use.
-   * @param {number} nbRow - Number of rows in the convolution kernel.
-   * @param {number} nbCol - Number of columns in the convolution kernel.
-   * @param {number[]} outputShape - Output shape of the transposed convolution operation.
+   * @param {number} attrs.nbFilter - Number of convolution filters to use.
+   * @param {number} attrs.nbRow - Number of rows in the convolution kernel.
+   * @param {number} attrs.nbCol - Number of columns in the convolution kernel.
+   * @param {number[]} attrs.outputShape - Output shape of the transposed convolution operation.
    *   Array of integers [nbFilter, outputRows, outputCols]
    * @param {Object} [attrs] - layer attributes
    */
-  constructor (nbFilter, nbRow, nbCol, outputShape, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
     const {
+      nbFilter = 1,
+      nbRow = 1,
+      nbCol = 1,
+      outputShape = [],
       activation = 'linear',
       borderMode = 'valid',
       subsample = [1, 1],

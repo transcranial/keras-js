@@ -8,11 +8,12 @@ import ops from 'ndarray-ops'
 export default class ZeroPadding3D extends Layer {
   /**
    * Creates a ZeroPadding3D activation layer
-   * @param {number} padding - size of padding
+   * @param {number} attrs.padding - size of padding
    */
-  constructor (padding = [1, 1, 1], attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
     const {
+      padding = [1, 1, 1],
       dimOrdering = 'tf'
     } = attrs
 

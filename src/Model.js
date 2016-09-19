@@ -184,7 +184,9 @@ export default class Model {
           })
           this.modelLayersMap.set(inputName, layer)
           this.modelDAG[inputName] = {
+            layerClass: 'Input',
             name: inputName,
+            inbound: [],
             outbound: []
           }
           this.inputTensors[inputName] = new Tensor([], inputShape)
@@ -192,6 +194,9 @@ export default class Model {
 
         if (layerClass in layers) {
           const attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
+          if ('activation' in attrs) {
+            attrs.activation = camelCase(attrs.activation)
+          }
           const layer = new layers[layerClass](attrs)
 
           // layer weights
@@ -214,19 +219,55 @@ export default class Model {
 
           this.modelLayersMap.set(layerConfig.name, layer)
           this.modelDAG[layerConfig.name] = {
+            layerClass,
             name: layerConfig.name,
+            inbound: [],
             outbound: []
           }
           if (index === 0) {
             this.modelDAG[inputName].outbound.push(layerConfig.name)
           } else {
             const prevLayerConfig = modelConfig[index - 1].config
+            this.modelDAG[layerConfig.name].inbound.push(prevLayerConfig.name)
             this.modelDAG[prevLayerConfig.name].outbound.push(layerConfig.name)
           }
         } else {
           throw new Error(`Layer ${layerClass} specified in model configuration is not implemented!`)
         }
       })
+    }
+  }
+
+  /**
+   * Generator function for recursively traversing the DAG
+   */
+  * traverseDAG (nodes) {
+    if (nodes.length === 0) {
+      return true
+    } else if (nodes.length === 1) {
+      const node = nodes[0]
+      const { layerClass, inbound, outbound } = this.modelDAG[node]
+      if (layerClass !== 'Input') {
+        let currentLayer = this.modelLayersMap.get(node)
+        console.log(currentLayer)
+        const inboundLayers = inbound.map(n => this.modelLayersMap.get(n))
+        while (!every(inboundLayers.map(layer => layer.hasResult))) {
+          yield
+        }
+        if (layerClass === 'Merge') {
+          currentLayer.result = currentLayer.call(inboundLayers.map(layer => layer.result))
+          currentLayer.hasResult = true
+        } else {
+          if (inboundLayers.length !== 1) {
+            throw new Error(`Layer name ${currentLayer.name} has ${inboundLayers.length} inbound nodes, but is not a Merge layer.`)
+          }
+          currentLayer.result = currentLayer.call(inboundLayers[0].result)
+          currentLayer.hasResult = true
+        }
+      }
+      yield * this.traverseDAG(outbound)
+    } else {
+      yield * nodes.map(node => this.traverseDAG([node]))
     }
   }
 
@@ -242,8 +283,23 @@ export default class Model {
       throw new Error('predict() must take an object where the values are the flattened data as Float32Array.')
     }
 
+    // reset hasResult flag in all layers
+    for (let layer of this.modelLayersMap.values()) {
+      layer.hasResult = false
+    }
+
+    // load data to input tensors
     inputNames.forEach(inputName => {
       this.inputTensors[inputName].tensor.data = inputData[inputName]
+      let inputLayer = this.modelLayersMap.get(inputName)
+      inputLayer.result = inputLayer.call(this.inputTensors[inputName])
+      this.modelLayersMap.get(inputName).hasResult = true
     })
+
+    // start traversing DAG at input
+    let traversing = this.traverseDAG(inputNames)
+    while (!traversing.next().done) {
+      console.log('blah')
+    }
   }
 }

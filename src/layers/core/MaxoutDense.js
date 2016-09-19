@@ -13,12 +13,13 @@ import ops from 'ndarray-ops'
 export default class MaxoutDense extends Layer {
   /**
    * Creates a MaxoutDense layer
-   * @param {number} outputDim - output dimension size
+   * @param {number} attrs.outputDim - output dimension size
    * @param {Object} [attrs] - layer attributes
    */
-  constructor (outputDim, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
     const {
+      outputDim = 1,
       inputDim = null,
       bias = true
     } = attrs

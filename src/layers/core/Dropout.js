@@ -7,10 +7,15 @@ import Layer from '../../Layer'
 export default class Dropout extends Layer {
   /**
    * Creates an Dropout layer
-   * @param {number} p - fraction of the input units to drop (between 0 and 1)
+   * @param {number} attrs.p - fraction of the input units to drop (between 0 and 1)
    */
-  constructor (p, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
+
+    const {
+      p = 0.5
+    } = attrs
+
     this.p = Math.min(Math.max(0, p), 1)
   }
 

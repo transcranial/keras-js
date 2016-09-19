@@ -7,10 +7,15 @@ import Layer from '../../Layer'
 export default class Activation extends Layer {
   /**
    * Creates an Activation layer
-   * @param {string} activation - name of activation function
+   * @param {string} attrs.activation - name of activation function
    */
-  constructor (activation, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
+
+    const {
+      activation = 'linear'
+    } = attrs
+
     this.activation = activations[activation]
   }
 

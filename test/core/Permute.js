@@ -15,7 +15,7 @@ describe('core layer: Permute', function () {
   it('[core.Permute.0] should be able to go from shape [3, 2] -> [2, 3]', function () {
     const key = 'core.Permute.0'
     console.log(`\n%c[${key}] shape [3, 2] -> [2, 3]`, styles.h3)
-    let testLayer = new layers.Permute([2, 1])
+    let testLayer = new layers.Permute({ dims: [2, 1] })
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
     const startTime = performance.now()
@@ -32,7 +32,7 @@ describe('core layer: Permute', function () {
   it('[core.Permute.1] should be able to go from shape [2, 3, 4] -> [4, 3, 2]', function () {
     const key = 'core.Permute.1'
     console.log(`\n%c[${key}] shape [2, 3, 4] -> [4, 3, 2]`, styles.h3)
-    let testLayer = new layers.Permute([3, 2, 1])
+    let testLayer = new layers.Permute({ dims: [3, 2, 1] })
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
     const startTime = performance.now()

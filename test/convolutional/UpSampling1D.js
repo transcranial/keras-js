@@ -15,7 +15,7 @@ describe('convolutional layer: UpSampling1D', function () {
   it(`[convolutional.UpSampling1D.0] length 2 upsampling on 3x5 input`, function () {
     const key = `convolutional.UpSampling1D.0`
     console.log(`\n%c[${key}] length 2 upsampling on 3x5 input`, styles.h3)
-    let testLayer = new layers.UpSampling1D(2)
+    let testLayer = new layers.UpSampling1D({ length: 2 })
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
     const startTime = performance.now()
@@ -32,7 +32,7 @@ describe('convolutional layer: UpSampling1D', function () {
   it(`[convolutional.UpSampling1D.1] length 3 upsampling on 4x4 input`, function () {
     const key = `convolutional.UpSampling1D.1`
     console.log(`\n%c[${key}] length 3 upsampling on 4x4 input`, styles.h3)
-    let testLayer = new layers.UpSampling1D(3)
+    let testLayer = new layers.UpSampling1D({ length: 3 })
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
     const startTime = performance.now()

@@ -5,7 +5,7 @@ import * as layers from './layers'
 
 let testUtils
 if (process.env.NODE_ENV !== 'production') {
-  testUtils = require('./test-utils')
+  testUtils = require('./testUtils')
 }
 
 export {

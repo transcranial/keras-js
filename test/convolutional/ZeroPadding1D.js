@@ -15,7 +15,7 @@ describe('convolutional layer: ZeroPadding1D', function () {
   it(`[convolutional.ZeroPadding1D.0] padding 1 on 3x5 input`, function () {
     const key = `convolutional.ZeroPadding1D.0`
     console.log(`\n%c[${key}] padding 1 on 3x5 input`, styles.h3)
-    let testLayer = new layers.ZeroPadding1D(1)
+    let testLayer = new layers.ZeroPadding1D({ padding: 1 })
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
     const startTime = performance.now()
@@ -32,7 +32,7 @@ describe('convolutional layer: ZeroPadding1D', function () {
   it(`[convolutional.ZeroPadding1D.1] padding 3 on 4x4 input`, function () {
     const key = `convolutional.ZeroPadding1D.1`
     console.log(`\n%c[${key}] padding 3 on 4x4 input`, styles.h3)
-    let testLayer = new layers.ZeroPadding1D(3)
+    let testLayer = new layers.ZeroPadding1D({ padding: 3 })
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
     const startTime = performance.now()

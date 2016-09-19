@@ -15,7 +15,7 @@ describe('core layer: MaxoutDense', function () {
   it('[core.MaxoutDense.0] should produce expected values, nbFeature=4, bias=true', function () {
     const key = 'core.MaxoutDense.0'
     console.log(`\n%c[${key}] nbFeature=4, bias=true`, styles.h3)
-    let testLayer = new layers.MaxoutDense(3)
+    let testLayer = new layers.MaxoutDense({ outputDim: 3 })
     testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -33,7 +33,7 @@ describe('core layer: MaxoutDense', function () {
   it('[core.MaxoutDense.1] should produce expected values, nbFeature=7, bias=false', function () {
     const key = 'core.MaxoutDense.1'
     console.log(`\n%c[${key}] nbFeature=7, bias=false`, styles.h3)
-    let testLayer = new layers.MaxoutDense(3, { bias: false })
+    let testLayer = new layers.MaxoutDense({ outputDim: 3, bias: false })
     testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))

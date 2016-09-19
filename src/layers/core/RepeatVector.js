@@ -10,10 +10,13 @@ import tile from 'ndarray-tile'
 export default class RepeatVector extends Layer {
   /**
    * Creates a RepeatVector layer
-   * @param {number} n
+   * @param {number} attrs.n
    */
-  constructor (n, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
+    const {
+      n = 1
+    } = attrs
     this.n = n
   }
 

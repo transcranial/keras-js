@@ -15,7 +15,7 @@ describe('core layer: Reshape', function () {
   it('[core.Reshape.0] should be able to go from shape [6] -> [2, 3]', function () {
     const key = 'core.Reshape.0'
     console.log(`\n%c[${key}] shape [6] -> [2, 3]`, styles.h3)
-    let testLayer = new layers.Reshape([2, 3])
+    let testLayer = new layers.Reshape({ shape: [2, 3] })
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
     const startTime = performance.now()
@@ -32,7 +32,7 @@ describe('core layer: Reshape', function () {
   it('[core.Reshape.1] should be able to go from shape [3, 2] -> [6]', function () {
     const key = 'core.Reshape.1'
     console.log(`\n%c[${key}] shape [3, 2] -> [6]`, styles.h3)
-    let testLayer = new layers.Reshape([6])
+    let testLayer = new layers.Reshape({ shape: [6] })
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
     const startTime = performance.now()
@@ -49,7 +49,7 @@ describe('core layer: Reshape', function () {
   it('[core.Reshape.2] should be able to go from shape [3, 2, 2] -> [4, 3]', function () {
     const key = 'core.Reshape.2'
     console.log(`\n%c[${key}] shape [3, 2, 2] -> [4, 3]`, styles.h3)
-    let testLayer = new layers.Reshape([4, 3])
+    let testLayer = new layers.Reshape({ shape: [4, 3] })
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
     const startTime = performance.now()

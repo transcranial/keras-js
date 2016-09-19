@@ -8,10 +8,13 @@ import Layer from '../../Layer'
 export default class Permute extends Layer {
   /**
    * Creates a Permute layer
-   * @param {number[]} dims
+   * @param {number[]} attrs.dims
    */
-  constructor (dims, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
+    const {
+      dims = []
+    } = attrs
     this.dims = dims.map(dim => dim - 1)
   }
 

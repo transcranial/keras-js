@@ -8,11 +8,12 @@ import ops from 'ndarray-ops'
 export default class UpSampling2D extends Layer {
   /**
    * Creates a UpSampling2D activation layer
-   * @param {number} size - upsampling factor
+   * @param {number} attrs.size - upsampling factor
    */
-  constructor (size = [2, 2], attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
     const {
+      size = [2, 2],
       dimOrdering = 'tf'
     } = attrs
 

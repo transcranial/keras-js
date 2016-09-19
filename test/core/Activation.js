@@ -15,12 +15,12 @@ describe('core layer: Activation', function () {
   it('[core.Activation.0] should produce expected values for tanh activation following Dense layer', function () {
     const key = 'core.Activation.0'
     console.log(`\n%c[${key}] test 1 (tanh)`, styles.h3)
-    let testLayer1 = new layers.Dense(2)
+    let testLayer1 = new layers.Dense({ outputDim: 2 })
     testLayer1.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     t = testLayer1.call(t)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-    let testLayer2 = new layers.Activation('tanh')
+    let testLayer2 = new layers.Activation({ activation: 'tanh' })
     const startTime = performance.now()
     t = testLayer2.call(t)
     const endTime = performance.now()
@@ -35,12 +35,12 @@ describe('core layer: Activation', function () {
   it('[core.Activation.1] should produce expected values for hardSigmoid activation following Dense layer', function () {
     const key = 'core.Activation.1'
     console.log(`\n%c[${key}] test 2 (hardSigmoid)`, styles.h3)
-    let testLayer1 = new layers.Dense(2)
+    let testLayer1 = new layers.Dense({ outputDim: 2 })
     testLayer1.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     t = testLayer1.call(t)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-    let testLayer2 = new layers.Activation('hardSigmoid')
+    let testLayer2 = new layers.Activation({ activation: 'hardSigmoid' })
     const startTime = performance.now()
     t = testLayer2.call(t)
     const endTime = performance.now()

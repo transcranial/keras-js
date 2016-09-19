@@ -11,10 +11,13 @@ import flattenDeep from 'lodash/flattenDeep'
 export default class Reshape extends Layer {
   /**
    * Creates a Reshape layer
-   * @param {number[]} shape
+   * @param {number[]} attrs.shape
    */
-  constructor (shape, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
+    const {
+      shape = []
+    } = attrs
     this.shape = shape
   }
 

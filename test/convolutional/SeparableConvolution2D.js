@@ -67,7 +67,7 @@ describe('convolutional layer: SeparableConvolution2D', function () {
 
       it(title, function () {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.SeparableConvolution2D(nbFilter, nbRow, nbCol, attrs)
+        let testLayer = new layers.SeparableConvolution2D(Object.assign({ nbFilter, nbRow, nbCol }, attrs))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -101,7 +101,7 @@ describe('convolutional layer: SeparableConvolution2D', function () {
 
       it(title, function () {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.SeparableConvolution2D(nbFilter, nbRow, nbCol, attrs)
+        let testLayer = new layers.SeparableConvolution2D(Object.assign({ nbFilter, nbRow, nbCol }, attrs))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape, { useWeblas: true })
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))

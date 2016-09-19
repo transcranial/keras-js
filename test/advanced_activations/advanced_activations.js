@@ -24,7 +24,7 @@ describe('advanced activation layers', function () {
     it('[advanced_activations.LeakyReLU.0] should produce expected values', function () {
       const key = 'advanced_activations.LeakyReLU.0'
       console.log(`\n%c[${key}] alpha=0.4`, styles.h3)
-      let testLayer = new layers.LeakyReLU(0.4)
+      let testLayer = new layers.LeakyReLU({ alpha: 0.4 })
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
       const startTime = performance.now()
@@ -79,7 +79,7 @@ describe('advanced activation layers', function () {
     it('[advanced_activations.ELU.0] should produce expected values', function () {
       const key = 'advanced_activations.ELU.0'
       console.log(`\n%c[${key}] alpha=1.1`, styles.h3)
-      let testLayer = new layers.ELU(1.1)
+      let testLayer = new layers.ELU({ alpha: 1.1 })
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
       const startTime = performance.now()
@@ -134,7 +134,7 @@ describe('advanced activation layers', function () {
     it('[advanced_activations.ThresholdedReLU.0] should produce expected values', function () {
       const key = 'advanced_activations.ThresholdedReLU.0'
       console.log(`\n%c[${key}] theta=0.9`, styles.h3)
-      let testLayer = new layers.ThresholdedReLU(0.9)
+      let testLayer = new layers.ThresholdedReLU({ theta: 0.9 })
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
       const startTime = performance.now()

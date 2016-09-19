@@ -7,10 +7,15 @@ import cwise from 'cwise'
 export default class ELU extends Layer {
   /**
    * Creates a ELU activation layer
-   * @param {number} alpha - scale for the negative factor
+   * @param {number} attrs.alpha - scale for the negative factor
    */
-  constructor (alpha = 1.0, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
+
+    const {
+      alpha = 1.0
+    } = attrs
+
     this.alpha = alpha
   }
 

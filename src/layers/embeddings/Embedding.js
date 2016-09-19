@@ -9,9 +9,11 @@ export default class Embedding extends Layer {
   /**
    * Creates a Embedding layer
    */
-  constructor (inputDim, outputDim, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
     const {
+      inputDim = 1,
+      outputDim = 1,
       inputLength = 0,
       maskZero = false,
       dropout = 0.0

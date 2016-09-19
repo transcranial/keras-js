@@ -8,10 +8,13 @@ import ops from 'ndarray-ops'
 export default class UpSampling1D extends Layer {
   /**
    * Creates a UpSampling1D activation layer
-   * @param {number} length - upsampling factor
+   * @param {number} attrs.length - upsampling factor
    */
-  constructor (length = 2, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
+    const {
+      length = 2
+    } = attrs
     this.length = length
   }
 

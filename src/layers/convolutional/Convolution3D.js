@@ -12,15 +12,19 @@ import flattenDeep from 'lodash/flattenDeep'
 export default class Convolution3D extends Layer {
   /**
    * Creates a Convolution3D layer
-   * @param {number} nbFilter - Number of convolution filters to use.
-   * @param {number} kernelDim1 - Length of the first dimension in the convolution kernel.
-   * @param {number} kernelDim2 - Length of the second dimension in the convolution kernel.
-   * @param {number} kernelDim3 - Length of the third dimension in the convolution kernel.
+   * @param {number} attrs.nbFilter - Number of convolution filters to use.
+   * @param {number} attrs.kernelDim1 - Length of the first dimension in the convolution kernel.
+   * @param {number} attrs.kernelDim2 - Length of the second dimension in the convolution kernel.
+   * @param {number} attrs.kernelDim3 - Length of the third dimension in the convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
-  constructor (nbFilter, kernelDim1, kernelDim2, kernelDim3, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
     const {
+      nbFilter = 1,
+      kernelDim1 = 1,
+      kernelDim2 = 1,
+      kernelDim3 = 1,
       activation = 'linear',
       borderMode = 'valid',
       subsample = [1, 1, 1],

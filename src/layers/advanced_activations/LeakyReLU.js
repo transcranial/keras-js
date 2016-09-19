@@ -7,10 +7,15 @@ import { relu } from '../../activations'
 export default class LeakyReLU extends Layer {
   /**
    * Creates a LeakyReLU activation layer
-   * @param {number} alpha - negative slope coefficient
+   * @param {number} attrs.alpha - negative slope coefficient
    */
-  constructor (alpha = 0.3, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
+
+    const {
+      alpha = 0.3
+    } = attrs
+
     this.alpha = alpha
   }
 

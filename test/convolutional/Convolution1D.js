@@ -52,7 +52,7 @@ describe('convolutional layer: Convolution1D', function () {
 
       it(title, function () {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.Convolution1D(nbFilter, filterLength, attrs)
+        let testLayer = new layers.Convolution1D(Object.assign({ nbFilter, filterLength }, attrs))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -86,7 +86,7 @@ describe('convolutional layer: Convolution1D', function () {
 
       it(title, function () {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.Convolution1D(nbFilter, filterLength, attrs)
+        let testLayer = new layers.Convolution1D(Object.assign({ nbFilter, filterLength }, attrs))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape, { useWeblas: true })
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))

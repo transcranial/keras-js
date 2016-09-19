@@ -7,10 +7,15 @@ import cwise from 'cwise'
 export default class ThresholdedReLU extends Layer {
   /**
    * Creates a ThresholdedReLU activation layer
-   * @param {number} theta - float >= 0. Threshold location of activation.
+   * @param {number} attrs.theta - float >= 0. Threshold location of activation.
    */
-  constructor (theta = 1.0, attrs = {}) {
+  constructor (attrs = {}) {
     super(attrs)
+
+    const {
+      theta = 1.0
+    } = attrs
+
     this.theta = theta
   }
 
