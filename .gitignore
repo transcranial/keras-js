@@ -8,5 +8,5 @@ npm-debug.log*
 # jupyter
 notebooks/**/.ipynb_checkpoints/
 
-# data files
-*.hdf5
+# data files for demos
+demos/data/

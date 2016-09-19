@@ -4,33 +4,14 @@ import './mnist-cnn.css'
 
 import debounce from 'lodash/debounce'
 import range from 'lodash/range'
+import * as utils from './utils'
 
-/**
- * Find mindpoint of two points
- */
-const getMidpoint = (p1, p2) => {
-  const [x1, y1] = p1
-  const [x2, y2] = p2
-  return [
-    x1 + (x2 - x1) / 2,
-    y1 + (y2 - y1) / 2
-  ]
-}
-
-/**
- * Gets the (x, y) coordinates of an UI event relative to its target,
- * e.g., canvas. Accounts for touch events as well as mouse events.
- */
-const getCoordinates = e => {
-  let { clientX, clientY } = e
-  // for touch event
-  if (e.touches && e.touches.length) {
-    clientX = e.touches[0].clientX
-    clientY = e.touches[0].clientY
+const MODEL_CONFIG = {
+  filepaths: {
+    model: '/demos/data/mnist_cnn/mnist_cnn.json',
+    weights: '/demos/data/mnist_cnn/mnist_cnn_weights.buf',
+    metadata: '/demos/data/mnist_cnn/mnist_cnn_metadata.json'
   }
-  const { left, top } = e.target.getBoundingClientRect()
-  const [x, y] = [clientX - left, clientY - top]
-  return [x, y]
 }
 
 /**
@@ -60,7 +41,8 @@ export const MnistCnn = Vue.extend({
               @touchend="deactivateDrawAndPredict"
               @touchmove="draw"
             ></canvas>
-            <canvas id="input-canvas-scaled" width="28" height="28" style="display: none;"></canvas>
+            <canvas id="input-canvas-scaled" width="28" height="28" style="display:none;"></canvas>
+            <canvas id="input-canvas-centercrop" style="display:none;"></canvas>
           </div>
           <div class="input-clear" v-on:click="clear">
             <i class="material-icons">clear</i>CLEAR
@@ -81,16 +63,15 @@ export const MnistCnn = Vue.extend({
         </div>
       </div>
     </div>
+    <div>
+
+    </div>
   </div>
   `,
 
   data: function () {
     return {
-      model: new KerasJS.Model({
-        model: '/demos/mnist_cnn/mnist_cnn.json',
-        weights: '/demos/mnist_cnn/mnist_cnn_weights.buf',
-        metadata: '/demos/mnist_cnn/mnist_cnn_metadata.json'
-      }),
+      model: new KerasJS.Model(MODEL_CONFIG),
       modelLoading: true,
       input: new Float32Array(784),
       output: new Float32Array(10),
@@ -120,19 +101,15 @@ export const MnistCnn = Vue.extend({
     })
   },
 
-  ready: function () {
-    // initialize scaling helper canvas
-    const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d')
-    ctxScaled.scale(28 / 240, 28 / 240)
-  },
-
   methods: {
 
     clear: function (e) {
       const ctx = document.getElementById('input-canvas').getContext('2d')
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+      const ctxCenterCrop = document.getElementById('input-canvas-centercrop').getContext('2d')
+      ctxCenterCrop.clearRect(0, 0, ctxCenterCrop.canvas.width, ctxCenterCrop.canvas.height)
       const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d')
-      ctxScaled.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+      ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
       this.output = new Float32Array(10)
       this.drawing = false
       this.strokes = []
@@ -142,7 +119,7 @@ export const MnistCnn = Vue.extend({
       this.drawing = true
       this.strokes.push([])
       let points = this.strokes[this.strokes.length - 1]
-      points.push(getCoordinates(e))
+      points.push(utils.getCoordinates(e))
     },
 
     draw: function (e) {
@@ -150,14 +127,14 @@ export const MnistCnn = Vue.extend({
 
       const ctx = document.getElementById('input-canvas').getContext('2d')
 
-      ctx.lineWidth = 15
+      ctx.lineWidth = 20
       ctx.lineJoin = ctx.lineCap = 'round'
       ctx.strokeStyle = '#393E46'
 
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
       let points = this.strokes[this.strokes.length - 1]
-      points.push(getCoordinates(e))
+      points.push(utils.getCoordinates(e))
 
       // draw individual strokes
       for (let s = 0, slen = this.strokes.length; s < slen; s++) {
@@ -171,7 +148,7 @@ export const MnistCnn = Vue.extend({
         // draw points in stroke
         // quadratic bezier curve
         for (let i = 1, len = points.length; i < len; i++) {
-          ctx.quadraticCurveTo(...p1, ...getMidpoint(p1, p2))
+          ctx.quadraticCurveTo(...p1, ...utils.getMidpoint(p1, p2))
           p1 = points[i]
           p2 = points[i + 1]
         }
@@ -182,15 +159,27 @@ export const MnistCnn = Vue.extend({
 
     deactivateDrawAndPredict: debounce(function () {
       if (!this.drawing) return
-
       this.drawing = false
 
       const ctx = document.getElementById('input-canvas').getContext('2d')
-      const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d')
-      ctxScaled.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-      ctxScaled.drawImage(document.getElementById('input-canvas'), 0, 0)
-      const imageDataScaled = ctxScaled.getImageData(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
 
+      // center crop
+      const imageDataCenterCrop = utils.centerCrop(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height))
+      const ctxCenterCrop = document.getElementById('input-canvas-centercrop').getContext('2d')
+      ctxCenterCrop.canvas.width = imageDataCenterCrop.width
+      ctxCenterCrop.canvas.height = imageDataCenterCrop.height
+      ctxCenterCrop.putImageData(imageDataCenterCrop, 0, 0)
+
+      // scaled to 28 x 28
+      const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d')
+      ctxScaled.save()
+      ctxScaled.scale(28 / ctxCenterCrop.canvas.width, 28 / ctxCenterCrop.canvas.height)
+      ctxScaled.clearRect(0, 0, ctxCenterCrop.canvas.width, ctxCenterCrop.canvas.height)
+      ctxScaled.drawImage(document.getElementById('input-canvas-centercrop'), 0, 0)
+      const imageDataScaled = ctxScaled.getImageData(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
+      ctxScaled.restore()
+
+      // process image data for model input
       const { data } = imageDataScaled
       this.input = new Float32Array(784)
       for (let i = 0, len = data.length; i < len; i += 4) {
