@@ -18,15 +18,20 @@ import Tensor from './Tensor'
 export default class Model {
   /**
    * create new Model class
-   * @param {object} filepaths
-   * @param {string} filepaths.modelFilepath - path to model architecture configuration (json)
-   * @param {string} filepaths.weightsFilepath - path to weights data (arraybuffer)
-   * @param {string} filepaths.metadataFilepath - path to weights metadata (json)
-   * @param {object} [config]
+   * @param {object} config.filepaths
+   * @param {string} config.filepaths.modelFilepath - path to model architecture configuration (json)
+   * @param {string} config.filepaths.weightsFilepath - path to weights data (arraybuffer)
+   * @param {string} config.filepaths.metadataFilepath - path to weights metadata (json)
    * @param {object} [config.headers] - any additional HTTP headers required for resource fetching
    * @param {boolean} [config.GPU] - enable GPU
    */
-  constructor (filepaths, config = {}) {
+  constructor (config = {}) {
+    const {
+      filepaths = {},
+      headers = {},
+      gpu = false
+    } = config
+
     if (!filepaths.model || !filepaths.weights || !filepaths.metadata) {
       throw new Error('File paths must be declared for model, weights, and metadata.')
     }
@@ -38,10 +43,10 @@ export default class Model {
     }
 
     // HTTP(S) headers used during data fetching
-    this.headers = config.headers || {}
+    this.headers = headers
 
     // flag to enable GPU where possible
-    this.gpu = config.gpu || false
+    this.gpu = gpu
 
     this.data = {
       // object representing the model architecture configuration,
