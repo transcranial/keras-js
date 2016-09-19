@@ -24,6 +24,7 @@ export default class Model {
    * @param {string} filepaths.metadataFilepath - path to weights metadata (json)
    * @param {object} [config]
    * @param {object} [config.headers] - any additional HTTP headers required for resource fetching
+   * @param {boolean} [config.GPU] - enable GPU
    */
   constructor (filepaths, config = {}) {
     if (!filepaths.model || !filepaths.weights || !filepaths.metadata) {
@@ -36,7 +37,11 @@ export default class Model {
       metadata: 'json'
     }
 
-    this.config = config
+    // HTTP(S) headers used during data fetching
+    this.headers = config.headers || {}
+
+    // flag to enable GPU where possible
+    this.gpu = config.gpu || false
 
     this.data = {
       // object representing the model architecture configuration,
@@ -105,7 +110,7 @@ export default class Model {
   initialize () {
     const dataTypes = ['model', 'weights', 'metadata']
     return Promise.all(
-      dataTypes.map(type => this.dataRequest(type, this.config.headers))
+      dataTypes.map(type => this.dataRequest(type, this.headers))
     )
     .then(() => {
       this.createLayers()
@@ -189,7 +194,7 @@ export default class Model {
             inbound: [],
             outbound: []
           }
-          this.inputTensors[inputName] = new Tensor([], inputShape)
+          this.inputTensors[inputName] = new Tensor([], inputShape, { gpu: this.gpu })
         }
 
         if (layerClass in layers) {
@@ -292,7 +297,7 @@ export default class Model {
     // load data to input tensors
     inputNames.forEach(inputName => {
       let inputLayer = this.modelLayersMap.get(inputName)
-      this.inputTensors[inputName] = new Tensor(inputData[inputName], inputLayer.shape)
+      this.inputTensors[inputName] = new Tensor(inputData[inputName], inputLayer.shape, { gpu: this.gpu })
       inputLayer.result = inputLayer.call(this.inputTensors[inputName])
       this.modelLayersMap.get(inputName).hasResult = true
     })

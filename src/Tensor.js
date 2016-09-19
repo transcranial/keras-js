@@ -34,7 +34,7 @@ export default class Tensor {
     }
 
     // turn on weblas
-    if (options.useWeblas && weblas) {
+    if (options.gpu && weblas) {
       this._useWeblas = true
       this.createWeblasTensor()
     } else {
