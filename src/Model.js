@@ -180,7 +180,7 @@ export default class Model {
           const inputShape = layerConfig.batch_input_shape.slice(1)
           const layer = new Input({
             name: inputName,
-            inputShape
+            shape: inputShape
           })
           this.modelLayersMap.set(inputName, layer)
           this.modelDAG[inputName] = {
@@ -226,6 +226,7 @@ export default class Model {
           }
           if (index === 0) {
             this.modelDAG[inputName].outbound.push(layerConfig.name)
+            this.modelDAG[layerConfig.name].inbound.push(inputName)
           } else {
             const prevLayerConfig = modelConfig[index - 1].config
             this.modelDAG[layerConfig.name].inbound.push(prevLayerConfig.name)
@@ -290,16 +291,26 @@ export default class Model {
 
     // load data to input tensors
     inputNames.forEach(inputName => {
-      this.inputTensors[inputName].tensor.data = inputData[inputName]
       let inputLayer = this.modelLayersMap.get(inputName)
+      this.inputTensors[inputName] = new Tensor(inputData[inputName], inputLayer.shape)
       inputLayer.result = inputLayer.call(this.inputTensors[inputName])
       this.modelLayersMap.get(inputName).hasResult = true
     })
 
     // start traversing DAG at input
     let traversing = this.traverseDAG(inputNames)
-    while (!traversing.next().done) {
-      console.log('blah')
+    while (!traversing.next().done) {}
+
+    // outputs are layers with no outbound nodes
+    const modelClass = this.data.model.class_name
+    if (modelClass === 'Sequential') {
+      const outputLayer = find(values(this.modelDAG), node => !node.outbound.length)
+      const { result } = this.modelLayersMap.get(outputLayer.name)
+      return {
+        'output': result.tensor.data
+      }
+    } else {
+      return
     }
   }
 }

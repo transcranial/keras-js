@@ -12,15 +12,15 @@ export default class Input extends Layer {
     super(attrs)
 
     const {
-      inputShape = []
+      shape = []
     } = attrs
 
-    this.inputShape = inputShape
+    this.shape = shape
   }
 
   call (x) {
-    if (!isEqual(x.tensor.shape, this.inputShape)) {
-      throw new Error(`[Input] input tensor shape does not match specified shape.`)
+    if (!isEqual(x.tensor.shape, this.shape)) {
+      throw new Error(`[Input] input tensor shape ${x.tensor.shape} does not match specified shape ${this.shape}.`)
     }
     return x
   }
