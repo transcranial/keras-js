@@ -1,0 +1,47 @@
+.menu {
+  padding: 50px;
+  margin: 20px;
+  background: white;
+  border-radius: 10px;
+}
+
+.menu h1 {
+  color: #CCCCCC;
+  font-family: 'Fira Sans', sans-serif;
+  font-size: 1.5rem;
+}
+
+.menu-list li {
+  color: #69707a;
+}
+
+.menu-list a {
+  display: flex;
+  align-items: center;
+}
+
+.menu-list a:hover {
+  color: #1BBC9B;
+  background-color: whitesmoke;
+}
+
+.menu-list a:hover .github-logo {
+  fill: #1BBC9B;
+}
+
+.menu-list.contact li {
+  padding: 5px 10px;
+}
+
+.menu-list.contact a {
+  color: #aaaaaa;
+  padding: 0;
+  display: inline-flex;
+  background-color: none;
+  transition: color 0.2s ease-in;
+}
+
+.menu-list.contact a:hover {
+  color: #1BBC9B;
+  background: none;
+}

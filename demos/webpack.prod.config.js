@@ -1,5 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
+const autoprefixer = require('autoprefixer')
 
 module.exports = {
   entry: [
@@ -15,9 +16,16 @@ module.exports = {
         test: /\.js$/,
         loaders: ['babel-loader'],
         exclude: /node_modules/
+      },
+      {
+        test: /\.css$/,
+        loader: 'style-loader!css-loader!postcss-loader'
       }
     ]
   },
+  postcss: [
+    autoprefixer({ browsers: ['last 2 versions'] })
+  ],
   resolve: {
     extensions: ['', '.js']
   },

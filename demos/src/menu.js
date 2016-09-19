@@ -1,5 +1,7 @@
 /* global Vue */
 
+import './menu.css'
+
 export const Menu = Vue.extend({
   template: `
   <aside class="menu">

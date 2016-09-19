@@ -1,7 +1,13 @@
 /* global Vue */
+
+import './mnist-cnn.css'
+
 import debounce from 'lodash/debounce'
 import range from 'lodash/range'
 
+/**
+ * Find mindpoint of two points
+ */
 const getMidpoint = (p1, p2) => {
   const [x1, y1] = p1
   const [x2, y2] = p2
@@ -11,6 +17,10 @@ const getMidpoint = (p1, p2) => {
   ]
 }
 
+/**
+ * Gets the (x, y) coordinates of an UI event relative to its target,
+ * e.g., canvas. Accounts for touch events as well as mouse events.
+ */
 const getCoordinates = e => {
   let { clientX, clientY } = e
   // for touch event
@@ -23,6 +33,11 @@ const getCoordinates = e => {
   return [x, y]
 }
 
+/**
+ *
+ * VUE COMPONENT
+ *
+ */
 export const MnistCnn = Vue.extend({
   template: `
   <div class="demo mnist-cnn">
@@ -38,10 +53,11 @@ export const MnistCnn = Vue.extend({
             <canvas
               id="input-canvas" width="240" height="240"
               @mousedown="activateDraw"
-              @mouseup="deactivateDraw"
+              @mouseup="deactivateDrawAndPredict"
+              @mouseleave="deactivateDrawAndPredict"
               @mousemove="draw"
               @touchstart="activateDraw"
-              @touchend="deactivateDraw"
+              @touchend="deactivateDrawAndPredict"
               @touchmove="draw"
             ></canvas>
             <canvas id="input-canvas-scaled" width="28" height="28" style="display: none;"></canvas>
@@ -111,6 +127,7 @@ export const MnistCnn = Vue.extend({
   },
 
   methods: {
+
     clear: function (e) {
       const ctx = document.getElementById('input-canvas').getContext('2d')
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
@@ -120,17 +137,14 @@ export const MnistCnn = Vue.extend({
       this.drawing = false
       this.strokes = []
     },
+
     activateDraw: function (e) {
       this.drawing = true
       this.strokes.push([])
       let points = this.strokes[this.strokes.length - 1]
       points.push(getCoordinates(e))
     },
-    deactivateDraw: function (e) {
-      this.drawing = false
-      this.processCanvasData()
-      this.output = this.model.predict({ input: this.input }).output
-    },
+
     draw: function (e) {
       if (!this.drawing) return
 
@@ -165,17 +179,26 @@ export const MnistCnn = Vue.extend({
         ctx.stroke()
       }
     },
-    processCanvasData: debounce(function () {
+
+    deactivateDrawAndPredict: debounce(function () {
+      if (!this.drawing) return
+
+      this.drawing = false
+
       const ctx = document.getElementById('input-canvas').getContext('2d')
       const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d')
       ctxScaled.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
       ctxScaled.drawImage(document.getElementById('input-canvas'), 0, 0)
       const imageDataScaled = ctxScaled.getImageData(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
+
       const { data } = imageDataScaled
       this.input = new Float32Array(784)
       for (let i = 0, len = data.length; i < len; i += 4) {
         this.input[i / 4] = data[i + 3] / 255
       }
+
+      this.output = this.model.predict({ input: this.input }).output
     }, 200, { leading: true, trailing: true })
+
   }
 })

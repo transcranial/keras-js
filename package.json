@@ -47,6 +47,7 @@
     "ndarray-unsqueeze": "^1.0.3"
   },
   "devDependencies": {
+    "autoprefixer": "^6.4.1",
     "babel-core": "^6.14.0",
     "babel-eslint": "^6.1.2",
     "babel-loader": "^6.2.5",
@@ -54,8 +55,11 @@
     "babel-plugin-transform-object-rest-spread": "^6.8.0",
     "babel-polyfill": "^6.13.0",
     "babel-preset-latest": "^6.14.0",
+    "css-loader": "^0.25.0",
     "http-server": "^0.9.0",
+    "postcss-loader": "^0.13.0",
     "standard": "^8.1.0",
+    "style-loader": "^0.13.1",
     "webpack": "^2.1.0-beta.22"
   },
   "standard": {

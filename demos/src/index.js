@@ -1,5 +1,7 @@
 /* global Vue */
 
+import './index.css'
+
 import { Menu } from './menu'
 import { Home } from './home'
 import { MnistCnn } from './mnist-cnn'
