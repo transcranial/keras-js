@@ -35,7 +35,7 @@
   "homepage": "https://github.com/transcranial/keras-js#readme",
   "dependencies": {
     "cwise": "1.0.9",
-    "lodash": "4.16.0",
+    "lodash": "4.16.1",
     "ndarray": "1.0.18",
     "ndarray-blas-level2": "1.1.0",
     "ndarray-concat-rows": "1.0.1",
