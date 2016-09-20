@@ -269,7 +269,6 @@ export default class Model {
       const { layerClass, inbound, outbound } = this.modelDAG[node]
       if (layerClass !== 'Input') {
         let currentLayer = this.modelLayersMap.get(node)
-        console.log(currentLayer)
         const inboundLayers = inbound.map(n => this.modelLayersMap.get(n))
         while (!every(inboundLayers.map(layer => layer.hasResult))) {
           yield

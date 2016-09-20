@@ -14,6 +14,57 @@ const MODEL_CONFIG = {
   }
 }
 
+const LAYER_DISPLAY_CONFIG = {
+  'convolution2d_1': {
+    heading: '32 3x3 filters, border mode valid, 1x1 striding',
+    scalingFactor: 2
+  },
+  'activation_1': {
+    heading: 'ReLU',
+    scalingFactor: 2
+  },
+  'convolution2d_2': {
+    heading: '32 3x3 filters, border mode valid, 1x1 striding',
+    scalingFactor: 2
+  },
+  'activation_2': {
+    heading: 'ReLU',
+    scalingFactor: 2
+  },
+  'maxpooling2d_1': {
+    heading: '2x2 pools, 1x1 striding',
+    scalingFactor: 2
+  },
+  'dropout_1': {
+    heading: 'p=0.25 (only active during training phase)',
+    scalingFactor: 2
+  },
+  'flatten_1': {
+    heading: '',
+    scalingFactor: 2
+  },
+  'dense_1': {
+    heading: 'output dimensionality 128',
+    scalingFactor: 4
+  },
+  'activation_3': {
+    heading: 'ReLU',
+    scalingFactor: 4
+  },
+  'dropout_2': {
+    heading: 'p=0.5 (only active during training phase)',
+    scalingFactor: 4
+  },
+  'dense_2': {
+    heading: 'output dimensionality 10',
+    scalingFactor: 8
+  },
+  'activation_4': {
+    heading: 'Softmax',
+    scalingFactor: 8
+  }
+}
+
 /**
  *
  * VUE COMPONENT
@@ -26,7 +77,7 @@ export const MnistCnn = Vue.extend({
     <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
       Loading...{{ loadingProgress }}%
     </div>
-    <div class="columns">
+    <div class="columns input-output">
       <div class="column">
         <div class="input-container">
           <div class="input-label">Draw any digit (0-9) here <span class="arrow">⤸</span></div>
@@ -63,13 +114,16 @@ export const MnistCnn = Vue.extend({
         </div>
       </div>
     </div>
-    <div class="layer-result-container">
+    <div class="layer-results-container">
       <div class="bg-line"></div>
       <div
         v-for="layerResult in layerResultImages"
         class="layer-result"
       >
-        <div class="layer-result-heading">{{ layerResult.name }}</div>
+        <div class="layer-result-heading">
+          <span class="layer-class">{{ layerResult.layerClass }}</span>
+          <span> {{ layerDisplayConfig[layerResult.name].heading }}</span>
+        </div>
         <div class="layer-result-canvas-container">
           <canvas v-for="image in layerResult.images"
             id="intermediate-result-{{ $parent.$index }}-{{ $index }}"
@@ -79,8 +133,8 @@ export const MnistCnn = Vue.extend({
           ></canvas>
           <canvas v-for="image in layerResult.images"
             id="intermediate-result-{{ $parent.$index }}-{{ $index }}-scaled"
-            width="{{ 3 * image.width }}"
-            height="{{ 3 * image.height }}"
+            width="{{ layerDisplayConfig[layerResult.name].scalingFactor * image.width }}"
+            height="{{ layerDisplayConfig[layerResult.name].scalingFactor * image.height }}"
           ></canvas>
         </div>
       </div>
@@ -96,6 +150,7 @@ export const MnistCnn = Vue.extend({
       output: new Float32Array(10),
       outputClasses: range(10),
       layerResultImages: [],
+      layerDisplayConfig: LAYER_DISPLAY_CONFIG,
       drawing: false,
       strokes: []
     }
@@ -118,6 +173,7 @@ export const MnistCnn = Vue.extend({
     this.model.initialize()
     this.model.ready().then(() => {
       this.modelLoading = false
+      this.getIntermediateResults()
     })
   },
 
@@ -212,21 +268,26 @@ export const MnistCnn = Vue.extend({
     }, 200, { leading: true, trailing: true }),
 
     getIntermediateResults: function () {
-      const layersToShow = ['convolution2d_1', 'convolution2d_2', 'maxpooling2d_1']
       let results = []
-      layersToShow.forEach(name => {
-        const layer = this.model.modelLayersMap.get(name)
+      for (let [name, layer] of this.model.modelLayersMap.entries()) {
+        if (name === 'input') continue
+
+        const layerClass = layer.layerClass || ''
+
         let images = []
-        if (layer.result.tensor.shape.length === 3) {
+        if (layer.result && layer.result.tensor.shape.length === 3) {
           images = utils.unroll3Dtensor(layer.result.tensor)
-        } else if (layer.result.tensor.shape.length === 2) {
+        } else if (layer.result && layer.result.tensor.shape.length === 2) {
           images = [utils.image2Dtensor(layer.result.tensor)]
+        } else if (layer.result && layer.result.tensor.shape.length === 1) {
+          images = [utils.image1Dtensor(layer.result.tensor)]
         }
         results.push({
           name,
+          layerClass,
           images
         })
-      })
+      }
       this.layerResultImages = results
       setTimeout(() => {
         this.showIntermediateResults()
@@ -235,12 +296,13 @@ export const MnistCnn = Vue.extend({
 
     showIntermediateResults: function () {
       this.layerResultImages.forEach((result, layerNum) => {
+        const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor
         result.images.forEach((image, imageNum) => {
           let ctx = document.getElementById(`intermediate-result-${layerNum}-${imageNum}`).getContext('2d')
           ctx.putImageData(image, 0, 0)
           let ctxScaled = document.getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`).getContext('2d')
           ctxScaled.save()
-          ctxScaled.scale(3, 3)
+          ctxScaled.scale(scalingFactor, scalingFactor)
           ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
           ctxScaled.drawImage(document.getElementById(`intermediate-result-${layerNum}-${imageNum}`), 0, 0)
           ctxScaled.restore()
@@ -250,10 +312,11 @@ export const MnistCnn = Vue.extend({
 
     clearIntermediateResults: function () {
       this.layerResultImages.forEach((result, layerNum) => {
+        const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor
         result.images.forEach((image, imageNum) => {
           let ctxScaled = document.getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`).getContext('2d')
           ctxScaled.save()
-          ctxScaled.scale(3, 3)
+          ctxScaled.scale(scalingFactor, scalingFactor)
           ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
           ctxScaled.restore()
         })
