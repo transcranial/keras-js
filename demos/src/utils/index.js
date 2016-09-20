@@ -109,6 +109,19 @@ export function tensorMinMax (tensor) {
 }
 
 /**
+ * Takes in a ndarray of shape [x]
+ * and creates image data
+ */
+export function image1Dtensor (tensor) {
+  const { min, max } = tensorMinMax(tensor)
+  let imageData = new Uint8ClampedArray(tensor.size * 4)
+  for (let i = 0, len = imageData.length; i < len; i += 4) {
+    imageData[i + 3] = 255 * (tensor.data[i / 4] - min) / (max - min)
+  }
+  return new ImageData(imageData, tensor.shape[0], 1)
+}
+
+/**
  * Takes in a ndarray of shape [x, y]
  * and creates image data
  */
