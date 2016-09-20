@@ -11,6 +11,8 @@ export default class GlobalAveragePooling2D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'GlobalAveragePooling2D'
+
     const {
       dimOrdering = 'tf'
     } = attrs

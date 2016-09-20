@@ -11,6 +11,8 @@ export default class _Pooling3D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = '_Pooling3D'
+
     const {
       poolSize = [2, 2, 2],
       strides = null,

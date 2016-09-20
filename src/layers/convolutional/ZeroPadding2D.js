@@ -12,6 +12,8 @@ export default class ZeroPadding2D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'ZeroPadding2D'
+
     const {
       padding = [1, 1],
       dimOrdering = 'tf'

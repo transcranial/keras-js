@@ -11,6 +11,7 @@ export default class GlobalAveragePooling1D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'GlobalAveragePooling1D'
   }
 
   /**

@@ -12,6 +12,8 @@ export default class ZeroPadding1D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'ZeroPadding1D'
+
     const {
       padding = 1
     } = attrs

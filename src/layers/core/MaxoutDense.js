@@ -18,6 +18,8 @@ export default class MaxoutDense extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'MaxoutDense'
+
     const {
       outputDim = 1,
       inputDim = null,

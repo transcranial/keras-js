@@ -11,6 +11,7 @@ export default class ParametricSoftplus extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'ParametricSoftplus'
 
     // Layer weights specification
     this.params = ['alphas', 'betas']

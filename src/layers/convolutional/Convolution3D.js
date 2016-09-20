@@ -20,6 +20,8 @@ export default class Convolution3D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Convolution3D'
+
     const {
       nbFilter = 1,
       kernelDim1 = 1,

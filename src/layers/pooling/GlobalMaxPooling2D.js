@@ -11,6 +11,8 @@ export default class GlobalMaxPooling2D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'GlobalMaxPooling2D'
+
     const {
       dimOrdering = 'tf'
     } = attrs

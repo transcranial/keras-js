@@ -10,6 +10,7 @@ export default class Layer {
    * @param {Object} [attrs] - layer attributes
    */
   constructor (attrs = {}) {
+    this.layerClass = 'Layer'
     this.name = attrs.name
 
     this.params = []

@@ -9,6 +9,8 @@ export default class MaxPooling1D extends _Pooling1D {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'MaxPooling1D'
+
     this.poolingFunc = 'max'
   }
 }

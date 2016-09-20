@@ -12,6 +12,8 @@ export default class Permute extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Permute'
+
     const {
       dims = []
     } = attrs

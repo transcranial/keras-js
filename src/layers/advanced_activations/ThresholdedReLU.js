@@ -11,6 +11,7 @@ export default class ThresholdedReLU extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'ThresholdedReLU'
 
     const {
       theta = 1.0

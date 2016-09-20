@@ -15,6 +15,8 @@ export default class Dense extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Dense'
+
     const {
       outputDim = 1,
       activation = 'linear',

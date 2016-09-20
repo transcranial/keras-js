@@ -16,6 +16,7 @@ export default class PReLU extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'PReLU'
 
     // Layer weights specification
     this.params = ['alphas']

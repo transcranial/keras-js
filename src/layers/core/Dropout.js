@@ -11,6 +11,7 @@ export default class Dropout extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Dropout'
 
     const {
       p = 0.5

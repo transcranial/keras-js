@@ -11,6 +11,7 @@ export default class ELU extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'ELU'
 
     const {
       alpha = 1.0

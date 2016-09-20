@@ -11,6 +11,7 @@ export default class LeakyReLU extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'LeakyReLU'
 
     const {
       alpha = 0.3

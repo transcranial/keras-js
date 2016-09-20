@@ -17,6 +17,8 @@ export default class Highway extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Highway'
+
     const {
       transformBias = -2,
       activation = 'linear',

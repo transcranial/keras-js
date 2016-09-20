@@ -19,6 +19,8 @@ export default class Convolution2D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Convolution2D'
+
     const {
       nbFilter = 1,
       nbRow = 3,

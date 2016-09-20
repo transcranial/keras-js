@@ -11,6 +11,7 @@ export default class Activation extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Activation'
 
     const {
       activation = 'linear'

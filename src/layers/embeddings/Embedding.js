@@ -11,6 +11,8 @@ export default class Embedding extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Embedding'
+
     const {
       inputDim = 1,
       outputDim = 1,

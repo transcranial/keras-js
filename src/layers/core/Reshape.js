@@ -15,6 +15,8 @@ export default class Reshape extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Reshape'
+
     const {
       shape = []
     } = attrs

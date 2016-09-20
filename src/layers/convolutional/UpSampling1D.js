@@ -12,6 +12,8 @@ export default class UpSampling1D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'UpSampling1D'
+
     const {
       length = 2
     } = attrs

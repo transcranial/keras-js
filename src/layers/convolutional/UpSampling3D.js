@@ -12,6 +12,8 @@ export default class UpSampling3D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'UpSampling3D'
+
     const {
       size = [2, 2, 2],
       dimOrdering = 'tf'

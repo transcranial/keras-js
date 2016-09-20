@@ -14,6 +14,8 @@ export default class RepeatVector extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'RepeatVector'
+
     const {
       n = 1
     } = attrs

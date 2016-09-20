@@ -11,6 +11,7 @@ export default class GlobalMaxPooling1D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'GlobalMaxPooling1D'
   }
 
   /**

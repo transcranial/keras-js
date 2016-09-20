@@ -11,6 +11,8 @@ export default class _Pooling2D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = '_Pooling2D'
+
     const {
       poolSize = [2, 2],
       strides = null,

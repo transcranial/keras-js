@@ -17,6 +17,8 @@ export default class Merge extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Merge'
+
     const {
       mode = 'sum',
       concatAxis = -1,

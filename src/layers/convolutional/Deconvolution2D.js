@@ -21,6 +21,8 @@ export default class Deconvolution2D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Deconvolution2D'
+
     const {
       nbFilter = 1,
       nbRow = 1,

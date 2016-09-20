@@ -13,6 +13,8 @@ export default class BatchNormalization extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'BatchNormalization'
+
     const {
       epsilon = 1e-5,
       mode = 0,

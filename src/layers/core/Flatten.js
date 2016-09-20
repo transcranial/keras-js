@@ -14,6 +14,7 @@ export default class Flatten extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Flatten'
   }
 
   /**

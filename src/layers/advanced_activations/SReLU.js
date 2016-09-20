@@ -11,6 +11,7 @@ export default class SReLU extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'SReLU'
 
     // Layer weights specification
     this.params = ['t_left', 'a_left', 't_right', 'a_right']

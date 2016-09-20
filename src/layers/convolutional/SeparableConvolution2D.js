@@ -17,6 +17,8 @@ export default class SeparableConvolution2D extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'SeparableConvolution2D'
+
     const {
       nbFilter = 1,
       nbRow = 1,

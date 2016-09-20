@@ -9,6 +9,8 @@ export default class AveragePooling3D extends _Pooling3D {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'AveragePooling3D'
+
     this.poolingFunc = 'average'
   }
 }

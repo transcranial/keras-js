@@ -20,6 +20,8 @@ export default class AtrousConvolution2D extends Convolution2D {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'AtrousConvolution2D'
+
     const {
       atrousRate = [1, 1]
     } = attrs
