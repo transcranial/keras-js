@@ -274,16 +274,18 @@ export default class Model {
         while (!every(inboundLayers.map(layer => layer.hasResult))) {
           yield
         }
+
         if (layerClass === 'Merge') {
-          currentLayer.result = currentLayer.call(inboundLayers.map(layer => layer.result))
-          currentLayer.hasResult = true
+          currentLayer.result = currentLayer.call(inboundLayers.map(layer => {
+            return new Tensor(layer.result.tensor.data, layer.result.tensor.shape, { gpu: this.gpu })
+          }))
         } else {
           if (inboundLayers.length !== 1) {
             throw new Error(`Layer name ${currentLayer.name} has ${inboundLayers.length} inbound nodes, but is not a Merge layer.`)
           }
-          currentLayer.result = currentLayer.call(inboundLayers[0].result)
-          currentLayer.hasResult = true
+          currentLayer.result = currentLayer.call(new Tensor(inboundLayers[0].result.tensor.data, inboundLayers[0].result.tensor.shape, { gpu: this.gpu }))
         }
+        currentLayer.hasResult = true
       }
       yield * this.traverseDAG(outbound)
     } else {
@@ -313,7 +315,7 @@ export default class Model {
       let inputLayer = this.modelLayersMap.get(inputName)
       this.inputTensors[inputName] = new Tensor(inputData[inputName], inputLayer.shape, { gpu: this.gpu })
       inputLayer.result = inputLayer.call(this.inputTensors[inputName])
-      this.modelLayersMap.get(inputName).hasResult = true
+      inputLayer.hasResult = true
     })
 
     // start traversing DAG at input

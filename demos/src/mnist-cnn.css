@@ -91,3 +91,43 @@
 .demo.mnist-cnn .output .output-class.predicted .output-label {
   color: #1BBC9B;
 }
+
+.demo.mnist-cnn .layer-result-container {
+  position: relative;
+}
+
+.demo.mnist-cnn .layer-result-container .bg-line {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 50%;
+  background: white;
+  width: 10px;
+  height: 100%;
+}
+
+.demo.mnist-cnn .layer-result {
+  position: relative;
+  z-index: 1;
+  border-radius: 10px;
+  background: white;
+  margin: 30px 20px;
+  padding: 20px;
+}
+
+.demo.mnist-cnn .layer-result-heading {
+  font-size: 1rem;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.demo.mnist-cnn .layer-result-canvas-container {
+  display: inline-flex;
+  flex-wrap: wrap;
+  background: white;
+}
+
+.demo.mnist-cnn .layer-result-canvas-container canvas {
+  border: 1px solid lightgray;
+  margin: 1px;
+}

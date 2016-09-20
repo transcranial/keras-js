@@ -63,8 +63,27 @@ export const MnistCnn = Vue.extend({
         </div>
       </div>
     </div>
-    <div>
-
+    <div class="layer-result-container">
+      <div class="bg-line"></div>
+      <div
+        v-for="layerResult in layerResultImages"
+        class="layer-result"
+      >
+        <div class="layer-result-heading">{{ layerResult.name }}</div>
+        <div class="layer-result-canvas-container">
+          <canvas v-for="image in layerResult.images"
+            id="intermediate-result-{{ $parent.$index }}-{{ $index }}"
+            width="{{ image.width }}"
+            height="{{ image.height }}"
+            style="display:none;"
+          ></canvas>
+          <canvas v-for="image in layerResult.images"
+            id="intermediate-result-{{ $parent.$index }}-{{ $index }}-scaled"
+            width="{{ 3 * image.width }}"
+            height="{{ 3 * image.height }}"
+          ></canvas>
+        </div>
+      </div>
     </div>
   </div>
   `,
@@ -76,6 +95,7 @@ export const MnistCnn = Vue.extend({
       input: new Float32Array(784),
       output: new Float32Array(10),
       outputClasses: range(10),
+      layerResultImages: [],
       drawing: false,
       strokes: []
     }
@@ -104,6 +124,7 @@ export const MnistCnn = Vue.extend({
   methods: {
 
     clear: function (e) {
+      this.clearIntermediateResults()
       const ctx = document.getElementById('input-canvas').getContext('2d')
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
       const ctxCenterCrop = document.getElementById('input-canvas-centercrop').getContext('2d')
@@ -187,7 +208,56 @@ export const MnistCnn = Vue.extend({
       }
 
       this.output = this.model.predict({ input: this.input }).output
-    }, 200, { leading: true, trailing: true })
+      this.getIntermediateResults()
+    }, 200, { leading: true, trailing: true }),
 
+    getIntermediateResults: function () {
+      const layersToShow = ['convolution2d_1', 'convolution2d_2', 'maxpooling2d_1']
+      let results = []
+      layersToShow.forEach(name => {
+        const layer = this.model.modelLayersMap.get(name)
+        let images = []
+        if (layer.result.tensor.shape.length === 3) {
+          images = utils.unroll3Dtensor(layer.result.tensor)
+        } else if (layer.result.tensor.shape.length === 2) {
+          images = [utils.image2Dtensor(layer.result.tensor)]
+        }
+        results.push({
+          name,
+          images
+        })
+      })
+      this.layerResultImages = results
+      setTimeout(() => {
+        this.showIntermediateResults()
+      }, 0)
+    },
+
+    showIntermediateResults: function () {
+      this.layerResultImages.forEach((result, layerNum) => {
+        result.images.forEach((image, imageNum) => {
+          let ctx = document.getElementById(`intermediate-result-${layerNum}-${imageNum}`).getContext('2d')
+          ctx.putImageData(image, 0, 0)
+          let ctxScaled = document.getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`).getContext('2d')
+          ctxScaled.save()
+          ctxScaled.scale(3, 3)
+          ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
+          ctxScaled.drawImage(document.getElementById(`intermediate-result-${layerNum}-${imageNum}`), 0, 0)
+          ctxScaled.restore()
+        })
+      })
+    },
+
+    clearIntermediateResults: function () {
+      this.layerResultImages.forEach((result, layerNum) => {
+        result.images.forEach((image, imageNum) => {
+          let ctxScaled = document.getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`).getContext('2d')
+          ctxScaled.save()
+          ctxScaled.scale(3, 3)
+          ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
+          ctxScaled.restore()
+        })
+      })
+    }
   }
 })
