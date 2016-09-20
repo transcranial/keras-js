@@ -283,7 +283,8 @@ export default class Model {
           if (inboundLayers.length !== 1) {
             throw new Error(`Layer name ${currentLayer.name} has ${inboundLayers.length} inbound nodes, but is not a Merge layer.`)
           }
-          currentLayer.result = currentLayer.call(new Tensor(inboundLayers[0].result.tensor.data, inboundLayers[0].result.tensor.shape, { gpu: this.gpu }))
+          const prevLayerResult = inboundLayers[0].result
+          currentLayer.result = currentLayer.call(new Tensor(prevLayerResult.tensor.data, prevLayerResult.tensor.shape, { gpu: this.gpu }))
         }
         currentLayer.hasResult = true
       }

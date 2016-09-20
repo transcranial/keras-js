@@ -10,6 +10,7 @@ export default class Input extends Layer {
    */
   constructor (attrs = {}) {
     super(attrs)
+    this.layerClass = 'Input'
 
     const {
       shape = []

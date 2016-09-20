@@ -20,11 +20,9 @@ export default class Tensor {
   constructor (data, shape, options = {}) {
     this._type = options.type || Float32Array
 
-    if (data && data.length && data instanceof this._type) {
+    if (data && data.length && (data instanceof this._type || data instanceof Array)) {
       checkShape(data, shape)
       this.tensor = ndarray(data, shape)
-    } else if (data && data.length && data instanceof Array) {
-      checkShape(data, shape)
       this.tensor = ndarray(new this._type(data), shape)
     } else if (!data.length && shape.length) {
       // if shape present but data not provided, initialize with 0s
