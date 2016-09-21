@@ -16,7 +16,7 @@ const MODEL_CONFIG = {
 
 const LAYER_DISPLAY_CONFIG = {
   'convolution2d_1': {
-    heading: '32 3x3 filters, border mode valid, 1x1 striding',
+    heading: '32 3x3 filters, border mode valid, 1x1 strides',
     scalingFactor: 2
   },
   'activation_1': {
@@ -24,7 +24,7 @@ const LAYER_DISPLAY_CONFIG = {
     scalingFactor: 2
   },
   'convolution2d_2': {
-    heading: '32 3x3 filters, border mode valid, 1x1 striding',
+    heading: '32 3x3 filters, border mode valid, 1x1 strides',
     scalingFactor: 2
   },
   'activation_2': {
@@ -32,7 +32,7 @@ const LAYER_DISPLAY_CONFIG = {
     scalingFactor: 2
   },
   'maxpooling2d_1': {
-    heading: '2x2 pools, 1x1 striding',
+    heading: '2x2 pools, 1x1 strides',
     scalingFactor: 2
   },
   'dropout_1': {

@@ -3,7 +3,7 @@
 @import 'https://fonts.googleapis.com/css?family=Nothing+You+Could+Do';
 
 body {
-  background: #EEEEEE;
+  background: linear-gradient(0deg, #DDDDDD, #EEEEEE);
   color: #393E46;
   min-height: 100vh;
   font-family: 'Fira Sans', sans-serif;
