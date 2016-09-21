@@ -11,7 +11,9 @@ import cwise from 'cwise'
 export default class LSTM extends Layer {
   /**
    * Creates a LSTM layer
-   * @param {number} attrs.outputDim - Number of convolution filters to use.
+   * @param {number} attrs.outputDim - output dimensionality
+   * @param {number} [attrs.activation] - activation function
+   * @param {number} [attrs.innerActivation] - inner activation function
    * @param {Object} [attrs] - layer attributes
    */
   constructor (attrs = {}) {

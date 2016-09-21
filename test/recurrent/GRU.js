@@ -1,6 +1,6 @@
 /* eslint-env browser, mocha */
 
-describe('recurrent layer: LSTM', function () {
+describe('recurrent layer: GRU', function () {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -20,7 +20,7 @@ describe('recurrent layer: LSTM', function () {
   ]
 
   before(function () {
-    console.log('\n%crecurrent layer: LSTM', styles.h1)
+    console.log('\n%crecurrent layer: GRU', styles.h1)
   })
 
   /*********************************************************
@@ -33,12 +33,12 @@ describe('recurrent layer: LSTM', function () {
     })
 
     testParams.forEach(({ inputShape, attrs }, i) => {
-      const key = `recurrent.LSTM.${i}`
+      const key = `recurrent.GRU.${i}`
       const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, activation='${attrs.activation}', innerActivation='${attrs.innerActivation}'`
 
       it(title, function () {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.LSTM(attrs)
+        let testLayer = new layers.GRU(attrs)
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -65,12 +65,12 @@ describe('recurrent layer: LSTM', function () {
     })
 
     testParams.forEach(({ inputShape, attrs }, i) => {
-      const key = `recurrent.LSTM.${i}`
+      const key = `recurrent.GRU.${i}`
       const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, activation='${attrs.activation}', innerActivation='${attrs.innerActivation}'`
 
       it(title, function () {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.LSTM(attrs)
+        let testLayer = new layers.GRU(attrs)
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape, { gpu: true })
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
