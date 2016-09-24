@@ -23,13 +23,16 @@ module.exports = {
       }
     ]
   },
-  postcss: [
-    autoprefixer({ browsers: ['last 2 versions'] })
-  ],
   resolve: {
-    extensions: ['', '.js']
+    extensions: ['.js']
   },
   plugins: [
+    new webpack.LoaderOptionsPlugin({
+      options: {
+        context: __dirname,
+        postcss: [autoprefixer]
+      }
+    }),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('production')

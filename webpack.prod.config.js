@@ -22,7 +22,7 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['', '.js']
+    extensions: ['.js']
   },
   plugins: [
     new webpack.DefinePlugin({
