@@ -13,6 +13,9 @@ export default class SimpleRNN extends Layer {
    * Creates a SimpleRNN layer
    * @param {number} attrs.outputDim - output dimensionality
    * @param {number} [attrs.activation] - activation function
+   * @param {number} [attrs.returnSequences] - return the last output in the output sequence or the full sequence
+   * @param {number} [attrs.goBackwards] - process the input sequence backwards
+   * @param {number} [attrs.stateful] - whether to save the last state as the initial state for the next pass
    * @param {Object} [attrs] - layer attributes
    */
   constructor (attrs = {}) {
@@ -21,12 +24,19 @@ export default class SimpleRNN extends Layer {
 
     const {
       outputDim = 1,
-      activation = 'tanh'
+      activation = 'tanh',
+      returnSequences = false,
+      goBackwards = false,
+      stateful = false
     } = attrs
 
     this.outputDim = outputDim
 
     this.activation = activations[activation]
+
+    this.returnSequences = returnSequences
+    this.goBackwards = goBackwards
+    this.stateful = stateful
 
     // Layer weights specification
     this.params = ['W', 'U', 'b']
@@ -48,10 +58,13 @@ export default class SimpleRNN extends Layer {
     let currentX = new Tensor([], [x.tensor.shape[1]])
 
     const dimHiddenState = this.weights['b'].tensor.shape[0]
-    let currentHiddenState = new Tensor([], [dimHiddenState])
+    let currentHiddenState = (this.stateful && this.currentHiddenState)
+      ? this.currentHiddenState
+      : new Tensor([], [dimHiddenState])
     let tempXH = new Tensor([], [dimHiddenState])
     let tempHH = new Tensor([], [dimHiddenState])
     let previousHiddenState = new Tensor([], [dimHiddenState])
+    let hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimHiddenState])
 
     const _clearTemp = () => {
       const tempTensors = [tempXH, tempHH]
@@ -67,13 +80,26 @@ export default class SimpleRNN extends Layer {
       this.activation(currentHiddenState)
     }
 
-    for (let i = 0, steps = x.tensor.shape[0]; i < steps; i++) {
-      ops.assign(currentX.tensor, x.tensor.pick(i, null))
+    for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
+      const inputIndex = this.goBackwards ? len - i - 1 : i
+      ops.assign(currentX.tensor, x.tensor.pick(inputIndex, null))
       _clearTemp()
       _step()
+
+      if (this.returnSequences) {
+        ops.assign(hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
+      }
     }
 
-    x.tensor = currentHiddenState.tensor
+    if (this.returnSequences) {
+      x.tensor = hiddenStateSequence.tensor
+    } else {
+      x.tensor = currentHiddenState.tensor
+    }
+
+    if (this.stateful) {
+      this.currentHiddenState = currentHiddenState
+    }
 
     return x
   }

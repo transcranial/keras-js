@@ -14,6 +14,9 @@ export default class LSTM extends Layer {
    * @param {number} attrs.outputDim - output dimensionality
    * @param {number} [attrs.activation] - activation function
    * @param {number} [attrs.innerActivation] - inner activation function
+   * @param {number} [attrs.returnSequences] - return the last output in the output sequence or the full sequence
+   * @param {number} [attrs.goBackwards] - process the input sequence backwards
+   * @param {number} [attrs.stateful] - whether to save the last state as the initial state for the next pass
    * @param {Object} [attrs] - layer attributes
    */
   constructor (attrs = {}) {
@@ -23,13 +26,20 @@ export default class LSTM extends Layer {
     const {
       outputDim = 1,
       activation = 'tanh',
-      innerActivation = 'hardSigmoid'
+      innerActivation = 'hardSigmoid',
+      returnSequences = false,
+      goBackwards = false,
+      stateful = false
     } = attrs
 
     this.outputDim = outputDim
 
     this.activation = activations[activation]
     this.innerActivation = activations[innerActivation]
+
+    this.returnSequences = returnSequences
+    this.goBackwards = goBackwards
+    this.stateful = stateful
 
     // Layer weights specification
     this.params = ['W_i', 'U_i', 'b_i', 'W_c', 'U_c', 'b_c', 'W_f', 'U_f', 'b_f', 'W_o', 'U_o', 'b_o']
@@ -77,10 +87,15 @@ export default class LSTM extends Layer {
     let currentCandidate = new Tensor([], [dimCandidate])
     let tempXC = new Tensor([], [dimCandidate])
     let tempHC = new Tensor([], [dimCandidate])
-    let previousCandidate = new Tensor([], [dimCandidate])
+    let previousCandidate = (this.stateful && this.previousCandidate)
+      ? this.previousCandidate
+      : new Tensor([], [dimCandidate])
 
-    let currentHiddenState = new Tensor([], [dimCandidate])
+    let currentHiddenState = (this.stateful && this.currentHiddenState)
+      ? this.currentHiddenState
+      : new Tensor([], [dimCandidate])
     let previousHiddenState = new Tensor([], [dimCandidate])
+    let hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimCandidate])
 
     const _clearTemp = () => {
       const tempTensors = [tempXI, tempHI, tempXF, tempHF, tempXO, tempHO, tempXC, tempHC]
@@ -123,13 +138,27 @@ export default class LSTM extends Layer {
       ops.mul(currentHiddenState.tensor, currentOutputGateState.tensor, currentCandidate.tensor)
     }
 
-    for (let i = 0, steps = x.tensor.shape[0]; i < steps; i++) {
-      ops.assign(currentX.tensor, x.tensor.pick(i, null))
+    for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
+      const inputIndex = this.goBackwards ? len - i - 1 : i
+      ops.assign(currentX.tensor, x.tensor.pick(inputIndex, null))
       _clearTemp()
       _step()
+
+      if (this.returnSequences) {
+        ops.assign(hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
+      }
     }
 
-    x.tensor = currentHiddenState.tensor
+    if (this.returnSequences) {
+      x.tensor = hiddenStateSequence.tensor
+    } else {
+      x.tensor = currentHiddenState.tensor
+    }
+
+    if (this.stateful) {
+      this.previousCandidate = previousCandidate
+      this.currentHiddenState = currentHiddenState
+    }
 
     return x
   }
