@@ -32,7 +32,9 @@ export default class SimpleRNN extends Layer {
 
     this.outputDim = outputDim
 
-    this.activation = activations[activation]
+    // keep this.activation for Bidirectional wrapper layer to use
+    this.activation = activation
+    this.activationFunc = activations[activation]
 
     this.returnSequences = returnSequences
     this.goBackwards = goBackwards
@@ -77,7 +79,7 @@ export default class SimpleRNN extends Layer {
       gemv(1.0, this.weights['W'].tensor.transpose(1, 0), currentX.tensor, 1.0, tempXH.tensor)
       gemv(1.0, this.weights['U'].tensor.transpose(1, 0), previousHiddenState.tensor, 1.0, tempHH.tensor)
       this._combine(currentHiddenState.tensor, tempXH.tensor, tempHH.tensor, this.weights['b'].tensor)
-      this.activation(currentHiddenState)
+      this.activationFunc(currentHiddenState)
     }
 
     for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {

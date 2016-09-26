@@ -34,8 +34,11 @@ export default class LSTM extends Layer {
 
     this.outputDim = outputDim
 
-    this.activation = activations[activation]
-    this.innerActivation = activations[innerActivation]
+    // keep this.activation and this.innerActivation for Bidirectional wrapper layer to use
+    this.activation = activation
+    this.innerActivation = innerActivation
+    this.activationFunc = activations[activation]
+    this.innerActivationFunc = activations[innerActivation]
 
     this.returnSequences = returnSequences
     this.goBackwards = goBackwards
@@ -108,22 +111,22 @@ export default class LSTM extends Layer {
       gemv(1.0, this.weights['W_i'].tensor.transpose(1, 0), currentX.tensor, 1.0, tempXI.tensor)
       gemv(1.0, this.weights['U_i'].tensor.transpose(1, 0), previousHiddenState.tensor, 1.0, tempHI.tensor)
       this._combine(currentInputGateState.tensor, tempXI.tensor, tempHI.tensor, this.weights['b_i'].tensor)
-      this.innerActivation(currentInputGateState)
+      this.innerActivationFunc(currentInputGateState)
 
       gemv(1.0, this.weights['W_f'].tensor.transpose(1, 0), currentX.tensor, 1.0, tempXF.tensor)
       gemv(1.0, this.weights['U_f'].tensor.transpose(1, 0), previousHiddenState.tensor, 1.0, tempHF.tensor)
       this._combine(currentForgetGateState.tensor, tempXF.tensor, tempHF.tensor, this.weights['b_f'].tensor)
-      this.innerActivation(currentForgetGateState)
+      this.innerActivationFunc(currentForgetGateState)
 
       gemv(1.0, this.weights['W_o'].tensor.transpose(1, 0), currentX.tensor, 1.0, tempXO.tensor)
       gemv(1.0, this.weights['U_o'].tensor.transpose(1, 0), previousHiddenState.tensor, 1.0, tempHO.tensor)
       this._combine(currentOutputGateState.tensor, tempXO.tensor, tempHO.tensor, this.weights['b_o'].tensor)
-      this.innerActivation(currentOutputGateState)
+      this.innerActivationFunc(currentOutputGateState)
 
       gemv(1.0, this.weights['W_c'].tensor.transpose(1, 0), currentX.tensor, 1.0, tempXC.tensor)
       gemv(1.0, this.weights['U_c'].tensor.transpose(1, 0), previousHiddenState.tensor, 1.0, tempHC.tensor)
       this._combine(currentCandidate.tensor, tempXC.tensor, tempHC.tensor, this.weights['b_c'].tensor)
-      this.activation(currentCandidate)
+      this.activationFunc(currentCandidate)
 
       this._update(
         currentCandidate.tensor,
@@ -134,7 +137,7 @@ export default class LSTM extends Layer {
 
       ops.assign(previousCandidate.tensor, currentCandidate.tensor)
 
-      this.activation(currentCandidate)
+      this.activationFunc(currentCandidate)
       ops.mul(currentHiddenState.tensor, currentOutputGateState.tensor, currentCandidate.tensor)
     }
 

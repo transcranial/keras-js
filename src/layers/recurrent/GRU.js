@@ -34,8 +34,11 @@ export default class GRU extends Layer {
 
     this.outputDim = outputDim
 
-    this.activation = activations[activation]
-    this.innerActivation = activations[innerActivation]
+    // keep this.activation and this.innerActivation for Bidirectional wrapper layer to use
+    this.activation = activation
+    this.innerActivation = innerActivation
+    this.activationFunc = activations[activation]
+    this.innerActivationFunc = activations[innerActivation]
 
     this.returnSequences = returnSequences
     this.goBackwards = goBackwards
@@ -98,18 +101,18 @@ export default class GRU extends Layer {
       gemv(1.0, this.weights['W_z'].tensor.transpose(1, 0), currentX.tensor, 1.0, tempXZ.tensor)
       gemv(1.0, this.weights['U_z'].tensor.transpose(1, 0), previousHiddenState.tensor, 1.0, tempHZ.tensor)
       this._combine(currentUpdateGateState.tensor, tempXZ.tensor, tempHZ.tensor, this.weights['b_z'].tensor)
-      this.innerActivation(currentUpdateGateState)
+      this.innerActivationFunc(currentUpdateGateState)
 
       gemv(1.0, this.weights['W_r'].tensor.transpose(1, 0), currentX.tensor, 1.0, tempXR.tensor)
       gemv(1.0, this.weights['U_r'].tensor.transpose(1, 0), previousHiddenState.tensor, 1.0, tempHR.tensor)
       this._combine(currentResetGateState.tensor, tempXR.tensor, tempHR.tensor, this.weights['b_r'].tensor)
-      this.innerActivation(currentResetGateState)
+      this.innerActivationFunc(currentResetGateState)
 
       ops.muleq(currentResetGateState.tensor, previousHiddenState.tensor)
       gemv(1.0, this.weights['W_h'].tensor.transpose(1, 0), currentX.tensor, 1.0, tempXH.tensor)
       gemv(1.0, this.weights['U_h'].tensor.transpose(1, 0), currentResetGateState.tensor, 1.0, tempHH.tensor)
       this._combine(currentHiddenState.tensor, tempXH.tensor, tempHH.tensor, this.weights['b_h'].tensor)
-      this.activation(currentHiddenState)
+      this.activationFunc(currentHiddenState)
 
       this._update(
         currentHiddenState.tensor,
