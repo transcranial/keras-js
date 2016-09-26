@@ -35,7 +35,7 @@
   "homepage": "https://github.com/transcranial/keras-js#readme",
   "dependencies": {
     "cwise": "^1.0.9",
-    "lodash": "^4.16.1",
+    "lodash": "^4.16.2",
     "ndarray": "^1.0.18",
     "ndarray-blas-level2": "^1.1.0",
     "ndarray-concat-rows": "^1.0.1",
@@ -58,7 +58,7 @@
     "css-loader": "^0.25.0",
     "http-server": "^0.9.0",
     "postcss-loader": "^0.13.0",
-    "standard": "^8.1.0",
+    "standard": "^8.2.0",
     "style-loader": "^0.13.1",
     "webpack": "^2.1.0-beta.25"
   },
