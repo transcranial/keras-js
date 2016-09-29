@@ -1,6 +1,37 @@
+/* MDL overrides */
+
+.demo.mnist-cnn .mdl-switch__label {
+  font-size: 14px !important;
+  color: #69707a;
+}
+
+.demo.mnist-cnn .mdl-switch.is-checked .mdl-switch__thumb {
+  background: rgba(27, 188, 155, 0.6);
+}
+
+.demo.mnist-cnn .mdl-switch.is-checked .mdl-switch__track {
+  background: rgba(27, 188, 155, 0.3);
+}
+
+/*******************************************/
+
 .demo.mnist-cnn .column {
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+.demo.mnist-cnn .column.input-column {
+  justify-content: flex-end;
+}
+
+.demo.mnist-cnn .column.controls-column {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 80px;
+}
+
+.demo.mnist-cnn .column.output-column {
   justify-content: center;
 }
 

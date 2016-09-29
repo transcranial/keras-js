@@ -11,7 +11,8 @@ const MODEL_CONFIG = {
     model: '/demos/data/mnist_cnn/mnist_cnn.json',
     weights: '/demos/data/mnist_cnn/mnist_cnn_weights.buf',
     metadata: '/demos/data/mnist_cnn/mnist_cnn_metadata.json'
-  }
+  },
+  gpu: false
 }
 
 const LAYER_DISPLAY_CONFIG = {
@@ -78,7 +79,7 @@ export const MnistCnn = Vue.extend({
       Loading...{{ loadingProgress }}%
     </div>
     <div class="columns input-output">
-      <div class="column">
+      <div class="column input-column">
         <div class="input-container">
           <div class="input-label">Draw any digit (0-9) here <span class="arrow">⤸</span></div>
           <div class="canvas-container">
@@ -100,7 +101,10 @@ export const MnistCnn = Vue.extend({
           </div>
         </div>
       </div>
-      <div class="column">
+      <div class="column is-2 controls-column">
+        <mdl-switch :checked.sync="useGpu" @click="toggleGpu">Use GPU</mdl-switch>
+      </div>
+      <div class="column output-column">
         <div class="output">
           <div class="output-class"
             v-bind:class="{ 'predicted': i === predictedClass }"
@@ -152,7 +156,8 @@ export const MnistCnn = Vue.extend({
       layerResultImages: [],
       layerDisplayConfig: LAYER_DISPLAY_CONFIG,
       drawing: false,
-      strokes: []
+      strokes: [],
+      useGpu: MODEL_CONFIG.gpu
     }
   },
 
@@ -321,6 +326,10 @@ export const MnistCnn = Vue.extend({
           ctxScaled.restore()
         })
       })
+    },
+
+    toggleGpu: function () {
+      this.model.gpu = !this.useGpu
     }
   }
 })
