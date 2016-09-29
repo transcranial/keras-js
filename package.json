@@ -58,7 +58,7 @@
     "css-loader": "^0.25.0",
     "http-server": "^0.9.0",
     "postcss-loader": "^0.13.0",
-    "standard": "^8.2.0",
+    "standard": "^8.3.0",
     "style-loader": "^0.13.1",
     "webpack": "^2.1.0-beta.25"
   },
