@@ -45,3 +45,8 @@
   color: #1BBC9B;
   background: none;
 }
+
+.menu-list .github-logo {
+  fill: #69707a;
+  margin: 3px 8px 3px 0;
+}
