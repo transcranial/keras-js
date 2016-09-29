@@ -1,4 +1,4 @@
-/* global Vue */
+/* global Vue, VueMdl */
 
 import './index.css'
 
@@ -9,6 +9,8 @@ import { MnistCnn } from './mnist-cnn'
 Vue.component('menu', Menu)
 Vue.component('home', Home)
 Vue.component('mnist-cnn', MnistCnn)
+
+Vue.use(VueMdl.default)
 
 const app = new Vue({
   el: '#app',
