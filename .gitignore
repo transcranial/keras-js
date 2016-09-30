@@ -1,4 +1,6 @@
-.DS_Store
+# bundles
+dist/
+demos/dist/
 
 # Node.js
 node_modules/
@@ -10,3 +12,6 @@ notebooks/**/.ipynb_checkpoints/
 
 # data files for demos
 demos/data/
+
+# misc
+.DS_Store
