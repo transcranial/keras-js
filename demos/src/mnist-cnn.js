@@ -15,6 +15,16 @@ const MODEL_CONFIG = {
   gpu: false
 }
 
+if (process.env.NODE_ENV === 'production') {
+  Object.assign(MODEL_CONFIG, {
+    filepaths: {
+      model: 'demos/data/mnist_cnn/mnist_cnn.json',
+      weights: 'demos/data/mnist_cnn/mnist_cnn_weights.buf',
+      metadata: 'demos/data/mnist_cnn/mnist_cnn_metadata.json'
+    }
+  })
+}
+
 const LAYER_DISPLAY_CONFIG = {
   'convolution2d_1': {
     heading: '32 3x3 filters, border mode valid, 1x1 strides',
