@@ -19,7 +19,7 @@ if (process.env.NODE_ENV === 'production') {
   Object.assign(MODEL_CONFIG, {
     filepaths: {
       model: 'demos/data/mnist_cnn/mnist_cnn.json',
-      weights: 'https://github.com/transcranial/keras-js/releases/download/v0.0.1/mnist_cnn_weights.buf',
+      weights: 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn_weights.buf',
       metadata: 'demos/data/mnist_cnn/mnist_cnn_metadata.json'
     }
   })
