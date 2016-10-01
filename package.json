@@ -8,7 +8,6 @@
     "build": "npm run lint && webpack --config webpack.prod.config.js",
     "watch:demos": "cd demos && webpack --watch --config webpack.dev.config.js",
     "build:demos": "cd demos && webpack --config webpack.prod.config.js",
-    "publish:demos": "",
     "server": "http-server . -p 3000"
   },
   "repository": {

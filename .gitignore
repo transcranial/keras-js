@@ -1,6 +1,6 @@
 # bundles
-dist/
-demos/dist/
+dist/keras.js
+demos/dist/bundle.js
 
 # Node.js
 node_modules/
@@ -9,9 +9,7 @@ npm-debug.log*
 
 # jupyter
 notebooks/**/.ipynb_checkpoints/
-
-# data files for demos
-demos/data/
+demos/notebooks/.ipynb_checkpoints/
 
 # misc
 .DS_Store
