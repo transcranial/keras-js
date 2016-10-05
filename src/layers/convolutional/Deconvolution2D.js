@@ -37,7 +37,11 @@ export default class Deconvolution2D extends Layer {
 
     this.kernelShape = [nbFilter, nbRow, nbCol]
 
-    this.outputShape = outputShape
+    if (outputShape[0] == null) {
+      this.outputShape = outputShape.slice(1)
+    } else {
+      this.outputShape = outputShape
+    }
 
     this.activation = activations[activation]
 
