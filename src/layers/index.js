@@ -1,3 +1,6 @@
+import InputLayer from './InputLayer'
+
+export { InputLayer }
 export * from './advanced_activations'
 export * from './core'
 export * from './convolutional'
