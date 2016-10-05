@@ -1,20 +1,3 @@
-/* MDL overrides */
-
-.demo.mnist-cnn .mdl-switch__label {
-  font-size: 14px !important;
-  color: #69707a;
-}
-
-.demo.mnist-cnn .mdl-switch.is-checked .mdl-switch__thumb {
-  background: rgba(27, 188, 155, 0.6);
-}
-
-.demo.mnist-cnn .mdl-switch.is-checked .mdl-switch__track {
-  background: rgba(27, 188, 155, 0.3);
-}
-
-/*******************************************/
-
 .demo.mnist-cnn .column {
   display: flex;
   align-items: center;

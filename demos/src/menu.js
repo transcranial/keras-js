@@ -12,6 +12,7 @@ export const Menu = Vue.extend({
     <ul class="menu-list">
       <li><a href="#/">Home</a></li>
       <li><a href="#/mnist-cnn">Basic Convnet - MNIST</a></li>
+      <li><a href="#/mnist-vae">Convolutional VAE - MNIST</a></li>
     </ul>
     <p class="menu-label">
       Links

@@ -84,7 +84,7 @@ const LAYER_DISPLAY_CONFIG = {
 export const MnistCnn = Vue.extend({
   template: `
   <div class="demo mnist-cnn">
-    <div class="title">Basic Convnet - MNIST</div>
+    <div class="title">Basic Convnet for MNIST</div>
     <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
       Loading...{{ loadingProgress }}%
     </div>

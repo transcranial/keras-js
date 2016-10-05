@@ -60,3 +60,19 @@ body {
   background: rgba(255, 255, 255, 0.5);
   border-radius: 10px;
 }
+
+/****************************************************************/
+/* MDL overrides */
+
+.demo .mdl-switch__label {
+  font-size: 14px !important;
+  color: #69707a;
+}
+
+.demo .mdl-switch.is-checked .mdl-switch__thumb {
+  background: rgba(27, 188, 155, 0.6);
+}
+
+.demo .mdl-switch.is-checked .mdl-switch__track {
+  background: rgba(27, 188, 155, 0.3);
+}
