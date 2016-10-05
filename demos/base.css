@@ -1,0 +1,26 @@
+body {
+  background: #F0F0F0;
+  min-height: 100vh;
+}
+
+#github-corner-link {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  top: -60px;
+  right: -60px;
+  border-radius: 50%;
+  background-color:  #1BBC9B;
+  transition: background-color 0.2s ease-in;
+}
+
+#github-corner-link:hover {
+  background-color: rgba(27, 188, 155, 0.7);
+}
+
+#github-corner-link .github-logo {
+  position: absolute;
+  bottom: 18px;
+  left: 18px;
+  fill: white;
+}

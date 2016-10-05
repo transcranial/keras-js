@@ -5,32 +5,10 @@
 @import './_variables.css';
 
 body {
-  background: linear-gradient(0deg, #DDDDDD, #EEEEEE);
+  background: linear-gradient(0deg, #CCCCCC, #F0F0F0);
   color: $color-3;
   min-height: 100vh;
   font-family: $font-1;
-}
-
-#github-corner-link {
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  top: -60px;
-  right: -60px;
-  border-radius: 50%;
-  background-color: $color-1;
-  transition: background-color 0.2s ease-in;
-
-  &:hover {
-    background-color: rgba(27, 188, 155, 0.7);
-  }
-
-  .github-logo {
-    position: absolute;
-    bottom: 18px;
-    left: 18px;
-    fill: white;
-  }
 }
 
 .title {
