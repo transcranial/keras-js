@@ -29,7 +29,10 @@ class Encoder(object):
         see https://github.com/fchollet/keras/blob/master/keras/engine/topology.py#L2505-L2585
         """
         hdf5_file = h5py.File(self.weights_hdf5_filepath, mode='r')
-        f = hdf5_file['model_weights']
+        if 'layer_names' not in hdf5_file.attrs and 'model_weights' in hdf5_file:
+            f = hdf5_file['model_weights']
+        else:
+            f = hdf5_file
 
         layer_names = [n.decode('utf8') for n in f.attrs['layer_names']]
         offset = 0
@@ -54,7 +57,7 @@ class Encoder(object):
         hdf5_file.close()
 
     def save(self):
-        """Saves weights data (gzipped binary) and weights metadata (json)
+        """Saves weights data (binary) and weights metadata (json)
         """
         weights_filepath = '{}_weights.buf'.format(os.path.splitext(self.weights_hdf5_filepath)[0])
         with open(weights_filepath, mode='wb') as f:
@@ -69,7 +72,7 @@ if __name__ == '__main__':
         python encoder.py example.hdf5
 
     Output:
-        - example_weights.buf.gz
+        - example_weights.buf
         - example_metadata.json
     """
     encoder = Encoder(*sys.argv[1:])
