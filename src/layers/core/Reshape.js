@@ -11,16 +11,16 @@ import flattenDeep from 'lodash/flattenDeep'
 export default class Reshape extends Layer {
   /**
    * Creates a Reshape layer
-   * @param {number[]} attrs.shape
+   * @param {number[]} attrs.targetShape
    */
   constructor (attrs = {}) {
     super(attrs)
     this.layerClass = 'Reshape'
 
     const {
-      shape = []
+      targetShape = []
     } = attrs
-    this.shape = shape
+    this.targetShape = targetShape
   }
 
   /**
@@ -29,10 +29,10 @@ export default class Reshape extends Layer {
    * @returns {Tensor} x
    */
   call (x) {
-    if (this.shape.reduce((a, b) => a * b, 1) !== x.tensor.size) {
+    if (this.targetShape.reduce((a, b) => a * b, 1) !== x.tensor.size) {
       throw new Error(`${this.name} [Reshape layer] The total size of new array must be unchanged in reshape layer.`)
     }
-    x.tensor = ndarray(new x._type(flattenDeep(unpack(x.tensor))), this.shape)
+    x.tensor = ndarray(new x._type(flattenDeep(unpack(x.tensor))), this.targetShape)
     return x
   }
 }
