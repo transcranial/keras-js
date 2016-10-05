@@ -1,53 +1,59 @@
+@import './_variables.css';
+
 .menu {
   padding: 50px;
   margin: 20px;
   background: white;
   border-radius: 10px;
-  box-shadow: 6px 8px #CCCCCC;
-}
+  box-shadow: 6px 6px #CCCCCC;
 
-.menu h1 {
-  color: #CCCCCC;
-  font-family: 'Fira Sans', sans-serif;
-  font-size: 1.5rem;
-}
+  h1 {
+    color: #CCCCCC;
+    font-family: $font-1;
+    font-size: 1.5rem;
+  }
 
-.menu-list li {
-  color: #69707a;
-}
+  .menu-list {
+    li {
+      color: $color-2;
+    }
 
-.menu-list a {
-  display: flex;
-  align-items: center;
-}
+    a {
+      display: flex;
+      align-items: center;
 
-.menu-list a:hover {
-  color: #1BBC9B;
-  background-color: whitesmoke;
-}
+      &:hover {
+        color: $color-1;
+        background-color: whitesmoke;
 
-.menu-list a:hover .github-logo {
-  fill: #1BBC9B;
-}
+        .github-logo {
+          fill: $color-1;
+        }
+      }
+    }
 
-.menu-list.contact li {
-  padding: 5px 10px;
-}
+    .github-logo {
+      fill: $color-2;
+      margin: 3px 8px 3px 0;
+    }
+  }
 
-.menu-list.contact a {
-  color: #aaaaaa;
-  padding: 0;
-  display: inline-flex;
-  background-color: none;
-  transition: color 0.2s ease-in;
-}
+  .menu-list.contact {
+    li {
+      padding: 5px 10px;
+    }
 
-.menu-list.contact a:hover {
-  color: #1BBC9B;
-  background: none;
-}
+    a {
+      color: #AAAAAA;
+      padding: 0;
+      display: inline-flex;
+      background-color: none;
+      transition: color 0.2s ease-in;
 
-.menu-list .github-logo {
-  fill: #69707a;
-  margin: 3px 8px 3px 0;
+      &hover {
+        color: $color-1;
+        background: none;
+      }
+    }
+  }
 }

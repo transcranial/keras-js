@@ -1,5 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
+const precss = require('precss')
 const autoprefixer = require('autoprefixer')
 
 module.exports = {
@@ -31,7 +32,7 @@ module.exports = {
     new webpack.LoaderOptionsPlugin({
       options: {
         context: __dirname,
-        postcss: [autoprefixer]
+        postcss: [precss, autoprefixer]
       }
     }),
     new webpack.DefinePlugin({

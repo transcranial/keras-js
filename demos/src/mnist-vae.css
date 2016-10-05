@@ -1,58 +1,71 @@
-.demo.mnist-vae .column {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+@import './_variables.css';
 
-.demo.mnist-vae .column.input-column {
-  justify-content: flex-end;
-}
+.demo.mnist-vae {
+  .column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.demo.mnist-vae .column.controls-column {
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding-top: 80px;
-}
+  .column.input-column {
+    justify-content: flex-end;
 
-.demo.mnist-vae .column.output-column {
-  justify-content: center;
-}
+    .input-container {
+      display: inline-flex;
+      flex-direction: column;
+      margin: 20px;
+      position: relative;
 
-.demo.mnist-vae .input-container {
-  display: inline-flex;
-  flex-direction: column;
-  margin: 20px;
-  position: relative;
-}
+      .input-label {
+        font-family: $font-3;
+        font-size: 18px;
+        color: $color-2;
+        text-align: right;
 
-.demo.mnist-vae .input-label {
-  font-family: 'Nothing You Could Do', cursive;
-  font-size: 18px;
-  color: #69707a;
-  text-align: right;
-}
+        span.arrow {
+          font-size: 36px;
+          color: #CCCCCC;
+          position: absolute;
+          right: -32px;
+          top: 8px;
+        }
+      }
 
-.demo.mnist-vae .input-label span.arrow {
-  font-size: 36px;
-  color: #CCCCCC;
-  position: absolute;
-  right: -32px;
-  top: 8px;
-}
+      .canvas-container {
+        display: inline-flex;
+        justify-content: flex-end;
+        margin: 10px 0;
 
-.demo.mnist-vae .canvas-container {
-  display: inline-flex;
-  justify-content: flex-end;
-  margin: 10px 0;
-}
+        canvas {
+          background: white;
+          border: 15px solid rgba(27, 188, 155, 0.3);
+          transition: border-color 0.2s ease-in;
 
-.demo.mnist-vae .canvas-container canvas {
-  background: white;
-  border: 15px solid rgba(27, 188, 155, 0.3);
-  transition: border-color 0.2s ease-in;
-}
+          &:hover {
+            border-color: rgba(27, 188, 155, 0.6);
+            cursor: crosshair;
+          }
+        }
+      }
+    }
+  }
 
-.demo.mnist-vae .canvas-container canvas:hover {
-  border-color: rgba(27, 188, 155, 0.6);
-  cursor: crosshair;
+  .column.controls-column {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: 80px;
+
+    .coordinates {
+      margin-left: 5px;
+      margin-top: 45px;
+      font-family: $font-2;
+      font-size: 20px;
+      color: $color-2;
+    }
+  }
+
+  .column.output-column {
+    justify-content: center;
+  }
 }

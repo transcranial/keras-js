@@ -2,11 +2,13 @@
 @import 'https://fonts.googleapis.com/css?family=Fira+Sans';
 @import 'https://fonts.googleapis.com/css?family=Nothing+You+Could+Do';
 
+@import './_variables.css';
+
 body {
   background: linear-gradient(0deg, #DDDDDD, #EEEEEE);
-  color: #393E46;
+  color: $color-3;
   min-height: 100vh;
-  font-family: 'Fira Sans', sans-serif;
+  font-family: $font-1;
 }
 
 #github-corner-link {
@@ -16,63 +18,65 @@ body {
   top: -60px;
   right: -60px;
   border-radius: 50%;
-  background-color: #1BBC9B;
+  background-color: $color-1;
   transition: background-color 0.2s ease-in;
-}
 
-#github-corner-link:hover {
-  background-color: rgba(27, 188, 155, 0.7);
-}
+  &:hover {
+    background-color: rgba(27, 188, 155, 0.7);
+  }
 
-#github-corner-link .github-logo {
-  position: absolute;
-  bottom: 18px;
-  left: 18px;
-  fill: white;
+  .github-logo {
+    position: absolute;
+    bottom: 18px;
+    left: 18px;
+    fill: white;
+  }
 }
 
 .title {
   width: 100%;
-  color: #1BBC9B;
+  color: $color-1;
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 
 .subtitle {
-  color: #393E46;
+  color: $color-3;
 }
 
 .demo {
   padding: 50px 30px;
-}
 
-.demo .loading-progress {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 30px;
-  color: #1BBC9B;
-  font-size: 18px;
-  font-family: 'Inconsolata', sans-serif;
-  padding: 20px 50px;
-  margin: 20px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 10px;
-}
+  .loading-progress {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 30px;
+    color: $color-1;
+    font-size: 18px;
+    font-family: $font-2;
+    padding: 20px 50px;
+    margin: 30px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+  }
 
-/****************************************************************/
-/* MDL overrides */
+  /****************************************************************/
+  /* MDL overrides */
 
-.demo .mdl-switch__label {
-  font-size: 14px !important;
-  color: #69707a;
-}
+  .mdl-switch__label {
+    font-size: 14px !important;
+    color: #69707a;
+  }
 
-.demo .mdl-switch.is-checked .mdl-switch__thumb {
-  background: rgba(27, 188, 155, 0.6);
-}
+  .mdl-switch.is-checked {
+    .mdl-switch__thumb {
+      background: rgba(27, 188, 155, 0.6);
+    }
 
-.demo .mdl-switch.is-checked .mdl-switch__track {
-  background: rgba(27, 188, 155, 0.3);
+    .mdl-switch__track {
+      background: rgba(27, 188, 155, 0.3);
+    }
+  }
 }

@@ -1,157 +1,161 @@
-.demo.mnist-cnn .column {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+@import './_variables.css';
 
-.demo.mnist-cnn .column.input-column {
-  justify-content: flex-end;
-}
+.demo.mnist-cnn {
+  .column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.demo.mnist-cnn .column.controls-column {
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding-top: 80px;
-}
+  .column.input-column {
+    justify-content: flex-end;
 
-.demo.mnist-cnn .column.output-column {
-  justify-content: center;
-}
+    .input-container {
+      display: inline-flex;
+      flex-direction: column;
+      margin: 20px;
+      position: relative;
 
-.demo.mnist-cnn .input-container {
-  display: inline-flex;
-  flex-direction: column;
-  margin: 20px;
-  position: relative;
-}
+      .input-label {
+        font-family: $font-3;
+        font-size: 18px;
+        color: $color-2;
+        text-align: right;
 
-.demo.mnist-cnn .input-label {
-  font-family: 'Nothing You Could Do', cursive;
-  font-size: 18px;
-  color: #69707a;
-  text-align: right;
-}
+        span.arrow {
+          font-size: 36px;
+          color: #CCCCCC;
+          position: absolute;
+          right: -32px;
+          top: 8px;
+        }
+      }
 
-.demo.mnist-cnn .input-label span.arrow {
-  font-size: 36px;
-  color: #CCCCCC;
-  position: absolute;
-  right: -32px;
-  top: 8px;
-}
+      .canvas-container {
+        display: inline-flex;
+        margin: 10px 0;
+        background: white;
+        border: 15px solid rgba(27, 188, 155, 0.3);
+        transition: border-color 0.2s ease-in;
 
-.demo.mnist-cnn .canvas-container {
-  display: inline-flex;
-  margin: 10px 0;
-  background: white;
-  border: 15px solid rgba(27, 188, 155, 0.3);
-  transition: border-color 0.2s ease-in;
-}
+        &:hover {
+          border-color: rgba(27, 188, 155, 0.6);
+        }
 
-.demo.mnist-cnn .canvas-container:hover {
-  border-color: rgba(27, 188, 155, 0.6);
-}
+        canvas:hover {
+          cursor: crosshair;
+        }
+      }
 
-.demo.mnist-cnn .canvas-container canvas:hover {
-  cursor: crosshair;
-}
+      .input-clear {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        color: $color-2;
+        transition: color 0.2s ease-in;
 
-.demo.mnist-cnn .input-clear {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  color: #69707a;
-  transition: color 0.2s ease-in;
-}
+        &:hover {
+          color: rgba(27, 188, 155, 0.3);
+          cursor: pointer;
+        }
+      }
+    }
+  }
 
-.demo.mnist-cnn .input-clear:hover {
-  color: rgba(27, 188, 155, 0.3);
-  cursor: pointer;
-}
+  .column.controls-column {
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: 80px;
+  }
 
-.demo.mnist-cnn .output {
-  height: 160px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  justify-content: center;
-}
+  .column.output-column {
+    justify-content: center;
 
-.demo.mnist-cnn .output .output-class {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0 6px;
-  border-bottom: 2px solid rgba(27, 188, 155, 0.3);
-}
+    .output {
+      height: 160px;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: center;
 
-.demo.mnist-cnn .output .output-class.predicted {
-  border-bottom-color: #1BBC9B;
-}
+      .output-class {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        border-bottom: 2px solid rgba(27, 188, 155, 0.3);
 
-.demo.mnist-cnn .output .output-class .output-label {
-  font-family: 'Inconsolata', sans-serif;
-  font-size: 1.5rem;
-  color: #69707a;
-}
+        .output-label {
+          font-family: 'Inconsolata', sans-serif;
+          font-size: 1.5rem;
+          color: $color-2;
+        }
 
-.demo.mnist-cnn .output .output-class .output-bar {
-  width: 8px;
-  background: #EEEEEE;
-  transition: height 0.2s ease-out;
-}
+        .output-bar {
+          width: 8px;
+          background: #EEEEEE;
+          transition: height 0.2s ease-out;
+        }
+      }
 
-.demo.mnist-cnn .output .output-class.predicted .output-label {
-  color: #1BBC9B;
-}
+      .output-class.predicted {
+        border-bottom-color: $color-1;
 
-.demo.mnist-cnn .layer-results-container {
-  position: relative;
-}
+        .output-label {
+          color: $color-1;
+        }
+      }
+    }
+  }
 
-.demo.mnist-cnn .layer-results-container .bg-line {
-  position: absolute;
-  z-index: 0;
-  top: 0;
-  left: 50%;
-  background: white;
-  width: 20px;
-  height: 100%;
-}
+  .layer-results-container {
+    position: relative;
 
-.demo.mnist-cnn .layer-result {
-  position: relative;
-  z-index: 1;
-  margin: 30px 20px;
-  background: white;
-  border-radius: 10px;
-  padding: 20px;
-  overflow-x: auto;
-}
+    .bg-line {
+      position: absolute;
+      z-index: 0;
+      top: 0;
+      left: 50%;
+      background: white;
+      width: 20px;
+      height: 100%;
+    }
 
-.demo.mnist-cnn .layer-result-heading {
-  font-size: 1rem;
-  color: #999999;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-  font-size: 12px;
-}
+    .layer-result {
+      position: relative;
+      z-index: 1;
+      margin: 30px 20px;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      overflow-x: auto;
 
-.demo.mnist-cnn .layer-result-heading span.layer-class {
-  color: #1BBC9B;
-  font-size: 14px;
-  font-weight: bold;
-}
+      .layer-result-heading {
+        font-size: 1rem;
+        color: #999999;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        font-size: 12px;
 
-.demo.mnist-cnn .layer-result-canvas-container {
-  display: inline-flex;
-  flex-wrap: wrap;
-  background: white;
-}
+        span.layer-class {
+          color: $color-1;
+          font-size: 14px;
+          font-weight: bold;
+        }
+      }
 
-.demo.mnist-cnn .layer-result-canvas-container canvas {
-  border: 1px solid lightgray;
-  margin: 1px;
+      .layer-result-canvas-container {
+        display: inline-flex;
+        flex-wrap: wrap;
+        background: white;
+
+        canvas {
+          border: 1px solid lightgray;
+          margin: 1px;
+        }
+      }
+    }
+  }
 }
