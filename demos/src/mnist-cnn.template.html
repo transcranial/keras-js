@@ -6,7 +6,7 @@
   <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
     Loading...{{ loadingProgress }}%
   </div>
-  <div class="columns input-output">
+  <div class="columns input-output" v-if="!modelLoading">
     <div class="column input-column">
       <div class="input-container">
         <div class="input-label">Draw any digit (0-9) here <span class="arrow">⤸</span></div>
@@ -46,7 +46,7 @@
       </div>
     </div>
   </div>
-  <div class="layer-results-container">
+  <div class="layer-results-container" v-if="!modelLoading">
     <div class="bg-line"></div>
     <div
       v-for="layerResult in layerResultImages"

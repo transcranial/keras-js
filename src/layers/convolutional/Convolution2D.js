@@ -197,12 +197,25 @@ export default class Convolution2D extends Layer {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
 
+    let startTime = performance.now()
     this._calcOutputShape(x)
+    let endTime = performance.now()
+    console.log('_calcOutputShape', endTime - startTime)
+    startTime = performance.now()
     this._padInput(x)
+    endTime = performance.now()
+    console.log('_padInput', endTime - startTime)
 
+    startTime = performance.now()
     const imColsMat = this._im2col(x)
+    endTime = performance.now()
+    console.log('imColsMat', endTime - startTime)
+    startTime = performance.now()
     const wRowsMat = this._w2row(x)
+    endTime = performance.now()
+    console.log('wRowsMat', endTime - startTime)
 
+    startTime = performance.now()
     const nbFilter = this.kernelShape[0]
     const outputRows = this.outputShape[0]
     const outputCols = this.outputShape[1]
@@ -213,7 +226,10 @@ export default class Convolution2D extends Layer {
         ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
       }
     }
+    endTime = performance.now()
+    console.log('createMatMul', endTime - startTime)
 
+    startTime = performance.now()
     if (x._useWeblas) {
       const bias = this.bias
         ? this.weights.b.tensor.data
@@ -226,7 +242,10 @@ export default class Convolution2D extends Layer {
     } else {
       gemm(matMul.tensor, imColsMat.tensor, wRowsMat.tensor, 1, 1)
     }
+    endTime = performance.now()
+    console.log('gemm', endTime - startTime)
 
+    startTime = performance.now()
     let output = new Tensor([], this.outputShape)
     let outputChannel = new Tensor([], [outputRows, outputCols])
     for (let n = 0; n < nbFilter; n++) {
@@ -236,6 +255,8 @@ export default class Convolution2D extends Layer {
       outputChannel.replaceTensorData(outputChannelData)
       ops.assign(output.tensor.pick(null, null, n), outputChannel.tensor)
     }
+    endTime = performance.now()
+    console.log('createOutput', endTime - startTime)
     x.tensor = output.tensor
 
     this.activation(x)

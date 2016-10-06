@@ -17,6 +17,7 @@
       flex-direction: row;
       align-items: center;
       justify-content: flex-start;
+      position: relative;
 
       span {
         margin: 0 10px;

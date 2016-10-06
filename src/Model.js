@@ -83,8 +83,10 @@ export default class Model {
     // input tensors
     this.inputTensors = {}
 
+    // Promise for when Model class is initialized
     this._ready = this.initialize()
 
+    // flag while computations are being performed
     this.isRunning = false
   }
 
@@ -294,9 +296,13 @@ export default class Model {
       const { layerClass, inbound, outbound } = this.modelDAG[node]
       if (layerClass !== 'InputLayer') {
         let currentLayer = this.modelLayersMap.get(node)
+        if (currentLayer.visited) {
+          return false
+        }
+
         const inboundLayers = inbound.map(n => this.modelLayersMap.get(n))
-        while (!every(inboundLayers.map(layer => layer.hasResult))) {
-          yield
+        if (!every(inboundLayers.map(layer => layer.hasResult))) {
+          return false
         }
 
         if (layerClass === 'Merge') {
@@ -311,10 +317,13 @@ export default class Model {
           currentLayer.result = currentLayer.call(new Tensor(prevLayerResult.tensor.data, prevLayerResult.tensor.shape, { gpu: this.gpu }))
         }
         currentLayer.hasResult = true
+        currentLayer.visited = true
       }
       yield * this.traverseDAG(outbound)
     } else {
-      yield * nodes.map(node => this.traverseDAG([node]))
+      for (let node of nodes) {
+        yield * this.traverseDAG([node])
+      }
     }
   }
 
@@ -334,9 +343,10 @@ export default class Model {
       throw new Error('predict() must take an object where the values are the flattened data as Float32Array.')
     }
 
-    // reset hasResult flag in all layers
+    // reset hasResult and visited flags in all layers
     for (let layer of this.modelLayersMap.values()) {
       layer.hasResult = false
+      layer.visited = false
     }
 
     // load data to input tensors
@@ -345,6 +355,7 @@ export default class Model {
       this.inputTensors[inputName] = new Tensor(inputData[inputName], inputLayer.shape, { gpu: this.gpu })
       inputLayer.result = inputLayer.call(this.inputTensors[inputName])
       inputLayer.hasResult = true
+      inputLayer.visited = true
     })
 
     // start traversing DAG at input

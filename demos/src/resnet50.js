@@ -58,12 +58,14 @@ export const ResNet50 = Vue.extend({
     }
   },
 
-  created: function () {
+  ready: function () {
     // initialize KerasJS model
     this.model.initialize()
     this.model.ready().then(() => {
       this.modelLoading = false
-      //this.getIntermediateResults()
+      this.$nextTick(function () {
+        //this.getIntermediateResults()
+      })
     })
   },
 
@@ -98,7 +100,9 @@ export const ResNet50 = Vue.extend({
             this.imageLoadingError = false
             this.imageLoading = false
             // model predict
-            this.runModel()
+            this.$nextTick(function () {
+              this.runModel()
+            })
           }
         },
         {

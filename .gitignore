@@ -1,7 +1,3 @@
-# bundles
-dist/keras.js
-demos/dist/bundle.js
-
 # Node.js
 node_modules/
 npm-debug.log

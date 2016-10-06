@@ -8,7 +8,7 @@ module.exports = {
   ],
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: 'keras.min.js',
+    filename: 'keras.js',
     library: 'KerasJS',
     libraryTarget: 'umd'
   },

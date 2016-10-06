@@ -81,18 +81,17 @@ export const MnistVae = Vue.extend({
     }
   },
 
-  created: function () {
+  ready: function () {
     // initialize KerasJS model
     this.model.initialize()
     this.model.ready().then(() => {
       this.modelLoading = false
-      this.getIntermediateResults()
-      this.runModel()
+      this.$nextTick(function () {
+        this.drawPosition()
+        this.getIntermediateResults()
+        this.runModel()
+      })
     })
-  },
-
-  ready: function () {
-    this.drawPosition()
   },
 
   methods: {
