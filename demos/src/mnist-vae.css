@@ -11,8 +11,7 @@
     justify-content: flex-end;
 
     .input-container {
-      display: inline-flex;
-      flex-direction: column;
+      text-align: right;
       margin: 20px;
       position: relative;
 
@@ -32,19 +31,49 @@
       }
 
       .canvas-container {
+        position: relative;
         display: inline-flex;
         justify-content: flex-end;
         margin: 10px 0;
+        border: 15px solid rgba(27, 188, 155, 0.3);
+        transition: border-color 0.2s ease-in;
+
+        &:hover {
+          border-color: rgba(27, 188, 155, 0.6);
+        }
 
         canvas {
           background: white;
-          border: 15px solid rgba(27, 188, 155, 0.3);
-          transition: border-color 0.2s ease-in;
 
           &:hover {
-            border-color: rgba(27, 188, 155, 0.6);
             cursor: crosshair;
           }
+        }
+
+        .axis {
+          position: absolute;
+          cursor: default;
+          user-select: none;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-family: $font-2;
+          font-size: 14px;
+          color: $color-1;
+        }
+
+        .axis.x-axis {
+          right: 0;
+          bottom: -45px;
+          width: 200px;
+          flex-direction: row;
+        }
+
+        .axis.y-axis {
+          top: 0;
+          left: -55px;
+          height: 200px;
+          flex-direction: column;
         }
       }
     }
@@ -66,6 +95,65 @@
   }
 
   .column.output-column {
-    justify-content: center;
+    justify-content: flex-start;
+
+    .output {
+      border-radius: 10px;
+      overflow: hidden;
+
+      canvas {
+        background: white;
+      }
+    }
+  }
+
+  .layer-results-container {
+    position: relative;
+
+    .bg-line {
+      position: absolute;
+      z-index: 0;
+      top: 0;
+      left: 50%;
+      background: white;
+      width: 15px;
+      height: 100%;
+    }
+
+    .layer-result {
+      position: relative;
+      z-index: 1;
+      margin: 30px 20px;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      overflow-x: auto;
+
+      .layer-result-heading {
+        font-size: 1rem;
+        color: #999999;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        font-size: 12px;
+
+        span.layer-class {
+          color: $color-1;
+          font-size: 14px;
+          font-weight: bold;
+        }
+      }
+
+      .layer-result-canvas-container {
+        display: inline-flex;
+        flex-wrap: wrap;
+        background: white;
+
+        canvas {
+          border: 1px solid lightgray;
+          margin: 1px;
+        }
+      }
+    }
   }
 }
