@@ -68,7 +68,8 @@ class Encoder(object):
 
 
 if __name__ == '__main__':
-    """Usage:
+    """
+    Usage:
         python encoder.py example.hdf5
 
     Output:
