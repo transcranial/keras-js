@@ -1,0 +1,102 @@
+@import './_variables.css';
+
+.demo.resnet50 {
+  .input-container {
+    margin: 20px;
+    position: relative;
+
+    .input-label {
+      font-family: $font-3;
+      font-size: 16px;
+      color: $color-2;
+      text-align: left;
+    }
+
+    .image-url {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+
+      span {
+        margin: 0 10px;
+        font-family: $font-3;
+        font-size: 16px;
+        color: $color-2;
+      }
+    }
+  }
+
+  .column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .column.input-column {
+    justify-content: flex-end;
+
+    .canvas-container {
+      display: inline-flex;
+      justify-content: flex-end;
+
+      canvas {
+        background: white;
+      }
+    }
+  }
+
+  .column.controls-column {
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: 20px;
+  }
+
+  .column.output-column {
+    justify-content: center;
+
+    .output {
+
+    }
+  }
+
+  .layer-results-container {
+    position: relative;
+
+    .layer-result {
+      position: relative;
+      z-index: 1;
+      margin: 30px 20px;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      overflow-x: auto;
+
+      .layer-result-heading {
+        font-size: 1rem;
+        color: #999999;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        font-size: 12px;
+
+        span.layer-class {
+          color: $color-1;
+          font-size: 14px;
+          font-weight: bold;
+        }
+      }
+
+      .layer-result-canvas-container {
+        display: inline-flex;
+        flex-wrap: wrap;
+        background: white;
+
+        canvas {
+          border: 1px solid lightgray;
+          margin: 1px;
+        }
+      }
+    }
+  }
+}
