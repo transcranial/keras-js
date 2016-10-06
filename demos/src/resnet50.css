@@ -36,6 +36,24 @@
   .column.input-column {
     justify-content: flex-end;
 
+    .loading-indicator {
+      display: flex;
+      flex-direction: column;
+      align-self: flex-start;
+
+      .mdl-spinner {
+        margin: 20px;
+        align-self: center;
+      }
+
+      .error {
+        color: $color-err;
+        font-size: 14px;
+        font-family: $font-1;
+        margin: 20px;
+      }
+    }
+
     .canvas-container {
       display: inline-flex;
       justify-content: flex-end;
