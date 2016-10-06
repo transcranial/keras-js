@@ -135,6 +135,19 @@ export function image2Dtensor (tensor) {
 }
 
 /**
+ * Takes in a TypedArray with size = width * height
+ * and creates image data
+ */
+export function image2Darray (arr, width, height) {
+  const size = width * height * 4
+  let imageData = new Uint8ClampedArray(size)
+  for (let i = 0; i < size; i += 4) {
+    imageData[i + 3] = 255 * arr[i / 4]
+  }
+  return new ImageData(imageData, width, height)
+}
+
+/**
  * Takes in a ndarray of shape [x, y, z]
  * and creates an array of z ImageData [x, y] elements
  */
