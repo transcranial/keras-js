@@ -9,7 +9,6 @@ import sum from 'lodash/sum'
 import isEqual from 'lodash/isEqual'
 import every from 'lodash/every'
 import * as layers from './layers'
-import Input from './Input'
 import Tensor from './Tensor'
 
 /**
@@ -85,6 +84,8 @@ export default class Model {
     this.inputTensors = {}
 
     this._ready = this.initialize()
+
+    this.isRunning = false
   }
 
   /**
@@ -167,8 +168,13 @@ export default class Model {
 
   /**
    * Builds network layer DAG
+   *
    * For Keras models of class Sequential, we still convert the list into DAG format
-   * for straightforward interoperability with graph models.
+   * for straightforward interoperability with graph models. We must first create an
+   * Input layer as the initial layer, however.
+   *
+   * For class Model, the network DAG is constructed from the configuration inbound
+   * and outbound nodes.
    *
    * Layer constructors take an `attrs` object, which contain layer parameters among
    * other information. Note that in the Keras model config object variables are
@@ -177,76 +183,95 @@ export default class Model {
   createLayers () {
     const modelClass = this.data.model.class_name
 
+    let modelConfig = []
     if (modelClass === 'Sequential') {
-      const modelConfig = this.data.model.config
-      const inputName = 'input'
-
-      modelConfig.forEach((layerDef, index) => {
-        const layerClass = layerDef.class_name
-        const layerConfig = layerDef.config
-
-        // create Input node at start
-        if (index === 0) {
-          const inputShape = layerConfig.batch_input_shape.slice(1)
-          const layer = new Input({
-            name: inputName,
-            shape: inputShape
-          })
-          this.modelLayersMap.set(inputName, layer)
-          this.modelDAG[inputName] = {
-            layerClass: 'Input',
-            name: inputName,
-            inbound: [],
-            outbound: []
-          }
-          this.inputTensors[inputName] = new Tensor([], inputShape, { gpu: this.gpu })
-        }
-
-        if (layerClass in layers) {
-          const attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
-          if ('activation' in attrs) {
-            attrs.activation = camelCase(attrs.activation)
-          }
-          const layer = new layers[layerClass](attrs)
-
-          // layer weights
-          if (layer.params && layer.params.length) {
-            const weights = layer.params.map(param => {
-              const paramMetadata = find(this.data.metadata, meta => {
-                const weightRE = new RegExp(`^${layerConfig.name}_${param}`)
-                return meta.layer_name === layerConfig.name &&
-                  weightRE.test(meta.weight_name)
-              })
-              if (!paramMetadata) {
-                throw new Error(`[Model] error loading weights.`)
-              }
-
-              const { offset, length, shape } = paramMetadata
-              return new Tensor(new Float32Array(this.data.weights, offset, length), shape)
-            })
-            layer.setWeights(weights)
-          }
-
-          this.modelLayersMap.set(layerConfig.name, layer)
-          this.modelDAG[layerConfig.name] = {
-            layerClass,
-            name: layerConfig.name,
-            inbound: [],
-            outbound: []
-          }
-          if (index === 0) {
-            this.modelDAG[inputName].outbound.push(layerConfig.name)
-            this.modelDAG[layerConfig.name].inbound.push(inputName)
-          } else {
-            const prevLayerConfig = modelConfig[index - 1].config
-            this.modelDAG[layerConfig.name].inbound.push(prevLayerConfig.name)
-            this.modelDAG[prevLayerConfig.name].outbound.push(layerConfig.name)
-          }
-        } else {
-          throw new Error(`Layer ${layerClass} specified in model configuration is not implemented!`)
-        }
-      })
+      modelConfig = this.data.model.config
+    } else if (modelClass === 'Model') {
+      modelConfig = this.data.model.config.layers
     }
+
+    modelConfig.forEach((layerDef, index) => {
+      const layerClass = layerDef.class_name
+      const layerConfig = layerDef.config
+
+      if (!(layerClass in layers)) {
+        throw new Error(`Layer ${layerClass} specified in model configuration is not implemented!`)
+      }
+
+      // create InputLayer node for Sequential class (which is not explicitly defined in config)
+      // create input tensor for InputLayer specified in Model class (layer itself created later)
+      if (modelClass === 'Sequential' && index === 0) {
+        const inputName = 'input'
+        const inputShape = layerConfig.batch_input_shape.slice(1)
+        const layer = new layers.InputLayer({
+          name: inputName,
+          shape: inputShape
+        })
+        this.modelLayersMap.set(inputName, layer)
+        this.modelDAG[inputName] = {
+          layerClass: 'InputLayer',
+          name: inputName,
+          inbound: [],
+          outbound: []
+        }
+        this.inputTensors[inputName] = new Tensor([], inputShape, { gpu: this.gpu })
+      } else if (modelClass === 'Model' && layerClass === 'InputLayer') {
+        const inputShape = layerConfig.batch_input_shape.slice(1)
+        this.inputTensors[layerConfig.name] = new Tensor([], inputShape, { gpu: this.gpu })
+      }
+
+      const attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
+      if ('activation' in attrs) {
+        attrs.activation = camelCase(attrs.activation)
+      }
+      const layer = new layers[layerClass](attrs)
+
+      // layer weights
+      if (layer.params && layer.params.length) {
+        const weights = layer.params.map(param => {
+          const paramMetadata = find(this.data.metadata, meta => {
+            const weightRE = new RegExp(`^${layerConfig.name}_${param}`)
+            return meta.layer_name === layerConfig.name &&
+              weightRE.test(meta.weight_name)
+          })
+          if (!paramMetadata) {
+            throw new Error(`[Model] error loading weights.`)
+          }
+
+          const { offset, length, shape } = paramMetadata
+          return new Tensor(new Float32Array(this.data.weights, offset, length), shape)
+        })
+        layer.setWeights(weights)
+      }
+
+      this.modelLayersMap.set(layerConfig.name, layer)
+      this.modelDAG[layerConfig.name] = {
+        layerClass,
+        name: layerConfig.name,
+        inbound: [],
+        outbound: []
+      }
+
+      if (modelClass === 'Sequential') {
+        if (index === 0) {
+          const inputName = 'input'
+          this.modelDAG[inputName].outbound.push(layerConfig.name)
+          this.modelDAG[layerConfig.name].inbound.push(inputName)
+        } else {
+          const prevLayerConfig = modelConfig[index - 1].config
+          this.modelDAG[layerConfig.name].inbound.push(prevLayerConfig.name)
+          this.modelDAG[prevLayerConfig.name].outbound.push(layerConfig.name)
+        }
+      } else if (modelClass === 'Model') {
+        if (layerDef.inbound_nodes && layerDef.inbound_nodes.length) {
+          layerDef.inbound_nodes[0].forEach(node => {
+            const inboundLayerName = node[0]
+            this.modelDAG[layerConfig.name].inbound.push(inboundLayerName)
+            this.modelDAG[inboundLayerName].outbound.push(layerConfig.name)
+          })
+        }
+      }
+    })
   }
 
   /**
@@ -267,7 +292,7 @@ export default class Model {
       // - Starts new generator function for outbound nodes
       const node = nodes[0]
       const { layerClass, inbound, outbound } = this.modelDAG[node]
-      if (layerClass !== 'Input') {
+      if (layerClass !== 'InputLayer') {
         let currentLayer = this.modelLayersMap.get(node)
         const inboundLayers = inbound.map(n => this.modelLayersMap.get(n))
         while (!every(inboundLayers.map(layer => layer.hasResult))) {
@@ -297,11 +322,15 @@ export default class Model {
    * Predict API
    */
   predict (inputData) {
+    this.isRunning = true
+
     const inputNames = keys(this.inputTensors)
     if (!isEqual(keys(inputData), inputNames)) {
-      throw new Error('predict() must take an object where the keys are the named inputs of the model.')
+      this.isRunning = false
+      throw new Error(`predict() must take an object where the keys are the named inputs of the model: ${inputNames}.`)
     }
     if (!every(inputNames, inputName => inputData[inputName] instanceof Float32Array)) {
+      this.isRunning = false
       throw new Error('predict() must take an object where the values are the flattened data as Float32Array.')
     }
 
@@ -327,11 +356,20 @@ export default class Model {
     if (modelClass === 'Sequential') {
       const outputLayer = find(values(this.modelDAG), node => !node.outbound.length)
       const { result } = this.modelLayersMap.get(outputLayer.name)
-      return {
+      const outputData = {
         'output': result.tensor.data
       }
-    } else {
-      return
+      this.isRunning = false
+      return outputData
+    } else if (modelClass === 'Model') {
+      const outputLayers = values(this.modelDAG).filter(node => !node.outbound.length)
+      let outputData = {}
+      outputLayers.forEach(layer => {
+        const { result } = this.modelLayersMap.get(layer.name)
+        outputData[layer.name] = result.tensor.data
+      })
+      this.isRunning = false
+      return outputData
     }
   }
 }
