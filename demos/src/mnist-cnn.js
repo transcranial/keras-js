@@ -194,6 +194,10 @@ export const MnistCnn = Vue.extend({
 
   methods: {
 
+    toggleGpu: function () {
+      this.model.gpu = !this.useGpu
+    },
+
     clear: function (e) {
       this.clearIntermediateResults()
       const ctx = document.getElementById('input-canvas').getContext('2d')
@@ -336,10 +340,6 @@ export const MnistCnn = Vue.extend({
           ctxScaled.restore()
         })
       })
-    },
-
-    toggleGpu: function () {
-      this.model.gpu = !this.useGpu
     }
   }
 })

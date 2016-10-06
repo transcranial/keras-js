@@ -11,8 +11,7 @@
     justify-content: flex-end;
 
     .input-container {
-      display: inline-flex;
-      flex-direction: column;
+      text-align: right;
       margin: 20px;
       position: relative;
 
@@ -33,8 +32,8 @@
 
       .canvas-container {
         display: inline-flex;
+        justify-content: flex-end;
         margin: 10px 0;
-        background: white;
         border: 15px solid rgba(27, 188, 155, 0.3);
         transition: border-color 0.2s ease-in;
 
@@ -42,8 +41,12 @@
           border-color: rgba(27, 188, 155, 0.6);
         }
 
-        canvas:hover {
-          cursor: crosshair;
+        canvas {
+          background: white;
+
+          &:hover {
+            cursor: crosshair;
+          }
         }
       }
 
@@ -118,7 +121,7 @@
       top: 0;
       left: 50%;
       background: white;
-      width: 20px;
+      width: 15px;
       height: 100%;
     }
 
