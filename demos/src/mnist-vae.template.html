@@ -1,0 +1,74 @@
+<div class="demo mnist-vae">
+  <div class="title">
+    <span>Convolutional Variational Autoencoder, trained on MNIST</span>
+    <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
+  </div>
+  <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
+    Loading...{{ loadingProgress }}%
+  </div>
+  <div class="columns input-output">
+    <div class="column input-column">
+      <div class="input-container">
+        <div class="input-label">Click around the latent space <span class="arrow">⤸</span></div>
+        <div class="canvas-container">
+          <canvas
+            id="input-canvas" width="200" height="200"
+            @mouseenter="activateCrosshairs"
+            @mouseleave="deactivateCrosshairs"
+            @mousemove="draw"
+            @click="selectCoordinates"
+            @touchend="selectCoordinates"
+          ></canvas>
+          <div class="axis x-axis">
+            <span>-1.5</span>
+            <span>x</span>
+            <span>1.5</span>
+          </div>
+          <div class="axis y-axis">
+            <span>-1.5</span>
+            <span>y</span>
+            <span>1.5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="column is-2 controls-column">
+      <mdl-switch :checked.sync="useGpu" @click="toggleGpu">Use GPU</mdl-switch>
+      <div class="coordinates">
+        <div class="coordinates-x">x: {{ inputCoordinates[0] < 0 ? inputCoordinates[0].toFixed(2) : inputCoordinates[0].toFixed(3) }}</div>
+        <div class="coordinates-y">y: {{ inputCoordinates[1] < 0 ? inputCoordinates[1].toFixed(2) : inputCoordinates[1].toFixed(3) }}</div>
+      </div>
+    </div>
+    <div class="column output-column">
+      <div class="output">
+        <canvas id="output-canvas-scaled" width="150" height="150"></canvas>
+        <canvas id="output-canvas" width="27" height="27" style="display:none;"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="layer-results-container">
+    <div class="bg-line"></div>
+    <div
+      v-for="layerResult in layerResultImages"
+      class="layer-result"
+    >
+      <div class="layer-result-heading">
+        <span class="layer-class">{{ layerResult.layerClass }}</span>
+        <span> {{ layerDisplayConfig[layerResult.name].heading }}</span>
+      </div>
+      <div class="layer-result-canvas-container">
+        <canvas v-for="image in layerResult.images"
+          id="intermediate-result-{{ $parent.$index }}-{{ $index }}"
+          width="{{ image.width }}"
+          height="{{ image.height }}"
+          style="display:none;"
+        ></canvas>
+        <canvas v-for="image in layerResult.images"
+          id="intermediate-result-{{ $parent.$index }}-{{ $index }}-scaled"
+          width="{{ layerDisplayConfig[layerResult.name].scalingFactor * image.width }}"
+          height="{{ layerDisplayConfig[layerResult.name].scalingFactor * image.height }}"
+        ></canvas>
+      </div>
+    </div>
+  </div>
+</div>

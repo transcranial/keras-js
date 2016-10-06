@@ -16,7 +16,7 @@
     <div id="app">
       <div class="columns">
         <div class="column is-3" style="min-width: 350px; max-width: 450px;">
-          <menu></menu>
+          <menu :current-view="currentView"></menu>
         </div>
         <div class="column is-9">
           <component :is="currentView"></component>

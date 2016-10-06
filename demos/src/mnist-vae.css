@@ -35,11 +35,11 @@
         display: inline-flex;
         justify-content: flex-end;
         margin: 10px 0;
-        border: 15px solid rgba(27, 188, 155, 0.3);
+        border: 15px solid $color-1-lighter;
         transition: border-color 0.2s ease-in;
 
         &:hover {
-          border-color: rgba(27, 188, 155, 0.6);
+          border-color: $color-1-light;
         }
 
         canvas {

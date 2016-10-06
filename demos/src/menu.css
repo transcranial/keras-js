@@ -5,7 +5,7 @@
   margin: 20px;
   background: white;
   border-radius: 10px;
-  box-shadow: 6px 6px #CCCCCC;
+  box-shadow: 5px 5px #CCCCCC;
 
   h1 {
     color: #CCCCCC;
@@ -16,6 +16,11 @@
   .menu-list {
     li {
       color: $color-2;
+      border-left: 2px solid white;
+    }
+
+    li.active {
+      border-left: 2px solid $color-1;
     }
 
     a {
@@ -44,14 +49,14 @@
     }
 
     a {
-      color: #AAAAAA;
+      color: $color-1;
       padding: 0;
       display: inline-flex;
       background-color: none;
       transition: color 0.2s ease-in;
 
-      &hover {
-        color: $color-1;
+      &:hover {
+        color: $color-1-light;
         background: none;
       }
     }

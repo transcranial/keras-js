@@ -13,10 +13,14 @@ body {
 
 .title {
   width: 100%;
-  color: $color-1;
   display: flex;
   flex-direction: row;
   align-items: center;
+
+  span {
+    color: $color-1;
+    margin-right: 20px;
+  }
 }
 
 .subtitle {
@@ -50,11 +54,59 @@ body {
 
   .mdl-switch.is-checked {
     .mdl-switch__thumb {
-      background: rgba(27, 188, 155, 0.6);
+      background: $color-1-light;
+
+    }
+    .mdl-switch__track {
+      background: $color-1-lighter;
+    }
+  }
+
+  .mdl-textfield {
+    .mdl-textfield__input {
+      border-bottom-color: $color-1-light;
+      font-family: $font-2;
+      font-size: 16px;;
     }
 
-    .mdl-switch__track {
-      background: rgba(27, 188, 155, 0.3);
+    .mdl-textfield__label {
+      font-family: $font-2;
+      color: $color-1-light;
+    }
+
+    .mdl-icon-toggle__label {
+      color: $color-1-light;
+    }
+  }
+
+  .mdl-textfield.is-focused {
+    .mdl-textfield__input {
+      border-color: $color-1;
+    }
+
+    .mdl-textfield__label {
+      color: $color-1;
+
+      &::after {
+        background-color: $color-1;
+      }
+    }
+
+    .mdl-icon-toggle__label {
+      color: $color-1;
+    }
+  }
+
+  .mdl-menu {
+    .mdl-menu__item {
+      font-family: $font-2;
+      font-size: 16px;;
+      color: $color-2;
+
+      &:hover {
+        background-color: $color-1-light;
+        color: white;
+      }
     }
   }
 }
