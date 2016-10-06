@@ -3,8 +3,6 @@ import Tensor from '../../Tensor'
 import Layer from '../../Layer'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
-import unpack from 'ndarray-unpack'
-import flattenDeep from 'lodash/flattenDeep'
 
 /**
  * Deconvolution2D layer class
@@ -129,13 +127,12 @@ export default class Deconvolution2D extends Layer {
     const [inputRows, inputCols, inputChannels] = x.tensor.shape
 
     const imColsMat = new Tensor([], [inputRows * inputCols, inputChannels])
-    let channel = new Tensor([], [inputRows * inputCols])
+    let channelRaveled = new Tensor([], [inputRows * inputCols])
+    let channel = new Tensor([], [inputRows, inputCols])
     for (let c = 0; c < inputChannels; c++) {
-      const channelData = flattenDeep(unpack(
-        x.tensor.pick(null, null, c)
-      ))
-      channel.replaceTensorData(channelData)
-      ops.assign(imColsMat.tensor.pick(null, c), channel.tensor)
+      ops.assign(channel.tensor, x.tensor.pick(null, null, c))
+      channelRaveled.replaceTensorData(channel.tensor.data)
+      ops.assign(imColsMat.tensor.pick(null, c), channelRaveled.tensor)
     }
     return imColsMat
   }
@@ -150,13 +147,12 @@ export default class Deconvolution2D extends Layer {
     const [nbRow, nbCol, inputChannels, nbFilter] = this.weights.W.tensor.shape
 
     const wRowsMat = new Tensor([], [inputChannels, nbRow * nbCol * nbFilter])
-    let channel = new Tensor([], [nbRow * nbCol * nbFilter])
+    let channelRaveled = new Tensor([], [nbRow * nbCol * nbFilter])
+    let channel = new Tensor([], [nbRow, nbCol, nbFilter])
     for (let c = 0; c < inputChannels; c++) {
-      const channelData = flattenDeep(unpack(
-        this.weights.W.tensor.pick(null, null, c, null)
-      ))
-      channel.replaceTensorData(channelData)
-      ops.assign(wRowsMat.tensor.pick(c, null), channel.tensor)
+      ops.assign(channel.tensor, this.weights.W.tensor.pick(null, null, c, null))
+      channelRaveled.replaceTensorData(channel.tensor.data)
+      ops.assign(wRowsMat.tensor.pick(c, null), channelRaveled.tensor)
     }
     return wRowsMat
   }
@@ -211,11 +207,12 @@ export default class Deconvolution2D extends Layer {
 
     const patchShape = [nbRow, nbCol, nbFilter]
     let patch = new Tensor([], patchShape)
+    let patchRaveled = new Tensor([], [nbRow * nbCol * nbFilter])
     let index = 0
     for (let i = 0; i < inputRows; i++) {
       for (let j = 0; j < inputCols; j++) {
-        const patchData = unpack(matMul.tensor.pick(index, null))
-        patch.replaceTensorData(patchData)
+        ops.assign(patchRaveled.tensor, matMul.tensor.pick(index, null))
+        patch.replaceTensorData(patchRaveled.tensor.data)
         const iOutPos = i * this.subsample[0]
         const jOutPos = j * this.subsample[1]
         ops.addeq(

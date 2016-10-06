@@ -1,8 +1,6 @@
 import Tensor from '../../Tensor'
 import Convolution2D from './Convolution2D'
 import ops from 'ndarray-ops'
-import unpack from 'ndarray-unpack'
-import flattenDeep from 'lodash/flattenDeep'
 
 /**
  * AtrousConvolution2D layer class
@@ -87,18 +85,20 @@ export default class AtrousConvolution2D extends Convolution2D {
 
     const imColsMat = new Tensor([], [nbPatches, patchLen])
 
-    let patch = new Tensor([], [patchLen])
+    let patch = new Tensor([], [nbRow, nbCol, inputChannels])
+    let patchRaveled = new Tensor([], [patchLen])
     let n = 0
     for (let i = 0, limit = inputRows - nbRowDilated; i <= limit; i += this.subsample[0]) {
       for (let j = 0, limit = inputCols - nbColDilated; j <= limit; j += this.subsample[1]) {
-        const patchData = flattenDeep(unpack(
+        ops.assign(
+          patch.tensor,
           x.tensor
             .hi(i + nbRowDilated, j + nbColDilated, inputChannels)
             .lo(i, j, 0)
             .step(this.atrousRate[0], this.atrousRate[1], 1)
-        ))
-        patch.replaceTensorData(patchData)
-        ops.assign(imColsMat.tensor.pick(n, null), patch.tensor)
+        )
+        patchRaveled.replaceTensorData(patch.tensor.data)
+        ops.assign(imColsMat.tensor.pick(n, null), patchRaveled.tensor)
         n += 1
       }
     }

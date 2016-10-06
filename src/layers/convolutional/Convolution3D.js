@@ -3,8 +3,6 @@ import Tensor from '../../Tensor'
 import Layer from '../../Layer'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
-import unpack from 'ndarray-unpack'
-import flattenDeep from 'lodash/flattenDeep'
 
 /**
  * Convolution3D layer class
@@ -163,16 +161,15 @@ export default class Convolution3D extends Layer {
 
     const volColsMat = new Tensor([], [nbPatches, patchLen])
 
-    let patch = new Tensor([], [patchLen])
+    let patch = new Tensor([], [kernelDim1, kernelDim2, kernelDim3, inputChannels])
+    let patchRaveled = new Tensor([], [patchLen])
     let n = 0
     for (let i = 0, limit = inputDim1 - kernelDim1; i <= limit; i += this.subsample[0]) {
       for (let j = 0, limit = inputDim2 - kernelDim2; j <= limit; j += this.subsample[1]) {
         for (let k = 0, limit = inputDim3 - kernelDim3; k <= limit; k += this.subsample[2]) {
-          const patchData = flattenDeep(unpack(
-            x.tensor.hi(i + kernelDim1, j + kernelDim2, k + kernelDim3, inputChannels).lo(i, j, k, 0)
-          ))
-          patch.replaceTensorData(patchData)
-          ops.assign(volColsMat.tensor.pick(n, null), patch.tensor)
+          ops.assign(patch.tensor, x.tensor.hi(i + kernelDim1, j + kernelDim2, k + kernelDim3, inputChannels).lo(i, j, k, 0))
+          patchRaveled.replaceTensorData(patch.tensor.data)
+          ops.assign(volColsMat.tensor.pick(n, null), patchRaveled.tensor)
           n += 1
         }
       }
@@ -193,13 +190,12 @@ export default class Convolution3D extends Layer {
 
     const wRowsMat = new Tensor([], [patchLen, nbFilter])
 
-    let patch = new Tensor([], [patchLen])
+    let patch = new Tensor([], [kernelDim1, kernelDim2, kernelDim3, inputChannels])
+    let patchRaveled = new Tensor([], [patchLen])
     for (let n = 0; n < nbFilter; n++) {
-      const patchData = flattenDeep(unpack(
-        this.weights.W.tensor.pick(null, null, null, null, n)
-      ))
-      patch.replaceTensorData(patchData)
-      ops.assign(wRowsMat.tensor.pick(null, n), patch.tensor)
+      ops.assign(patch.tensor, this.weights.W.tensor.pick(null, null, null, null, n))
+      patchRaveled.replaceTensorData(patch.tensor.data)
+      ops.assign(wRowsMat.tensor.pick(null, n), patchRaveled.tensor)
     }
 
     return wRowsMat
@@ -248,12 +244,11 @@ export default class Convolution3D extends Layer {
     }
 
     let output = new Tensor([], this.outputShape)
+    let outputChannelRaveled = new Tensor([], [outputDim1 * outputDim2 * outputDim3])
     let outputChannel = new Tensor([], [outputDim1, outputDim2, outputDim3])
     for (let n = 0; n < nbFilter; n++) {
-      const outputChannelData = flattenDeep(unpack(
-        matMul.tensor.pick(null, n)
-      ))
-      outputChannel.replaceTensorData(outputChannelData)
+      ops.assign(outputChannelRaveled.tensor, matMul.tensor.pick(null, n))
+      outputChannel.replaceTensorData(outputChannelRaveled.tensor.data)
       ops.assign(output.tensor.pick(null, null, null, n), outputChannel.tensor)
     }
     x.tensor = output.tensor

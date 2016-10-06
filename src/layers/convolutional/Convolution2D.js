@@ -3,8 +3,6 @@ import Tensor from '../../Tensor'
 import Layer from '../../Layer'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
-import unpack from 'ndarray-unpack'
-import flattenDeep from 'lodash/flattenDeep'
 
 /**
  * Convolution2D layer class
@@ -146,15 +144,14 @@ export default class Convolution2D extends Layer {
 
     const imColsMat = new Tensor([], [nbPatches, patchLen])
 
-    let patch = new Tensor([], [patchLen])
+    let patch = new Tensor([], [nbRow, nbCol, inputChannels])
+    let patchRaveled = new Tensor([], [patchLen])
     let n = 0
     for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.subsample[0]) {
       for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.subsample[1]) {
-        const patchData = flattenDeep(unpack(
-          x.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0)
-        ))
-        patch.replaceTensorData(patchData)
-        ops.assign(imColsMat.tensor.pick(n, null), patch.tensor)
+        ops.assign(patch.tensor, x.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0))
+        patchRaveled.replaceTensorData(patch.tensor.data)
+        ops.assign(imColsMat.tensor.pick(n, null), patchRaveled.tensor)
         n += 1
       }
     }
@@ -174,13 +171,12 @@ export default class Convolution2D extends Layer {
 
     const wRowsMat = new Tensor([], [patchLen, nbFilter])
 
-    let patch = new Tensor([], [patchLen])
+    let patch = new Tensor([], [nbRow, nbCol, inputChannels])
+    let patchRaveled = new Tensor([], [patchLen])
     for (let n = 0; n < nbFilter; n++) {
-      const patchData = flattenDeep(unpack(
-        this.weights.W.tensor.pick(null, null, null, n)
-      ))
-      patch.replaceTensorData(patchData)
-      ops.assign(wRowsMat.tensor.pick(null, n), patch.tensor)
+      ops.assign(patch.tensor, this.weights.W.tensor.pick(null, null, null, n))
+      patchRaveled.replaceTensorData(patch.tensor.data)
+      ops.assign(wRowsMat.tensor.pick(null, n), patchRaveled.tensor)
     }
 
     return wRowsMat
@@ -197,25 +193,12 @@ export default class Convolution2D extends Layer {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
 
-    let startTime = performance.now()
     this._calcOutputShape(x)
-    let endTime = performance.now()
-    console.log('_calcOutputShape', endTime - startTime)
-    startTime = performance.now()
     this._padInput(x)
-    endTime = performance.now()
-    console.log('_padInput', endTime - startTime)
 
-    startTime = performance.now()
     const imColsMat = this._im2col(x)
-    endTime = performance.now()
-    console.log('imColsMat', endTime - startTime)
-    startTime = performance.now()
     const wRowsMat = this._w2row(x)
-    endTime = performance.now()
-    console.log('wRowsMat', endTime - startTime)
 
-    startTime = performance.now()
     const nbFilter = this.kernelShape[0]
     const outputRows = this.outputShape[0]
     const outputCols = this.outputShape[1]
@@ -226,10 +209,7 @@ export default class Convolution2D extends Layer {
         ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
       }
     }
-    endTime = performance.now()
-    console.log('createMatMul', endTime - startTime)
 
-    startTime = performance.now()
     if (x._useWeblas) {
       const bias = this.bias
         ? this.weights.b.tensor.data
@@ -242,21 +222,15 @@ export default class Convolution2D extends Layer {
     } else {
       gemm(matMul.tensor, imColsMat.tensor, wRowsMat.tensor, 1, 1)
     }
-    endTime = performance.now()
-    console.log('gemm', endTime - startTime)
 
-    startTime = performance.now()
     let output = new Tensor([], this.outputShape)
+    let outputChannelRaveled = new Tensor([], [outputRows * outputCols])
     let outputChannel = new Tensor([], [outputRows, outputCols])
     for (let n = 0; n < nbFilter; n++) {
-      const outputChannelData = flattenDeep(unpack(
-        matMul.tensor.pick(null, n)
-      ))
-      outputChannel.replaceTensorData(outputChannelData)
+      ops.assign(outputChannelRaveled.tensor, matMul.tensor.pick(null, n))
+      outputChannel.replaceTensorData(outputChannelRaveled.tensor.data)
       ops.assign(output.tensor.pick(null, null, n), outputChannel.tensor)
     }
-    endTime = performance.now()
-    console.log('createOutput', endTime - startTime)
     x.tensor = output.tensor
 
     this.activation(x)
