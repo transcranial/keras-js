@@ -317,9 +317,9 @@ export const MnistCnn = Vue.extend({
       this.layerResultImages.forEach((result, layerNum) => {
         const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor
         result.images.forEach((image, imageNum) => {
-          let ctx = document.getElementById(`intermediate-result-${layerNum}-${imageNum}`).getContext('2d')
+          const ctx = document.getElementById(`intermediate-result-${layerNum}-${imageNum}`).getContext('2d')
           ctx.putImageData(image, 0, 0)
-          let ctxScaled = document.getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`).getContext('2d')
+          const ctxScaled = document.getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`).getContext('2d')
           ctxScaled.save()
           ctxScaled.scale(scalingFactor, scalingFactor)
           ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
@@ -333,7 +333,7 @@ export const MnistCnn = Vue.extend({
       this.layerResultImages.forEach((result, layerNum) => {
         const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor
         result.images.forEach((image, imageNum) => {
-          let ctxScaled = document.getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`).getContext('2d')
+          const ctxScaled = document.getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`).getContext('2d')
           ctxScaled.save()
           ctxScaled.scale(scalingFactor, scalingFactor)
           ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)

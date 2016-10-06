@@ -102,7 +102,7 @@ export const MnistVae = Vue.extend({
       <div class="column output-column">
         <div class="output">
           <canvas id="output-canvas-scaled" width="150" height="150"></canvas>
-          <canvas id="output-canvas" width="27" height="27"></canvas>
+          <canvas id="output-canvas" width="27" height="27" style="display:none;"></canvas>
         </div>
       </div>
     </div>
@@ -140,8 +140,8 @@ export const MnistVae = Vue.extend({
       modelLoading: true,
       output: new Float32Array(27 * 27),
       crosshairsActivated: false,
-      inputCoordinates: [0, 0],
-      position: [100, 100],
+      inputCoordinates: [-0.6, -1.2],
+      position: [60, 20],
       layerResultImages: [],
       layerDisplayConfig: LAYER_DISPLAY_CONFIG,
       useGpu: MODEL_CONFIG.gpu
@@ -160,6 +160,7 @@ export const MnistVae = Vue.extend({
     this.model.ready().then(() => {
       this.modelLoading = false
       this.getIntermediateResults()
+      this.runModel()
     })
   },
 
@@ -205,7 +206,7 @@ export const MnistVae = Vue.extend({
     drawPosition: function () {
       const ctx = document.getElementById('input-canvas').getContext('2d')
       ctx.clearRect(0, 0, 200, 200)
-      ctx.fillStyle = '#E87E04'
+      ctx.fillStyle = '#674172'
       ctx.beginPath()
       ctx.arc(...this.position, 5, 0, Math.PI * 2, true)
       ctx.closePath()
@@ -232,28 +233,32 @@ export const MnistVae = Vue.extend({
         this.position = [x, y]
         this.inputCoordinates = [x * 3 / 200 - 1.5, y * 3 / 200 - 1.5]
         this.draw(e)
-        const inputData = {
-          'input_4': new Float32Array(this.inputCoordinates)
-        }
-        const outputData = this.model.predict(inputData)
-        this.output = outputData['convolution2d_8']
-        this.drawOutput()
-        this.getIntermediateResults()
+        this.runModel()
       }
+    },
+
+    runModel: function () {
+      const inputData = {
+        'input_4': new Float32Array(this.inputCoordinates)
+      }
+      const outputData = this.model.predict(inputData)
+      this.output = outputData['convolution2d_8']
+      this.drawOutput()
+      this.getIntermediateResults()
     },
 
     drawOutput: function () {
       const ctx = document.getElementById('output-canvas').getContext('2d')
-      ctx.putImageData(utils.image2Darray(this.output, 27, 27), 0, 0)
+      const image = utils.image2Darray(this.output, 27, 27, [27, 188, 155])
+      ctx.putImageData(image, 0, 0)
 
-      // scaled up
-      // const ctxScaled = document.getElementById('output-canvas-scaled').getContext('2d')
-      // ctxScaled.save()
-      // ctxScaled.scale(28 / ctxCenterCrop.canvas.width, 28 / ctxCenterCrop.canvas.height)
-      // ctxScaled.clearRect(0, 0, ctxCenterCrop.canvas.width, ctxCenterCrop.canvas.height)
-      // ctxScaled.drawImage(document.getElementById('output-canvas-centercrop'), 0, 0)
-      // const imageDataScaled = ctxScaled.getImageData(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
-      // ctxScaled.restore()
+      // scale up
+      const ctxScaled = document.getElementById('output-canvas-scaled').getContext('2d')
+      ctxScaled.save()
+      ctxScaled.scale(150 / 27, 150 / 27)
+      ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
+      ctxScaled.drawImage(document.getElementById('output-canvas'), 0, 0)
+      ctxScaled.restore()
     },
 
     getIntermediateResults: function () {
