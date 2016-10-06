@@ -14,6 +14,7 @@
       text-align: right;
       margin: 20px;
       position: relative;
+      user-select: none;
 
       .input-label {
         font-family: $font-3;
@@ -80,6 +81,8 @@
       flex-direction: row;
       align-items: flex-end;
       justify-content: center;
+      user-select: none;
+      cursor: default;
 
       .output-class {
         display: flex;

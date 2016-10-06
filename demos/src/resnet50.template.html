@@ -7,15 +7,8 @@
     Loading...{{ loadingProgress }}%
   </div>
   <div class="input-container" v-if="!modelLoading">
-    <div class="input-label">Enter an image URL or select from dropdown</div>
+    <div class="input-label">Select an image from dropdown or enter a valid image URL</div>
     <div class="image-url">
-      <mdl-textfield
-        floating-label="enter image url"
-        :value.sync="imageURLInput"
-        spellcheck="false"
-        @change="imageURLInputChanged"
-      ></mdl-textfield>
-      <span>or</span>
       <mdl-select
         label="select image"
         id="image-url-select"
@@ -24,6 +17,13 @@
         style="width:200px;"
         @change="imageURLSelectChanged"
       ></mdl-select>
+      <span>or</span>
+      <mdl-textfield
+        floating-label="enter image url"
+        :value.sync="imageURLInput"
+        spellcheck="false"
+        @change="imageURLInputChanged"
+      ></mdl-textfield>
     </div>
   </div>
   <div class="columns input-output" v-if="!modelLoading">

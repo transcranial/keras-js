@@ -1,6 +1,8 @@
 /* global Vue, loadImage */
 import './resnet50.css'
 
+import ndarray from 'ndarray'
+import ops from 'ndarray-ops'
 import * as utils from './utils'
 
 const MODEL_CONFIG = {
@@ -123,20 +125,21 @@ export const ResNet50 = Vue.extend({
 
       // data processing
       // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
-      let dataProcessed = new Float32Array(width * height * 3)
-      for (let i = 0, len = data.length; i < len; i += 4) {
-        // RGB -> BGR
-        dataProcessed[i / 4 + 2] = data[i] - 103.939
-        dataProcessed[i / 4 + 1] = data[i + 1] - 116.779
-        dataProcessed[i / 4] = data[i + 2] - 123.68
-      }
+      let dataTensor = ndarray(data, [width, height, 4])
+      let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3])
+      ops.subseq(dataTensor.pick(null, null, 0), 103.939)
+      ops.subseq(dataTensor.pick(null, null, 1), 116.779)
+      ops.subseq(dataTensor.pick(null, null, 2), 123.68)
+      ops.assign(dataProcessedTensor.pick(null, null, 0), dataTensor.pick(null, null, 2))
+      ops.assign(dataProcessedTensor.pick(null, null, 1), dataTensor.pick(null, null, 1))
+      ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 0))
 
       const inputData = {
-        'input_1': dataProcessed
+        'input_1': dataProcessedTensor.data
       }
       const outputData = this.model.predict(inputData)
       this.output = outputData['fc1000']
-      console.log(this.output)
+      console.log(JSON.stringify(utils.imagenetClassesTopK(this.output, 5)))
       //this.getIntermediateResults()
     },
 

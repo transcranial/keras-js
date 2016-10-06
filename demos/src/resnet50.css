@@ -4,6 +4,7 @@
   .input-container {
     margin: 20px;
     position: relative;
+    user-select: none;
 
     .input-label {
       font-family: $font-3;
@@ -75,7 +76,8 @@
     justify-content: center;
 
     .output {
-
+      user-select: none;
+      cursor: default;
     }
   }
 

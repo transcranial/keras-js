@@ -14,6 +14,7 @@
       text-align: right;
       margin: 20px;
       position: relative;
+      user-select: none;
 
       .input-label {
         font-family: $font-3;
