@@ -62,12 +62,13 @@
     </div>
   </div>
   <div class="architecture-container" v-if="!modelLoading">
-    <div
-      v-for="layer in architectureDiagram"
-      class="layer"
-    >
-      <div class="layer-class-name">{{ layer.className }}</div>
-      <div class="layer-details"> {{ layer.details }}</div>
+    <div v-for="row in architectureDiagramRows" class="layers-row columns">
+      <div v-for="layer in row" class="column">
+        <div v-if="layer.className" class="layer">
+          <div class="layer-class-name">{{ layer.className }}</div>
+          <div class="layer-details"> {{ layer.details }}</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

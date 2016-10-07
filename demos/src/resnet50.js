@@ -3,7 +3,9 @@ import './resnet50.css'
 
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
+import find from 'lodash/find'
 import * as utils from './utils'
+import { ARCHITECTURE_DIAGRAM } from './resnet50-arch'
 
 const MODEL_FILEPATHS_DEV = {
   model: '/demos/data/resnet50/resnet50.json',
@@ -25,15 +27,6 @@ const IMAGE_URL_LIST = [
   { name: 'cat', value: 'http://i.imgur.com/CzXTtJV.jpg' },
   { name: 'dog', value: 'http://i.imgur.com/OB0y6MR.jpg' },
   { name: 'bridge', value: 'http://i.imgur.com/Bvke53p.jpg' }
-]
-
-const ARCHITECTURE_DIAGRAM = [
-  {
-    name: 'zeropadding2d_1',
-    className: 'ZeroPadding2D',
-    details: '3x3 padding',
-    layout: 'full'
-  },
 ]
 
 /**
@@ -65,6 +58,17 @@ export const ResNet50 = Vue.extend({
   computed: {
     loadingProgress: function () {
       return this.model.getLoadingProgress()
+    },
+    architectureDiagramRows: function () {
+      let rows = []
+      for (let row = 0; row < 168; row++) {
+        let cols = []
+        for (let col = 0; col < 2; col++) {
+          cols.push(find(this.architectureDiagram, { row, col }))
+        }
+        rows.push(cols)
+      }
+      return rows
     },
     outputClasses: function () {
       if (!this.output) return []

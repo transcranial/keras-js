@@ -131,25 +131,29 @@
   }
 
   .architecture-container {
-    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
 
-    .layer {
-      display: inline-block;
-      position: relative;
-      background: white;
-      border-radius: 5px;
-      padding: 10px;
+    .layers-row {
+      margin-bottom: 5px;
 
-      .layer-class-name {
-        color: $color-1;
-        font-size: 14px;
-        font-weight: bold;
-      }
+      .layer {
+        display: inline-block;
+        background: white;
+        border-radius: 5px;
+        padding: 4px 12px 2px;
 
-      .layer-details {
-        color: #999999;
-        font-size: 12px;
-        font-weight: bold;
+        .layer-class-name {
+          color: $color-1;
+          font-size: 14px;
+          font-weight: bold;
+        }
+
+        .layer-details {
+          color: #999999;
+          font-size: 12px;
+          font-weight: bold;
+        }
       }
     }
   }
