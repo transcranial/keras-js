@@ -5,23 +5,20 @@ import debounce from 'lodash/debounce'
 import range from 'lodash/range'
 import * as utils from './utils'
 
-const MODEL_CONFIG = {
-  filepaths: {
-    model: '/demos/data/mnist_cnn/mnist_cnn.json',
-    weights: '/demos/data/mnist_cnn/mnist_cnn_weights.buf',
-    metadata: '/demos/data/mnist_cnn/mnist_cnn_metadata.json'
-  },
-  gpu: false
+const MODEL_FILEPATHS_DEV = {
+  model: '/demos/data/mnist_cnn/mnist_cnn.json',
+  weights: '/demos/data/mnist_cnn/mnist_cnn_weights.buf',
+  metadata: '/demos/data/mnist_cnn/mnist_cnn_metadata.json'
 }
 
-if (process.env.NODE_ENV === 'production') {
-  Object.assign(MODEL_CONFIG, {
-    filepaths: {
-      model: 'demos/data/mnist_cnn/mnist_cnn.json',
-      weights: 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn_weights.buf',
-      metadata: 'demos/data/mnist_cnn/mnist_cnn_metadata.json'
-    }
-  })
+const MODEL_FILEPATHS_PROD = {
+  model: 'demos/data/mnist_cnn/mnist_cnn.json',
+  weights: 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn_weights.buf',
+  metadata: 'demos/data/mnist_cnn/mnist_cnn_metadata.json'
+}
+
+const MODEL_CONFIG = {
+  filepaths: (process.env.NODE_ENV === 'production') ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV
 }
 
 const LAYER_DISPLAY_CONFIG = {
@@ -81,11 +78,13 @@ const LAYER_DISPLAY_CONFIG = {
  *
  */
 export const MnistCnn = Vue.extend({
+  props: ['hasWebgl'],
+
   template: require('raw!./mnist-cnn.template.html'),
 
   data: function () {
     return {
-      model: new KerasJS.Model(MODEL_CONFIG),
+      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)),
       modelLoading: true,
       input: new Float32Array(784),
       output: new Float32Array(10),
@@ -94,7 +93,7 @@ export const MnistCnn = Vue.extend({
       layerDisplayConfig: LAYER_DISPLAY_CONFIG,
       drawing: false,
       strokes: [],
-      useGpu: MODEL_CONFIG.gpu
+      useGpu: this.hasWebgl
     }
   },
 

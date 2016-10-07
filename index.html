@@ -19,7 +19,7 @@
           <menu :current-view="currentView"></menu>
         </div>
         <div class="column is-9">
-          <component :is="currentView"></component>
+          <component :is="currentView" :has-webgl="hasWebgl"></component>
         </div>
       </div>
     </div>

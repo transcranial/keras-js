@@ -37,7 +37,11 @@
       </div>
     </div>
     <div class="column is-2 controls-column">
-      <mdl-switch :checked.sync="useGpu" :disabled="modelLoading" @click="toggleGpu">Use GPU</mdl-switch>
+      <mdl-switch
+        :checked.sync="useGpu"
+        :disabled="modelLoading || !hasWebgl"
+        @click="toggleGpu"
+      >Use GPU</mdl-switch>
     </div>
     <div class="column output-column">
       <div class="output">

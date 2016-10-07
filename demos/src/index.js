@@ -1,4 +1,4 @@
-/* global Vue, VueMdl */
+/* global Vue, VueMdl, WebGLRenderingContext */
 
 import './index.css'
 
@@ -18,8 +18,23 @@ Vue.use(VueMdl.default)
 
 const app = new Vue({
   el: '#app',
-  data: {
-    currentView: 'home'
+
+  data: function () {
+    return {
+      currentView: 'home',
+      hasWebgl: true
+    }
+  },
+
+  created: function () {
+    const canvas = document.createElement('canvas')
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+    // Report the result.
+    if (gl && gl instanceof WebGLRenderingContext) {
+      this.hasWebgl = true
+    } else {
+      this.hasWebgl = false
+    }
   }
 })
 

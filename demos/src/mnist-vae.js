@@ -3,23 +3,20 @@ import './mnist-vae.css'
 
 import * as utils from './utils'
 
-const MODEL_CONFIG = {
-  filepaths: {
-    model: '/demos/data/mnist_vae/mnist_vae.json',
-    weights: '/demos/data/mnist_vae/mnist_vae_weights.buf',
-    metadata: '/demos/data/mnist_vae/mnist_vae_metadata.json'
-  },
-  gpu: false
+const MODEL_FILEPATHS_DEV = {
+  model: '/demos/data/mnist_vae/mnist_vae.json',
+  weights: '/demos/data/mnist_vae/mnist_vae_weights.buf',
+  metadata: '/demos/data/mnist_vae/mnist_vae_metadata.json'
 }
 
-if (process.env.NODE_ENV === 'production') {
-  Object.assign(MODEL_CONFIG, {
-    filepaths: {
-      model: 'demos/data/mnist_vae/mnist_vae.json',
-      weights: 'https://transcranial.github.io/keras-js-demos-data/mnist_vae/mnist_vae_weights.buf',
-      metadata: 'demos/data/mnist_vae/mnist_vae_metadata.json'
-    }
-  })
+const MODEL_FILEPATHS_PROD = {
+  model: 'demos/data/mnist_vae/mnist_vae.json',
+  weights: 'https://transcranial.github.io/keras-js-demos-data/mnist_vae/mnist_vae_weights.buf',
+  metadata: 'demos/data/mnist_vae/mnist_vae_metadata.json'
+}
+
+const MODEL_CONFIG = {
+  filepaths: (process.env.NODE_ENV === 'production') ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV
 }
 
 const LAYER_DISPLAY_CONFIG = {
@@ -59,11 +56,13 @@ const LAYER_DISPLAY_CONFIG = {
  *
  */
 export const MnistVae = Vue.extend({
+  props: ['hasWebgl'],
+
   template: require('raw!./mnist-vae.template.html'),
 
   data: function () {
     return {
-      model: new KerasJS.Model(MODEL_CONFIG),
+      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)),
       modelLoading: true,
       output: new Float32Array(27 * 27),
       crosshairsActivated: false,
@@ -71,7 +70,7 @@ export const MnistVae = Vue.extend({
       position: [60, 20],
       layerResultImages: [],
       layerDisplayConfig: LAYER_DISPLAY_CONFIG,
-      useGpu: MODEL_CONFIG.gpu
+      useGpu: this.hasWebgl
     }
   },
 

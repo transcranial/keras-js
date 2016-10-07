@@ -5,24 +5,26 @@ import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
 import * as utils from './utils'
 
-const MODEL_CONFIG = {
-  filepaths: {
-    model: '/demos/data/resnet50/resnet50.json',
-    weights: '/demos/data/resnet50/resnet50_weights.buf',
-    metadata: '/demos/data/resnet50/resnet50_metadata.json'
-  },
-  gpu: false
+const MODEL_FILEPATHS_DEV = {
+  model: '/demos/data/resnet50/resnet50.json',
+  weights: '/demos/data/resnet50/resnet50_weights.buf',
+  metadata: '/demos/data/resnet50/resnet50_metadata.json'
 }
 
-if (process.env.NODE_ENV === 'production') {
-  Object.assign(MODEL_CONFIG, {
-    filepaths: {
-      model: 'demos/data/resnet50/resnet50.json',
-      weights: 'https://transcranial.github.io/keras-js-demos-data/resnet50/resnet50_weights.buf',
-      metadata: 'demos/data/resnet50/resnet50_metadata.json'
-    }
-  })
+const MODEL_FILEPATHS_PROD = {
+  model: 'demos/data/resnet50/resnet50.json',
+  weights: 'https://transcranial.github.io/keras-js-demos-data/resnet50/resnet50_weights.buf',
+  metadata: 'demos/data/resnet50/resnet50_metadata.json'
 }
+
+const MODEL_CONFIG = {
+  filepaths: (process.env.NODE_ENV === 'production') ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV
+}
+
+const IMAGE_URL_LIST = [
+  { name: 'cat', value: 'http://i.imgur.com/CzXTtJV.jpg' },
+  { name: 'dog', value: 'URL2' }
+]
 
 const LAYER_DISPLAY_CONFIG = {
 }
@@ -33,24 +35,23 @@ const LAYER_DISPLAY_CONFIG = {
  *
  */
 export const ResNet50 = Vue.extend({
+  props: ['hasWebgl'],
+
   template: require('raw!./resnet50.template.html'),
 
   data: function () {
     return {
-      model: new KerasJS.Model(MODEL_CONFIG),
+      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)),
       modelLoading: true,
       imageURLInput: null,
       imageURLSelect: null,
-      imageURLSelectList: [
-        { name: 'cat', value: 'http://i.imgur.com/CzXTtJV.jpg' },
-        { name: 'dog', value: 'URL2' }
-      ],
+      imageURLSelectList: IMAGE_URL_LIST,
       imageLoading: false,
       imageLoadingError: false,
       output: new Float32Array(1000),
       layerResultImages: [],
       layerDisplayConfig: LAYER_DISPLAY_CONFIG,
-      useGpu: MODEL_CONFIG.gpu
+      useGpu: this.hasWebgl
     }
   },
 
