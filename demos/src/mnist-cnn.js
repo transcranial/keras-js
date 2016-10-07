@@ -110,8 +110,6 @@ export const MnistCnn = Vue.extend({
   },
 
   ready: function () {
-    // initialize KerasJS model
-    this.model.initialize()
     this.model.ready().then(() => {
       this.modelLoading = false
       this.$nextTick(function () {

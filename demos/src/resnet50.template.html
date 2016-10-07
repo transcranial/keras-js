@@ -7,8 +7,15 @@
     Loading...{{ loadingProgress }}%
   </div>
   <div class="input-container" v-if="!modelLoading">
-    <div class="input-label">Select an image from dropdown or enter a valid image URL</div>
+    <div class="input-label">Enter a valid image URL or select an image from the dropdown:</div>
     <div class="image-url">
+      <mdl-textfield
+        floating-label="enter image url"
+        :value.sync="imageURLInput"
+        spellcheck="false"
+        @change="imageURLInputChanged"
+      ></mdl-textfield>
+      <span>or</span>
       <mdl-select
         label="select image"
         id="image-url-select"
@@ -17,19 +24,12 @@
         style="width:200px;"
         @change="imageURLSelectChanged"
       ></mdl-select>
-      <span>or</span>
-      <mdl-textfield
-        floating-label="enter image url"
-        :value.sync="imageURLInput"
-        spellcheck="false"
-        @change="imageURLInputChanged"
-      ></mdl-textfield>
     </div>
   </div>
   <div class="columns input-output" v-if="!modelLoading">
     <div class="column input-column">
       <div class="loading-indicator">
-        <mdl-spinner v-if="imageLoading"></mdl-spinner>
+        <mdl-spinner v-if="imageLoading || modelRunning"></mdl-spinner>
         <div class="error" v-if="imageLoadingError">Error loading URL</div>
       </div>
       <div class="canvas-container">
@@ -39,37 +39,35 @@
     <div class="column is-2 controls-column">
       <mdl-switch
         :checked.sync="useGpu"
-        :disabled="modelLoading || !hasWebgl"
+        :disabled="modelLoading || modelRunning || !hasWebgl"
         @click="toggleGpu"
       >Use GPU</mdl-switch>
     </div>
     <div class="column output-column">
       <div class="output">
+        <div class="output-class"
+          v-bind:class="{ 'predicted': $index === 0 }"
+          v-for="entry in outputClasses"
+        >
+          <div class="output-label">{{ entry.name }}</div>
+          <div class="output-bar"
+            style="width: {{ Math.round(100 * entry.probability) }}px; background: rgba(27, 188, 155, {{ entry.probability.toFixed(2) }});"
+          ></div>
+          <div class="output-bar-rest"
+            style="width: {{ 100 - Math.round(100 * entry.probability) }}px;"
+          ></div>
+          <div class="output-value">{{ Math.round(100 * entry.probability) }}%</div>
+        </div>
       </div>
     </div>
   </div>
-  <!--<div class="layer-results-container" v-if="!modelLoading">
+  <div class="architecture-container" v-if="!modelLoading">
     <div
-      v-for="layerResult in layerResultImages"
-      class="layer-result"
+      v-for="layer in architectureDiagram"
+      class="layer"
     >
-      <div class="layer-result-heading">
-        <span class="layer-class">{{ layerResult.layerClass }}</span>
-        <span> {{ layerDisplayConfig[layerResult.name].heading }}</span>
-      </div>
-      <div class="layer-result-canvas-container">
-        <canvas v-for="image in layerResult.images"
-          id="intermediate-result-{{ $parent.$index }}-{{ $index }}"
-          width="{{ image.width }}"
-          height="{{ image.height }}"
-          style="display:none;"
-        ></canvas>
-        <canvas v-for="image in layerResult.images"
-          id="intermediate-result-{{ $parent.$index }}-{{ $index }}-scaled"
-          width="{{ layerDisplayConfig[layerResult.name].scalingFactor * image.width }}"
-          height="{{ layerDisplayConfig[layerResult.name].scalingFactor * image.height }}"
-        ></canvas>
-      </div>
+      <div class="layer-class-name">{{ layer.className }}</div>
+      <div class="layer-details"> {{ layer.details }}</div>
     </div>
-  </div>-->
+  </div>
 </div>

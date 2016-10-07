@@ -23,11 +23,18 @@ const MODEL_CONFIG = {
 
 const IMAGE_URL_LIST = [
   { name: 'cat', value: 'http://i.imgur.com/CzXTtJV.jpg' },
-  { name: 'dog', value: 'URL2' }
+  { name: 'dog', value: 'http://i.imgur.com/OB0y6MR.jpg' },
+  { name: 'bridge', value: 'http://i.imgur.com/Bvke53p.jpg' }
 ]
 
-const LAYER_DISPLAY_CONFIG = {
-}
+const ARCHITECTURE_DIAGRAM = [
+  {
+    name: 'zeropadding2d_1',
+    className: 'ZeroPadding2D',
+    details: '3x3 padding',
+    layout: 'full'
+  },
+]
 
 /**
  *
@@ -43,14 +50,14 @@ export const ResNet50 = Vue.extend({
     return {
       model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)),
       modelLoading: true,
+      modelRunning: false,
       imageURLInput: null,
       imageURLSelect: null,
       imageURLSelectList: IMAGE_URL_LIST,
       imageLoading: false,
       imageLoadingError: false,
-      output: new Float32Array(1000),
-      layerResultImages: [],
-      layerDisplayConfig: LAYER_DISPLAY_CONFIG,
+      output: null,
+      architectureDiagram: ARCHITECTURE_DIAGRAM,
       useGpu: this.hasWebgl
     }
   },
@@ -58,17 +65,16 @@ export const ResNet50 = Vue.extend({
   computed: {
     loadingProgress: function () {
       return this.model.getLoadingProgress()
+    },
+    outputClasses: function () {
+      if (!this.output) return []
+      return utils.imagenetClassesTopK(this.output, 5)
     }
   },
 
   ready: function () {
-    // initialize KerasJS model
-    this.model.initialize()
     this.model.ready().then(() => {
       this.modelLoading = false
-      this.$nextTick(function () {
-        //this.getIntermediateResults()
-      })
     })
   },
 
@@ -102,9 +108,12 @@ export const ResNet50 = Vue.extend({
             ctx.drawImage(img, 0, 0)
             this.imageLoadingError = false
             this.imageLoading = false
+            this.modelRunning = true
             // model predict
             this.$nextTick(function () {
-              this.runModel()
+              setTimeout(() => {
+                this.runModel()
+              }, 200)
             })
           }
         },
@@ -140,63 +149,7 @@ export const ResNet50 = Vue.extend({
       }
       const outputData = this.model.predict(inputData)
       this.output = outputData['fc1000']
-      console.log(JSON.stringify(utils.imagenetClassesTopK(this.output, 5)))
-      //this.getIntermediateResults()
-    },
-
-    getIntermediateResults: function () {
-      let results = []
-      for (let [name, layer] of this.model.modelLayersMap.entries()) {
-        const layerClass = layer.layerClass || ''
-        if (layerClass === 'InputLayer') continue
-
-        let images = []
-        if (layer.result && layer.result.tensor.shape.length === 3) {
-          images = utils.unroll3Dtensor(layer.result.tensor)
-        } else if (layer.result && layer.result.tensor.shape.length === 2) {
-          images = [utils.image2Dtensor(layer.result.tensor)]
-        } else if (layer.result && layer.result.tensor.shape.length === 1) {
-          images = [utils.image1Dtensor(layer.result.tensor)]
-        }
-        results.push({
-          name,
-          layerClass,
-          images
-        })
-      }
-      this.layerResultImages = results
-      setTimeout(() => {
-        this.showIntermediateResults()
-      }, 0)
-    },
-
-    showIntermediateResults: function () {
-      this.layerResultImages.forEach((result, layerNum) => {
-        const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor
-        result.images.forEach((image, imageNum) => {
-          const ctx = document.getElementById(`intermediate-result-${layerNum}-${imageNum}`).getContext('2d')
-          ctx.putImageData(image, 0, 0)
-          const ctxScaled = document.getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`).getContext('2d')
-          ctxScaled.save()
-          ctxScaled.scale(scalingFactor, scalingFactor)
-          ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
-          ctxScaled.drawImage(document.getElementById(`intermediate-result-${layerNum}-${imageNum}`), 0, 0)
-          ctxScaled.restore()
-        })
-      })
-    },
-
-    clearIntermediateResults: function () {
-      this.layerResultImages.forEach((result, layerNum) => {
-        const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor
-        result.images.forEach((image, imageNum) => {
-          const ctxScaled = document.getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`).getContext('2d')
-          ctxScaled.save()
-          ctxScaled.scale(scalingFactor, scalingFactor)
-          ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
-          ctxScaled.restore()
-        })
-      })
+      this.modelRunning = false
     }
   }
 })

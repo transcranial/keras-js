@@ -73,50 +73,83 @@
   }
 
   .column.output-column {
-    justify-content: center;
+    justify-content: flex-start;
 
     .output {
+      height: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: center;
       user-select: none;
       cursor: default;
-    }
-  }
 
-  .layer-results-container {
-    position: relative;
-
-    .layer-result {
-      position: relative;
-      z-index: 1;
-      margin: 30px 20px;
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      overflow-x: auto;
-
-      .layer-result-heading {
-        font-size: 1rem;
-        color: #999999;
-        margin-bottom: 10px;
+      .output-class {
         display: flex;
-        flex-direction: column;
-        font-size: 12px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 0;
 
-        span.layer-class {
-          color: $color-1;
-          font-size: 14px;
-          font-weight: bold;
+        .output-label {
+          font-family: $font-2;
+          font-size: 20px;
+          color: $color-2;
+          padding: 0 6px;
+          border-right: 2px solid $color-1-lighter;
+        }
+
+        .output-bar {
+          height: 8px;
+          transition: height 0.2s ease-out;
+        }
+
+        .output-bar-rest {
+          height: 8px;
+          background: none;
+        }
+
+        .output-value {
+          width: 50px;
+          font-family: $font-2;
+          font-size: 16px;
+          color: $color-2;
         }
       }
 
-      .layer-result-canvas-container {
-        display: inline-flex;
-        flex-wrap: wrap;
-        background: white;
-
-        canvas {
-          border: 1px solid lightgray;
-          margin: 1px;
+      .output-class.predicted {
+        .output-label {
+          color: $color-1;
+          border-right-color: $color-1;
         }
+
+        .output-value {
+          color: $color-1;
+        }
+      }
+    }
+  }
+
+  .architecture-container {
+    position: relative;
+
+    .layer {
+      display: inline-block;
+      position: relative;
+      background: white;
+      border-radius: 5px;
+      padding: 10px;
+
+      .layer-class-name {
+        color: $color-1;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .layer-details {
+        color: #999999;
+        font-size: 12px;
+        font-weight: bold;
       }
     }
   }

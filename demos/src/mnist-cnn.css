@@ -93,7 +93,7 @@
         border-bottom: 2px solid $color-1-lighter;
 
         .output-label {
-          font-family: 'Inconsolata', sans-serif;
+          font-family: $font-2;
           font-size: 1.5rem;
           color: $color-2;
         }

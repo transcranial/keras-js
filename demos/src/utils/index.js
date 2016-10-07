@@ -108,8 +108,12 @@ export function tensorStats (tensor) {
  * calculates min and max for a ndarray tensor
  */
 export function tensorMinMax (tensor) {
-  const min = Math.min(...tensor.data)
-  const max = Math.max(...tensor.data)
+  let min = Infinity
+  let max = -Infinity
+  for (let i = 0, len = tensor.data.length; i < len; i++) {
+    if (tensor.data[i] < min) min = tensor.data[i]
+    if (tensor.data[i] > max) max = tensor.data[i]
+  }
   return { min, max }
 }
 

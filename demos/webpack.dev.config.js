@@ -11,7 +11,7 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     filename: 'bundle.js'
   },
-  devtool: 'cheap-module-eval-source-map',
+  devtool: 'eval-source-map',
   module: {
     loaders: [
       {
