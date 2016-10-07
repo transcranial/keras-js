@@ -17,6 +17,7 @@
     li {
       color: $color-2;
       border-left: 2px solid white;
+      margin-bottom: 3px;
     }
 
     li.active {
@@ -25,7 +26,9 @@
 
     a {
       display: flex;
+      flex-direction: row;
       align-items: center;
+      justify-content: space-between;
 
       &:hover {
         color: $color-1;
@@ -35,14 +38,19 @@
           fill: $color-1;
         }
       }
-    }
 
-    .github-logo {
-      fill: $color-2;
-      margin: 3px 8px 3px 0;
+      span.menu-item-heading {
+        margin-right: 10px;
+      }
+
+      span.menu-item-subheading {
+        color: #999999;
+        font-size: 0.8em;
+      }
     }
   }
 
+  .menu-list.github,
   .menu-list.contact {
     li {
       padding: 5px 10px;
@@ -55,9 +63,18 @@
       background-color: none;
       transition: color 0.2s ease-in;
 
+      .github-logo {
+        fill: $color-1;
+        transition: fill 0.2s ease-in;
+      }
+
       &:hover {
         color: $color-1-light;
         background: none;
+
+        .github-logo {
+          fill: $color-1-light;
+        }
       }
     }
   }
