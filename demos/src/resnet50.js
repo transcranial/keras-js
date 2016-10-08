@@ -73,6 +73,7 @@ export const ResNet50 = Vue.extend({
       return rows
     },
     layersWithResults: function () {
+      // store as computed property for reactivity
       return this.model.layersWithResults
     },
     outputClasses: function () {
