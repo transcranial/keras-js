@@ -7,6 +7,7 @@
     Loading...{{ loadingProgress }}%
   </div>
   <div class="input-container" v-if="!modelLoading">
+    {{ layersWithResults }}
     <div class="input-label">Enter a valid image URL or select an image from the dropdown:</div>
     <div class="image-url">
       <mdl-textfield
@@ -46,7 +47,7 @@
     <div class="column output-column">
       <div class="output">
         <div class="output-class"
-          v-bind:class="{ 'predicted': $index === 0 }"
+          :class="{ 'predicted': $index === 0 }"
           v-for="entry in outputClasses"
         >
           <div class="output-label">{{ entry.name }}</div>
@@ -64,11 +65,20 @@
   <div class="architecture-container" v-if="!modelLoading">
     <div v-for="row in architectureDiagramRows" class="layers-row columns">
       <div v-for="layer in row" class="column">
-        <div v-if="layer.className" class="layer">
+        <div
+          v-if="layer.className"
+          class="layer"
+          :id="layer.name"
+        >
           <div class="layer-class-name">{{ layer.className }}</div>
           <div class="layer-details"> {{ layer.details }}</div>
         </div>
       </div>
     </div>
+    <svg class="architecture-connections" width="100%" height="100%">
+      <g>
+        <path v-for="path in architectureDiagramPaths" :d="path" />
+      </g>
+    </svg>
   </div>
 </div>

@@ -1,4 +1,5 @@
 /* global XMLHttpRequest */
+import Promise from 'bluebird'
 import toPairs from 'lodash/toPairs'
 import mapKeys from 'lodash/mapKeys'
 import camelCase from 'lodash/camelCase'
@@ -77,6 +78,9 @@ export default class Model {
     // map of model layers
     this.modelLayersMap = new Map()
 
+    // array of model layer names with result
+    this.layersWithResults = []
+
     // directed acyclic graph of model network
     this.modelDAG = {}
 
@@ -132,6 +136,9 @@ export default class Model {
 
   /**
    * Makes XHR request
+   * @async
+   * @param {string} type - type of requested data, one of `model`, `weights`, or `metadata`.
+   * @param {Object} [headers] - any XHR headers to be passed along with request
    * @returns {Promise}
    */
   dataRequest (type, headers = {}) {
@@ -162,6 +169,7 @@ export default class Model {
 
   /**
    * Loading progress calculated from all the XHRs combined.
+   * @returns {number} progress
    */
   getLoadingProgress () {
     const progressValues = values(this.xhrProgress)
@@ -277,9 +285,14 @@ export default class Model {
   }
 
   /**
-   * Generator function for recursively traversing the DAG
+   * Async function for recursively traversing the DAG
+   * Graph object is stored in `this.modelDAG`, keyed by layer name.
+   * Layers are retrieved from Map object `this.modelLayersMap`.
+   * @async
+   * @param {[]string} nodes - array of layer names
+   * @returns {Promise.<boolean>}
    */
-  * traverseDAG (nodes) {
+  async traverseDAG (nodes) {
     if (nodes.length === 0) {
       // Stopping criterion:
       // an output node will have 0 outbound nodes.
@@ -318,19 +331,26 @@ export default class Model {
         }
         currentLayer.hasResult = true
         currentLayer.visited = true
+        this.layersWithResults.push(currentLayer.name)
+        await Promise.delay(0)
       }
-      yield * this.traverseDAG(outbound)
+      await this.traverseDAG(outbound)
     } else {
       for (let node of nodes) {
-        yield * this.traverseDAG([node])
+        await this.traverseDAG([node])
       }
     }
   }
 
   /**
-   * Predict API
+   * Predict
+   * @async
+   * @param {Object} inputData - object where the keys are the named inputs of the model,
+   *                             and values the TypedArray numeric data
+   * @returns {Promise.<Object>} - outputData object where the keys are the named outputs
+   *                             of the model, and values the TypedArray numeric data
    */
-  predict (inputData) {
+  async predict (inputData) {
     this.isRunning = true
 
     const inputNames = keys(this.inputTensors)
@@ -348,6 +368,7 @@ export default class Model {
       layer.hasResult = false
       layer.visited = false
     }
+    this.layersWithResults = []
 
     // load data to input tensors
     inputNames.forEach(inputName => {
@@ -359,8 +380,7 @@ export default class Model {
     })
 
     // start traversing DAG at input
-    let traversing = this.traverseDAG(inputNames)
-    while (!traversing.next().done) {}
+    await this.traverseDAG(inputNames)
 
     // outputs are layers with no outbound nodes
     const modelClass = this.data.model.class_name

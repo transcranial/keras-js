@@ -1304,3 +1304,292 @@ export const ARCHITECTURE_DIAGRAM = [
     col: 1
   }
 ]
+
+export const ARCHITECTURE_CONNECTIONS = [
+
+  // main
+
+  {
+    from: 'res2a_branch1',
+    to: 'fc1000'
+  },
+
+  // initial + conv block 2a
+
+  {
+    from: 'zeropadding2d_1',
+    to: 'bn2a_branch2c'
+  },
+
+  // identity block 2b
+
+  {
+    from: 'res2b_branch2a',
+    to: 'bn2b_branch2c'
+  },
+
+  // identity block 2c
+
+  {
+    from: 'res2c_branch2a',
+    to: 'bn2c_branch2c'
+  },
+
+  // conv block 3a
+
+  {
+    from: 'res3a_branch2a',
+    to: 'bn3a_branch2c'
+  },
+
+  // identity block 3b
+
+  {
+    from: 'res3b_branch2a',
+    to: 'bn3b_branch2c'
+  },
+
+  // identity block 3c
+
+  {
+    from: 'res3c_branch2a',
+    to: 'bn3c_branch2c'
+  },
+
+  // identity block 3d
+
+  {
+    from: 'res3d_branch2a',
+    to: 'bn3d_branch2c'
+  },
+
+  // conv block 4a
+
+  {
+    from: 'res4a_branch2a',
+    to: 'bn4a_branch2c'
+  },
+
+  // identity block 4b
+
+  {
+    from: 'res4b_branch2a',
+    to: 'bn4b_branch2c'
+  },
+
+  // identity block 4c
+
+  {
+    from: 'res4c_branch2a',
+    to: 'bn4c_branch2c'
+  },
+
+  // identity block 4d
+
+  {
+    from: 'res4d_branch2a',
+    to: 'bn4d_branch2c'
+  },
+
+  // identity block 4e
+
+  {
+    from: 'res4e_branch2a',
+    to: 'bn4e_branch2c'
+  },
+
+  // identity block 4f
+
+  {
+    from: 'res4f_branch2a',
+    to: 'bn4f_branch2c'
+  },
+
+  // conv block 5a
+
+  {
+    from: 'res5a_branch2a',
+    to: 'bn5a_branch2c'
+  },
+
+  // identity block 5b
+
+  {
+    from: 'res5b_branch2a',
+    to: 'bn5b_branch2c'
+  },
+
+  // identity block 5c
+
+  {
+    from: 'res5c_branch2a',
+    to: 'bn5c_branch2c'
+  },
+
+  // block connections start
+
+  {
+    from: 'maxpooling2d_1',
+    to: 'res2a_branch1',
+    corner: 'top-right'
+  },
+
+  {
+    from: 'activation_4',
+    to: 'res2b_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_7',
+    to: 'res2c_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_10',
+    to: 'res3a_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_13',
+    to: 'res3b_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_16',
+    to: 'res3c_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_19',
+    to: 'res3d_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_22',
+    to: 'res4a_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_25',
+    to: 'res4b_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_28',
+    to: 'res4c_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_31',
+    to: 'res4d_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_34',
+    to: 'res4e_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_37',
+    to: 'res4f_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_40',
+    to: 'res5a_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_43',
+    to: 'res5b_branch2a',
+    corner: 'top-left'
+  },
+  {
+    from: 'activation_46',
+    to: 'res5c_branch2a',
+    corner: 'top-left'
+  },
+
+  // block connections to merge
+
+  {
+    from: 'bn2a_branch2c',
+    to: 'merge_1',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn2b_branch2c',
+    to: 'merge_2',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn2c_branch2c',
+    to: 'merge_3',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn3a_branch2c',
+    to: 'merge_4',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn3b_branch2c',
+    to: 'merge_5',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn3c_branch2c',
+    to: 'merge_6',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn3d_branch2c',
+    to: 'merge_7',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn4a_branch2c',
+    to: 'merge_8',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn4b_branch2c',
+    to: 'merge_9',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn4c_branch2c',
+    to: 'merge_10',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn4d_branch2c',
+    to: 'merge_11',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn4e_branch2c',
+    to: 'merge_12',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn4f_branch2c',
+    to: 'merge_13',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn5a_branch2c',
+    to: 'merge_14',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn5b_branch2c',
+    to: 'merge_15',
+    corner: 'bottom-left'
+  },
+  {
+    from: 'bn5c_branch2c',
+    to: 'merge_16',
+    corner: 'bottom-left'
+  }
+]

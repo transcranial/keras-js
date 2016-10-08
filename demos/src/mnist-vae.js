@@ -164,10 +164,11 @@ export const MnistVae = Vue.extend({
       const inputData = {
         'input_4': new Float32Array(this.inputCoordinates)
       }
-      const outputData = this.model.predict(inputData)
-      this.output = outputData['convolution2d_8']
-      this.drawOutput()
-      this.getIntermediateResults()
+      this.model.predict(inputData).then(outputData => {
+        this.output = outputData['convolution2d_8']
+        this.drawOutput()
+        this.getIntermediateResults()
+      })
     },
 
     drawOutput: function () {

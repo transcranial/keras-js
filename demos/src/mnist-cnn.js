@@ -208,8 +208,10 @@ export const MnistCnn = Vue.extend({
         this.input[i / 4] = data[i + 3] / 255
       }
 
-      this.output = this.model.predict({ input: this.input }).output
-      this.getIntermediateResults()
+      this.model.predict({ input: this.input }).then(outputData => {
+        this.output = outputData.output
+        this.getIntermediateResults()
+      })
     }, 200, { leading: true, trailing: true }),
 
     getIntermediateResults: function () {

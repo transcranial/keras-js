@@ -133,9 +133,12 @@
   .architecture-container {
     max-width: 800px;
     margin: 0 auto;
+    position: relative;
 
     .layers-row {
       margin-bottom: 5px;
+      position: relative;
+      z-index: 1;
 
       .layer {
         display: inline-block;
@@ -154,6 +157,19 @@
           font-size: 12px;
           font-weight: bold;
         }
+      }
+    }
+
+    .architecture-connections {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+
+      path {
+        stroke-width: 4px;
+        stroke: #AAAAAA;
+        fill: none;
       }
     }
   }
