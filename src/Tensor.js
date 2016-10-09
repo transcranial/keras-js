@@ -34,17 +34,23 @@ export default class Tensor {
 
   /**
    * Create weblas pipeline tensor in GPU memory
-   * 2-D only
+   * 1-D or 2-D only
    * see https://github.com/waylonflinn/weblas/wiki/Pipeline
    */
   createWeblasTensor () {
-    if (this.tensor.shape.length === 1) {
-      const shape = [1, this.tensor.shape[0]]
-      this.weblasTensor = new weblas.pipeline.Tensor(shape, this.tensor.data)
-    } else if (this.tensor.shape.length === 2) {
-      const shape = this.tensor.shape
-      this.weblasTensor = new weblas.pipeline.Tensor(shape, this.tensor.data)
+    if (this.weblasTensor) {
+      this.weblasTensor.delete()
     }
+
+    let shape
+    if (this.tensor.shape.length === 1) {
+      shape = [1, this.tensor.shape[0]]
+    } else if (this.tensor.shape.length === 2) {
+      shape = this.tensor.shape
+    } else {
+      throw new Error('[Tensor] can only create weblas Tensor for 1-D or 2-D only')
+    }
+    this.weblasTensor = new weblas.pipeline.Tensor(shape, this.tensor.data)
   }
 
   /**
@@ -77,7 +83,7 @@ export default class Tensor {
     } else if (data && data.length && data instanceof Array) {
       this.tensor.data = new this._type(data)
     } else {
-      this.tensor = new this._type([])
+      throw new Error('[Tensor] invalid input for replaceTensorData method.')
     }
   }
 

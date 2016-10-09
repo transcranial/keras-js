@@ -68,7 +68,7 @@ export default class Convolution2D extends Layer {
     }
     super.setWeights(weightsArr)
 
-    this._wRowsMat = this._w2row()
+    this._w2row()
     if (this._useWeblas) {
       this._wRowsMat.createWeblasTensor()
       this._wRowsMat.weblasTensor = this._wRowsMat.weblasTensor.transpose()
@@ -154,7 +154,17 @@ export default class Convolution2D extends Layer {
     const nbPatches = outputRows * outputCols
     const patchLen = nbRow * nbCol * inputChannels
 
-    const imColsMat = new Tensor([], [nbPatches, patchLen])
+    if (!this._imColsMat) {
+      this._imColsMat = new Tensor([], [nbPatches, patchLen])
+    }
+
+    if (nbRow === 1 && nbCol === 1 && this.subsample[0] === 1 && this.subsample[1] === 1) {
+      this._imColsMat.replaceTensorData(x.tensor.data)
+      if (this._useWeblas) {
+        this._imColsMat.createWeblasTensor()
+      }
+      return this._imColsMat
+    }
 
     let patch = new Tensor([], [nbRow, nbCol, inputChannels])
     let patchRaveled = new Tensor([], [patchLen])
@@ -163,12 +173,14 @@ export default class Convolution2D extends Layer {
       for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.subsample[1]) {
         ops.assign(patch.tensor, x.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0))
         patchRaveled.replaceTensorData(patch.tensor.data)
-        ops.assign(imColsMat.tensor.pick(n, null), patchRaveled.tensor)
+        ops.assign(this._imColsMat.tensor.pick(n, null), patchRaveled.tensor)
         n += 1
       }
     }
-
-    return imColsMat
+    if (this._useWeblas) {
+      this._imColsMat.createWeblasTensor()
+    }
+    return this._imColsMat
   }
 
   /**
@@ -180,17 +192,17 @@ export default class Convolution2D extends Layer {
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const patchLen = nbRow * nbCol * inputChannels
 
-    const wRowsMat = new Tensor([], [patchLen, nbFilter])
+    this._wRowsMat = new Tensor([], [patchLen, nbFilter])
 
     let patch = new Tensor([], [nbRow, nbCol, inputChannels])
     let patchRaveled = new Tensor([], [patchLen])
     for (let n = 0; n < nbFilter; n++) {
       ops.assign(patch.tensor, this.weights.W.tensor.pick(null, null, null, n))
       patchRaveled.replaceTensorData(patch.tensor.data)
-      ops.assign(wRowsMat.tensor.pick(null, n), patchRaveled.tensor)
+      ops.assign(this._wRowsMat.tensor.pick(null, n), patchRaveled.tensor)
     }
 
-    return wRowsMat
+    return this._wRowsMat
   }
 
   /**
@@ -204,21 +216,11 @@ export default class Convolution2D extends Layer {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
 
-    let logging = false
-    if (['conv1', 'res2c_branch2a', 'res4e_branch2b', 'res3d_branch2b', 'res2b_branch2a', 'res4d_branch2c', 'res3c_branch2c'].includes(this.name)) logging = true
-
     this._calcOutputShape(x)
     this._padInput(x)
 
-    let startTime = performance.now()
-    const imColsMat = this._im2col(x)
-    if (this._useWeblas) {
-      imColsMat.createWeblasTensor()
-    }
-    let endTime = performance.now()
-    if (logging) console.log(this.name, 'imColsMat', endTime - startTime)
+    this._im2col(x)
 
-    startTime = performance.now()
     const nbFilter = this.kernelShape[0]
     const outputRows = this.outputShape[0]
     const outputCols = this.outputShape[1]
@@ -228,23 +230,18 @@ export default class Convolution2D extends Layer {
     if (this._useWeblas) {
       const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
       matMul.tensor.data = weblas.pipeline.sgemm(
-        1, imColsMat.weblasTensor, this._wRowsMat.weblasTensor,
+        1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor,
         1, bias
       ).transfer()
-      imColsMat.weblasTensor.delete()
-      delete imColsMat.weblasTensor
     } else {
       if (this.bias) {
         for (let n = 0; n < nbFilter; n++) {
           ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
         }
       }
-      gemm(matMul.tensor, imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
+      gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
     }
-    endTime = performance.now()
-    if (logging) console.log(this.name, 'gemm', endTime - startTime)
 
-    startTime = performance.now()
     let output = new Tensor([], this.outputShape)
     let outputChannelRaveled = new Tensor([], [outputRows * outputCols])
     let outputChannel = new Tensor([], [outputRows, outputCols])
@@ -254,9 +251,6 @@ export default class Convolution2D extends Layer {
       ops.assign(output.tensor.pick(null, null, n), outputChannel.tensor)
     }
     x.tensor = output.tensor
-    endTime = performance.now()
-    if (logging) console.log(this.name, 'nbFilter', nbFilter)
-    if (logging) console.log(this.name, 'createOutput', endTime - startTime)
 
     this.activation(x)
 
