@@ -5,6 +5,7 @@ import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
 import find from 'lodash/find'
 import * as utils from './utils'
+import { IMAGE_URLS } from './image-urls'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from './resnet50-arch'
 
 const MODEL_FILEPATHS_DEV = {
@@ -12,22 +13,14 @@ const MODEL_FILEPATHS_DEV = {
   weights: '/demos/data/resnet50/resnet50_weights.buf',
   metadata: '/demos/data/resnet50/resnet50_metadata.json'
 }
-
 const MODEL_FILEPATHS_PROD = {
   model: 'demos/data/resnet50/resnet50.json',
   weights: 'https://transcranial.github.io/keras-js-demos-data/resnet50/resnet50_weights.buf',
   metadata: 'demos/data/resnet50/resnet50_metadata.json'
 }
-
 const MODEL_CONFIG = {
   filepaths: (process.env.NODE_ENV === 'production') ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV
 }
-
-const IMAGE_URL_LIST = [
-  { name: 'cat', value: 'http://i.imgur.com/CzXTtJV.jpg' },
-  { name: 'dog', value: 'http://i.imgur.com/OB0y6MR.jpg' },
-  { name: 'bridge', value: 'http://i.imgur.com/Bvke53p.jpg' }
-]
 
 /**
  *
@@ -46,7 +39,7 @@ export const ResNet50 = Vue.extend({
       modelRunning: false,
       imageURLInput: null,
       imageURLSelect: null,
-      imageURLSelectList: IMAGE_URL_LIST,
+      imageURLSelectList: IMAGE_URLS,
       imageLoading: false,
       imageLoadingError: false,
       output: null,
@@ -77,7 +70,13 @@ export const ResNet50 = Vue.extend({
       return this.model.layersWithResults
     },
     outputClasses: function () {
-      if (!this.output) return []
+      if (!this.output) {
+        let empty = []
+        for (let i = 0; i < 5; i++) {
+          empty.push({ name: '.', probability: 0 })
+        }
+        return empty
+      }
       return utils.imagenetClassesTopK(this.output, 5)
     }
   },
@@ -134,6 +133,11 @@ export const ResNet50 = Vue.extend({
     },
 
     loadImageToCanvas: function (url) {
+      if (!url) {
+        this.clearAll()
+        return
+      }
+
       this.imageLoading = true
       loadImage(
         url,
@@ -174,7 +178,7 @@ export const ResNet50 = Vue.extend({
 
       // data processing
       // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
-      let dataTensor = ndarray(data, [width, height, 4])
+      let dataTensor = ndarray(new Float32Array(data), [width, height, 4])
       let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3])
       ops.subseq(dataTensor.pick(null, null, 0), 103.939)
       ops.subseq(dataTensor.pick(null, null, 1), 116.779)
@@ -190,6 +194,20 @@ export const ResNet50 = Vue.extend({
         this.output = outputData['fc1000']
         this.modelRunning = false
       })
+    },
+
+    clearAll: function () {
+      this.modelRunning = false
+      this.imageURLInput = null
+      this.imageURLSelect = null
+      this.imageLoading = false
+      this.imageLoadingError = false
+      this.output = null
+
+      this.model.layersWithResults = []
+
+      const ctx = document.getElementById('input-canvas').getContext('2d')
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
     }
   }
 })

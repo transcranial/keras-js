@@ -79,7 +79,7 @@
       height: 160px;
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
+      align-items: flex-start;
       justify-content: center;
       user-select: none;
       cursor: default;
@@ -92,8 +92,13 @@
         padding: 6px 0;
 
         .output-label {
+          text-align: right;
+          width: 200px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
           font-family: $font-2;
-          font-size: 20px;
+          font-size: 18px;
           color: $color-2;
           padding: 0 6px;
           border-right: 2px solid $color-1-lighter;
@@ -101,18 +106,14 @@
 
         .output-bar {
           height: 8px;
-          transition: height 0.2s ease-out;
-        }
-
-        .output-bar-rest {
-          height: 8px;
-          background: none;
+          transition: width 0.2s ease-out;
         }
 
         .output-value {
-          width: 50px;
+          text-align: left;
+          margin-left: 5px;
           font-family: $font-2;
-          font-size: 16px;
+          font-size: 14px;
           color: $color-2;
         }
       }
@@ -120,7 +121,7 @@
       .output-class.predicted {
         .output-label {
           color: $color-1;
-          border-right-color: $color-1;
+          border-left-color: $color-1;
         }
 
         .output-value {

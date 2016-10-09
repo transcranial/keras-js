@@ -10,13 +10,11 @@ const MODEL_FILEPATHS_DEV = {
   weights: '/demos/data/mnist_cnn/mnist_cnn_weights.buf',
   metadata: '/demos/data/mnist_cnn/mnist_cnn_metadata.json'
 }
-
 const MODEL_FILEPATHS_PROD = {
   model: 'demos/data/mnist_cnn/mnist_cnn.json',
   weights: 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn_weights.buf',
   metadata: 'demos/data/mnist_cnn/mnist_cnn_metadata.json'
 }
-
 const MODEL_CONFIG = {
   filepaths: (process.env.NODE_ENV === 'production') ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV
 }

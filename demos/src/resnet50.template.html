@@ -46,17 +46,14 @@
     <div class="column output-column">
       <div class="output">
         <div class="output-class"
-          :class="{ 'predicted': $index === 0 }"
-          v-for="entry in outputClasses"
+          :class="{ 'predicted': i === 0 && outputClasses[i].probability.toFixed(2) > 0 }"
+          v-for="i in [0, 1, 2, 3, 4]"
         >
-          <div class="output-label">{{ entry.name }}</div>
+          <div class="output-label">{{ outputClasses[i].name }}</div>
           <div class="output-bar"
-            style="width: {{ Math.round(100 * entry.probability) }}px; background: rgba(27, 188, 155, {{ entry.probability.toFixed(2) }});"
+            style="width: {{ Math.round(100 * outputClasses[i].probability) }}px; background: rgba(27, 188, 155, {{ outputClasses[i].probability.toFixed(2) }});"
           ></div>
-          <div class="output-bar-rest"
-            style="width: {{ 100 - Math.round(100 * entry.probability) }}px;"
-          ></div>
-          <div class="output-value">{{ Math.round(100 * entry.probability) }}%</div>
+          <div class="output-value">{{ Math.round(100 * outputClasses[i].probability) }}%</div>
         </div>
       </div>
     </div>
