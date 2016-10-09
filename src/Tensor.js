@@ -30,14 +30,6 @@ export default class Tensor {
     } else {
       this.tensor = ndarray(new this._type([]), [])
     }
-
-    // turn on weblas
-    if (options.gpu && weblas) {
-      this._useWeblas = true
-      this.createWeblasTensor()
-    } else {
-      this._useWeblas = false
-    }
   }
 
   /**

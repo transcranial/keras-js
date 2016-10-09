@@ -39,6 +39,25 @@ export default class Dense extends Layer {
   }
 
   /**
+   * Method for setting layer weights. Extends `super` method.
+   * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
+   */
+  setWeights (weightsArr) {
+    super.setWeights(weightsArr)
+
+    if (this._useWeblas) {
+      this.weights.W.createWeblasTensor()
+      this.weights.W.weblasTensor = this.weights.W.weblasTensor.transpose()
+      if (this.bias) {
+        this.weights.b.createWeblasTensor()
+      } else {
+        this._zerosVec = new Tensor([], [this.weights.W.tensor.shape[1]])
+        this._zerosVec.createWeblasTensor()
+      }
+    }
+  }
+
+  /**
    * Method for layer computational logic
    *
    * x = W^T * x + b
@@ -55,19 +74,20 @@ export default class Dense extends Layer {
    */
   call (x) {
     let y = new Tensor([], [this.outputDim])
-    if (this.bias) {
-      ops.assign(y.tensor, this.weights.b.tensor)
-    }
-    if (x._useWeblas) {
-      const bias = this.bias
-        ? this.weights.b.tensor.data
-        : new Float32Array(this.outputDim)
-      y.tensor.data = weblas.sgemm(
-        1, this.weights.W.tensor.shape[1], x.tensor.shape[0], // M, N, K
-        1, x.tensor.data, this.weights.W.tensor.data, // alpha, A, B
-        1, bias // beta, C
-      )
+
+    if (this._useWeblas) {
+      x.createWeblasTensor()
+      const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
+      y.tensor.data = weblas.pipeline.sgemm(
+        1, x.weblasTensor, this.weights.W.weblasTensor,
+        1, bias
+      ).transfer()
+      x.weblasTensor.delete()
+      delete x.weblasTensor
     } else {
+      if (this.bias) {
+        ops.assign(y.tensor, this.weights.b.tensor)
+      }
       gemv(1.0, this.weights.W.tensor.transpose(1, 0), x.tensor, 1.0, y.tensor)
     }
     x.tensor = y.tensor

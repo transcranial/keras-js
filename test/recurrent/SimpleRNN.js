@@ -105,16 +105,16 @@ describe('recurrent layer: SimpleRNN', function () {
 
       it(title, function () {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.SimpleRNN(attrs)
+        let testLayer = new layers.SimpleRNN(Object.assign(attrs, { gpu: true }))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape, { gpu: true })
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
         const startTime = performance.now()
 
         // To test statefulness, we run call() twice (see corresponding jupyter notebook)
         t = testLayer.call(t)
         if (attrs.stateful) {
-          t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape, { gpu: true })
+          t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
           t = testLayer.call(t)
         }
 

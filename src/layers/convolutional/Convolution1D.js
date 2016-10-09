@@ -37,7 +37,7 @@ export default class Convolution1D extends Layer {
     // Convolution1D is actually a shim on top of Convolution2D, where
     // all of the computational action is performed
     // Note that Keras uses `th` dim ordering here.
-    this._conv2d = new Convolution2D({
+    const conv2dAttrs = {
       nbFilter,
       nbRow: filterLength,
       nbCol: 1,
@@ -46,7 +46,8 @@ export default class Convolution1D extends Layer {
       subsample: [subsampleLength, 1],
       dimOrdering: 'th',
       bias
-    })
+    }
+    this._conv2d = new Convolution2D(Object.assign(conv2dAttrs, { gpu: attrs.gpu }))
   }
 
   /**

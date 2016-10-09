@@ -76,6 +76,12 @@ export default class Deconvolution2D extends Layer {
       weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 1, 0)
     }
     super.setWeights(weightsArr)
+
+    this._wRowsMat = this._w2row()
+    if (this._useWeblas) {
+      this._wRowsMat.createWeblasTensor()
+      this._wRowsMat.weblasTensor = this._wRowsMat.weblasTensor.transpose()
+    }
   }
 
   /**
@@ -140,12 +146,13 @@ export default class Deconvolution2D extends Layer {
   /**
    * Convert filter weights to row matrix, along channels axis
    * shape: [nbRow, nbCol, inputChannels, nbFilter] -> [inputChannels, nbRow * nbCol * nbFilter]
-   * @returns {Tensor} wRowsMat
+   * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
    */
   _w2row () {
     const [nbRow, nbCol, inputChannels, nbFilter] = this.weights.W.tensor.shape
 
     const wRowsMat = new Tensor([], [inputChannels, nbRow * nbCol * nbFilter])
+
     let channelRaveled = new Tensor([], [nbRow * nbCol * nbFilter])
     let channel = new Tensor([], [nbRow, nbCol, nbFilter])
     for (let c = 0; c < inputChannels; c++) {
@@ -153,6 +160,7 @@ export default class Deconvolution2D extends Layer {
       channelRaveled.replaceTensorData(channel.tensor.data)
       ops.assign(wRowsMat.tensor.pick(c, null), channelRaveled.tensor)
     }
+
     return wRowsMat
   }
 
@@ -168,22 +176,26 @@ export default class Deconvolution2D extends Layer {
     }
 
     const imColsMat = this._im2col(x)
-    const wRowsMat = this._w2row()
+    if (this._useWeblas) {
+      imColsMat.createWeblasTensor()
+    }
 
     const inputRows = x.tensor.shape[0]
     const inputCols = x.tensor.shape[1]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const matMul = new Tensor([], [inputRows * inputCols, nbRow * nbCol * nbFilter])
 
-    if (x._useWeblas) {
-      const zeros = new Float32Array(wRowsMat.tensor.shape[1])
-      matMul.tensor.data = weblas.sgemm(
-        imColsMat.tensor.shape[0], wRowsMat.tensor.shape[1], imColsMat.tensor.shape[1], // M, N, K
-        1, imColsMat.tensor.data, wRowsMat.tensor.data, // alpha, A, B
-        0, zeros // beta, C
-      )
+    if (this._useWeblas) {
+      let _zerosVec = new Tensor([], [this.weights.W.tensor.shape[3]])
+      _zerosVec.createWeblasTensor()
+      matMul.tensor.data = weblas.pipeline.sgemm(
+        1, imColsMat.weblasTensor, this._wRowsMat.weblasTensor,
+        0, _zerosVec
+      ).transfer()
+      imColsMat.weblasTensor.delete()
+      delete imColsMat.weblasTensor
     } else {
-      gemm(matMul.tensor, imColsMat.tensor, wRowsMat.tensor, 1, 1)
+      gemm(matMul.tensor, imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
     }
 
     this._calcOutputPadding(x)

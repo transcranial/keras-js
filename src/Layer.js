@@ -15,6 +15,13 @@ export default class Layer {
 
     this.params = []
     this.weights = {}
+
+    // turn on weblas
+    if (attrs.gpu && weblas) {
+      this._useWeblas = true
+    } else {
+      this._useWeblas = false
+    }
   }
 
   /**

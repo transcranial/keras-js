@@ -60,8 +60,8 @@ export default class SeparableConvolution2D extends Layer {
     // Subsampling (striding) only performed on depthwise part, not the pointwise part.
     const depthwiseConvAttrs = { nbFilter: this.depthMultiplier, nbRow, nbCol, activation: 'linear', borderMode, subsample, dimOrdering, bias: false }
     const pointwiseConvAttrs = { nbFilter, nbRow: 1, nbCol: 1, activation: 'linear', borderMode, subsample: [1, 1], dimOrdering, bias: false }
-    this._depthwiseConv = new Convolution2D(depthwiseConvAttrs)
-    this._pointwiseConv = new Convolution2D(pointwiseConvAttrs)
+    this._depthwiseConv = new Convolution2D(Object.assign(depthwiseConvAttrs, { gpu: attrs.gpu }))
+    this._pointwiseConv = new Convolution2D(Object.assign(pointwiseConvAttrs, { gpu: attrs.gpu }))
   }
 
   /**

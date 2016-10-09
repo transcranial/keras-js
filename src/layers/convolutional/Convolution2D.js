@@ -69,6 +69,16 @@ export default class Convolution2D extends Layer {
     super.setWeights(weightsArr)
 
     this._wRowsMat = this._w2row()
+    if (this._useWeblas) {
+      this._wRowsMat.createWeblasTensor()
+      this._wRowsMat.weblasTensor = this._wRowsMat.weblasTensor.transpose()
+      if (this.bias) {
+        this.weights.b.createWeblasTensor()
+      } else {
+        this._zerosVec = new Tensor([], [this.weights.W.tensor.shape[3]])
+        this._zerosVec.createWeblasTensor()
+      }
+    }
   }
 
   /**
@@ -163,7 +173,7 @@ export default class Convolution2D extends Layer {
 
   /**
    * Convert filter weights to row matrix
-   * @returns {Tensor} wRowsMat
+   * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
    */
   _w2row () {
     const inputChannels = this.weights.W.tensor.shape[2]
@@ -193,22 +203,17 @@ export default class Convolution2D extends Layer {
     if (this.dimOrdering === 'th') {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
-    let startTime = performance.now()
+
     this._calcOutputShape(x)
-    let endTime = performance.now()
-    if (this.name === 'conv1') console.log('_calcOutputShape', endTime - startTime)
-    startTime = performance.now()
     this._padInput(x)
-    endTime = performance.now()
-    if (this.name === 'conv1') console.log('_padInput', endTime - startTime)
-    startTime = performance.now()
+
+    let startTime = performance.now()
     const imColsMat = this._im2col(x)
-    endTime = performance.now()
+    if (this._useWeblas) {
+      imColsMat.createWeblasTensor()
+    }
+    let endTime = performance.now()
     if (this.name === 'conv1') console.log('imColsMat', endTime - startTime)
-    startTime = performance.now()
-    const wRowsMat = this._wRowsMat
-    endTime = performance.now()
-    if (this.name === 'conv1') console.log('wRowsMat', endTime - startTime)
 
     startTime = performance.now()
     const nbFilter = this.kernelShape[0]
@@ -216,23 +221,22 @@ export default class Convolution2D extends Layer {
     const outputCols = this.outputShape[1]
     const nbPatches = outputRows * outputCols
     const matMul = new Tensor([], [nbPatches, nbFilter])
-    if (this.bias) {
-      for (let n = 0; n < nbFilter; n++) {
-        ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
-      }
-    }
 
-    if (x._useWeblas) {
-      const bias = this.bias
-        ? this.weights.b.tensor.data
-        : new Float32Array(wRowsMat.tensor.shape[1])
-      matMul.tensor.data = weblas.sgemm(
-        imColsMat.tensor.shape[0], wRowsMat.tensor.shape[1], imColsMat.tensor.shape[1], // M, N, K
-        1, imColsMat.tensor.data, wRowsMat.tensor.data, // alpha, A, B
-        1, bias // beta, C
-      )
+    if (this._useWeblas) {
+      const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
+      matMul.tensor.data = weblas.pipeline.sgemm(
+        1, imColsMat.weblasTensor, this._wRowsMat.weblasTensor,
+        1, bias
+      ).transfer()
+      imColsMat.weblasTensor.delete()
+      delete imColsMat.weblasTensor
     } else {
-      gemm(matMul.tensor, imColsMat.tensor, wRowsMat.tensor, 1, 1)
+      if (this.bias) {
+        for (let n = 0; n < nbFilter; n++) {
+          ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
+        }
+      }
+      gemm(matMul.tensor, imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
     }
     endTime = performance.now()
     if (this.name === 'conv1') console.log('gemm', endTime - startTime)

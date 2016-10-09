@@ -104,9 +104,9 @@ describe('convolutional layer: Deconvolution2D', function () {
 
       it(title, function () {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.Deconvolution2D(Object.assign({ nbFilter, nbRow, nbCol, outputShape }, attrs))
+        let testLayer = new layers.Deconvolution2D(Object.assign({ nbFilter, nbRow, nbCol, outputShape }, attrs, { gpu: true }))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
-        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape, { gpu: true })
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
         const startTime = performance.now()
         t = testLayer.call(t)
