@@ -23,7 +23,12 @@ export default class BatchNormalization extends Layer {
 
     this.epsilon = epsilon
     this.mode = mode
+
+    // no batch axis, so axis is less 1 compared to representation in keras
+    // will be set in call(), as input tensor shape is needed to calculate axis
+    // if axis < 0
     this.axis = axis
+    this.axisNormalized = false
 
     // Layer weights specification
     // running mean and std are non_trainable_weights in mode 0
@@ -38,8 +43,10 @@ export default class BatchNormalization extends Layer {
    * @returns {Tensor} x
    */
   call (x) {
-    // no batch axis, so axis is less 1 compared to representation in keras
-    this.axis = this.axis < 0 ? x.tensor.shape.length + this.axis : this.axis - 1
+    if (!this.axisNormalized) {
+      this.axis = this.axis < 0 ? x.tensor.shape.length + this.axis : this.axis - 1
+      this.axisNormalized = true
+    }
 
     let broadcast = []
     for (let d = 0; d < x.tensor.shape.length; d++) {
