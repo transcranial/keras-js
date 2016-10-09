@@ -67,6 +67,8 @@ export default class Convolution2D extends Layer {
       weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 1, 0)
     }
     super.setWeights(weightsArr)
+
+    this._wRowsMat = this._w2row()
   }
 
   /**
@@ -161,11 +163,10 @@ export default class Convolution2D extends Layer {
 
   /**
    * Convert filter weights to row matrix
-   * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor} wRowsMat
    */
-  _w2row (x) {
-    const inputChannels = x.tensor.shape[2]
+  _w2row () {
+    const inputChannels = this.weights.W.tensor.shape[2]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const patchLen = nbRow * nbCol * inputChannels
 
@@ -192,13 +193,24 @@ export default class Convolution2D extends Layer {
     if (this.dimOrdering === 'th') {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
-
+    let startTime = performance.now()
     this._calcOutputShape(x)
+    let endTime = performance.now()
+    if (this.name === 'conv1') console.log('_calcOutputShape', endTime - startTime)
+    startTime = performance.now()
     this._padInput(x)
-
+    endTime = performance.now()
+    if (this.name === 'conv1') console.log('_padInput', endTime - startTime)
+    startTime = performance.now()
     const imColsMat = this._im2col(x)
-    const wRowsMat = this._w2row(x)
+    endTime = performance.now()
+    if (this.name === 'conv1') console.log('imColsMat', endTime - startTime)
+    startTime = performance.now()
+    const wRowsMat = this._wRowsMat
+    endTime = performance.now()
+    if (this.name === 'conv1') console.log('wRowsMat', endTime - startTime)
 
+    startTime = performance.now()
     const nbFilter = this.kernelShape[0]
     const outputRows = this.outputShape[0]
     const outputCols = this.outputShape[1]
@@ -222,7 +234,10 @@ export default class Convolution2D extends Layer {
     } else {
       gemm(matMul.tensor, imColsMat.tensor, wRowsMat.tensor, 1, 1)
     }
+    endTime = performance.now()
+    if (this.name === 'conv1') console.log('gemm', endTime - startTime)
 
+    startTime = performance.now()
     let output = new Tensor([], this.outputShape)
     let outputChannelRaveled = new Tensor([], [outputRows * outputCols])
     let outputChannel = new Tensor([], [outputRows, outputCols])
@@ -232,8 +247,13 @@ export default class Convolution2D extends Layer {
       ops.assign(output.tensor.pick(null, null, n), outputChannel.tensor)
     }
     x.tensor = output.tensor
+    endTime = performance.now()
+    if (this.name === 'conv1') console.log('createOutput', endTime - startTime)
 
+    startTime = performance.now()
     this.activation(x)
+    endTime = performance.now()
+    if (this.name === 'conv1') console.log('activation', endTime - startTime)
 
     // convert back to th ordering if necessary
     if (this.dimOrdering === 'th') {

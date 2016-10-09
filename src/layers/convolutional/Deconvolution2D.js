@@ -140,10 +140,9 @@ export default class Deconvolution2D extends Layer {
   /**
    * Convert filter weights to row matrix, along channels axis
    * shape: [nbRow, nbCol, inputChannels, nbFilter] -> [inputChannels, nbRow * nbCol * nbFilter]
-   * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor} wRowsMat
    */
-  _w2row (x) {
+  _w2row () {
     const [nbRow, nbCol, inputChannels, nbFilter] = this.weights.W.tensor.shape
 
     const wRowsMat = new Tensor([], [inputChannels, nbRow * nbCol * nbFilter])
@@ -169,7 +168,7 @@ export default class Deconvolution2D extends Layer {
     }
 
     const imColsMat = this._im2col(x)
-    const wRowsMat = this._w2row(x)
+    const wRowsMat = this._w2row()
 
     const inputRows = x.tensor.shape[0]
     const inputCols = x.tensor.shape[1]

@@ -180,11 +180,10 @@ export default class Convolution3D extends Layer {
 
   /**
    * Convert filter weights to row matrix
-   * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor} wRowsMat
    */
-  _w2row (x) {
-    const inputChannels = x.tensor.shape[3]
+  _w2row () {
+    const inputChannels = this.weights.W.tensor.shape[3]
     const [nbFilter, kernelDim1, kernelDim2, kernelDim3] = this.kernelShape
     const patchLen = kernelDim1 * kernelDim2 * kernelDim3 * inputChannels
 
@@ -216,7 +215,7 @@ export default class Convolution3D extends Layer {
     this._padInput(x)
 
     const volColsMat = this._vol2col(x)
-    const wRowsMat = this._w2row(x)
+    const wRowsMat = this._w2row()
 
     const nbFilter = this.kernelShape[0]
     const outputDim1 = this.outputShape[0]
