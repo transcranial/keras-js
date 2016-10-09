@@ -6,24 +6,38 @@
   <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
     Loading...{{ loadingProgress }}%
   </div>
-  <div class="input-container" v-if="!modelLoading">
-    <div class="input-label">Enter a valid image URL or select an image from the dropdown:</div>
-    <div class="image-url">
-      <mdl-textfield
-        floating-label="enter image url"
-        :value.sync="imageURLInput"
-        spellcheck="false"
-        @change="imageURLInputChanged"
-      ></mdl-textfield>
-      <span>or</span>
-      <mdl-select
-        label="select image"
-        id="image-url-select"
-        :value.sync="imageURLSelect"
-        :options="imageURLSelectList"
-        style="width:200px;"
-        @change="imageURLSelectChanged"
-      ></mdl-select>
+  <div class="top-container" v-if="!modelLoading">
+    <div class="input-container">
+      <div class="input-label">Enter a valid image URL or select an image from the dropdown:</div>
+      <div class="image-url">
+        <mdl-textfield
+          floating-label="enter image url"
+          :value.sync="imageURLInput"
+          spellcheck="false"
+          @change="imageURLInputChanged"
+        ></mdl-textfield>
+        <span>or</span>
+        <mdl-select
+          label="select image"
+          id="image-url-select"
+          :value.sync="imageURLSelect"
+          :options="imageURLSelectList"
+          style="width:200px;"
+          @change="imageURLSelectChanged"
+        ></mdl-select>
+      </div>
+    </div>
+    <div class="controls">
+      <mdl-switch
+        :checked.sync="useGpu"
+        :disabled="modelLoading || modelRunning || !hasWebgl"
+        @click="toggleGpu"
+      >Use GPU</mdl-switch>
+      <mdl-switch
+        :checked.sync="showComputationFlow"
+        :disabled="modelLoading || modelRunning"
+        @click="toggleComputationFlow"
+      >Show computation flow</mdl-switch>
     </div>
   </div>
   <div class="columns input-output" v-if="!modelLoading">
@@ -35,13 +49,6 @@
       <div class="canvas-container">
         <canvas id="input-canvas" width="224" height="224"></canvas>
       </div>
-    </div>
-    <div class="column is-2 controls-column">
-      <mdl-switch
-        :checked.sync="useGpu"
-        :disabled="modelLoading || modelRunning || !hasWebgl"
-        @click="toggleGpu"
-      >Use GPU</mdl-switch>
     </div>
     <div class="column output-column">
       <div class="output">
@@ -59,8 +66,8 @@
     </div>
   </div>
   <div class="architecture-container" v-if="!modelLoading">
-    <div v-for="row in architectureDiagramRows" class="layers-row columns">
-      <div v-for="layer in row" class="column">
+    <div v-for="row in architectureDiagramRows" class="layers-row">
+      <div v-for="layer in row" class="layer-column">
         <div
           v-if="layer.className"
           class="layer"

@@ -1,166 +1,199 @@
 @import './_variables.css';
 
 .demo.resnet50 {
-  .input-container {
-    margin: 20px;
+  .top-container {
+    margin: 10px;
     position: relative;
-    user-select: none;
+    display: flex;
 
-    .input-label {
-      font-family: $font-3;
-      font-size: 16px;
-      color: $color-2;
-      text-align: left;
-    }
-
-    .image-url {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-start;
-      position: relative;
-
-      span {
-        margin: 0 10px;
+    .input-container {
+      .input-label {
         font-family: $font-3;
         font-size: 16px;
         color: $color-2;
-      }
-    }
-  }
-
-  .column {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .column.input-column {
-    justify-content: flex-end;
-
-    .loading-indicator {
-      display: flex;
-      flex-direction: column;
-      align-self: flex-start;
-
-      .mdl-spinner {
-        margin: 20px;
-        align-self: center;
+        text-align: left;
+        user-select: none;
+        cursor: default;
       }
 
-      .error {
-        color: $color-err;
-        font-size: 14px;
-        font-family: $font-1;
-        margin: 20px;
-      }
-    }
-
-    .canvas-container {
-      display: inline-flex;
-      justify-content: flex-end;
-
-      canvas {
-        background: white;
-      }
-    }
-  }
-
-  .column.controls-column {
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding-top: 20px;
-  }
-
-  .column.output-column {
-    justify-content: flex-start;
-
-    .output {
-      height: 160px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-
-      .output-class {
+      .image-url {
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: center;
-        padding: 6px 0;
+        justify-content: flex-start;
+        position: relative;
 
-        .output-label {
-          text-align: right;
-          width: 200px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          font-family: $font-2;
-          font-size: 18px;
-          color: $color-2;
-          padding: 0 6px;
-          border-right: 2px solid $color-1-lighter;
-        }
-
-        .output-bar {
-          height: 8px;
-          transition: width 0.2s ease-out;
-        }
-
-        .output-value {
-          text-align: left;
-          margin-left: 5px;
-          font-family: $font-2;
-          font-size: 14px;
+        span {
+          margin: 0 10px;
+          font-family: $font-3;
+          font-size: 16px;
           color: $color-2;
         }
       }
+    }
 
-      .output-class.predicted {
-        .output-label {
-          color: $color-1;
-          border-left-color: $color-1;
+    .controls {
+      width: 250px;
+      margin-left: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      & > .mdl-switch {
+        margin-bottom: 5px;
+
+        .mdl-switch__label {
+          font-size: 12px !important;
+        }
+      }
+    }
+  }
+
+  .columns.input-output {
+    max-width: 800px;
+    margin: 0 auto;
+
+    .column {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .column.input-column {
+      position: relative;
+
+      .loading-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        align-self: flex-start;
+
+        .mdl-spinner {
+          margin: 20px;
+          align-self: center;
         }
 
-        .output-value {
-          color: $color-1;
+        .error {
+          color: $color-err;
+          font-size: 14px;
+          font-family: $font-1;
+          margin: 20px;
+        }
+      }
+
+      .canvas-container {
+        display: inline-flex;
+        justify-content: flex-end;
+
+        canvas {
+          background: white;
+        }
+      }
+    }
+
+    .column.output-column {
+      .output {
+        width: 370px;
+        height: 160px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+
+        .output-class {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          padding: 6px 0;
+
+          .output-label {
+            text-align: right;
+            width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: $font-2;
+            font-size: 18px;
+            color: $color-2;
+            padding: 0 6px;
+            border-right: 2px solid $color-1-lighter;
+          }
+
+          .output-bar {
+            height: 8px;
+            transition: width 0.2s ease-out;
+          }
+
+          .output-value {
+            text-align: left;
+            margin-left: 5px;
+            font-family: $font-2;
+            font-size: 14px;
+            color: $color-2;
+          }
+        }
+
+        .output-class.predicted {
+          .output-label {
+            color: $color-1;
+            border-left-color: $color-1;
+          }
+
+          .output-value {
+            color: $color-1;
+          }
         }
       }
     }
   }
 
   .architecture-container {
-    max-width: 800px;
+    width: 800px;
     margin: 0 auto;
     position: relative;
 
     .layers-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 5px;
       position: relative;
       z-index: 1;
 
-      .layer {
-        display: inline-block;
-        background: white;
-        border: 2px solid white;
-        border-radius: 5px;
-        padding: 2px 10px 0px;
+      .layer-column {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-        .layer-class-name {
-          color: $color-1;
-          font-size: 14px;
-          font-weight: bold;
+        .layer {
+          display: inline-block;
+          background: white;
+          border: 2px solid white;
+          border-radius: 5px;
+          padding: 2px 10px 0px;
+
+          .layer-class-name {
+            color: $color-1;
+            font-size: 14px;
+            font-weight: bold;
+          }
+
+          .layer-details {
+            color: #999999;
+            font-size: 12px;
+            font-weight: bold;
+          }
         }
 
-        .layer-details {
-          color: #999999;
-          font-size: 12px;
-          font-weight: bold;
+        .layer.has-result {
+          border-color: $color-1;
         }
-      }
-
-      .layer.has-result {
-        border-color: $color-1;
       }
     }
 
