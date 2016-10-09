@@ -39,6 +39,20 @@ export default class Layer {
   }
 
   /**
+   * Toggle GPU mode on/off
+   * weblas must be available
+   * @param {boolean} mode - on/off
+   */
+  toggleGpu (mode) {
+    const newMode = typeof mode === 'undefined' ? !this._useWeblas : mode
+    if (newMode && weblas) {
+      this._useWeblas = true
+    } else {
+      this._useWeblas = false
+    }
+  }
+
+  /**
    * Method for layer computational logic
    * @param {Tensor} x
    * @returns {Tensor} x

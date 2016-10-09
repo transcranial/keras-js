@@ -119,7 +119,7 @@ export const ResNet50 = Vue.extend({
   methods: {
 
     toggleGpu: function () {
-      this.model.gpu = !this.useGpu
+      this.model.toggleGpu(!this.useGpu)
     },
 
     imageURLInputChanged: function (e) {

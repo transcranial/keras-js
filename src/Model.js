@@ -288,6 +288,22 @@ export default class Model {
   }
 
   /**
+   * Toggle GPU mode on/off
+   * Iterate through all layers and set `gpu` attribute
+   * @param {boolean} mode - on/off
+   */
+  toggleGpu (mode) {
+    if (typeof mode === 'undefined') {
+      this.gpu = !this.gpu
+    } else {
+      this.gpu = mode
+    }
+    for (let layer of this.modelLayersMap.values()) {
+      layer.toggleGpu(this.gpu)
+    }
+  }
+
+  /**
    * Async function for recursively traversing the DAG
    * Graph object is stored in `this.modelDAG`, keyed by layer name.
    * Layers are retrieved from Map object `this.modelLayersMap`.

@@ -204,6 +204,9 @@ export default class Convolution2D extends Layer {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
 
+    let logging = false
+    if (['conv1', 'res2c_branch2a', 'res4e_branch2b', 'res3d_branch2b', 'res2b_branch2a', 'res4d_branch2c', 'res3c_branch2c'].includes(this.name)) logging = true
+
     this._calcOutputShape(x)
     this._padInput(x)
 
@@ -213,7 +216,7 @@ export default class Convolution2D extends Layer {
       imColsMat.createWeblasTensor()
     }
     let endTime = performance.now()
-    if (this.name === 'conv1') console.log('imColsMat', endTime - startTime)
+    if (logging) console.log(this.name, 'imColsMat', endTime - startTime)
 
     startTime = performance.now()
     const nbFilter = this.kernelShape[0]
@@ -239,7 +242,7 @@ export default class Convolution2D extends Layer {
       gemm(matMul.tensor, imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
     }
     endTime = performance.now()
-    if (this.name === 'conv1') console.log('gemm', endTime - startTime)
+    if (logging) console.log(this.name, 'gemm', endTime - startTime)
 
     startTime = performance.now()
     let output = new Tensor([], this.outputShape)
@@ -252,12 +255,10 @@ export default class Convolution2D extends Layer {
     }
     x.tensor = output.tensor
     endTime = performance.now()
-    if (this.name === 'conv1') console.log('createOutput', endTime - startTime)
+    if (logging) console.log(this.name, 'nbFilter', nbFilter)
+    if (logging) console.log(this.name, 'createOutput', endTime - startTime)
 
-    startTime = performance.now()
     this.activation(x)
-    endTime = performance.now()
-    if (this.name === 'conv1') console.log('activation', endTime - startTime)
 
     // convert back to th ordering if necessary
     if (this.dimOrdering === 'th') {

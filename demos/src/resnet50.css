@@ -81,8 +81,6 @@
       flex-direction: column;
       align-items: flex-start;
       justify-content: center;
-      user-select: none;
-      cursor: default;
 
       .output-class {
         display: flex;
