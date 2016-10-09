@@ -9,8 +9,6 @@ import values from 'lodash/values'
 import sum from 'lodash/sum'
 import isEqual from 'lodash/isEqual'
 import every from 'lodash/every'
-import reverse from 'lodash/reverse'
-import sortBy from 'lodash/sortBy'
 import * as layers from './layers'
 import Tensor from './Tensor'
 
@@ -31,7 +29,8 @@ export default class Model {
     const {
       filepaths = {},
       headers = {},
-      gpu = false
+      gpu = false,
+      layerCallPauses = false
     } = config
 
     if (!filepaths.model || !filepaths.weights || !filepaths.metadata) {
@@ -49,6 +48,8 @@ export default class Model {
 
     // flag to enable GPU where possible
     this.gpu = gpu
+    // flag to enable 0 ms pauses after layer computation calls
+    this.layerCallPauses = layerCallPauses
 
     this.data = {
       // object representing the model architecture configuration,
@@ -336,7 +337,7 @@ export default class Model {
         if (!every(inboundLayers.map(layer => layer.hasResult))) {
           return false
         }
-        const startTime = performance.now()
+
         if (layerClass === 'Merge') {
           currentLayer.result = currentLayer.call(inboundLayers.map(layer => {
             return new Tensor(layer.result.tensor.data, layer.result.tensor.shape)
@@ -348,21 +349,19 @@ export default class Model {
           const prevLayerResult = inboundLayers[0].result
           currentLayer.result = currentLayer.call(new Tensor(prevLayerResult.tensor.data, prevLayerResult.tensor.shape))
         }
-        const endTime = performance.now()
         currentLayer.hasResult = true
         currentLayer.visited = true
         this.layersWithResults.push(currentLayer.name)
-        this.layerTimes.push([currentLayer.name, endTime - startTime])
 
-        // temporarily pause 0 ms
-        // useful for allowing DOM operations and other simultaneously running functions on the main thread
-        await Promise.delay(0)
+        if (this.layerCallPauses) {
+          // temporarily pause 0 ms
+          // useful for allowing DOM operations and other simultaneously running functions on the main thread
+          await Promise.delay(0)
+        }
       }
       await this.traverseDAG(outbound)
     } else {
-      for (let node of nodes) {
-        await this.traverseDAG([node])
-      }
+      await Promise.all(nodes.map(node => this.traverseDAG([node])))
     }
   }
 
@@ -404,10 +403,7 @@ export default class Model {
     })
 
     // start traversing DAG at input
-    this.layerTimes = []
     await this.traverseDAG(inputNames)
-
-    console.log(JSON.stringify(reverse(sortBy(this.layerTimes, l => l[1]))))
 
     // outputs are layers with no outbound nodes
     const modelClass = this.data.model.class_name
