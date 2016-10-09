@@ -9,6 +9,8 @@ import values from 'lodash/values'
 import sum from 'lodash/sum'
 import isEqual from 'lodash/isEqual'
 import every from 'lodash/every'
+import reverse from 'lodash/reverse'
+import sortBy from 'lodash/sortBy'
 import * as layers from './layers'
 import Tensor from './Tensor'
 
@@ -224,16 +226,17 @@ export default class Model {
           inbound: [],
           outbound: []
         }
-        this.inputTensors[inputName] = new Tensor([], inputShape, { gpu: this.gpu })
+        this.inputTensors[inputName] = new Tensor([], inputShape)
       } else if (modelClass === 'Model' && layerClass === 'InputLayer') {
         const inputShape = layerConfig.batch_input_shape.slice(1)
-        this.inputTensors[layerConfig.name] = new Tensor([], inputShape, { gpu: this.gpu })
+        this.inputTensors[layerConfig.name] = new Tensor([], inputShape)
       }
 
-      const attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
+      let attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
       if ('activation' in attrs) {
         attrs.activation = camelCase(attrs.activation)
       }
+      attrs.gpu = this.gpu
       const layer = new layers[layerClass](attrs)
 
       // layer weights
@@ -317,23 +320,23 @@ export default class Model {
         if (!every(inboundLayers.map(layer => layer.hasResult))) {
           return false
         }
-        // const startTime = performance.now()
+        const startTime = performance.now()
         if (layerClass === 'Merge') {
           currentLayer.result = currentLayer.call(inboundLayers.map(layer => {
-            return new Tensor(layer.result.tensor.data, layer.result.tensor.shape, { gpu: this.gpu })
+            return new Tensor(layer.result.tensor.data, layer.result.tensor.shape)
           }))
         } else {
           if (inboundLayers.length !== 1) {
             throw new Error(`Layer name ${currentLayer.name} has ${inboundLayers.length} inbound nodes, but is not a Merge layer.`)
           }
           const prevLayerResult = inboundLayers[0].result
-          currentLayer.result = currentLayer.call(new Tensor(prevLayerResult.tensor.data, prevLayerResult.tensor.shape, { gpu: this.gpu }))
+          currentLayer.result = currentLayer.call(new Tensor(prevLayerResult.tensor.data, prevLayerResult.tensor.shape))
         }
-        // const endTime = performance.now()
+        const endTime = performance.now()
         currentLayer.hasResult = true
         currentLayer.visited = true
         this.layersWithResults.push(currentLayer.name)
-        // this.layerTimes.push([currentLayer.name, endTime - startTime])
+        this.layerTimes.push([currentLayer.name, endTime - startTime])
 
         // temporarily pause 0 ms
         // useful for allowing DOM operations and other simultaneously running functions on the main thread
@@ -387,6 +390,8 @@ export default class Model {
     // start traversing DAG at input
     this.layerTimes = []
     await this.traverseDAG(inputNames)
+
+    console.log(JSON.stringify(reverse(sortBy(this.layerTimes, l => l[1]))))
 
     // outputs are layers with no outbound nodes
     const modelClass = this.data.model.class_name
