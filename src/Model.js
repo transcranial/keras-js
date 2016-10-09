@@ -317,7 +317,7 @@ export default class Model {
         if (!every(inboundLayers.map(layer => layer.hasResult))) {
           return false
         }
-
+        // const startTime = performance.now()
         if (layerClass === 'Merge') {
           currentLayer.result = currentLayer.call(inboundLayers.map(layer => {
             return new Tensor(layer.result.tensor.data, layer.result.tensor.shape, { gpu: this.gpu })
@@ -329,9 +329,14 @@ export default class Model {
           const prevLayerResult = inboundLayers[0].result
           currentLayer.result = currentLayer.call(new Tensor(prevLayerResult.tensor.data, prevLayerResult.tensor.shape, { gpu: this.gpu }))
         }
+        // const endTime = performance.now()
         currentLayer.hasResult = true
         currentLayer.visited = true
         this.layersWithResults.push(currentLayer.name)
+        // this.layerTimes.push([currentLayer.name, endTime - startTime])
+
+        // temporarily pause 0 ms
+        // useful for allowing DOM operations and other simultaneously running functions on the main thread
         await Promise.delay(0)
       }
       await this.traverseDAG(outbound)
@@ -364,22 +369,23 @@ export default class Model {
     }
 
     // reset hasResult and visited flags in all layers
+    this.layersWithResults = []
     for (let layer of this.modelLayersMap.values()) {
       layer.hasResult = false
       layer.visited = false
     }
-    this.layersWithResults = []
 
     // load data to input tensors
     inputNames.forEach(inputName => {
       let inputLayer = this.modelLayersMap.get(inputName)
-      this.inputTensors[inputName] = new Tensor(inputData[inputName], inputLayer.shape, { gpu: this.gpu })
+      this.inputTensors[inputName].replaceTensorData(inputData[inputName])
       inputLayer.result = inputLayer.call(this.inputTensors[inputName])
       inputLayer.hasResult = true
       inputLayer.visited = true
     })
 
     // start traversing DAG at input
+    this.layerTimes = []
     await this.traverseDAG(inputNames)
 
     // outputs are layers with no outbound nodes
