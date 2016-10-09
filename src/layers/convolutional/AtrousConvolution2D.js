@@ -83,7 +83,9 @@ export default class AtrousConvolution2D extends Convolution2D {
     const nbRowDilated = nbRow + (nbRow - 1) * (this.atrousRate[0] - 1)
     const nbColDilated = nbCol + (nbCol - 1) * (this.atrousRate[1] - 1)
 
-    const imColsMat = new Tensor([], [nbPatches, patchLen])
+    if (!this._imColsMat) {
+      this._imColsMat = new Tensor([], [nbPatches, patchLen])
+    }
 
     let patch = new Tensor([], [nbRow, nbCol, inputChannels])
     let patchRaveled = new Tensor([], [patchLen])
@@ -98,11 +100,13 @@ export default class AtrousConvolution2D extends Convolution2D {
             .step(this.atrousRate[0], this.atrousRate[1], 1)
         )
         patchRaveled.replaceTensorData(patch.tensor.data)
-        ops.assign(imColsMat.tensor.pick(n, null), patchRaveled.tensor)
+        ops.assign(this._imColsMat.tensor.pick(n, null), patchRaveled.tensor)
         n += 1
       }
     }
-
-    return imColsMat
+    if (this._useWeblas) {
+      this._imColsMat.createWeblasTensor()
+    }
+    return this._imColsMat
   }
 }

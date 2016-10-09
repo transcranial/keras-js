@@ -171,7 +171,20 @@ export default class Convolution3D extends Layer {
     const nbPatches = outputDim1 * outputDim2 * outputDim3
     const patchLen = kernelDim1 * kernelDim2 * kernelDim3 * inputChannels
 
-    const volColsMat = new Tensor([], [nbPatches, patchLen])
+    if (!this._volColsMat) {
+      this._volColsMat = new Tensor([], [nbPatches, patchLen])
+    }
+
+    if (
+      kernelDim1 === 1 && kernelDim2 === 1 && kernelDim3 === 1 &&
+      this.subsample[0] === 1 && this.subsample[1] === 1 && this.subsample[2] === 1
+    ) {
+      this._volColsMat.replaceTensorData(x.tensor.data)
+      if (this._useWeblas) {
+        this._volColsMat.createWeblasTensor()
+      }
+      return this._volColsMat
+    }
 
     let patch = new Tensor([], [kernelDim1, kernelDim2, kernelDim3, inputChannels])
     let patchRaveled = new Tensor([], [patchLen])
@@ -181,13 +194,15 @@ export default class Convolution3D extends Layer {
         for (let k = 0, limit = inputDim3 - kernelDim3; k <= limit; k += this.subsample[2]) {
           ops.assign(patch.tensor, x.tensor.hi(i + kernelDim1, j + kernelDim2, k + kernelDim3, inputChannels).lo(i, j, k, 0))
           patchRaveled.replaceTensorData(patch.tensor.data)
-          ops.assign(volColsMat.tensor.pick(n, null), patchRaveled.tensor)
+          ops.assign(this._volColsMat.tensor.pick(n, null), patchRaveled.tensor)
           n += 1
         }
       }
     }
-
-    return volColsMat
+    if (this._useWeblas) {
+      this._volColsMat.createWeblasTensor()
+    }
+    return this._volColsMat
   }
 
   /**
@@ -226,10 +241,7 @@ export default class Convolution3D extends Layer {
     this._calcOutputShape(x)
     this._padInput(x)
 
-    const volColsMat = this._vol2col(x)
-    if (this._useWeblas) {
-      volColsMat.createWeblasTensor()
-    }
+    this._vol2col(x)
 
     const nbFilter = this.kernelShape[0]
     const outputDim1 = this.outputShape[0]
@@ -241,18 +253,16 @@ export default class Convolution3D extends Layer {
     if (this._useWeblas) {
       const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
       matMul.tensor.data = weblas.pipeline.sgemm(
-        1, volColsMat.weblasTensor, this._wRowsMat.weblasTensor,
+        1, this._volColsMat.weblasTensor, this._wRowsMat.weblasTensor,
         1, bias
       ).transfer()
-      volColsMat.weblasTensor.delete()
-      delete volColsMat.weblasTensor
     } else {
       if (this.bias) {
         for (let n = 0; n < nbFilter; n++) {
           ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
         }
       }
-      gemm(matMul.tensor, volColsMat.tensor, this._wRowsMat.tensor, 1, 1)
+      gemm(matMul.tensor, this._volColsMat.tensor, this._wRowsMat.tensor, 1, 1)
     }
 
     let output = new Tensor([], this.outputShape)
