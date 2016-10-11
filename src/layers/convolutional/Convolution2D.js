@@ -228,12 +228,28 @@ export default class Convolution2D extends Layer {
     const matMul = new Tensor([], [nbPatches, nbFilter])
 
     if (this._useWeblas) {
+      // GPU
       const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
-      matMul.tensor.data = weblas.pipeline.sgemm(
-        1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor,
-        1, bias
-      ).transfer()
+      if (this._imColsMat.weblasTensorsSplit) {
+        // split matrix multiply if this._imColsMat dimension > webgl.MAX_TEXTURE_SIZE
+        let offset = 0
+        this._imColsMat.weblasTensorsSplit.forEach(imColsMatSplit => {
+          const matMulSplitData = weblas.pipeline.sgemm(
+            1, imColsMatSplit, this._wRowsMat.weblasTensor,
+            1, bias
+          ).transfer()
+          matMul.tensor.data.set(matMulSplitData, offset)
+          offset += matMulSplitData.length
+        })
+      } else {
+        // normal matrix multiply
+        matMul.tensor.data = weblas.pipeline.sgemm(
+          1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor,
+          1, bias
+        ).transfer()
+      }
     } else {
+      // CPU
       if (this.bias) {
         for (let n = 0; n < nbFilter; n++) {
           ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
