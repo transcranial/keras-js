@@ -7,12 +7,14 @@ import { Home } from './home'
 import { MnistCnn } from './mnist-cnn'
 import { MnistVae } from './mnist-vae'
 import { ResNet50 } from './resnet50'
+import { InceptionV3 } from './inception-v3'
 
 Vue.component('menu', Menu)
 Vue.component('home', Home)
 Vue.component('mnist-cnn', MnistCnn)
 Vue.component('mnist-vae', MnistVae)
 Vue.component('resnet50', ResNet50)
+Vue.component('inception-v3', InceptionV3)
 
 Vue.use(VueMdl.default)
 
@@ -44,7 +46,8 @@ function matchRoute () {
   const routes = [
     'mnist-cnn',
     'mnist-vae',
-    'resnet50'
+    'resnet50',
+    'inception-v3'
   ]
 
   const { hash } = window.location

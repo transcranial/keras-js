@@ -44,6 +44,42 @@ body {
     border-radius: 10px;
   }
 
+  .info-panel {
+    width: 350px;
+    border-radius: 5px;
+    background: white;
+    color: $color-3;
+    padding: 10px;
+    margin: 20px;
+    box-shadow: 5px 5px #CCCCCC;
+
+    .info-panel-text {
+      margin-bottom: 10px;
+
+      a {
+        color: $color-1;
+        transition: color 0.2s ease-in;
+
+        &:hover {
+          color: $color-1-light;
+        }
+      }
+    }
+
+    .info-panel-close {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      color: $color-2;
+      transition: color 0.2s ease-in;
+
+      &:hover {
+        color: $color-1-lighter;
+        cursor: pointer;
+      }
+    }
+  }
+
   /****************************************************************/
   /* MDL overrides */
 
@@ -100,7 +136,7 @@ body {
   .mdl-menu {
     .mdl-menu__item {
       font-family: $font-2;
-      font-size: 14px;;
+      font-size: 14px;
       color: $color-2;
 
       &:hover {

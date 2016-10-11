@@ -20,7 +20,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn_conv1',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 2,
     col: 0
   },
@@ -52,7 +52,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn2a_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 6,
     col: 0
   },
@@ -73,7 +73,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn2a_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 9,
     col: 0
   },
@@ -101,14 +101,14 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn2a_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 12,
     col: 0
   },
   {
     name: 'bn2a_branch1',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 6,
     col: 1
   },
@@ -140,7 +140,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn2b_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 16,
     col: 0
   },
@@ -161,7 +161,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn2b_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 19,
     col: 0
   },
@@ -182,7 +182,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn2b_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 22,
     col: 0
   },
@@ -214,7 +214,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn2c_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 26,
     col: 0
   },
@@ -235,7 +235,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn2c_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 29,
     col: 0
   },
@@ -256,7 +256,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn2c_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 32,
     col: 0
   },
@@ -288,7 +288,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn3a_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 36,
     col: 0
   },
@@ -309,7 +309,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn3a_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 39,
     col: 0
   },
@@ -337,14 +337,14 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn3a_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 42,
     col: 0
   },
   {
     name: 'bn3a_branch1',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 36,
     col: 1
   },
@@ -376,7 +376,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn3b_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 46,
     col: 0
   },
@@ -397,7 +397,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn3b_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 49,
     col: 0
   },
@@ -418,7 +418,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn3b_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 52,
     col: 0
   },
@@ -450,7 +450,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn3c_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 56,
     col: 0
   },
@@ -471,7 +471,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn3c_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 59,
     col: 0
   },
@@ -492,7 +492,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn3c_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 62,
     col: 0
   },
@@ -524,7 +524,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn3d_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 66,
     col: 0
   },
@@ -545,7 +545,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn3d_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 69,
     col: 0
   },
@@ -566,7 +566,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn3d_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 72,
     col: 0
   },
@@ -598,7 +598,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4a_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 76,
     col: 0
   },
@@ -619,7 +619,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4a_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 79,
     col: 0
   },
@@ -647,14 +647,14 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4a_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 82,
     col: 0
   },
   {
     name: 'bn4a_branch1',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 76,
     col: 1
   },
@@ -686,7 +686,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4b_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 86,
     col: 0
   },
@@ -707,7 +707,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4b_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 89,
     col: 0
   },
@@ -728,7 +728,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4b_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 92,
     col: 0
   },
@@ -760,7 +760,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4c_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 96,
     col: 0
   },
@@ -781,7 +781,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4c_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 99,
     col: 0
   },
@@ -802,7 +802,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4c_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 102,
     col: 0
   },
@@ -834,7 +834,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4d_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 106,
     col: 0
   },
@@ -855,7 +855,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4d_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 109,
     col: 0
   },
@@ -876,7 +876,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4d_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 112,
     col: 0
   },
@@ -908,7 +908,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4e_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 116,
     col: 0
   },
@@ -929,7 +929,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4e_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 119,
     col: 0
   },
@@ -950,7 +950,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4e_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 122,
     col: 0
   },
@@ -982,7 +982,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4f_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 126,
     col: 0
   },
@@ -1003,7 +1003,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4f_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 129,
     col: 0
   },
@@ -1024,7 +1024,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn4f_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 132,
     col: 0
   },
@@ -1056,7 +1056,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn5a_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 136,
     col: 0
   },
@@ -1077,7 +1077,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn5a_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 139,
     col: 0
   },
@@ -1105,14 +1105,14 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn5a_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 142,
     col: 0
   },
   {
     name: 'bn5a_branch1',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 136,
     col: 1
   },
@@ -1144,7 +1144,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn5b_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 146,
     col: 0
   },
@@ -1165,7 +1165,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn5b_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 149,
     col: 0
   },
@@ -1186,7 +1186,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn5b_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 152,
     col: 0
   },
@@ -1218,7 +1218,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn5c_branch2a',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 156,
     col: 0
   },
@@ -1239,7 +1239,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn5c_branch2b',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 159,
     col: 0
   },
@@ -1260,7 +1260,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'bn5c_branch2c',
     className: 'BatchNormalization',
-    details: 'feature-wise normalization on channel axis',
+    details: 'channel axis features',
     row: 162,
     col: 0
   },
@@ -1285,7 +1285,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'avg_pool',
     className: 'AveragePooling2D',
-    details: '7x7 pool size',
+    details: '7x7 pool size, 7x7 strides, border mode valid',
     row: 165,
     col: 1
   },

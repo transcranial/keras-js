@@ -66,7 +66,7 @@
       .loading-indicator {
         position: absolute;
         top: 0;
-        left: 0;
+        left: -10px;
         display: flex;
         flex-direction: column;
         align-self: flex-start;
@@ -152,7 +152,8 @@
   }
 
   .architecture-container {
-    width: 800px;
+    min-width: 700px;
+    max-width: 900px;
     margin: 0 auto;
     position: relative;
 
@@ -170,6 +171,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 5px;
 
         .layer {
           display: inline-block;
