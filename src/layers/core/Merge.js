@@ -6,6 +6,7 @@ import unsqueeze from 'ndarray-unsqueeze'
 import concatFirstAxis from 'ndarray-concat-rows'
 import isEqual from 'lodash/isEqual'
 import isInteger from 'lodash/isInteger'
+import range from 'lodash/range'
 
 /**
  * Merge layer class
@@ -34,8 +35,14 @@ export default class Merge extends Layer {
       throw new Error(`${this.name} [Merge layer] ${mode} not available.`)
     }
 
-    this.concatAxis = concatAxis
-    this.dotAxes = dotAxes
+    // no mini-batch axis here, so we subtract 1 if given axis > 0
+    this.concatAxis = concatAxis <= 0
+      ? concatAxis
+      : concatAxis - 1
+    this.dotAxes = dotAxes <= 0
+      ? dotAxes
+      : dotAxes - 1
+
     this.outputShape = outputShape
     this.outputMask = outputMask
   }
@@ -67,8 +74,12 @@ export default class Merge extends Layer {
         throw new Error(`${this.name} [Merge layer] Dimensions incompatibility using dot mode.`)
       }
     } else if (this.mode === 'concat') {
-      const nonConcatShapes = shapes.slice()
-      nonConcatShapes.forEach(shape => shape.splice(this.concatAxis, 1))
+      let nonConcatShapes = shapes.slice()
+      let _concatAxis = this.concatAxis < 0 ? (nonConcatShapes[0].length + this.concatAxis) : this.concatAxis
+      if (this.concatAxis === 0) _concatAxis = 0
+      range(nonConcatShapes.length).forEach(i => {
+        nonConcatShapes[i].splice(_concatAxis, 1)
+      })
       if (!nonConcatShapes.every(shape => isEqual(shape, nonConcatShapes[0]))) {
         throw new Error(`${this.name} [Merge layer] In concat mode, all shapes must be the same except along the concat axis.`)
       }
@@ -94,9 +105,8 @@ export default class Merge extends Layer {
       output = new Tensor([], outputShape)
     } else if (this.mode === 'concat') {
       outputShape = inputs[0].tensor.shape.slice()
-      const _concatAxis = this.concatAxis < 0
-        ? outputShape.length + this.concatAxis
-        : this.concatAxis - 1
+      let _concatAxis = this.concatAxis < 0 ? (outputShape.length + this.concatAxis) : this.concatAxis
+      if (this.concatAxis === 0) _concatAxis = 0
       inputs.slice(1, inputs.length).forEach(x => {
         const d = x.tensor.shape.slice()[_concatAxis]
         outputShape[_concatAxis] += d
@@ -134,9 +144,8 @@ export default class Merge extends Layer {
         ops.maxeq(output.tensor, inputs[i].tensor)
       }
     } else if (this.mode === 'concat') {
-      const _concatAxis = this.concatAxis < 0
-        ? inputs[0].tensor.shape.length + this.concatAxis
-        : this.concatAxis - 1
+      let _concatAxis = this.concatAxis < 0 ? (inputs[0].tensor.shape.length + this.concatAxis) : this.concatAxis
+      if (this.concatAxis === 0) _concatAxis = 0
       if (_concatAxis === 0) {
         concatFirstAxis(output.tensor, inputs.map(x => x.tensor))
       } else {
