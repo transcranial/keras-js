@@ -185,9 +185,9 @@ export const ResNet50 = Vue.extend({
       // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
       let dataTensor = ndarray(new Float32Array(data), [width, height, 4])
       let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3])
-      ops.subseq(dataTensor.pick(null, null, 0), 103.939)
+      ops.subseq(dataTensor.pick(null, null, 2), 103.939)
       ops.subseq(dataTensor.pick(null, null, 1), 116.779)
-      ops.subseq(dataTensor.pick(null, null, 2), 123.68)
+      ops.subseq(dataTensor.pick(null, null, 0), 123.68)
       ops.assign(dataProcessedTensor.pick(null, null, 0), dataTensor.pick(null, null, 2))
       ops.assign(dataProcessedTensor.pick(null, null, 1), dataTensor.pick(null, null, 1))
       ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 0))

@@ -61,7 +61,7 @@
     "postcss-loader": "^0.13.0",
     "precss": "^1.4.0",
     "raw-loader": "^0.5.1",
-    "standard": "^8.3.0",
+    "standard": "^8.4.0",
     "style-loader": "^0.13.1",
     "webpack": "^2.1.0-beta.25"
   },
