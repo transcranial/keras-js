@@ -52,6 +52,22 @@ describe('activations', function () {
       assert.deepEqual(t.tensor.shape, shapeExpected)
       assert.isTrue(approxEquals(t.tensor, dataExpected))
     })
+
+    it('[activations.softmax.2] should work for very large values', function () {
+      const key = 'activations.softmax.2'
+      console.log(`\n%c[${key}] 1D, large values`, styles.h3)
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+      const startTime = performance.now()
+      activations.softmax(t)
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
+      const shapeExpected = TEST_DATA[key].expected.shape
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
   })
 
   /*********************************************************
