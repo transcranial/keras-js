@@ -55,12 +55,17 @@
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        color: $color-2;
-        transition: color 0.2s ease-in;
 
-        &:hover {
-          color: $color-1-lighter;
-          cursor: pointer;
+        .input-clear-button {
+          display: flex;
+          align-items: center;
+          color: $color-2;
+          transition: color 0.2s ease-in;
+
+          &:hover {
+            color: $color-1-lighter;
+            cursor: pointer;
+          }
         }
       }
     }

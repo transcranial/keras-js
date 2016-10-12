@@ -31,6 +31,12 @@
         <span class="menu-item-subheading">ImageNet</span>
       </a>
     </li>
+    <li v-bind:class="{ 'active': currentView === 'imdb-bidirectional-lstm' }">
+      <a href="#/imdb-bidirectional-lstm">
+        <span class="menu-item-heading">Bidirectional LSTM</span>
+        <span class="menu-item-subheading">IMDB</span>
+      </a>
+    </li>
   </ul>
   <p class="menu-label">
     Links
