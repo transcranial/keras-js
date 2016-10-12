@@ -233,18 +233,49 @@ export default class Model {
         this.inputTensors[layerConfig.name] = new Tensor([], inputShape)
       }
 
-      let attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
-      if ('activation' in attrs) {
-        attrs.activation = camelCase(attrs.activation)
+      let layer
+      if (layerClass === 'Bidirectional' || layerClass === 'TimeDistributed') {
+        // create wrapper layers
+        let attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
+        const wrappedLayerConfig = layerConfig.layer.config
+        const wrappedLayerClass = layerConfig.layer.class_name
+        let wrappedLayerAttrs = mapKeys(wrappedLayerConfig, (v, k) => camelCase(k))
+        if ('activation' in wrappedLayerAttrs) {
+          wrappedLayerAttrs.activation = camelCase(wrappedLayerAttrs.activation)
+        }
+        wrappedLayerAttrs.gpu = this.gpu
+
+        layer = new layers[layerClass](Object.assign(attrs, {
+          layer: new layers[wrappedLayerClass](wrappedLayerAttrs)
+        }))
+      } else {
+        // create regular layers
+        let attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
+        if ('activation' in attrs) {
+          attrs.activation = camelCase(attrs.activation)
+        }
+        attrs.gpu = this.gpu
+
+        layer = new layers[layerClass](attrs)
       }
-      attrs.gpu = this.gpu
-      const layer = new layers[layerClass](attrs)
 
       // layer weights
-      if (layer.params && layer.params.length) {
-        const weights = layer.params.map(param => {
+      let weightNames = []
+      if (layerClass === 'Bidirectional') {
+        const forwardName = layerConfig.layer.config.name
+        const backwardName = forwardName.replace(/forward/, 'backward')
+        const forwardWeightNames = layer.forwardLayer.params.map(param => `${forwardName}_${param}`)
+        const backwardWeightNames = layer.backwardLayer.params.map(param => `${backwardName}_${param}`)
+        weightNames = forwardWeightNames.concat(backwardWeightNames)
+      } else if (layerClass === 'TimeDistributed') {
+        weightNames = layer.layer.params.map(param => `${layerConfig.layer.config.name}_${param}`)
+      } else {
+        weightNames = layer.params.map(param => `${layerConfig.name}_${param}`)
+      }
+      if (weightNames && weightNames.length) {
+        const weights = weightNames.map(weightName => {
           const paramMetadata = find(this.data.metadata, meta => {
-            const weightRE = new RegExp(`^${layerConfig.name}_${param}`)
+            const weightRE = new RegExp(`^${weightName}`)
             return meta.layer_name === layerConfig.name &&
               weightRE.test(meta.weight_name)
           })
