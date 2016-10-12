@@ -1,0 +1,133 @@
+@import './_variables.css';
+
+.demo.imdb-bidirectional-lstm {
+  .column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .column.input-column {
+    justify-content: center;
+
+    .input-container {
+      text-align: right;
+      margin: 5px 5px 5px 20px;
+      position: relative;
+
+      .input-label {
+        font-family: $font-3;
+        font-size: 18px;
+        color: $color-2;
+        text-align: left;
+      }
+
+      .mdl-textfield {
+        width: 550px;
+
+        textarea {
+          color: $color-3;
+          font-family: $font-1;
+          font-size: 18px;
+          padding: 10px;
+        }
+      }
+
+      .input-clear {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        color: $color-2;
+        transition: color 0.2s ease-in;
+
+        &:hover {
+          color: $color-1-lighter;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .column.output-column {
+    justify-content: center;
+
+    .output {
+      height: 160px;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: center;
+      user-select: none;
+      cursor: default;
+
+      .output-class {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        border-bottom: 2px solid $color-1-lighter;
+
+        .output-label {
+          font-family: $font-2;
+          font-size: 1.5rem;
+          color: $color-2;
+        }
+
+        .output-bar {
+          width: 8px;
+          background: #EEEEEE;
+          transition: height 0.2s ease-out;
+        }
+      }
+
+      .output-class.predicted {
+        border-bottom-color: $color-1;
+
+        .output-label {
+          color: $color-1;
+        }
+      }
+    }
+  }
+
+  .layer-results-container {
+    position: relative;
+
+    .layer-result {
+      position: relative;
+      z-index: 1;
+      margin: 30px 20px;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      overflow-x: auto;
+
+      .layer-result-heading {
+        font-size: 1rem;
+        color: #999999;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        font-size: 12px;
+
+        span.layer-class {
+          color: $color-1;
+          font-size: 14px;
+          font-weight: bold;
+        }
+      }
+
+      .layer-result-canvas-container {
+        display: inline-flex;
+        flex-wrap: wrap;
+        background: white;
+
+        canvas {
+          border: 1px solid lightgray;
+          margin: 1px;
+        }
+      }
+    }
+  }
+}

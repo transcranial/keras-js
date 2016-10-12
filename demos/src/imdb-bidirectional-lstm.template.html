@@ -1,0 +1,63 @@
+<div class="demo imdb-bidirectional-lstm">
+  <div class="title">
+    <span>Bidirectional LSTM for IMDB sentiment classification</span>
+    <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
+  </div>
+  <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
+    Loading...{{ loadingProgress }}%
+  </div>
+  <div class="info-panel">
+    <div class="info-panel-text">
+
+    </div>
+    <div class="info-panel-close">
+      <div class="info-panel-close-btn"><i class="material-icons">close</i>CLOSE</div>
+    </div>
+  </div>
+  <div class="columns input-output" v-if="!modelLoading">
+    <div class="column input-column">
+      <div class="input-container">
+        <mdl-textfield
+          floating-label="input text"
+          :value.sync="inputText"
+          spellcheck="false"
+          textarea
+          rows="7"
+          @change="inputChanged"
+        ></mdl-textfield>
+        <div class="input-clear" v-on:click="clear">
+          <i class="material-icons">clear</i>CLEAR
+        </div>
+      </div>
+    </div>
+    <div class="column output-column">
+      <div class="output">
+
+      </div>
+    </div>
+  </div>
+  <div class="layer-results-container" v-if="!modelLoading">
+    <div
+      v-for="layerResult in layerResultImages"
+      class="layer-result"
+    >
+      <div class="layer-result-heading">
+        <span class="layer-class">{{ layerResult.layerClass }}</span>
+        <span> {{ layerDisplayConfig[layerResult.name].heading }}</span>
+      </div>
+      <div class="layer-result-canvas-container">
+        <canvas v-for="image in layerResult.images"
+          id="intermediate-result-{{ $parent.$index }}-{{ $index }}"
+          width="{{ image.width }}"
+          height="{{ image.height }}"
+          style="display:none;"
+        ></canvas>
+        <canvas v-for="image in layerResult.images"
+          id="intermediate-result-{{ $parent.$index }}-{{ $index }}-scaled"
+          width="{{ layerDisplayConfig[layerResult.name].scalingFactor * image.width }}"
+          height="{{ layerDisplayConfig[layerResult.name].scalingFactor * image.height }}"
+        ></canvas>
+      </div>
+    </div>
+  </div>
+</div>
