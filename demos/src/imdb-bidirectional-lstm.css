@@ -28,21 +28,35 @@
         textarea {
           color: $color-3;
           font-family: $font-1;
-          font-size: 18px;
+          font-size: 16px;
           padding: 10px;
         }
       }
 
-      .input-clear {
+      .input-buttons {
         display: flex;
         align-items: center;
-        justify-content: flex-end;
-        color: $color-2;
-        transition: color 0.2s ease-in;
+        justify-content: space-between;
 
-        &:hover {
-          color: $color-1-lighter;
-          cursor: pointer;
+        .input-load-button,
+        .input-clear-button {
+          display: flex;
+          align-items: center;
+          color: $color-2;
+          transition: color 0.2s ease-in;
+
+          .material-icons {
+            margin-right: 5px;
+          }
+
+          &:hover {
+            color: $color-1-lighter;
+            cursor: pointer;
+          }
+        }
+
+        .input-load-button {
+          &:hover { color: $color-1; }
         }
       }
     }
@@ -52,82 +66,98 @@
     justify-content: center;
 
     .output {
-      height: 160px;
       display: flex;
-      flex-direction: row;
-      align-items: flex-end;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
       user-select: none;
       cursor: default;
 
-      .output-class {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 0 6px;
-        border-bottom: 2px solid $color-1-lighter;
+      .output-heading {
+        max-width: 200px;
+        color: $color-2;
+        font-family: $font-2;
+        font-size: 16px;
+        margin: 10px;
 
-        .output-label {
-          font-family: $font-2;
-          font-size: 1.5rem;
-          color: $color-2;
+        span.output-label.positive {
+          color: $color-1;
         }
-
-        .output-bar {
-          width: 8px;
-          background: #EEEEEE;
-          transition: height 0.2s ease-out;
+        span.output-label.negative {
+          color: $color-4;
         }
       }
 
-      .output-class.predicted {
-        border-bottom-color: $color-1;
-
-        .output-label {
-          color: $color-1;
-        }
+      .output-value {
+        transition: color 0.4s ease-in-out;
+        font-family: $font-2;
+        font-size: 42px;
+        margin: 10px;
       }
     }
   }
 
-  .layer-results-container {
+  .architecture-container {
     position: relative;
+    width: 710px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 
-    .layer-result {
-      position: relative;
-      z-index: 1;
-      margin: 30px 20px;
+    .bg-line {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      height: 5px;
+      width: 100%;
       background: white;
-      border-radius: 10px;
-      padding: 20px;
-      overflow-x: auto;
+    }
 
-      .layer-result-heading {
-        font-size: 1rem;
+    .layer {
+      display: inline-block;
+      width: 170px;
+      margin-right: 10px;
+      background: white;
+      border-radius: 5px;
+      padding: 2px 10px 0px;
+      z-index: 1;
+
+      .layer-class-name {
+        color: $color-1;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .layer-details {
         color: #999999;
-        margin-bottom: 10px;
-        display: flex;
-        flex-direction: column;
-        font-size: 12px;
-
-        span.layer-class {
-          color: $color-1;
-          font-size: 14px;
-          font-weight: bold;
-        }
+        font-size: 10px;
+        font-weight: bold;
       }
+    }
 
-      .layer-result-canvas-container {
-        display: inline-flex;
-        flex-wrap: wrap;
-        background: white;
+    .layer:last-child {
+      margin-right: 0;
+    }
+  }
 
-        canvas {
-          border: 1px solid lightgray;
-          margin: 1px;
-        }
-      }
+  .lstm-visualization-container {
+    min-width: 700px;
+    max-width: 900px;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    border: 1px solid $color-2;
+    border-radius: 5px;
+    padding: 10px;
+
+    .lstm-visualization-word {
+      font-family: $font-2;
+      font-size: 14px;
+      color: $color-3;
+      padding: 3px 6px;
     }
   }
 }

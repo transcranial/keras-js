@@ -22,42 +22,41 @@
           :value.sync="inputText"
           spellcheck="false"
           textarea
-          rows="7"
+          rows="10"
           @change="inputChanged"
+          @keyup="inputChanged"
+          @paste="inputChanged"
         ></mdl-textfield>
-        <div class="input-clear" v-on:click="clear">
-          <i class="material-icons">clear</i>CLEAR
+        <div class="input-buttons">
+          <div class="input-load-button" v-on:click="randomSample"><i class="material-icons">add_circle</i>LOAD SAMPLE TEXT</div>
+          <div class="input-clear-button" v-on:click="clear"><i class="material-icons">clear</i>CLEAR</div>
         </div>
       </div>
     </div>
     <div class="column output-column">
       <div class="output">
-
+        <div class="output-heading">Result:</div>
+        <div class="output-value" style="color: {{ outputColor }};">{{ Math.round(output[0] * 100) }}%</div>
+        <div class="output-heading" v-if="isSampleText">Actual label for sample text: <span class="output-label" v-bind:class="sampleTextLabel">{{ sampleTextLabel }}</span></div>
       </div>
     </div>
   </div>
-  <div class="layer-results-container" v-if="!modelLoading">
+  <div class="architecture-container" v-if="!modelLoading">
+    <div class="bg-line"></div>
     <div
-      v-for="layerResult in layerResultImages"
-      class="layer-result"
+      v-for="layer in architectureDiagramLayers"
+      class="layer"
+      :id="layer.name"
     >
-      <div class="layer-result-heading">
-        <span class="layer-class">{{ layerResult.layerClass }}</span>
-        <span> {{ layerDisplayConfig[layerResult.name].heading }}</span>
-      </div>
-      <div class="layer-result-canvas-container">
-        <canvas v-for="image in layerResult.images"
-          id="intermediate-result-{{ $parent.$index }}-{{ $index }}"
-          width="{{ image.width }}"
-          height="{{ image.height }}"
-          style="display:none;"
-        ></canvas>
-        <canvas v-for="image in layerResult.images"
-          id="intermediate-result-{{ $parent.$index }}-{{ $index }}-scaled"
-          width="{{ layerDisplayConfig[layerResult.name].scalingFactor * image.width }}"
-          height="{{ layerDisplayConfig[layerResult.name].scalingFactor * image.height }}"
-        ></canvas>
-      </div>
+      <div class="layer-class-name">{{ layer.className }}</div>
+      <div class="layer-details"> {{ layer.details }}</div>
     </div>
+  </div>
+  <div class="lstm-visualization-container" v-if="!modelLoading && !modelRunning && inputTextParsed.length">
+    <div
+      v-for="word in inputTextParsed"
+      class="lstm-visualization-word"
+      style="background: {{ stepwiseOutputColor[$index] }};"
+    >{{ word }}</div>
   </div>
 </div>

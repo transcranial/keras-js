@@ -1,8 +1,12 @@
 /* global Vue */
 import './imdb-bidirectional-lstm.css'
 
+import axios from 'axios'
 import debounce from 'lodash/debounce'
-import * as utils from './utils'
+import random from 'lodash/random'
+import findIndex from 'lodash/findIndex'
+import ops from 'ndarray-ops'
+import Tensor from '../../src/Tensor'
 
 const MODEL_FILEPATHS_DEV = {
   model: '/demos/data/imdb_bidirectional_lstm/imdb_bidirectional_lstm.json',
@@ -18,8 +22,51 @@ const MODEL_CONFIG = {
   filepaths: (process.env.NODE_ENV === 'production') ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV
 }
 
-const LAYER_DISPLAY_CONFIG = {
+const ADDITIONAL_DATA_FILEPATHS_DEV = {
+  wordIndex: '/demos/data/imdb_bidirectional_lstm/imdb_dataset_word_index_top20000.json',
+  wordDict: '/demos/data/imdb_bidirectional_lstm/imdb_dataset_word_dict_top20000.json',
+  testSamples: '/demos/data/imdb_bidirectional_lstm/imdb_dataset_test.json'
 }
+const ADDITIONAL_DATA_FILEPATHS_PROD = {
+  wordIndex: 'demos/data/imdb_bidirectional_lstm/imdb_dataset_word_index_top20000.json',
+  wordDict: 'demos/data/imdb_bidirectional_lstm/imdb_dataset_word_dict_top20000.json',
+  testSamples: 'demos/data/imdb_bidirectional_lstm/imdb_dataset_test.json'
+}
+const ADDITIONAL_DATA_FILEPATHS = (process.env.NODE_ENV === 'production')
+  ? ADDITIONAL_DATA_FILEPATHS_DEV
+  : ADDITIONAL_DATA_FILEPATHS_PROD
+
+const MAXLEN = 200
+
+// start index, out-of-vocabulary index
+// see https://github.com/fchollet/keras/blob/master/keras/datasets/imdb.py
+const START_WORD_INDEX = 1
+const OOV_WORD_INDEX = 2
+const INDEX_FROM = 3
+
+// network layers
+const ARCHITECTURE_DIAGRAM_LAYERS = [
+  {
+    name: 'embedding_1',
+    className: 'Embedding',
+    details: '200 time steps, dim 20000 -> 64'
+  },
+  {
+    name: 'bidirectional_1',
+    className: 'Bidirectional [LSTM]',
+    details: '200 time steps, dim 64 -> 32, concat merge, tanh activation, hard sigmoid inner activation'
+  },
+  {
+    name: 'dropout_1',
+    className: 'Dropout',
+    details: 'p=0.5 (active during training)'
+  },
+  {
+    name: 'dense_1',
+    className: 'Dense',
+    details: 'output dim 1, sigmoid activation'
+  }
+]
 
 /**
  *
@@ -33,30 +80,52 @@ export const ImdbBidirectionalLstm = Vue.extend({
 
   data: function () {
     return {
-      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)),
+      useGpu: false,
+      model: new KerasJS.Model(Object.assign({ gpu: false }, MODEL_CONFIG)),
       modelLoading: true,
-      input: new Float32Array(200),
+      modelRunning: false,
+      input: new Float32Array(MAXLEN),
       output: new Float32Array(1),
-      layerResultImages: [],
-      layerDisplayConfig: LAYER_DISPLAY_CONFIG,
-      drawing: false,
-      strokes: [],
-      useGpu: this.hasWebgl
+      inputText: '',
+      inputTextParsed: [],
+      stepwiseOutput: [],
+      wordIndex: {},
+      wordDict: {},
+      testSamples: [],
+      isSampleText: false,
+      sampleTextLabel: null,
+      architectureDiagramLayers: ARCHITECTURE_DIAGRAM_LAYERS
     }
   },
 
   computed: {
     loadingProgress: function () {
       return this.model.getLoadingProgress()
+    },
+    outputColor: function () {
+      if (this.output[0] > 0 && this.output[0] < 0.5) {
+        return `rgba(242, 38, 19, ${1 - this.output[0]})`
+      } else if (this.output[0] >= 0.5) {
+        return `rgba(27, 188, 155, ${this.output[0]})`
+      }
+      return '#69707a'
+    },
+    stepwiseOutputColor: function () {
+      return this.stepwiseOutput.map(prob => {
+        if (prob > 0 && prob < 0.5) {
+          return `rgba(242, 38, 19, ${0.5 - prob})`
+        } else if (prob >= 0.5) {
+          return `rgba(27, 188, 155, ${prob - 0.5})`
+        }
+        return 'white'
+      })
     }
   },
 
   ready: function () {
     this.model.ready().then(() => {
       this.modelLoading = false
-      this.$nextTick(function () {
-        this.getIntermediateResults()
-      })
+      this.loadAdditionalData()
     })
   },
 
@@ -67,149 +136,112 @@ export const ImdbBidirectionalLstm = Vue.extend({
     },
 
     clear: function (e) {
-      this.clearIntermediateResults()
-      const ctx = document.getElementById('input-canvas').getContext('2d')
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-      const ctxCenterCrop = document.getElementById('input-canvas-centercrop').getContext('2d')
-      ctxCenterCrop.clearRect(0, 0, ctxCenterCrop.canvas.width, ctxCenterCrop.canvas.height)
-      const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d')
-      ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
-      this.output = new Float32Array(10)
-      this.drawing = false
-      this.strokes = []
+      this.inputText = ''
+      this.inputTextParsed = []
+      this.output = new Float32Array(1)
     },
 
-    activateDraw: function (e) {
-      this.drawing = true
-      this.strokes.push([])
-      let points = this.strokes[this.strokes.length - 1]
-      points.push(utils.getCoordinates(e))
+    loadAdditionalData: function () {
+      this.modelLoading = true
+      const reqs = ['wordIndex', 'wordDict', 'testSamples'].map(key => {
+        return axios.get(ADDITIONAL_DATA_FILEPATHS[key])
+      })
+      axios.all(reqs)
+        .then(axios.spread((wordIndex, wordDict, testSamples) => {
+          this.wordIndex = wordIndex.data
+          this.wordDict = wordDict.data
+          this.testSamples = testSamples.data
+          this.modelLoading = false
+        }))
     },
 
-    draw: function (e) {
-      if (!this.drawing) return
+    randomSample: function () {
+      this.modelRunning = true
+      this.isSampleText = true
 
-      const ctx = document.getElementById('input-canvas').getContext('2d')
+      const randSampleIdx = random(0, this.testSamples.length - 1)
+      const values = this.testSamples[randSampleIdx].values
+      this.sampleTextLabel = this.testSamples[randSampleIdx].label === 0
+        ? 'negative'
+        : 'positive'
 
-      ctx.lineWidth = 20
-      ctx.lineJoin = ctx.lineCap = 'round'
-      ctx.strokeStyle = '#393E46'
-
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-
-      let points = this.strokes[this.strokes.length - 1]
-      points.push(utils.getCoordinates(e))
-
-      // draw individual strokes
-      for (let s = 0, slen = this.strokes.length; s < slen; s++) {
-        points = this.strokes[s]
-
-        let p1 = points[0]
-        let p2 = points[1]
-        ctx.beginPath()
-        ctx.moveTo(...p1)
-
-        // draw points in stroke
-        // quadratic bezier curve
-        for (let i = 1, len = points.length; i < len; i++) {
-          ctx.quadraticCurveTo(...p1, ...utils.getMidpoint(p1, p2))
-          p1 = points[i]
-          p2 = points[i + 1]
+      const words = values.map(idx => {
+        if (idx === 0 || idx === 1) {
+          return ''
+        } else if (idx === 2) {
+          return '<OOV>'
+        } else {
+          return this.wordDict[idx - INDEX_FROM]
         }
-        ctx.lineTo(...p1)
-        ctx.stroke()
-      }
+      })
+
+      this.inputText = words.join(' ').trim()
+      this.inputTextParsed = words.filter(w => !!w)
+
+      this.input = new Float32Array(values)
+      this.model.predict({ input: this.input }).then(outputData => {
+        this.output = outputData.output
+        this.stepwiseCalc()
+        this.modelRunning = false
+      })
     },
 
-    deactivateDrawAndPredict: debounce(function () {
-      if (!this.drawing) return
-      this.drawing = false
+    inputChanged: debounce(function () {
+      if (this.modelRunning) return
+      if (this.inputText.trim() === '') {
+        this.inputTextParsed = []
+        return
+      }
 
-      const ctx = document.getElementById('input-canvas').getContext('2d')
+      this.modelRunning = true
+      this.isSampleText = false
 
-      // center crop
-      const imageDataCenterCrop = utils.centerCrop(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height))
-      const ctxCenterCrop = document.getElementById('input-canvas-centercrop').getContext('2d')
-      ctxCenterCrop.canvas.width = imageDataCenterCrop.width
-      ctxCenterCrop.canvas.height = imageDataCenterCrop.height
-      ctxCenterCrop.putImageData(imageDataCenterCrop, 0, 0)
+      this.inputTextParsed = this.inputText
+        .trim()
+        .toLowerCase()
+        .split(/[\s\.,!?]+/ig)
 
-      // scaled to 28 x 28
-      const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d')
-      ctxScaled.save()
-      ctxScaled.scale(28 / ctxCenterCrop.canvas.width, 28 / ctxCenterCrop.canvas.height)
-      ctxScaled.clearRect(0, 0, ctxCenterCrop.canvas.width, ctxCenterCrop.canvas.height)
-      ctxScaled.drawImage(document.getElementById('input-canvas-centercrop'), 0, 0)
-      const imageDataScaled = ctxScaled.getImageData(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
-      ctxScaled.restore()
-
-      // process image data for model input
-      const { data } = imageDataScaled
-      this.input = new Float32Array(784)
-      for (let i = 0, len = data.length; i < len; i += 4) {
-        this.input[i / 4] = data[i + 3] / 255
+      this.input = new Float32Array(MAXLEN)
+      // by convention, use 2 as OOV word
+      // reserve 'index_from' (=3 by default) characters: 0 (padding), 1 (start), 2 (OOV)
+      // see https://github.com/fchollet/keras/blob/master/keras/datasets/imdb.py
+      let indices = this.inputTextParsed.map(word => {
+        const index = this.wordIndex[word]
+        return !index ? OOV_WORD_INDEX : index + INDEX_FROM
+      })
+      indices = [START_WORD_INDEX].concat(indices)
+      indices = indices.slice(-MAXLEN)
+      // padding and truncation (both pre sequence)
+      const start = Math.max(0, MAXLEN - indices.length)
+      for (let i = start; i < MAXLEN; i++) {
+        this.input[i] = indices[i - start]
       }
 
       this.model.predict({ input: this.input }).then(outputData => {
         this.output = outputData.output
-        this.getIntermediateResults()
+        this.stepwiseCalc()
+        this.modelRunning = false
       })
-    }, 200, { leading: true, trailing: true }),
+    }, 200),
 
-    getIntermediateResults: function () {
-      let results = []
-      for (let [name, layer] of this.model.modelLayersMap.entries()) {
-        if (name === 'input') continue
+    stepwiseCalc: function () {
+      const fcLayer = this.model.modelLayersMap.get('dense_1')
+      const forwardHiddenStates = this.model.modelLayersMap.get('bidirectional_1').forwardLayer.hiddenStateSequence
+      const backwardHiddenStates = this.model.modelLayersMap.get('bidirectional_1').backwardLayer.hiddenStateSequence
+      const forwardDim = forwardHiddenStates.tensor.shape[1]
+      const backwardDim = backwardHiddenStates.tensor.shape[1]
 
-        const layerClass = layer.layerClass || ''
+      const start = findIndex(this.input, idx => idx >= INDEX_FROM)
+      if (start === -1) return
 
-        let images = []
-        if (layer.result && layer.result.tensor.shape.length === 3) {
-          images = utils.unroll3Dtensor(layer.result.tensor)
-        } else if (layer.result && layer.result.tensor.shape.length === 2) {
-          images = [utils.image2Dtensor(layer.result.tensor)]
-        } else if (layer.result && layer.result.tensor.shape.length === 1) {
-          images = [utils.image1Dtensor(layer.result.tensor)]
-        }
-        results.push({
-          name,
-          layerClass,
-          images
-        })
+      let stepwiseOutput = []
+      for (let i = start; i < MAXLEN; i++) {
+        let tempTensor = new Tensor([], [forwardDim + backwardDim])
+        ops.assign(tempTensor.tensor.hi(forwardDim).lo(0), forwardHiddenStates.tensor.pick(i, null))
+        ops.assign(tempTensor.tensor.hi(forwardDim + backwardDim).lo(forwardDim), backwardHiddenStates.tensor.pick(MAXLEN - i - 1, null))
+        stepwiseOutput.push(fcLayer.call(tempTensor).tensor.data[0])
       }
-      this.layerResultImages = results
-      setTimeout(() => {
-        this.showIntermediateResults()
-      }, 0)
-    },
-
-    showIntermediateResults: function () {
-      this.layerResultImages.forEach((result, layerNum) => {
-        const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor
-        result.images.forEach((image, imageNum) => {
-          const ctx = document.getElementById(`intermediate-result-${layerNum}-${imageNum}`).getContext('2d')
-          ctx.putImageData(image, 0, 0)
-          const ctxScaled = document.getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`).getContext('2d')
-          ctxScaled.save()
-          ctxScaled.scale(scalingFactor, scalingFactor)
-          ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
-          ctxScaled.drawImage(document.getElementById(`intermediate-result-${layerNum}-${imageNum}`), 0, 0)
-          ctxScaled.restore()
-        })
-      })
-    },
-
-    clearIntermediateResults: function () {
-      this.layerResultImages.forEach((result, layerNum) => {
-        const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor
-        result.images.forEach((image, imageNum) => {
-          const ctxScaled = document.getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`).getContext('2d')
-          ctxScaled.save()
-          ctxScaled.scale(scalingFactor, scalingFactor)
-          ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
-          ctxScaled.restore()
-        })
-      })
+      this.stepwiseOutput = stepwiseOutput
     }
   }
 })
