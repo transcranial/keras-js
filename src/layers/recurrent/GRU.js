@@ -88,7 +88,8 @@ export default class GRU extends Layer {
     let tempXH = new Tensor([], [dimHiddenState])
     let tempHH = new Tensor([], [dimHiddenState])
     let previousHiddenState = new Tensor([], [dimHiddenState])
-    let hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimHiddenState])
+
+    this.hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimHiddenState])
 
     const _clearTemp = () => {
       const tempTensors = [tempXZ, tempHZ, tempXR, tempHR, tempXH, tempHH]
@@ -128,12 +129,12 @@ export default class GRU extends Layer {
       _step()
 
       if (this.returnSequences) {
-        ops.assign(hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
+        ops.assign(this.hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
       }
     }
 
     if (this.returnSequences) {
-      x.tensor = hiddenStateSequence.tensor
+      x.tensor = this.hiddenStateSequence.tensor
     } else {
       x.tensor = currentHiddenState.tensor
     }

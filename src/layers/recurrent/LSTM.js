@@ -98,7 +98,8 @@ export default class LSTM extends Layer {
       ? this.currentHiddenState
       : new Tensor([], [dimCandidate])
     let previousHiddenState = new Tensor([], [dimCandidate])
-    let hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimCandidate])
+
+    this.hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimCandidate])
 
     const _clearTemp = () => {
       const tempTensors = [tempXI, tempHI, tempXF, tempHF, tempXO, tempHO, tempXC, tempHC]
@@ -147,13 +148,11 @@ export default class LSTM extends Layer {
       _clearTemp()
       _step()
 
-      if (this.returnSequences) {
-        ops.assign(hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
-      }
+      ops.assign(this.hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
     }
 
     if (this.returnSequences) {
-      x.tensor = hiddenStateSequence.tensor
+      x.tensor = this.hiddenStateSequence.tensor
     } else {
       x.tensor = currentHiddenState.tensor
     }
