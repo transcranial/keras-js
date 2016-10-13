@@ -1,6 +1,6 @@
 {
   "name": "keras-js",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Run trained Keras models in your browser, GPU-powered using WebGL.",
   "scripts": {
     "lint": "standard src test",
