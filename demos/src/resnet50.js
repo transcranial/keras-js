@@ -86,36 +86,36 @@ export const ResNet50 = Vue.extend({
   ready: function () {
     this.model.ready().then(() => {
       this.modelLoading = false
+
+      this.architectureDiagramPaths = []
+      setTimeout(() => {
+        this.architectureConnections.forEach(conn => {
+          const containerElem = document.getElementsByClassName('architecture-container')[0]
+          const fromElem = document.getElementById(conn.from)
+          const toElem = document.getElementById(conn.to)
+          const containerElemCoords = containerElem.getBoundingClientRect()
+          const fromElemCoords = fromElem.getBoundingClientRect()
+          const toElemCoords = toElem.getBoundingClientRect()
+          const xContainer = containerElemCoords.left
+          const yContainer = containerElemCoords.top
+          const xFrom = fromElemCoords.left + fromElemCoords.width / 2 - xContainer
+          const yFrom = fromElemCoords.top + fromElemCoords.height / 2 - yContainer
+          const xTo = toElemCoords.left + toElemCoords.width / 2 - xContainer
+          const yTo = toElemCoords.top + toElemCoords.height / 2 - yContainer
+
+          let path = `M${xFrom},${yFrom} L${xTo},${yTo}`
+          if (conn.corner === 'top-right') {
+            path = `M${xFrom},${yFrom} L${xTo - 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
+          } else if (conn.corner === 'bottom-left') {
+            path = `M${xFrom},${yFrom} L${xFrom},${yTo - 10} Q${xFrom},${yTo} ${xFrom + 10},${yTo} L${xTo},${yTo}`
+          } else if (conn.corner === 'top-left') {
+            path = `M${xFrom},${yFrom} L${xTo + 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
+          }
+
+          this.architectureDiagramPaths.push(path)
+        })
+      }, 1000)
     })
-
-    this.architectureDiagramPaths = []
-    setTimeout(() => {
-      this.architectureConnections.forEach(conn => {
-        const containerElem = document.getElementsByClassName('architecture-container')[0]
-        const fromElem = document.getElementById(conn.from)
-        const toElem = document.getElementById(conn.to)
-        const containerElemCoords = containerElem.getBoundingClientRect()
-        const fromElemCoords = fromElem.getBoundingClientRect()
-        const toElemCoords = toElem.getBoundingClientRect()
-        const xContainer = containerElemCoords.left
-        const yContainer = containerElemCoords.top
-        const xFrom = fromElemCoords.left + fromElemCoords.width / 2 - xContainer
-        const yFrom = fromElemCoords.top + fromElemCoords.height / 2 - yContainer
-        const xTo = toElemCoords.left + toElemCoords.width / 2 - xContainer
-        const yTo = toElemCoords.top + toElemCoords.height / 2 - yContainer
-
-        let path = `M${xFrom},${yFrom} L${xTo},${yTo}`
-        if (conn.corner === 'top-right') {
-          path = `M${xFrom},${yFrom} L${xTo - 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
-        } else if (conn.corner === 'bottom-left') {
-          path = `M${xFrom},${yFrom} L${xFrom},${yTo - 10} Q${xFrom},${yTo} ${xFrom + 10},${yTo} L${xTo},${yTo}`
-        } else if (conn.corner === 'top-left') {
-          path = `M${xFrom},${yFrom} L${xTo + 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
-        }
-
-        this.architectureDiagramPaths.push(path)
-      })
-    }, 1000)
   },
 
   methods: {
