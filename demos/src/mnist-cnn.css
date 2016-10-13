@@ -51,7 +51,7 @@
         }
       }
 
-      .input-clear {
+      .input-buttons {
         display: flex;
         align-items: center;
         justify-content: flex-end;
@@ -61,6 +61,10 @@
           align-items: center;
           color: $color-2;
           transition: color 0.2s ease-in;
+
+          .material-icons {
+            margin-right: 5px;
+          }
 
           &:hover {
             color: $color-1-lighter;
