@@ -243,6 +243,9 @@ export default class Model {
         if ('activation' in wrappedLayerAttrs) {
           wrappedLayerAttrs.activation = camelCase(wrappedLayerAttrs.activation)
         }
+        if ('innerActivation' in wrappedLayerAttrs) {
+          wrappedLayerAttrs.innerActivation = camelCase(wrappedLayerAttrs.innerActivation)
+        }
         wrappedLayerAttrs.gpu = this.gpu
 
         layer = new layers[layerClass](Object.assign(attrs, {
@@ -253,6 +256,9 @@ export default class Model {
         let attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
         if ('activation' in attrs) {
           attrs.activation = camelCase(attrs.activation)
+        }
+        if ('innerActivation' in attrs) {
+          attrs.innerActivation = camelCase(attrs.innerActivation)
         }
         attrs.gpu = this.gpu
 
