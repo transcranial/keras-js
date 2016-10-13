@@ -33,8 +33,8 @@ const ADDITIONAL_DATA_FILEPATHS_PROD = {
   testSamples: 'demos/data/imdb_bidirectional_lstm/imdb_dataset_test.json'
 }
 const ADDITIONAL_DATA_FILEPATHS = (process.env.NODE_ENV === 'production')
-  ? ADDITIONAL_DATA_FILEPATHS_DEV
-  : ADDITIONAL_DATA_FILEPATHS_PROD
+  ? ADDITIONAL_DATA_FILEPATHS_PROD
+  : ADDITIONAL_DATA_FILEPATHS_DEV
 
 const MAXLEN = 200
 
