@@ -80,6 +80,7 @@ export const ImdbBidirectionalLstm = Vue.extend({
 
   data: function () {
     return {
+      showInfoPanel: true,
       useGpu: false,
       model: new KerasJS.Model(Object.assign({ gpu: false }, MODEL_CONFIG)),
       modelLoading: true,
@@ -130,6 +131,10 @@ export const ImdbBidirectionalLstm = Vue.extend({
   },
 
   methods: {
+
+    closeInfoPanel: function () {
+      this.showInfoPanel = false
+    },
 
     toggleGpu: function () {
       this.model.toggleGpu(!this.useGpu)

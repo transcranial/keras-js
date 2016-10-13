@@ -60,6 +60,8 @@ export const MnistVae = Vue.extend({
 
   data: function () {
     return {
+      showInfoPanel: true,
+      useGpu: this.hasWebgl,
       model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)),
       modelLoading: true,
       output: new Float32Array(27 * 27),
@@ -67,8 +69,7 @@ export const MnistVae = Vue.extend({
       inputCoordinates: [-0.6, -1.2],
       position: [60, 20],
       layerResultImages: [],
-      layerDisplayConfig: LAYER_DISPLAY_CONFIG,
-      useGpu: this.hasWebgl
+      layerDisplayConfig: LAYER_DISPLAY_CONFIG
     }
   },
 
@@ -90,6 +91,10 @@ export const MnistVae = Vue.extend({
   },
 
   methods: {
+
+    closeInfoPanel: function () {
+      this.showInfoPanel = false
+    },
 
     toggleGpu: function () {
       this.model.toggleGpu(!this.useGpu)

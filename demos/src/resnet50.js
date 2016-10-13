@@ -34,6 +34,8 @@ export const ResNet50 = Vue.extend({
 
   data: function () {
     return {
+      showInfoPanel: true,
+      useGpu: this.hasWebgl,
       model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl, layerCallPauses: true }, MODEL_CONFIG)),
       modelLoading: true,
       modelRunning: false,
@@ -46,7 +48,6 @@ export const ResNet50 = Vue.extend({
       architectureDiagram: ARCHITECTURE_DIAGRAM,
       architectureConnections: ARCHITECTURE_CONNECTIONS,
       architectureDiagramPaths: [],
-      useGpu: this.hasWebgl,
       showComputationFlow: true
     }
   },
@@ -118,6 +119,10 @@ export const ResNet50 = Vue.extend({
   },
 
   methods: {
+
+    closeInfoPanel: function () {
+      this.showInfoPanel = false
+    },
 
     toggleGpu: function () {
       this.model.toggleGpu(!this.useGpu)

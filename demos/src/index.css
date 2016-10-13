@@ -45,16 +45,19 @@ body {
   }
 
   .info-panel {
-    width: 350px;
+    width: 100%;
+    max-width: 1200px;
     border-radius: 5px;
     background: white;
     color: $color-3;
-    padding: 10px;
-    margin: 20px;
+    padding: 20px 20px 5px 20px;
+    margin: 20px auto;
     box-shadow: 5px 5px #CCCCCC;
 
     .info-panel-text {
+      width: 100%;
       margin-bottom: 10px;
+      font-size: 12px;
 
       a {
         color: $color-1;

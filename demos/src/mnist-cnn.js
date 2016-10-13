@@ -82,6 +82,8 @@ export const MnistCnn = Vue.extend({
 
   data: function () {
     return {
+      showInfoPanel: true,
+      useGpu: this.hasWebgl,
       model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)),
       modelLoading: true,
       input: new Float32Array(784),
@@ -90,8 +92,7 @@ export const MnistCnn = Vue.extend({
       layerResultImages: [],
       layerDisplayConfig: LAYER_DISPLAY_CONFIG,
       drawing: false,
-      strokes: [],
-      useGpu: this.hasWebgl
+      strokes: []
     }
   },
 
@@ -117,6 +118,10 @@ export const MnistCnn = Vue.extend({
   },
 
   methods: {
+
+    closeInfoPanel: function () {
+      this.showInfoPanel = false
+    },
 
     toggleGpu: function () {
       this.model.toggleGpu(!this.useGpu)
