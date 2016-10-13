@@ -1,3 +1,7 @@
 <div class="demo home">
   <div class="title"><span>Home</span></div>
+  <div class="demo-card" v-for="info in demoInfo">
+    <div class="demo-card-heading">{{ info.title }}</div>
+    <div class="demo-card-image"><img :src="info.imagePath" /></div>
+  </div>
 </div>

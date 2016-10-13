@@ -1,1 +1,44 @@
 @import './_variables.css';
+
+.demo-card {
+  width: 100%;
+  max-width: 1000px;
+  margin: 30px auto;
+  background: white;
+  border: 2px solid white;
+  border-radius: 10px;
+  transition: border-color 0.2s ease-in;
+  cursor: default;
+  user-select: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+
+  &:hover {
+    border-color: $color-1;
+    cursor: pointer;
+
+    .demo-card-heading {
+      color: $color-1;
+    }
+  }
+
+  .demo-card-heading {
+    flex: 1;
+    padding: 20px;
+    text-align: center;
+    color: $color-2;
+    font-family: $font-1;
+    font-size: 20px;
+    transition: color 0.2s ease-in;
+  }
+
+  .demo-card-image {
+    img {
+      width: 200px;
+      height: auto;
+    }
+  }
+}
