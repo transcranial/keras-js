@@ -81,7 +81,7 @@ See `demos/src/` for source code of real examples.
 
 5. Create new model
 
-  On instantiation, data is loaded over XHR (same-domain or CORS required), and layers are initialized as directed acyclic graph. Class method `ready()` returns a Promise which resolves when these steps are complete. Then, use `perdict()` to run data through the model, which also returns a Promise.
+  On instantiation, data is loaded over XHR (same-domain or CORS required), and layers are initialized as directed acyclic graph. Class method `ready()` returns a Promise which resolves when these steps are complete. Then, use `predict()` to run data through the model, which also returns a Promise.
 
   ```js
   const model = new KerasJS.Model({
