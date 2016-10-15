@@ -90,7 +90,7 @@ See `demos/src/` for source code of real examples.
       weights: 'url/path/to/model_weights.buf',
       metadata: 'url/path/to/model_metadata.json'
     }
-    gpu: true
+    ,gpu: true
   })
 
   model.ready().then(() => {
