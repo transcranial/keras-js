@@ -43,10 +43,18 @@ See `demos/src/` for source code of real examples written in VueJS.
   ```py
   model.save_weights('model.hdf5')
   with open('model.json', 'w') as f:
-    f.write(model.to_json())
+      f.write(model.to_json())
   ```
 
-  See jupyter notebooks of demos for details: `demos/notebooks/`.
+  See jupyter notebooks of demos for details: `demos/notebooks/`. All that's required for [ResNet50](https://github.com/fchollet/keras/blob/master/keras/applications/resnet50.py), for example, is:
+
+  ```py
+  from keras.applications import resnet50
+  model = resnet50.ResNet50(include_top=True, weights='imagenet')
+  model.save_weights('resnet50.hdf5')
+  with open('resnet50.json', 'w') as f:
+      f.write(model.to_json())
+  ```
 
 2. Run the encoder script on the HDF5 weights file:
 
