@@ -67,7 +67,7 @@ export default class Merge extends Layer {
         if (this.dotAxes < 0) {
           this.dotAxes = [shapes[0].length + this.dotAxes, shapes[1].length + this.dotAxes]
         } else {
-          this.dotAxes = [this.dotAxes - 1, this.dotAxes - 1]
+          this.dotAxes = [this.dotAxes, this.dotAxes]
         }
       }
       if (shapes[0][this.dotAxes[0]] !== shapes[1][this.dotAxes[1]]) {
