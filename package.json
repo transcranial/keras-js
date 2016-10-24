@@ -1,7 +1,7 @@
 {
   "name": "keras-js",
   "version": "0.1.0",
-  "description": "Run trained Keras models in your browser, GPU-powered using WebGL.",
+  "description": "Run Keras models (tensorflow backend) in the browser, with GPU support",
   "scripts": {
     "lint": "standard src test",
     "watch": "webpack --watch --config webpack.dev.config.js",

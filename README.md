@@ -1,6 +1,6 @@
 # [Keras.js](https://transcranial.github.io/keras-js)
 
-Run trained [Keras](https://github.com/fchollet/keras) models in your browser, GPU-powered using WebGL. Models are serialized directly from the Keras JSON-format configuration file and associated HDF5 weights.
+Run [Keras](https://github.com/fchollet/keras) models (trained using Tensorflow backend) in your browser, with GPU support. Models are serialized directly from the Keras JSON-format configuration file and associated HDF5 weights. GPU support is powered by WebGL through [weblas](https://github.com/waylonflinn/weblas).
 
 ### [Interactive Demos](https://transcranial.github.io/keras-js)
 
@@ -15,25 +15,17 @@ Run trained [Keras](https://github.com/fchollet/keras) models in your browser, G
 - Bidirectional LSTM for IMDB sentiment classification
 
 <p align="center">
-  <img src="demos/assets/mnist-cnn.png" height="120" width="auto" />
-  <img src="demos/assets/resnet50.png" height="120" width="auto" />
-  <img src="demos/assets/inception-v3.png" height="120" width="auto" />
-  <img src="demos/assets/imdb-bidirectional-lstm.png" height="120" width="auto" />
+  <a href="https://transcranial.github.io/keras-js"><img src="demos/assets/mnist-cnn.png" height="120" width="auto" /></a>
+  <a href="https://transcranial.github.io/keras-js"><img src="demos/assets/resnet50.png" height="120" width="auto" /></a>
+  <a href="https://transcranial.github.io/keras-js"><img src="demos/assets/inception-v3.png" height="120" width="auto" /></a>
+  <a href="https://transcranial.github.io/keras-js"><img src="demos/assets/imdb-bidirectional-lstm.png" height="120" width="auto" /></a>
 </p>
-
-### Why?
-
-- Eliminate need for backend infrastructure or API calls
-
-- Offload computation entirely to client browsers
-
-- Interactive apps
 
 ### Usage
 
-See `demos/src/` for source code of real examples.
+See `demos/src/` for source code of real examples written in VueJS.
 
-1. Works for both `Model` and `Sequential`:
+1. Works for models based on both `Model` and `Sequential` classes:
 
   ```py
   model = Sequential()
@@ -72,7 +64,7 @@ See `demos/src/` for source code of real examples.
 
   - the weights metadata file: `model_metadata.json`
 
-4. GPU support is powered by [weblas](https://github.com/waylonflinn/weblas). Include the Keras.js and Weblas libraries:
+4. Include both the Keras.js and Weblas libraries:
 
   ```html
   <script src="lib/weblas.js"></script>
@@ -81,7 +73,7 @@ See `demos/src/` for source code of real examples.
 
 5. Create new model
 
-  On instantiation, data is loaded over XHR (same-domain or CORS required), and layers are initialized as directed acyclic graph. Class method `ready()` returns a Promise which resolves when these steps are complete. Then, use `predict()` to run data through the model, which also returns a Promise.
+  On instantiation, data is loaded using XHR (same-domain or CORS required), and layers are initialized as a directed acyclic graph:
 
   ```js
   const model = new KerasJS.Model({
@@ -89,65 +81,92 @@ See `demos/src/` for source code of real examples.
       model: 'url/path/to/model.json',
       weights: 'url/path/to/model_weights.buf',
       metadata: 'url/path/to/model_metadata.json'
-    }
-    ,gpu: true
+    },
+    gpu: true
   })
+  ```
 
-  model.ready().then(() => {
+  Class method `ready()` returns a Promise which resolves when these steps are complete. Then, use `predict()` to run data through the model, which also returns a Promise:
 
-    // input data object keyed by names of the input layers
-    // or `input` for Sequential models
-    // values are the flattened Float32Array data
-    // (input tensor shapes are specified in the model config)
+  ```js
+  model.ready()
+    .then(() => {
+      // input data object keyed by names of the input layers
+      // or `input` for Sequential models
+      // values are the flattened Float32Array data
+      // (input tensor shapes are specified in the model config)
+      const inputData = {
+        'input_1': new Float32Array(data)
+      }
+
+      // make predictions
+      // outputData is an object keyed by names of the output layers
+      // or `output` for Sequential models
+      model.predict(inputData)
+        .then(outputData => {
+          // e.g.,
+          // outputData['fc1000']
+        })
+        .catch(err => {
+          // handle error
+        }
+    })
+    .catch(err => {
+      // handle error
+    }
+  ```
+
+  Alternatively, we could also use async/await:
+
+  ```js
+  try {
+    await model.ready()
     const inputData = {
       'input_1': new Float32Array(data)
     }
-
-    // make predictions
-    // outputData is an object keyed by names of the output layers
-    // or `output` for Sequential models
-    model.predict(inputData).then(outputData => {
-      // e.g.,
-      // outputData['fc1000']
-    })
-  })
+    const outputData = await model.predict(inputData)
+  } catch (err) {
+    // handle error
+  }
   ```
 
 ### Available layers
 
-  - advanced activations: `LeakyReLU`, `PReLU`, `ELU`, `ParametricSoftplus`, `ThresholdedReLU`, `SReLU`
+  - *advanced activations*: LeakyReLU, PReLU, ELU, ParametricSoftplus, ThresholdedReLU, SReLU
 
-  - convolutional: `Convolution1D`, `Convolution2D`, `AtrousConvolution2D`, `SeparableConvolution2D`, `Deconvolution2D`, `Convolution3D`, `UpSampling1D`, `UpSampling2D`, `UpSampling3D`, `ZeroPadding1D`, `ZeroPadding2D`, `ZeroPadding3D`
+  - *convolutional*: Convolution1D, Convolution2D, AtrousConvolution2D, SeparableConvolution2D, Deconvolution2D, Convolution3D, UpSampling1D, UpSampling2D, UpSampling3D, ZeroPadding1D, ZeroPadding2D, ZeroPadding3D
 
-  - core: `Dense`, `Activation`, `Dropout`, `SpatialDropout2D`, `SpatialDropout3D`, `Flatten`, `Reshape`, `Permute`, `RepeatVector`, `Merge`, `Highway`, `MaxoutDense`
+  - *core*: Dense, Activation, Dropout, SpatialDropout2D, SpatialDropout3D, Flatten, Reshape, Permute, RepeatVector, Merge, Highway, MaxoutDense
 
-  - embeddings: `Embedding`
+  - *embeddings*: Embedding
 
-  - normalization: `BatchNormalization`
+  - *normalization*: BatchNormalization
 
-  - pooling: `MaxPooling1D`, `MaxPooling2D`, `MaxPooling3D`, `AveragePooling1D`, `AveragePooling2D`, `AveragePooling3D`, `GlobalMaxPooling1D`, `GlobalAveragePooling1D`, `GlobalMaxPooling2D`, `GlobalAveragePooling2D`
+  - *pooling*: MaxPooling1D, MaxPooling2D, MaxPooling3D, AveragePooling1D, AveragePooling2D, AveragePooling3D, GlobalMaxPooling1D, GlobalAveragePooling1D, GlobalMaxPooling2D, GlobalAveragePooling2D
 
-  - recurrent: `SimpleRNN`, `LSTM`, `GRU`
+  - *recurrent*: SimpleRNN, LSTM, GRU
 
-  - wrappers: `Bidirectional`, `TimeDistributed`
+  - *wrappers*: Bidirectional, TimeDistributed
 
-  **Layers not yet implemented**
+### Layers to be implemented
 
-  Lambda cannot be implemented directly at this point, but will eventually create a mechanism for defining computational logic through JavaScript.
+  Note: Lambda layers cannot be implemented directly at this point, but will eventually create a mechanism for defining computational logic through JavaScript.
 
-  - core: `Lambda`
+  - *core*: Lambda
 
-  - convolutional: `Cropping1D`, `Cropping2D`, `Cropping3D`
+  - *convolutional*: AtrousConvolution1D, Cropping1D, Cropping2D, Cropping3D
 
-  - locally-connected: `LocallyConnected1D`, `LocallyConnected2D`
+  - *locally-connected*: LocallyConnected1D, LocallyConnected2D
 
-  - noise: `GaussianNoise`, `GaussianDropout`
+  - *noise*: GaussianNoise, GaussianDropout
+
+  - *pooling*: GlobalMaxPooling3D, GlobalAveragePooling3D
 
 ### Notes
 
 **WebWorkers and their limitations**
 
-Keras.js can be run in a WebWorker separate from the main thread. Because Keras.js performs a lot of synchronous computations, this can prevent the UI from being affected. However, one of the biggest limitations of WebWorkers is the lack of `<canvas>` (and thus WebGL) access. So the benefits gained by running Keras.js in a separate thread are offset by the necessity of running it in CPU-mode only. In other words, one can run Keras.js in GPU mode only on the main thread.
+Keras.js can be run in a WebWorker separate from the main thread. Because Keras.js performs a lot of synchronous computations, this can prevent the UI from being affected. However, one of the biggest limitations of WebWorkers is the lack of `<canvas>` (and thus WebGL) access. So the benefits gained by running Keras.js in a separate thread are offset by the necessity of running it in CPU-mode only. In other words, one can run Keras.js in GPU mode only on the main thread. [This will not be the case forever.](https://github.com/whatwg/html/pull/1876)
 
 **WebGL MAX_TEXTURE_SIZE**
 
@@ -176,6 +195,8 @@ To create a production UMD webpack build, output to `dist/keras.js`, run:
 ```sh
 $ npm run build
 ```
+
+Data files for the demos are located at `demos/data/`. All binary `*.buf` files uses [Git LFS](https://git-lfs.github.com/) (see `.gitattributes`).
 
 ### License
 
