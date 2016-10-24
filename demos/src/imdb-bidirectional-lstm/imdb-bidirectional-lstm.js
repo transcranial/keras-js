@@ -6,7 +6,7 @@ import debounce from 'lodash/debounce'
 import random from 'lodash/random'
 import findIndex from 'lodash/findIndex'
 import ops from 'ndarray-ops'
-import Tensor from '../../src/Tensor'
+import Tensor from '../../../src/Tensor'
 
 const MODEL_FILEPATHS_DEV = {
   model: '/demos/data/imdb_bidirectional_lstm/imdb_bidirectional_lstm.json',

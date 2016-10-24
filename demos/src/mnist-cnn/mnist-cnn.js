@@ -3,7 +3,7 @@ import './mnist-cnn.css'
 
 import debounce from 'lodash/debounce'
 import range from 'lodash/range'
-import * as utils from './utils'
+import * as utils from '../utils'
 
 const MODEL_FILEPATHS_DEV = {
   model: '/demos/data/mnist_cnn/mnist_cnn.json',

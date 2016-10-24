@@ -1,22 +1,22 @@
 /* global Vue, loadImage */
-import './inception-v3.css'
+import './resnet50.css'
 
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
-import filter from 'lodash/filter'
-import * as utils from './utils'
-import { IMAGE_URLS } from './image-urls'
-import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from './inception-v3-arch'
+import find from 'lodash/find'
+import * as utils from '../utils'
+import { IMAGE_URLS } from '../image-urls'
+import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from './resnet50-arch'
 
 const MODEL_FILEPATHS_DEV = {
-  model: '/demos/data/inception_v3/inception_v3.json',
-  weights: '/demos/data/inception_v3/inception_v3_weights.buf',
-  metadata: '/demos/data/inception_v3/inception_v3_metadata.json'
+  model: '/demos/data/resnet50/resnet50.json',
+  weights: '/demos/data/resnet50/resnet50_weights.buf',
+  metadata: '/demos/data/resnet50/resnet50_metadata.json'
 }
 const MODEL_FILEPATHS_PROD = {
-  model: 'demos/data/inception_v3/inception_v3.json',
-  weights: 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3_weights.buf',
-  metadata: 'demos/data/inception_v3/inception_v3_metadata.json'
+  model: 'demos/data/resnet50/resnet50.json',
+  weights: 'https://transcranial.github.io/keras-js-demos-data/resnet50/resnet50_weights.buf',
+  metadata: 'demos/data/resnet50/resnet50_metadata.json'
 }
 const MODEL_CONFIG = {
   filepaths: (process.env.NODE_ENV === 'production') ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV
@@ -27,10 +27,10 @@ const MODEL_CONFIG = {
  * VUE COMPONENT
  *
  */
-export const InceptionV3 = Vue.extend({
+export const ResNet50 = Vue.extend({
   props: ['hasWebgl'],
 
-  template: require('raw!./inception-v3.template.html'),
+  template: require('raw!./resnet50.template.html'),
 
   data: function () {
     return {
@@ -58,10 +58,10 @@ export const InceptionV3 = Vue.extend({
     },
     architectureDiagramRows: function () {
       let rows = []
-      for (let row = 0; row < 112; row++) {
+      for (let row = 0; row < 168; row++) {
         let cols = []
-        for (let col = 0; col < 4; col++) {
-          cols.push(filter(this.architectureDiagram, { row, col }))
+        for (let col = 0; col < 2; col++) {
+          cols.push(find(this.architectureDiagram, { row, col }))
         }
         rows.push(cols)
       }
@@ -110,8 +110,6 @@ export const InceptionV3 = Vue.extend({
             path = `M${xFrom},${yFrom} L${xFrom},${yTo - 10} Q${xFrom},${yTo} ${xFrom + 10},${yTo} L${xTo},${yTo}`
           } else if (conn.corner === 'top-left') {
             path = `M${xFrom},${yFrom} L${xTo + 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
-          } else if (conn.corner === 'bottom-right') {
-            path = `M${xFrom},${yFrom} L${xFrom},${yFrom + 20} Q${xFrom},${yFrom + 30} ${xFrom - 10},${yFrom + 30} L${xTo + 10},${yFrom + 30} Q${xTo},${yFrom + 30} ${xTo},${yFrom + 40} L${xTo},${yTo}`
           }
 
           this.architectureDiagramPaths.push(path)
@@ -173,8 +171,8 @@ export const InceptionV3 = Vue.extend({
           }
         },
         {
-          maxWidth: 299,
-          maxHeight: 299,
+          maxWidth: 224,
+          maxHeight: 224,
           cover: true,
           crop: true,
           canvas: true,
@@ -192,18 +190,18 @@ export const InceptionV3 = Vue.extend({
       // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
       let dataTensor = ndarray(new Float32Array(data), [width, height, 4])
       let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3])
-      ops.divseq(dataTensor, 255)
-      ops.subseq(dataTensor, 0.5)
-      ops.mulseq(dataTensor, 2)
-      ops.assign(dataProcessedTensor.pick(null, null, 0), dataTensor.pick(null, null, 0))
+      ops.subseq(dataTensor.pick(null, null, 2), 103.939)
+      ops.subseq(dataTensor.pick(null, null, 1), 116.779)
+      ops.subseq(dataTensor.pick(null, null, 0), 123.68)
+      ops.assign(dataProcessedTensor.pick(null, null, 0), dataTensor.pick(null, null, 2))
       ops.assign(dataProcessedTensor.pick(null, null, 1), dataTensor.pick(null, null, 1))
-      ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 2))
+      ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 0))
 
       const inputData = {
         'input_1': dataProcessedTensor.data
       }
       this.model.predict(inputData).then(outputData => {
-        this.output = outputData['predictions']
+        this.output = outputData['fc1000']
         this.modelRunning = false
       })
     },

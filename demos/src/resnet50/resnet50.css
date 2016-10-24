@@ -1,4 +1,4 @@
-@import './_variables.css';
+@import '../variables.css';
 
 .demo.resnet50 {
   .top-container {

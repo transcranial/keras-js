@@ -1,6 +1,6 @@
-@import './_variables.css';
+@import '../variables.css';
 
-.demo.mnist-cnn {
+.demo.mnist-vae {
   .column {
     display: flex;
     align-items: center;
@@ -32,6 +32,7 @@
       }
 
       .canvas-container {
+        position: relative;
         display: inline-flex;
         justify-content: flex-end;
         margin: 10px 0;
@@ -49,77 +50,60 @@
             cursor: crosshair;
           }
         }
-      }
 
-      .input-buttons {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-
-        .input-clear-button {
+        .axis {
+          position: absolute;
+          cursor: default;
+          user-select: none;
           display: flex;
           align-items: center;
-          color: $color-2;
-          transition: color 0.2s ease-in;
+          justify-content: space-between;
+          font-family: $font-2;
+          font-size: 14px;
+          color: $color-1;
+        }
 
-          .material-icons {
-            margin-right: 5px;
-          }
+        .axis.x-axis {
+          right: 0;
+          bottom: -45px;
+          width: 200px;
+          flex-direction: row;
+        }
 
-          &:hover {
-            color: $color-1-lighter;
-            cursor: pointer;
-          }
+        .axis.y-axis {
+          top: 0;
+          left: -55px;
+          height: 200px;
+          flex-direction: column;
         }
       }
     }
   }
 
   .column.controls-column {
+    flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
     padding-top: 80px;
+
+    .coordinates {
+      margin-left: 5px;
+      margin-top: 45px;
+      font-family: $font-2;
+      font-size: 20px;
+      color: $color-2;
+    }
   }
 
   .column.output-column {
-    justify-content: center;
+    justify-content: flex-start;
 
     .output {
-      height: 160px;
-      display: flex;
-      flex-direction: row;
-      align-items: flex-end;
-      justify-content: center;
-      user-select: none;
-      cursor: default;
+      border-radius: 10px;
+      overflow: hidden;
 
-      .output-class {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 0 6px;
-        border-bottom: 2px solid $color-1-lighter;
-
-        .output-label {
-          font-family: $font-2;
-          font-size: 1.5rem;
-          color: $color-2;
-        }
-
-        .output-bar {
-          width: 8px;
-          background: #EEEEEE;
-          transition: height 0.2s ease-out;
-        }
-      }
-
-      .output-class.predicted {
-        border-bottom-color: $color-1;
-
-        .output-label {
-          color: $color-1;
-        }
+      canvas {
+        background: white;
       }
     }
   }

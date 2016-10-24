@@ -4,11 +4,11 @@ import './index.css'
 
 import { Menu } from './menu'
 import { Home } from './home'
-import { MnistCnn } from './mnist-cnn'
-import { MnistVae } from './mnist-vae'
-import { ResNet50 } from './resnet50'
-import { InceptionV3 } from './inception-v3'
-import { ImdbBidirectionalLstm } from './imdb-bidirectional-lstm'
+import { MnistCnn } from './mnist-cnn/mnist-cnn'
+import { MnistVae } from './mnist-vae/mnist-vae'
+import { ResNet50 } from './resnet50/resnet50'
+import { InceptionV3 } from './inception-v3/inception-v3'
+import { ImdbBidirectionalLstm } from './imdb-bidirectional-lstm/imdb-bidirectional-lstm'
 
 Vue.component('menu', Menu)
 Vue.component('home', Home)

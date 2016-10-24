@@ -1,7 +1,7 @@
 /* global Vue */
 import './mnist-vae.css'
 
-import * as utils from './utils'
+import * as utils from '../utils'
 
 const MODEL_FILEPATHS_DEV = {
   model: '/demos/data/mnist_vae/mnist_vae.json',
