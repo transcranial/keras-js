@@ -1,8 +1,19 @@
 # [Keras.js](https://transcranial.github.io/keras-js)
 
-Run [Keras](https://github.com/fchollet/keras) models (trained using Tensorflow backend) in your browser, with GPU support. Models are serialized directly from the Keras JSON-format configuration file and associated HDF5 weights. GPU support is powered by WebGL through [weblas](https://github.com/waylonflinn/weblas).
+Run [Keras](https://github.com/fchollet/keras) models (trained using Tensorflow backend) in your browser, with GPU support. Models are created directly from the Keras JSON-format configuration file, using weights serialized directly from the corresponding HDF5 file.
+
+Inspiration is drawn from a number of deep learning / neural network libraries for JavaScript and the browser, including [ConvNetJS](https://github.com/karpathy/convnetjs), [synaptic](https://github.com/cazala/synaptic), [brain](https://github.com/harthur/brain), [CaffeJS](https://github.com/chaosmail/caffejs), [MXNetJS](https://github.com/dmlc/mxnet.js).
+
+Tensor operations are extended on top of the [ndarray](https://github.com/scijs/ndarray) library. GPU support is powered by WebGL through [weblas](https://github.com/waylonflinn/weblas). The focus here is on inference only.
 
 ### [Interactive Demos](https://transcranial.github.io/keras-js)
+
+<p align="center">
+  <a href="https://transcranial.github.io/keras-js"><img src="demos/assets/mnist-cnn.png" height="120" width="auto" /></a>
+  <a href="https://transcranial.github.io/keras-js"><img src="demos/assets/resnet50.png" height="120" width="auto" /></a>
+  <a href="https://transcranial.github.io/keras-js"><img src="demos/assets/inception-v3.png" height="120" width="auto" /></a>
+  <a href="https://transcranial.github.io/keras-js"><img src="demos/assets/imdb-bidirectional-lstm.png" height="120" width="auto" /></a>
+</p>
 
 - Basic Convnet for MNIST
 
@@ -12,14 +23,11 @@ Run [Keras](https://github.com/fchollet/keras) models (trained using Tensorflow 
 
 - Inception V3, trained on ImageNet
 
+- Xception V1, trained on ImageNet
+
 - Bidirectional LSTM for IMDB sentiment classification
 
-<p align="center">
-  <a href="https://transcranial.github.io/keras-js"><img src="demos/assets/mnist-cnn.png" height="120" width="auto" /></a>
-  <a href="https://transcranial.github.io/keras-js"><img src="demos/assets/resnet50.png" height="120" width="auto" /></a>
-  <a href="https://transcranial.github.io/keras-js"><img src="demos/assets/inception-v3.png" height="120" width="auto" /></a>
-  <a href="https://transcranial.github.io/keras-js"><img src="demos/assets/imdb-bidirectional-lstm.png" height="120" width="auto" /></a>
-</p>
+*planned*: Char-RNN, SqueezeNet
 
 ### Usage
 
