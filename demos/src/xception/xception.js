@@ -1,22 +1,22 @@
 /* global Vue, loadImage */
-import './inception-v3.css'
+import './xception.css'
 
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
 import filter from 'lodash/filter'
 import * as utils from '../utils'
 import { IMAGE_URLS } from '../image-urls'
-import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from './inception-v3-arch'
+import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from './xception-arch'
 
 const MODEL_FILEPATHS_DEV = {
-  model: '/demos/data/inception_v3/inception_v3.json',
-  weights: '/demos/data/inception_v3/inception_v3_weights.buf',
-  metadata: '/demos/data/inception_v3/inception_v3_metadata.json'
+  model: '/demos/data/xception/xception.json',
+  weights: '/demos/data/xception/xception_weights.buf',
+  metadata: '/demos/data/xception/xception_metadata.json'
 }
 const MODEL_FILEPATHS_PROD = {
-  model: 'demos/data/inception_v3/inception_v3.json',
-  weights: 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3_weights.buf',
-  metadata: 'demos/data/inception_v3/inception_v3_metadata.json'
+  model: 'demos/data/xception/xception.json',
+  weights: 'https://transcranial.github.io/keras-js-demos-data/xception/xception_weights.buf',
+  metadata: 'demos/data/xception/xception_metadata.json'
 }
 const MODEL_CONFIG = {
   filepaths: (process.env.NODE_ENV === 'production') ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV
@@ -27,10 +27,10 @@ const MODEL_CONFIG = {
  * VUE COMPONENT
  *
  */
-export const InceptionV3 = Vue.extend({
+export const Xception = Vue.extend({
   props: ['hasWebgl'],
 
-  template: require('raw!./inception-v3.template.html'),
+  template: require('raw!./xception.template.html'),
 
   data: function () {
     return {
@@ -58,9 +58,9 @@ export const InceptionV3 = Vue.extend({
     },
     architectureDiagramRows: function () {
       let rows = []
-      for (let row = 0; row < 112; row++) {
+      for (let row = 0; row < 125; row++) {
         let cols = []
-        for (let col = 0; col < 4; col++) {
+        for (let col = 0; col < 2; col++) {
           cols.push(filter(this.architectureDiagram, { row, col }))
         }
         rows.push(cols)
@@ -190,7 +190,7 @@ export const InceptionV3 = Vue.extend({
 
       // data processing
       // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
-      // and https://github.com/fchollet/keras/blob/master/keras/applications/inception_v3.py
+      // and https://github.com/fchollet/keras/blob/master/keras/applications/xception.py
       let dataTensor = ndarray(new Float32Array(data), [width, height, 4])
       let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3])
       ops.divseq(dataTensor, 255)

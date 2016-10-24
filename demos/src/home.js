@@ -23,6 +23,11 @@ const DEMO_INFO_DEV = [
     imagePath: '/demos/assets/inception-v3.png'
   },
   {
+    title: 'Xception, trained on ImageNet',
+    path: 'xception',
+    imagePath: '/demos/assets/inception-v3.png'
+  },
+  {
     title: 'Bidirectional LSTM for IMDB sentiment classification',
     path: 'imdb-bidirectional-lstm',
     imagePath: '/demos/assets/imdb-bidirectional-lstm.png'
@@ -48,6 +53,11 @@ const DEMO_INFO_PROD = [
   {
     title: 'Inception V3, trained on ImageNet',
     path: 'inception-v3',
+    imagePath: 'demos/assets/inception-v3.png'
+  },
+  {
+    title: 'Xception, trained on ImageNet',
+    path: 'xception',
     imagePath: 'demos/assets/inception-v3.png'
   },
   {

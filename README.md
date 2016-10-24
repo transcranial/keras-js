@@ -23,7 +23,7 @@ Tensor operations are extended on top of the [ndarray](https://github.com/scijs/
 
 - Inception V3, trained on ImageNet
 
-- Xception V1, trained on ImageNet
+- Xception, trained on ImageNet
 
 - Bidirectional LSTM for IMDB sentiment classification
 
