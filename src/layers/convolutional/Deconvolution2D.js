@@ -185,7 +185,7 @@ export default class Deconvolution2D extends Layer {
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const matMul = new Tensor([], [inputRows * inputCols, nbRow * nbCol * nbFilter])
 
-    if (this._useWeblas) {
+    if (this._useWeblas && !(imColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
       let _zerosVec = new Tensor([], [this.weights.W.tensor.shape[3]])
       _zerosVec.createWeblasTensor()
       matMul.tensor.data = weblas.pipeline.sgemm(

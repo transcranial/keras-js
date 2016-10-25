@@ -248,7 +248,7 @@ export default class Convolution3D extends Layer {
     const nbPatches = outputDim1 * outputDim2 * outputDim3
     const matMul = new Tensor([], [nbPatches, nbFilter])
 
-    if (this._useWeblas) {
+    if (this._useWeblas && !(this._volColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
       const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
       matMul.tensor.data = weblas.pipeline.sgemm(
         1, this._volColsMat.weblasTensor, this._wRowsMat.weblasTensor,

@@ -81,58 +81,28 @@ class _DepthwiseConvolution2D extends Convolution2D {
    * @returns {Tensor} x
    */
   call (x) {
-    let startTime = performance.now()
     this._calcOutputShape(x)
-    let endTime = performance.now()
-    console.log(0, endTime - startTime)
-    startTime = performance.now()
     this._padInput(x)
-    endTime = performance.now()
-    console.log(1, endTime - startTime)
 
-    startTime = performance.now()
     this._im2col(x)
-    endTime = performance.now()
-    console.log(2, endTime - startTime)
 
-    startTime = performance.now()
     const nbFilter = this.kernelShape[0]
     const outputRows = this.outputShape[0]
     const outputCols = this.outputShape[1]
     const nbPatches = outputRows * outputCols
     const matMul = new Tensor([], [nbPatches * x.tensor.shape[2], nbFilter * x.tensor.shape[2]])
-    endTime = performance.now()
-    console.log(3, endTime - startTime)
 
-    startTime = performance.now()
-    if (this._useWeblas) {
+    if (this._useWeblas && !(this._imColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
       // GPU
-      if (this._imColsMat.weblasTensorsSplit) {
-        // split matrix multiply if this._imColsMat dimension > webgl.MAX_TEXTURE_SIZE
-        let offset = 0
-        this._imColsMat.weblasTensorsSplit.forEach(imColsMatSplit => {
-          const matMulSplitData = weblas.pipeline.sgemm(
-            1, imColsMatSplit, this._wRowsMat.weblasTensor,
-            1, this._zerosVec.weblasTensor
-          ).transfer()
-          matMul.tensor.data.set(matMulSplitData, offset)
-          offset += matMulSplitData.length
-        })
-      } else {
-        // normal matrix multiply
-        matMul.tensor.data = weblas.pipeline.sgemm(
-          1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor,
-          1, this._zerosVec.weblasTensor
-        ).transfer()
-      }
+      matMul.tensor.data = weblas.pipeline.sgemm(
+        1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor,
+        1, this._zerosVec.weblasTensor
+      ).transfer()
     } else {
       // CPU
       gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
     }
-    endTime = performance.now()
-    console.log(4, endTime - startTime)
 
-    startTime = performance.now()
     let output = new Tensor([], [outputRows, outputCols, x.tensor.shape[2] * nbFilter])
     const outputDataLength = outputRows * outputCols * x.tensor.shape[2] * nbFilter
     let dataFiltered = new Float32Array(outputDataLength)
@@ -144,8 +114,6 @@ class _DepthwiseConvolution2D extends Convolution2D {
       }
     }
     output.replaceTensorData(dataFiltered)
-    endTime = performance.now()
-    console.log(5, endTime - startTime)
 
     x.tensor = output.tensor
 
@@ -233,10 +201,7 @@ export default class SeparableConvolution2D extends Layer {
     const depthwiseOutput = this._depthwiseConv.call(x)
 
     // Perform depthwise ops
-    let startTime = performance.now()
     const pointwiseOutput = this._pointwiseConv.call(depthwiseOutput)
-    let endTime = performance.now()
-    console.log(6, endTime - startTime)
 
     x.tensor = pointwiseOutput.tensor
 
