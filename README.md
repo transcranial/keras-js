@@ -2,9 +2,9 @@
 
 Run [Keras](https://github.com/fchollet/keras) models (trained using Tensorflow backend) in your browser, with GPU support. Models are created directly from the Keras JSON-format configuration file, using weights serialized directly from the corresponding HDF5 file.
 
-Inspiration is drawn from a number of deep learning / neural network libraries for JavaScript and the browser, including [ConvNetJS](https://github.com/karpathy/convnetjs), [synaptic](https://github.com/cazala/synaptic), [brain](https://github.com/harthur/brain), [CaffeJS](https://github.com/chaosmail/caffejs), [MXNetJS](https://github.com/dmlc/mxnet.js).
+Inspiration is drawn from a number of deep learning / neural network libraries for JavaScript and the browser, including [ConvNetJS](https://github.com/karpathy/convnetjs), [synaptic](https://github.com/cazala/synaptic), [brain](https://github.com/harthur/brain), [CaffeJS](https://github.com/chaosmail/caffejs), [MXNetJS](https://github.com/dmlc/mxnet.js). However, the focus of this library is on inference only.
 
-Tensor operations are extended on top of the [ndarray](https://github.com/scijs/ndarray) library. GPU support is powered by WebGL through [weblas](https://github.com/waylonflinn/weblas). The focus here is on inference only.
+Tensor operations are extended on top of the [ndarray](https://github.com/scijs/ndarray) library. GPU support is powered by WebGL through [weblas](https://github.com/waylonflinn/weblas).
 
 ### [Interactive Demos](https://transcranial.github.io/keras-js)
 
@@ -186,7 +186,7 @@ Keras.js can be run in a WebWorker separate from the main thread. Because Keras.
 
 **WebGL MAX_TEXTURE_SIZE**
 
-In GPU mode, tensor objects are encoded as WebGL textures prior to computations. The size of these tensors are limited by `gl.getParameter(gl.MAX_TEXTURE_SIZE)`, which differs by hardware/platform. See [here](http://webglstats.com/) for typical expected values. The may be an issue in convolution layers after `im2col`. For example, in the Inception V3 network demo, `im2col` in the 1st convolutional layer creates a 22201 x 27 matrix, and 21609 x 288 matrices in the 2nd and 3rd convolutional layers. The size along the first dimension exceeds most `MAX_TEXTURE_SIZE`, 16384, and therefore must be split. Matrix multiplications are performed with the weights for each split tensor and then combined. In this case, a `weblasTensorsSplit` property is available on the `Tensor` object when `createWeblasTensor()` is called (see `src/Tensor.js`). See `src/layers/convolutional/Convolution2D.js` for an example of its usage.
+In GPU mode, tensor objects are encoded as WebGL textures prior to computations. The size of these tensors are limited by `gl.getParameter(gl.MAX_TEXTURE_SIZE)`, which differs by hardware/platform. See [here](http://webglstats.com/) for typical expected values. For operations involving tensors where this value is exceeded along any dimension, that operation falls back to the CPU.
 
 ### Development / Testing
 
