@@ -187,15 +187,13 @@ export default class Convolution3D extends Layer {
     }
 
     let patch = new Tensor([], [kernelDim1, kernelDim2, kernelDim3, inputChannels])
-    let patchRaveled = new Tensor([], [patchLen])
-    let n = 0
+    let offset = 0
     for (let i = 0, limit = inputDim1 - kernelDim1; i <= limit; i += this.subsample[0]) {
       for (let j = 0, limit = inputDim2 - kernelDim2; j <= limit; j += this.subsample[1]) {
         for (let k = 0, limit = inputDim3 - kernelDim3; k <= limit; k += this.subsample[2]) {
           ops.assign(patch.tensor, x.tensor.hi(i + kernelDim1, j + kernelDim2, k + kernelDim3, inputChannels).lo(i, j, k, 0))
-          patchRaveled.replaceTensorData(patch.tensor.data)
-          ops.assign(this._volColsMat.tensor.pick(n, null), patchRaveled.tensor)
-          n += 1
+          this._volColsMat.tensor.data.set(patch.tensor.data, offset)
+          offset += patchLen
         }
       }
     }

@@ -88,8 +88,7 @@ export default class AtrousConvolution2D extends Convolution2D {
     }
 
     let patch = new Tensor([], [nbRow, nbCol, inputChannels])
-    let patchRaveled = new Tensor([], [patchLen])
-    let n = 0
+    let offset = 0
     for (let i = 0, limit = inputRows - nbRowDilated; i <= limit; i += this.subsample[0]) {
       for (let j = 0, limit = inputCols - nbColDilated; j <= limit; j += this.subsample[1]) {
         ops.assign(
@@ -99,9 +98,8 @@ export default class AtrousConvolution2D extends Convolution2D {
             .lo(i, j, 0)
             .step(this.atrousRate[0], this.atrousRate[1], 1)
         )
-        patchRaveled.replaceTensorData(patch.tensor.data)
-        ops.assign(this._imColsMat.tensor.pick(n, null), patchRaveled.tensor)
-        n += 1
+        this._imColsMat.tensor.data.set(patch.tensor.data, offset)
+        offset += patchLen
       }
     }
     if (this._useWeblas) {
