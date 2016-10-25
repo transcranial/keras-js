@@ -2,7 +2,7 @@
 
 Run [Keras](https://github.com/fchollet/keras) models (trained using Tensorflow backend) in your browser, with GPU support. Models are created directly from the Keras JSON-format configuration file, using weights serialized directly from the corresponding HDF5 file.
 
-Inspiration is drawn from a number of deep learning / neural network libraries for JavaScript and the browser, including [ConvNetJS](https://github.com/karpathy/convnetjs), [synaptic](https://github.com/cazala/synaptic), [brain](https://github.com/harthur/brain), [CaffeJS](https://github.com/chaosmail/caffejs), [MXNetJS](https://github.com/dmlc/mxnet.js). However, the focus of this library is on inference only.
+Inspiration is drawn from a number of deep learning / neural network libraries for JavaScript and the browser, including [Tensorflow Playground](http://playground.tensorflow.org/), [ConvNetJS](https://github.com/karpathy/convnetjs), [synaptic](https://github.com/cazala/synaptic), [brain](https://github.com/harthur/brain), [CaffeJS](https://github.com/chaosmail/caffejs), [MXNetJS](https://github.com/dmlc/mxnet.js). However, the focus of this library is on inference only.
 
 Tensor operations are extended on top of the [ndarray](https://github.com/scijs/ndarray) library. GPU support is powered by WebGL through [weblas](https://github.com/waylonflinn/weblas).
 
