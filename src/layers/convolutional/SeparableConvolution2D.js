@@ -3,6 +3,143 @@ import Tensor from '../../Tensor'
 import Layer from '../../Layer'
 import Convolution2D from './Convolution2D'
 import ops from 'ndarray-ops'
+import gemm from 'ndarray-gemm'
+
+/**
+ * _DepthwiseConvolution2D layer class
+ */
+class _DepthwiseConvolution2D extends Convolution2D {
+  constructor (attrs = {}) {
+    super(attrs)
+  }
+
+  /**
+   * Convert input image to column matrix
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
+  _im2col (x) {
+    const [inputRows, inputCols, inputChannels] = x.tensor.shape
+    const nbRow = this.kernelShape[1]
+    const nbCol = this.kernelShape[2]
+    const outputRows = this.outputShape[0]
+    const outputCols = this.outputShape[1]
+    const nbPatches = outputRows * outputCols
+    const patchLen = nbRow * nbCol
+
+    if (!this._imColsMat) {
+      this._imColsMat = new Tensor([], [nbPatches * inputChannels, patchLen])
+    }
+
+    let patch = new Tensor([], [nbRow, nbCol, 1])
+    let patchRaveled = new Tensor([], [patchLen])
+    let n = 0
+    for (let c = 0; c < inputChannels; c++) {
+      for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.subsample[0]) {
+        for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.subsample[1]) {
+          ops.assign(patch.tensor, x.tensor.hi(i + nbRow, j + nbCol, c + 1).lo(i, j, c))
+          patchRaveled.replaceTensorData(patch.tensor.data)
+          ops.assign(this._imColsMat.tensor.pick(n, null), patchRaveled.tensor)
+          n += 1
+        }
+      }
+    }
+    if (this._useWeblas) {
+      this._imColsMat.createWeblasTensor()
+    }
+    return this._imColsMat
+  }
+
+  /**
+   * Convert filter weights to row matrix
+   * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
+   */
+  _w2row () {
+    const inputChannels = this.weights.W.tensor.shape[2]
+    const [nbFilter, nbRow, nbCol] = this.kernelShape
+    const patchLen = nbRow * nbCol
+
+    this._wRowsMat = new Tensor([], [patchLen, nbFilter * inputChannels])
+
+    let patch = new Tensor([], [nbRow, nbCol])
+    let patchRaveled = new Tensor([], [patchLen])
+    let p = 0
+    for (let c = 0; c < inputChannels; c++) {
+      for (let n = 0; n < nbFilter; n++) {
+        ops.assign(patch.tensor, this.weights.W.tensor.pick(null, null, c, n))
+        patchRaveled.replaceTensorData(patch.tensor.data)
+        ops.assign(this._wRowsMat.tensor.pick(null, p), patchRaveled.tensor)
+        p += 1
+      }
+    }
+
+    return this._wRowsMat
+  }
+
+  /**
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
+  call (x) {
+    // convert to tf ordering
+    if (this.dimOrdering === 'th') {
+      x.tensor = x.tensor.transpose(1, 2, 0)
+    }
+
+    this._calcOutputShape(x)
+    this._padInput(x)
+
+    this._im2col(x)
+
+    const nbFilter = this.kernelShape[0]
+    const outputRows = this.outputShape[0]
+    const outputCols = this.outputShape[1]
+    const nbPatches = outputRows * outputCols
+    const matMul = new Tensor([], [nbPatches * x.tensor.shape[2], nbFilter * x.tensor.shape[2]])
+
+    if (this._useWeblas) {
+      // GPU
+      if (this._imColsMat.weblasTensorsSplit) {
+        // split matrix multiply if this._imColsMat dimension > webgl.MAX_TEXTURE_SIZE
+        let offset = 0
+        this._imColsMat.weblasTensorsSplit.forEach(imColsMatSplit => {
+          const matMulSplitData = weblas.pipeline.sgemm(
+            1, imColsMatSplit, this._wRowsMat.weblasTensor,
+            1, this._zerosVec.weblasTensor
+          ).transfer()
+          matMul.tensor.data.set(matMulSplitData, offset)
+          offset += matMulSplitData.length
+        })
+      } else {
+        // normal matrix multiply
+        matMul.tensor.data = weblas.pipeline.sgemm(
+          1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor,
+          1, this._zerosVec.weblasTensor
+        ).transfer()
+      }
+    } else {
+      // CPU
+      gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
+    }
+
+    let output = new Tensor([], [outputRows, outputCols, x.tensor.shape[2] * nbFilter])
+    const outputDataLength = outputRows * outputCols * x.tensor.shape[2] * nbFilter
+    let dataFiltered = new Float32Array(outputDataLength)
+    for (let c = 0; c < x.tensor.shape[2]; c++) {
+      for (let i = 0, n = c * outputDataLength + c * nbFilter, len = (c + 1) * outputDataLength; n < len; i++, n += nbFilter * x.tensor.shape[2]) {
+        for (let m = 0; m < nbFilter; m++) {
+          dataFiltered[n + m - c * outputDataLength] = matMul.tensor.data[n + m]
+        }
+      }
+    }
+    output.replaceTensorData(dataFiltered)
+
+    x.tensor = output.tensor
+
+    return x
+  }
+}
 
 /**
  * SeparableConvolution2D layer class
@@ -58,10 +195,20 @@ export default class SeparableConvolution2D extends Layer {
     // SeparableConvolution2D has two components: depthwise, and pointwise.
     // Activation function and bias is applied at the end.
     // Subsampling (striding) only performed on depthwise part, not the pointwise part.
-    const depthwiseConvAttrs = { nbFilter: this.depthMultiplier, nbRow, nbCol, activation: 'linear', borderMode, subsample, dimOrdering, bias: false }
-    const pointwiseConvAttrs = { nbFilter, nbRow: 1, nbCol: 1, activation: 'linear', borderMode, subsample: [1, 1], dimOrdering, bias: false }
-    this._depthwiseConv = new Convolution2D(Object.assign(depthwiseConvAttrs, { gpu: attrs.gpu }))
-    this._pointwiseConv = new Convolution2D(Object.assign(pointwiseConvAttrs, { gpu: attrs.gpu }))
+    this.depthwiseConvAttrs = { nbFilter: this.depthMultiplier, nbRow, nbCol, activation: 'linear', borderMode, subsample, dimOrdering, bias: false, gpu: attrs.gpu }
+    this.pointwiseConvAttrs = { nbFilter, nbRow: 1, nbCol: 1, activation: 'linear', borderMode, subsample: [1, 1], dimOrdering, bias: this.bias, gpu: attrs.gpu }
+  }
+
+  /**
+   * Method for setting layer weights
+   * Override `super` method since weights must be set in component Convolution2D layers
+   * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
+   */
+  setWeights (weightsArr) {
+    this._depthwiseConv = new _DepthwiseConvolution2D(this.depthwiseConvAttrs)
+    this._depthwiseConv.setWeights(weightsArr.slice(0, 1))
+    this._pointwiseConv = new Convolution2D(this.pointwiseConvAttrs)
+    this._pointwiseConv.setWeights(weightsArr.slice(1, 3))
   }
 
   /**
@@ -71,53 +218,11 @@ export default class SeparableConvolution2D extends Layer {
    */
   call (x) {
     // Perform depthwise ops
-    this._depthwiseConv._calcOutputShape(x)
-    const outputRows = this._depthwiseConv.outputShape[0]
-    const outputCols = this._depthwiseConv.outputShape[1]
-    let depthwiseOutput = new Tensor([], [outputRows, outputCols, this.depthMultiplier])
-
-    // temporary tensor to hold input for a particular channel
-    const [inputRows, inputCols, inputChannels] = x.tensor.shape
-    let inputChannelSlice = new Tensor([], [inputRows, inputCols, 1])
-
-    // temporary tensor to hold weights for a particular channel
-    let depthwiseKernelSliceShape = this.weights.depthwise_kernel.tensor.shape.slice()
-    depthwiseKernelSliceShape[2] = 1
-    let depthwiseKernelSlice = new Tensor([], depthwiseKernelSliceShape)
-
-    // tensor to hold combined output of depthwise ops
-    const depthwiseOutputCombined = new Tensor([], [
-      this._depthwiseConv.outputShape[0],
-      this._depthwiseConv.outputShape[1],
-      inputChannels * this.depthMultiplier
-    ])
-
-    // perform convolution over each channel separately
-    for (let c = 0; c < inputChannels; c++) {
-      depthwiseKernelSlice.tensor = this.weights.depthwise_kernel.tensor
-        .hi(depthwiseKernelSliceShape[0], depthwiseKernelSliceShape[1], c + 1, depthwiseKernelSliceShape[3])
-        .lo(0, 0, c, 0)
-      this._depthwiseConv.setWeights([depthwiseKernelSlice])
-      inputChannelSlice.tensor = x.tensor.hi(inputRows, inputCols, c + 1).lo(0, 0, c)
-      depthwiseOutput = this._depthwiseConv.call(inputChannelSlice)
-      ops.assign(
-        depthwiseOutputCombined.tensor
-          .hi(outputRows, outputCols, (c + 1) * this.depthMultiplier)
-          .lo(0, 0, c * this.depthMultiplier),
-        depthwiseOutput.tensor
-      )
-    }
+    const depthwiseOutput = this._depthwiseConv.call(x)
 
     // Perform depthwise ops
-    this._pointwiseConv.setWeights([this.weights.pointwise_kernel])
-    const pointwiseOutput = this._pointwiseConv.call(depthwiseOutputCombined)
+    const pointwiseOutput = this._pointwiseConv.call(depthwiseOutput)
 
-    // bias
-    if (this.bias) {
-      for (let n = 0; n < this.weights.b.tensor.shape[0]; n++) {
-        ops.addseq(pointwiseOutput.tensor.pick(null, null, n), this.weights.b.tensor.get(n))
-      }
-    }
     x.tensor = pointwiseOutput.tensor
 
     // activation
