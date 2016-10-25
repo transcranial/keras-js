@@ -167,14 +167,12 @@ export default class Convolution2D extends Layer {
     }
 
     let patch = new Tensor([], [nbRow, nbCol, inputChannels])
-    let patchRaveled = new Tensor([], [patchLen])
-    let n = 0
+    let offset = 0
     for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.subsample[0]) {
       for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.subsample[1]) {
         ops.assign(patch.tensor, x.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0))
-        patchRaveled.replaceTensorData(patch.tensor.data)
-        ops.assign(this._imColsMat.tensor.pick(n, null), patchRaveled.tensor)
-        n += 1
+        this._imColsMat.tensor.data.set(patch.tensor.data, offset)
+        offset += patchLen
       }
     }
     if (this._useWeblas) {
@@ -227,27 +225,13 @@ export default class Convolution2D extends Layer {
     const nbPatches = outputRows * outputCols
     const matMul = new Tensor([], [nbPatches, nbFilter])
 
-    if (this._useWeblas) {
+    if (this._useWeblas && !(this._imColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
       // GPU
       const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
-      if (this._imColsMat.weblasTensorsSplit) {
-        // split matrix multiply if this._imColsMat dimension > webgl.MAX_TEXTURE_SIZE
-        let offset = 0
-        this._imColsMat.weblasTensorsSplit.forEach(imColsMatSplit => {
-          const matMulSplitData = weblas.pipeline.sgemm(
-            1, imColsMatSplit, this._wRowsMat.weblasTensor,
-            1, bias
-          ).transfer()
-          matMul.tensor.data.set(matMulSplitData, offset)
-          offset += matMulSplitData.length
-        })
-      } else {
-        // normal matrix multiply
-        matMul.tensor.data = weblas.pipeline.sgemm(
-          1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor,
-          1, bias
-        ).transfer()
-      }
+      matMul.tensor.data = weblas.pipeline.sgemm(
+        1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor,
+        1, bias
+      ).transfer()
     } else {
       // CPU
       if (this.bias) {

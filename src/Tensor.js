@@ -31,6 +31,8 @@ export default class Tensor {
     } else {
       this.tensor = ndarray(new this._type([]), [])
     }
+
+    this._gpuMaxSizeExceeded = false
   }
 
   /**
@@ -39,60 +41,24 @@ export default class Tensor {
    * see https://github.com/waylonflinn/weblas/wiki/Pipeline
    *
    * gl.MAX_TEXTURE_SIZE is a limiting factor.
-   * Where this is exceeded, weblas Tensor must be split.
+   * Where this is exceeded, falls back to CPU.
    */
   createWeblasTensor () {
     if (this.weblasTensor) {
       this.weblasTensor.delete()
     }
-    if (this.weblasTensorsSplit) {
-      this.weblasTensorsSplit.forEach(t => t.delete())
-    }
 
     if (this.tensor.shape.length === 1) {
       const len = this.tensor.shape[0]
       if (len > MAX_TEXTURE_SIZE) {
-        this.weblasTensorsSplit = []
-        const splitNum = Math.ceil(MAX_TEXTURE_SIZE / len)
-        for (let i = 0; i < splitNum; i++) {
-          const lo = i * Math.round(len / splitNum)
-          const hi = Math.min(len, (i + 1) * Math.round(len / splitNum))
-          const splitShape = [1, hi - lo]
-          this.weblasTensorsSplit.push(new weblas.pipeline.Tensor(splitShape, this.tensor.data.subarray(lo, hi - lo)))
-        }
+        this._gpuMaxSizeExceeded = true
       } else {
         const shape = [1, len]
         this.weblasTensor = new weblas.pipeline.Tensor(shape, this.tensor.data)
       }
     } else if (this.tensor.shape.length === 2) {
-      if (this.tensor.shape.every(s => s > MAX_TEXTURE_SIZE)) {
-        throw new Error('[Tensor] cannot create Tensor with both dimensions exceeding MAX_TEXTURE_SIZE')
-      }
-
-      const rows = this.tensor.shape[0]
-      const cols = this.tensor.shape[1]
-      if (rows > MAX_TEXTURE_SIZE) {
-        this.weblasTensorsSplit = []
-        const splitNum = Math.ceil(rows / MAX_TEXTURE_SIZE)
-        for (let i = 0; i < splitNum; i++) {
-          const lo = i * MAX_TEXTURE_SIZE
-          const hi = Math.min(rows, (i + 1) * MAX_TEXTURE_SIZE)
-          const splitShape = [hi - lo, cols]
-          this.weblasTensorsSplit.push(
-            new weblas.pipeline.Tensor(splitShape, this.tensor.data.subarray(lo * cols, hi * cols))
-          )
-        }
-      } else if (cols > MAX_TEXTURE_SIZE) {
-        this.weblasTensorsSplit = []
-        const splitNum = Math.ceil(cols / MAX_TEXTURE_SIZE)
-        for (let i = 0; i < splitNum; i++) {
-          const lo = i * MAX_TEXTURE_SIZE
-          const hi = Math.min(cols, (i + 1) * MAX_TEXTURE_SIZE)
-          const splitShape = [rows, hi - lo]
-          this.weblasTensorsSplit.push(
-            new weblas.pipeline.Tensor(splitShape, this.tensor.data.slice(rows * lo, rows * hi))
-          )
-        }
+      if (this.tensor.shape.some(s => s > MAX_TEXTURE_SIZE)) {
+        this._gpuMaxSizeExceeded = true
       } else {
         const shape = this.tensor.shape
         this.weblasTensor = new weblas.pipeline.Tensor(shape, this.tensor.data)
