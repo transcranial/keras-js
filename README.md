@@ -150,7 +150,7 @@ See `demos/src/` for source code of real examples written in VueJS.
 
   - *advanced activations*: LeakyReLU, PReLU, ELU, ParametricSoftplus, ThresholdedReLU, SReLU
 
-  - *convolutional*: Convolution1D, Convolution2D, AtrousConvolution2D, SeparableConvolution2D, Deconvolution2D, Convolution3D, UpSampling1D, UpSampling2D, UpSampling3D, ZeroPadding1D, ZeroPadding2D, ZeroPadding3D
+  - *convolutional*: Convolution1D, Convolution2D, AtrousConvolution2D, SeparableConvolution2D, Deconvolution2D, Convolution3D, UpSampling1D, UpSampling2D, UpSampling3D, ZeroPadding1D, ZeroPadding2D, ZeroPadding3D, Cropping1D, Cropping2D, Cropping3D
 
   - *core*: Dense, Activation, Dropout, SpatialDropout2D, SpatialDropout3D, Flatten, Reshape, Permute, RepeatVector, Merge, Highway, MaxoutDense
 
@@ -170,7 +170,7 @@ See `demos/src/` for source code of real examples written in VueJS.
 
   - *core*: Lambda
 
-  - *convolutional*: AtrousConvolution1D, Cropping1D, Cropping2D, Cropping3D
+  - *convolutional*: AtrousConvolution1D
 
   - *locally-connected*: LocallyConnected1D, LocallyConnected2D
 
