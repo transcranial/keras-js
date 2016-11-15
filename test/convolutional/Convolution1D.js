@@ -28,12 +28,7 @@ describe('convolutional layer: Convolution1D', function () {
       inputShape: [8, 3],
       kernelShape: [2, 7],
       attrs: { activation: 'tanh', borderMode: 'same', subsampleLength: 1, bias: true }
-    },
-    {
-        inputShape: [16, 1],
-        kernelShape: [3, 3],
-        attrs: { activation: 'linear', borderMode: 'same', subsampleLength: 1, bias: true }
-    },
+    }
   ]
 
   before(function () {
