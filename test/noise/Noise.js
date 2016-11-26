@@ -15,7 +15,7 @@ describe('core layer: Noise', function () {
   it('[core.GaussianDropout.0] should just pass through tensor during test time', function () {
     const key = 'core.GaussianDropout.0'
     console.log(`\n%c[${key}] should pass through`, styles.h3)
-    let testLayer1 = new layers.GaussianDropout({ outputDim: 2, sigma:0.5 })
+    let testLayer1 = new layers.Dense({ outputDim: 2 })
     testLayer1.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     t = testLayer1.call(t)
@@ -35,12 +35,12 @@ describe('core layer: Noise', function () {
   it('[core.GaussianNoise.0] should just pass through tensor during test time', function () {
     const key = 'core.GaussianNoise.0'
     console.log(`\n%c[${key}] should pass through`, styles.h3)
-    let testLayer1 = new layers.GaussianNoise({ outputDim: 2, sigma:0.5 })
+    let testLayer1 = new layers.Dense({ outputDim: 2 })
     testLayer1.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     t = testLayer1.call(t)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-    let testLayer2 = new layers.GaussianNoise({ p: 0.5 })
+    let testLayer2 = new layers.GaussianNoise({ sigma: 0.5 })
     const startTime = performance.now()
     t = testLayer2.call(t)
     const endTime = performance.now()
