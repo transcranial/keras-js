@@ -156,6 +156,8 @@ See `demos/src/` for source code of real examples written in VueJS.
 
   - *embeddings*: Embedding
 
+  - *noise*: GaussianNoise, GaussianDropout
+
   - *normalization*: BatchNormalization
 
   - *pooling*: MaxPooling1D, MaxPooling2D, MaxPooling3D, AveragePooling1D, AveragePooling2D, AveragePooling3D, GlobalMaxPooling1D, GlobalAveragePooling1D, GlobalMaxPooling2D, GlobalAveragePooling2D
@@ -173,8 +175,6 @@ See `demos/src/` for source code of real examples written in VueJS.
   - *convolutional*: AtrousConvolution1D
 
   - *locally-connected*: LocallyConnected1D, LocallyConnected2D
-
-  - *noise*: GaussianNoise, GaussianDropout
 
   - *pooling*: GlobalMaxPooling3D, GlobalAveragePooling3D
 
