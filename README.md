@@ -188,6 +188,8 @@ Keras.js can be run in a WebWorker separate from the main thread. Because Keras.
 
 In GPU mode, tensor objects are encoded as WebGL textures prior to computations. The size of these tensors are limited by `gl.getParameter(gl.MAX_TEXTURE_SIZE)`, which differs by hardware/platform. See [here](http://webglstats.com/) for typical expected values. For operations involving tensors where this value is exceeded along any dimension, that operation falls back to the CPU.
 
+Firefox on certain platforms (macOS in particular, possibly others) still has texture size limits hard-coded. Even on modern GPUs, this limit may be too low. This is a [known issue](https://bugzilla.mozilla.org/show_bug.cgi?id=986871). While Keras.js will gracefully downgrade to use the CPU in this case, computational performance will be degraded. One way to get around this is to go to `about:config` and change `gfx.work-around-driver-bugs` to `false`, and restart the browser. This should increase the max texture size back to normal.
+
 ### Development / Testing
 
 There are extensive tests for each implemented layer. See `notebooks/` for jupyter notebooks generating the data for all these tests.
