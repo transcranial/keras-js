@@ -12,7 +12,7 @@ module.exports = {
     library: 'KerasJS',
     libraryTarget: 'umd'
   },
-  devtool: 'eval-source-map',
+  devtool: 'eval',
   module: {
     loaders: [
       {

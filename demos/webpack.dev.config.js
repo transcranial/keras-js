@@ -11,7 +11,7 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     filename: 'bundle.js'
   },
-  devtool: 'eval-source-map',
+  devtool: 'eval',
   module: {
     loaders: [
       {

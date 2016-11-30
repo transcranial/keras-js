@@ -12,6 +12,7 @@ module.exports = {
     library: 'KerasJS',
     libraryTarget: 'umd'
   },
+  devtool: 'cheap-module-source-map',
   module: {
     loaders: [
       {
