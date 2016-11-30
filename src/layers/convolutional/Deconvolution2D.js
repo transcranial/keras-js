@@ -80,7 +80,9 @@ export default class Deconvolution2D extends Layer {
     this._wRowsMat = this._w2row()
     if (this._useWeblas) {
       this._wRowsMat.createWeblasTensor()
-      this._wRowsMat.weblasTensor = this._wRowsMat.weblasTensor.transpose()
+      if (!this._wRowsMat._gpuMaxSizeExceeded) {
+        this._wRowsMat.weblasTensor = this._wRowsMat.weblasTensor.transpose()
+      }
     }
   }
 

@@ -47,7 +47,9 @@ export default class Dense extends Layer {
 
     if (this._useWeblas) {
       this.weights.W.createWeblasTensor()
-      this.weights.W.weblasTensor = this.weights.W.weblasTensor.transpose()
+      if (!this.weights.W._gpuMaxSizeExceeded) {
+        this.weights.W.weblasTensor = this.weights.W.weblasTensor.transpose()
+      }
       if (this.bias) {
         this.weights.b.createWeblasTensor()
       } else {
