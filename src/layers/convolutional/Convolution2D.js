@@ -62,8 +62,18 @@ export default class Convolution2D extends Layer {
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights (weightsArr) {
-    if (this.dimOrdering === 'th') {
-      // W
+    const [nbFilter, nbRow, nbCol] = this.kernelShape
+    let shape = weightsArr[0].tensor.shape
+
+    // check for legacy shape of weights
+    // Keras:    (nb_filter, input_dim, filter_length, 1)
+    // Keras.js: (nbFilter, inputChannels, nbRow, nbCol)
+    if ( !(shape[0] === nbRow & shape[1] === nbCol ) | shape[3] != nbFilter){
+      console.warn('Using legacy shape of weights')
+
+      if (!(shape[0] === nbFilter & (shape[2] === nbRow & shape[3] === nbCol))) {
+        throw 'Unsupported shape of weights'
+      }
       weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 1, 0)
     }
     super.setWeights(weightsArr)
