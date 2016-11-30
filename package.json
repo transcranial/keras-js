@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/transcranial/keras-js#readme",
   "dependencies": {
-    "babel-core": "^6.18.0",
+    "babel-core": "^6.18.2",
     "bluebird": "^3.4.6",
     "cwise": "^1.0.9",
     "lodash": "^4.17.2",
