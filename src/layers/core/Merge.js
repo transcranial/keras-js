@@ -5,7 +5,6 @@ import ops from 'ndarray-ops'
 import unsqueeze from 'ndarray-unsqueeze'
 import concatFirstAxis from 'ndarray-concat-rows'
 import isEqual from 'lodash/isEqual'
-import isInteger from 'lodash/isInteger'
 import range from 'lodash/range'
 
 /**
@@ -36,12 +35,18 @@ export default class Merge extends Layer {
     }
 
     // no mini-batch axis here, so we subtract 1 if given axis > 0
-    this.concatAxis = concatAxis <= 0
-      ? concatAxis
-      : concatAxis - 1
-    this.dotAxes = dotAxes <= 0
-      ? dotAxes
-      : dotAxes - 1
+    this.concatAxis = concatAxis <= 0 ? concatAxis : concatAxis - 1
+    if (Array.isArray(dotAxes)) {
+      this.dotAxes = [
+        dotAxes[0] <= 0 ? dotAxes[0] : dotAxes[0] - 1,
+        dotAxes[1] <= 0 ? dotAxes[1] : dotAxes[1] - 1
+      ]
+    } else {
+      this.dotAxes = [
+        dotAxes <= 0 ? dotAxes : dotAxes - 1,
+        dotAxes <= 0 ? dotAxes : dotAxes - 1
+      ]
+    }
 
     this.outputShape = outputShape
     this.outputMask = outputMask
@@ -63,12 +68,11 @@ export default class Merge extends Layer {
       if (inputs.length !== 2) {
         throw new Error(`${this.name} [Merge layer] Exactly 2 inputs required for mode ${this.mode}.`)
       }
-      if (isInteger(this.dotAxes)) {
-        if (this.dotAxes < 0) {
-          this.dotAxes = [shapes[0].length + this.dotAxes, shapes[1].length + this.dotAxes]
-        } else {
-          this.dotAxes = [this.dotAxes, this.dotAxes]
-        }
+      if (this.dotAxes[0] < 0) {
+        this.dotAxes[0] = shapes[0].length + this.dotAxes[0]
+      }
+      if (this.dotAxes[1] < 0) {
+        this.dotAxes[1] = shapes[1].length + this.dotAxes[1]
       }
       if (shapes[0][this.dotAxes[0]] !== shapes[1][this.dotAxes[1]]) {
         throw new Error(`${this.name} [Merge layer] Dimensions incompatibility using dot mode.`)
