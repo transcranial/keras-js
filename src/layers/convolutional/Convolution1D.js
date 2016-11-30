@@ -30,6 +30,8 @@ export default class Convolution1D extends Layer {
       throw new Error(`${this.name} [Convolution1D layer] Invalid borderMode.`)
     }
 
+    this.bias = bias
+
     // Layer weights specification
     this.params = this.bias ? ['W', 'b'] : ['W']
 
