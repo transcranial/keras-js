@@ -413,8 +413,8 @@ export default class Model {
   async predict (inputData) {
     this.isRunning = true
 
-    const inputNames = keys(this.inputTensors)
-    if (!isEqual(keys(inputData), inputNames)) {
+    const inputNames = keys(this.inputTensors).sort()
+    if (!isEqual(keys(inputData).sort(), inputNames)) {
       this.isRunning = false
       throw new Error(`predict() must take an object where the keys are the named inputs of the model: ${inputNames}.`)
     }
