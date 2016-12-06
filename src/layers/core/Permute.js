@@ -1,5 +1,7 @@
 import Layer from '../../Layer'
-
+import Tensor from '../../Tensor'
+import ndarray from 'ndarray'
+import ops from 'ndarray-ops'
 /**
  * Permute layer class
  * Note there is no concept of batch size in these layers (single-batch), so dim numbers 1 less
@@ -30,6 +32,13 @@ export default class Permute extends Layer {
       throw new Error(`${this.name} [Permute layer] The specified dims permutation must match the number of dimensions.`)
     }
     x.tensor = x.tensor.transpose(...this.dims)
+    let permuted = new Tensor([], [x.tensor.shape[0],x.tensor.shape[1]])
+    for(var i=0; i<x.tensor.shape[0]; ++i) {
+        for(var j=0;j<x.tensor.shape[1];++j){
+            permuted.tensor.set(i,j,x.tensor.get(i,j))
+        }
+    } 
+    x.tensor = permuted.tensor
     return x
   }
 }
