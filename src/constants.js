@@ -1,8 +1,11 @@
 const canvas = document.createElement('canvas')
 const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
 
-if (!gl) {
-  throw new Error('Unable to initialize WebGL. Your browser may not support it.')
+let MAX_TEXTURE_SIZE = 16384
+if (gl) {
+  MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE)
+} else {
+  console.log('Unable to initialize WebGL. Your browser may not support it.')
 }
 
-export const MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE)
+export { MAX_TEXTURE_SIZE }
