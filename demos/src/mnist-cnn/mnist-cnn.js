@@ -78,7 +78,7 @@ const LAYER_DISPLAY_CONFIG = {
 export const MnistCnn = Vue.extend({
   props: ['hasWebgl'],
 
-  template: require('raw!./mnist-cnn.template.html'),
+  template: require('raw-loader!./mnist-cnn.template.html'),
 
   data: function () {
     return {

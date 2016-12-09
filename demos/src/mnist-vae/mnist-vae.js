@@ -56,7 +56,7 @@ const LAYER_DISPLAY_CONFIG = {
 export const MnistVae = Vue.extend({
   props: ['hasWebgl'],
 
-  template: require('raw!./mnist-vae.template.html'),
+  template: require('raw-loader!./mnist-vae.template.html'),
 
   data: function () {
     return {

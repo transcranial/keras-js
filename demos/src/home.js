@@ -70,7 +70,7 @@ const DEMO_INFO_PROD = [
 const DEMO_INFO = (process.env.NODE_ENV === 'production') ? DEMO_INFO_PROD : DEMO_INFO_DEV
 
 export const Home = Vue.extend({
-  template: require('raw!./home.template.html'),
+  template: require('raw-loader!./home.template.html'),
 
   data: function () {
     return {

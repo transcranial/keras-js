@@ -30,7 +30,7 @@ const MODEL_CONFIG = {
 export const InceptionV3 = Vue.extend({
   props: ['hasWebgl'],
 
-  template: require('raw!./inception-v3.template.html'),
+  template: require('raw-loader!./inception-v3.template.html'),
 
   data: function () {
     return {

@@ -30,7 +30,7 @@ const MODEL_CONFIG = {
 export const ResNet50 = Vue.extend({
   props: ['hasWebgl'],
 
-  template: require('raw!./resnet50.template.html'),
+  template: require('raw-loader!./resnet50.template.html'),
 
   data: function () {
     return {

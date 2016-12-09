@@ -76,7 +76,7 @@ const ARCHITECTURE_DIAGRAM_LAYERS = [
 export const ImdbBidirectionalLstm = Vue.extend({
   props: ['hasWebgl'],
 
-  template: require('raw!./imdb-bidirectional-lstm.template.html'),
+  template: require('raw-loader!./imdb-bidirectional-lstm.template.html'),
 
   data: function () {
     return {

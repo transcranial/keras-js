@@ -30,7 +30,7 @@ const MODEL_CONFIG = {
 export const Xception = Vue.extend({
   props: ['hasWebgl'],
 
-  template: require('raw!./xception.template.html'),
+  template: require('raw-loader!./xception.template.html'),
 
   data: function () {
     return {
