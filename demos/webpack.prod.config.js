@@ -40,11 +40,10 @@ module.exports = {
         'NODE_ENV': JSON.stringify('production')
       }
     }),
-    new webpack.optimize.DedupePlugin(),
     new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      }
+      compress: { screw_ie8: true, warnings: false },
+      mangle: { screw_ie8: true },
+      output: { comments: false, screw_ie8: true }
     })
   ]
 }
