@@ -25,7 +25,7 @@ export default class Model {
    * @param {object} [config.headers] - any additional HTTP headers required for resource fetching
    * @param {boolean} [config.GPU] - enable GPU
    */
-  constructor (config = {}) {
+    constructor (config = {}, inputLayerSize) {
     const {
       filepaths = {},
       headers = {},
@@ -91,7 +91,7 @@ export default class Model {
     this.inputTensors = {}
 
     // Promise for when Model class is initialized
-    this._ready = this.initialize()
+    this._ready = this.initialize(inputLayerSize)
 
     // flag while computations are being performed
     this.isRunning = false
@@ -122,13 +122,13 @@ export default class Model {
    * Model initialization
    * @returns {Promise}
    */
-  initialize () {
+  initialize (inputLayerSize) {
     const dataTypes = ['model', 'weights', 'metadata']
     return Promise.all(
       dataTypes.map(type => this.dataRequest(type, this.headers))
     )
     .then(() => {
-      this.createLayers()
+      this.createLayers(inputLayerSize)
       return Promise.resolve()
     })
     .catch(err => {
@@ -193,7 +193,7 @@ export default class Model {
    * other information. Note that in the Keras model config object variables are
    * in snake_case. We convert the variable names to camelCase here.
    */
-  createLayers () {
+  createLayers (inputLayerSize) {
     const modelClass = this.data.model.class_name
 
     let modelConfig = []
@@ -215,7 +215,7 @@ export default class Model {
       // create input tensor for InputLayer specified in Model class (layer itself created later)
       if (modelClass === 'Sequential' && index === 0) {
         const inputName = 'input'
-        const inputShape = layerConfig.batch_input_shape.slice(1)
+        const inputShape = inputLayerSize.slice(1)
         const layer = new layers.InputLayer({
           name: inputName,
           shape: inputShape
@@ -229,7 +229,7 @@ export default class Model {
         }
         this.inputTensors[inputName] = new Tensor([], inputShape)
       } else if (modelClass === 'Model' && layerClass === 'InputLayer') {
-        const inputShape = layerConfig.batch_input_shape.slice(1)
+        const inputShape = inputLayerSize.slice(1)
         this.inputTensors[layerConfig.name] = new Tensor([], inputShape)
       }
 
