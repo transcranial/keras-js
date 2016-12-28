@@ -40,5 +40,8 @@ module.exports = {
         'NODE_ENV': JSON.stringify('development')
       }
     })
-  ]
+  ],
+  performance: {
+    hints: false
+  }
 }

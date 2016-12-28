@@ -45,5 +45,8 @@ module.exports = {
       mangle: { screw_ie8: true },
       output: { comments: false, screw_ie8: true }
     })
-  ]
+  ],
+  performance: {
+    hints: false
+  }
 }
