@@ -8,7 +8,6 @@ import { MnistCnn } from './mnist-cnn/mnist-cnn'
 import { MnistVae } from './mnist-vae/mnist-vae'
 import { ResNet50 } from './resnet50/resnet50'
 import { InceptionV3 } from './inception-v3/inception-v3'
-import { Xception } from './xception/xception'
 import { ImdbBidirectionalLstm } from './imdb-bidirectional-lstm/imdb-bidirectional-lstm'
 
 Vue.component('menu', Menu)
@@ -17,7 +16,6 @@ Vue.component('mnist-cnn', MnistCnn)
 Vue.component('mnist-vae', MnistVae)
 Vue.component('resnet50', ResNet50)
 Vue.component('inception-v3', InceptionV3)
-Vue.component('xception', Xception)
 Vue.component('imdb-bidirectional-lstm', ImdbBidirectionalLstm)
 
 Vue.use(VueMdl.default)
@@ -52,7 +50,6 @@ function matchRoute () {
     'mnist-vae',
     'resnet50',
     'inception-v3',
-    'xception',
     'imdb-bidirectional-lstm'
   ]
 
