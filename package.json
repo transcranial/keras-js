@@ -64,7 +64,7 @@
     "raw-loader": "^0.5.1",
     "standard": "^8.6.0",
     "style-loader": "^0.13.1",
-    "webpack": "2.2.0-rc.2"
+    "webpack": "2.2.0-rc.3"
   },
   "standard": {
     "parser": "babel-eslint",
