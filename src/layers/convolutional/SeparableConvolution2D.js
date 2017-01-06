@@ -148,7 +148,8 @@ export default class SeparableConvolution2D extends Layer {
       bias = true
     } = attrs
 
-    this.activation = activations[activation]
+    this.activation = activation
+    this.activationFunc = activations[activation]
 
     if (borderMode === 'valid' || borderMode === 'same') {
       this.borderMode = borderMode
@@ -206,7 +207,7 @@ export default class SeparableConvolution2D extends Layer {
     x.tensor = pointwiseOutput.tensor
 
     // activation
-    this.activation(x)
+    this.activationFunc(x)
 
     return x
   }

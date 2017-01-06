@@ -24,7 +24,8 @@ export default class Dense extends Layer {
       bias = true
     } = attrs
 
-    this.activation = activations[activation]
+    this.activation = activation
+    this.activationFunc = activations[activation]
     this.outputDim = outputDim
     this.inputDim = inputDim
     this.bias = bias
@@ -97,7 +98,7 @@ export default class Dense extends Layer {
     }
     x.tensor = y.tensor
 
-    this.activation(x)
+    this.activationFunc(x)
 
     return x
   }

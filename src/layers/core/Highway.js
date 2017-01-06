@@ -26,7 +26,10 @@ export default class Highway extends Layer {
     } = attrs
 
     this.transformBias = transformBias
-    this.activation = activations[activation]
+
+    this.activation = activation
+    this.activationFunc = activations[activation]
+
     this.bias = bias
 
     /**
@@ -53,7 +56,7 @@ export default class Highway extends Layer {
       ops.assign(y.tensor, this.weights.b.tensor)
     }
     gemv(1.0, this.weights.W.tensor.transpose(1, 0), x.tensor, 1.0, y.tensor)
-    this.activation(y)
+    this.activationFunc(y)
 
     let transform = new Tensor([], [this.weights.W_carry.tensor.shape[1]])
     if (this.bias) {

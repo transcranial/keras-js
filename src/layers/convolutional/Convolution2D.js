@@ -32,7 +32,8 @@ export default class Convolution2D extends Layer {
 
     this.kernelShape = [nbFilter, nbRow, nbCol]
 
-    this.activation = activations[activation]
+    this.activation = activation
+    this.activationFunc = activations[activation]
 
     if (borderMode === 'valid' || borderMode === 'same') {
       this.borderMode = borderMode
@@ -264,7 +265,7 @@ export default class Convolution2D extends Layer {
     }
     x.tensor = output.tensor
 
-    this.activation(x)
+    this.activationFunc(x)
 
     // convert back to th ordering if necessary
     if (this.dimOrdering === 'th') {

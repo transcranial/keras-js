@@ -17,7 +17,8 @@ export default class Activation extends Layer {
       activation = 'linear'
     } = attrs
 
-    this.activation = activations[activation]
+    this.activation = activation
+    this.activationFunc = activations[activation]
   }
 
   /**
@@ -26,7 +27,7 @@ export default class Activation extends Layer {
    * @returns {Tensor} x
    */
   call (x) {
-    this.activation(x)
+    this.activationFunc(x)
     return x
   }
 }
