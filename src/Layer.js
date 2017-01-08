@@ -1,6 +1,3 @@
-import ndarray from 'ndarray'
-import squeeze from 'ndarray-squeeze'
-
 /**
  * Layer class
  */
@@ -17,10 +14,9 @@ export default class Layer {
     this.weights = {}
 
     // turn on weblas
+    this._useWeblas = false
     if (attrs.gpu && weblas) {
       this._useWeblas = true
-    } else {
-      this._useWeblas = false
     }
   }
 
@@ -59,49 +55,5 @@ export default class Layer {
    */
   call (x) {
     return x
-  }
-
-  /**
-   * Create weblas pipeline tensor weights
-   * 2-D only
-   */
-  createWeblasWeights () {
-    this.weblasWeights = {}
-
-    this.params.forEach((p, i) => {
-      if (this.weights[p].tensor.shape.length === 1) {
-        const shape = [1, this.weights[p].tensor.shape[0]]
-        this.weblasWeights[p] = new weblas.pipeline.Tensor(shape, this.weights[p].tensor.data)
-      } if (this.weights[p].tensor.shape.length === 2) {
-        const shape = this.weights[p].tensor.shape
-        this.weblasWeights[p] = new weblas.pipeline.Tensor(shape, this.weights[p].tensor.data)
-      }
-    })
-  }
-
-  /**
-   * Transfer weblas pipeline tensor weights
-   */
-  transferWeblasWeights () {
-    this.params.forEach((p, i) => {
-      if (this.weblasWeights[p]) {
-        const shape = this.weblasWeights[p].shape
-        const arr = this.weblasWeights[p].transfer(true)
-        this.weights[p].tensor = squeeze(ndarray(arr, shape))
-      }
-    })
-  }
-
-  /**
-   * Delete weblas pipeline tensor weights
-   */
-  deleteWeblasWeights () {
-    this.params.forEach((p, i) => {
-      if (this.weblasWeights[p]) {
-        this.weblasWeights[p].delete()
-        delete this.weblasWeights[p]
-      }
-    })
-    delete this.weblasWeights
   }
 }
