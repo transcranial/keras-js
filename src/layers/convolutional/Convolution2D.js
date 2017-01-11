@@ -3,6 +3,8 @@ import Tensor from '../../Tensor'
 import Layer from '../../Layer'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
+import checkPipelineSupport from '../../utils/checkPipelineSupport'
+import WebGLConv2D from '../../ext/convolutional/WebGLConv2D'
 
 /**
  * Convolution2D layer class
@@ -53,6 +55,15 @@ export default class Convolution2D extends Layer {
 
     // Layer weights specification
     this.params = this.bias ? ['W', 'b'] : ['W']
+
+    // Enable layer pipeline mode if supported
+    if (this._useWeblas) {
+      const isPipelineModeSupported = checkPipelineSupport(this.layerClass, attrs)
+      if (isPipelineModeSupported) {
+        this._pipelineEnabled = true
+        this.webglConv2D = new WebGLConv2D()
+      }
+    }
   }
 
   /**
@@ -99,11 +110,11 @@ export default class Convolution2D extends Layer {
    * dimensions, kernel size, and padding mode.
    * For tensorflow implementation of padding, see:
    * https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/common_shape_fns.cc
-   * @param {Tensor} x
+   * @param {number[]} inputShape
    */
-  _calcOutputShape (x) {
-    const inputRows = x.tensor.shape[0]
-    const inputCols = x.tensor.shape[1]
+  _calcOutputShape (inputShape) {
+    const inputRows = inputShape[0]
+    const inputCols = inputShape[1]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
 
     const outputRows = this.borderMode === 'same'
@@ -154,7 +165,7 @@ export default class Convolution2D extends Layer {
   }
 
   /**
-   * Convert input image to column matrix
+   * Convert input tensor to column matrix
    * @param {Tensor} x
    * @returns {Tensor} x
    */
@@ -217,20 +228,98 @@ export default class Convolution2D extends Layer {
   }
 
   /**
-   * Method for layer computational logic
+   * Creates a index mapping from the 2D-tiled input tensor with associated
+   * 3D tensor shape to the representation required prior to the matrix multiply.
+   * This allows us to work directly on the 2D tiled tensor representations rather
+   * than needing to reshape to the 3D reprentation and calling im2col.
+   * @param {number[]} inputShape
+   */
+  _tiledIndexMapping (inputShape) {
+    console.log(`    input shape ${inputShape}, output shape ${this.outputShape}`)
+    if (this._tiledIndexMappingRow && this._tiledIndexMappingCol) {
+      return
+    }
+
+    const [inputRows, inputCols, inputChannels] = inputShape
+    const nbRow = this.kernelShape[1]
+    const nbCol = this.kernelShape[2]
+    const outputRows = this.outputShape[0]
+    const outputCols = this.outputShape[1]
+    const nbPatches = outputRows * outputCols
+    const patchLen = nbRow * nbCol * inputChannels
+
+    let indicesRow = new Tensor([], inputShape)
+    let indicesCol = new Tensor([], inputShape)
+    for (let i = 0; i < inputRows; i++) {
+      for (let j = 0; j < inputCols; j++) {
+        ops.assigns(indicesRow.tensor.pick(i, j, null), i * inputCols + j)
+      }
+    }
+    for (let k = 0; k < inputChannels; k++) {
+      ops.assigns(indicesCol.tensor.pick(null, null, k), k)
+    }
+
+    this._tiledIndexMappingRow = new Tensor([], [nbPatches, patchLen])
+    this._tiledIndexMappingCol = new Tensor([], [nbPatches, patchLen])
+
+    let patchRow = new Tensor([], [nbRow, nbCol, inputChannels])
+    let patchCol = new Tensor([], [nbRow, nbCol, inputChannels])
+    let offset = 0
+    for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.subsample[0]) {
+      for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.subsample[1]) {
+        ops.assign(patchRow.tensor, indicesRow.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0))
+        ops.assign(patchCol.tensor, indicesCol.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0))
+        this._tiledIndexMappingRow.tensor.data.set(patchRow.tensor.data, offset)
+        this._tiledIndexMappingCol.tensor.data.set(patchCol.tensor.data, offset)
+        offset += patchLen
+      }
+    }
+    this._tiledIndexMappingRow.createWeblasTensor()
+    this._tiledIndexMappingCol.createWeblasTensor()
+  }
+
+  /**
+   * Runs layer computational logic in pipeline mode
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call (x) {
+  _callPipelineMode (x) {
+    if (!x.weblasTensor) {
+      throw new Error('Variable passed in does not contain weblas tensor.')
+    }
+
+    this._tiledIndexMapping(this.inputShape)
+
+    const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
+    x.weblasTensor = this.webglConv2D.call(
+      x.weblasTensor,
+      this._wRowsMat.weblasTensor,
+      bias,
+      this.activation,
+      this._tiledIndexMappingRow.weblasTensor,
+      this._tiledIndexMappingCol.weblasTensor
+    )
+
+    x._fromPipeline = true
+    x._actualShape = this.outputShape
+
+    return x
+  }
+
+  /**
+   * Runs layer computational logic in regular mode
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
+  _callRegularMode (x) {
+    if (!x.tensor) {
+      throw new Error('Variable passed in does not contain tensor.')
+    }
+
     // convert to tf ordering
     if (this.dimOrdering === 'th') {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
-
-    this._calcOutputShape(x)
-    this._padInput(x)
-
-    this._im2col(x)
 
     const nbFilter = this.kernelShape[0]
     const outputRows = this.outputShape[0]
@@ -273,5 +362,36 @@ export default class Convolution2D extends Layer {
     }
 
     return x
+  }
+
+  /**
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
+  call (x) {
+    if (x._fromPipeline) {
+      this.inputShape = x._actualShape
+    } else {
+      this.inputShape = x.tensor.shape
+    }
+    this._calcOutputShape(this.inputShape)
+
+    if (this._pipelineEnabled) {
+      if (!x._fromPipeline) {
+        this._padInput(x)
+        this._im2col(x)
+        if (!this._imColsMat._gpuMaxSizeExceeded) {
+          x.weblasTensor = this._imColsMat.weblasTensor
+        } else {
+          return this._callRegularMode(x)
+        }
+      }
+      return this._callPipelineMode(x)
+    } else {
+      this._padInput(x)
+      this._im2col(x)
+      return this._callRegularMode(x)
+    }
   }
 }

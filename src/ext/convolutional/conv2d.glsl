@@ -11,7 +11,7 @@ uniform sampler2D B_t; // texture with data from padded transpose of B
 uniform sampler2D C; // texture with data from C
 uniform int K; // number of elements in shared dimension
 uniform int N; // number of columns in output
-uniform int pad;
+uniform int pad; // additional columns to nearest multiple of four
 uniform int relu;
 
 // sum of products between elements in row i (from A) x col j (from B)

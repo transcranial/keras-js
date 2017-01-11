@@ -355,6 +355,7 @@ export default class Model {
       // an output node will have 0 outbound nodes.
       return true
     } else if (nodes.length === 1) {
+      let start = performance.now()
       // Where computational logic lives for a given layer node
       // - Makes sure results are available from inbound layer nodes
       // - Keeps generator going until results are available from inbound layer nodes
@@ -384,11 +385,19 @@ export default class Model {
             throw new Error(`Layer name ${currentLayer.name} has ${inboundLayers.length} inbound nodes, but is not a Merge layer.`)
           }
           const prevLayerResult = inboundLayers[0].result
-          currentLayer.result = currentLayer.call(new Tensor(prevLayerResult.tensor.data, prevLayerResult.tensor.shape))
+          if (currentLayer._pipelineEnabled && prevLayerResult._fromPipeline) {
+            console.log('  pipeline', layerClass)
+            currentLayer.result = currentLayer.call(prevLayerResult)
+          } else {
+            console.log('  regular', layerClass)
+            currentLayer.result = currentLayer.call(new Tensor(prevLayerResult.tensor.data, prevLayerResult.tensor.shape))
+          }
         }
         currentLayer.hasResult = true
         currentLayer.visited = true
         this.layersWithResults.push(currentLayer.name)
+        let end = performance.now()
+        console.log(layerClass, (end - start).toFixed(2))
 
         if (this.layerCallPauses) {
           // temporarily pause 0 ms

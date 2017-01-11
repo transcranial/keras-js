@@ -30,11 +30,11 @@ void main(void) {
   float col = (col_t * float(N + pad) - 2.0); // index of first element in pixel (matrix space)
 
   // direct usage of col requires output be padded exactly like input
-  vec4 _x = texture2D(X, vec2(col_t, row_t));
-  vec4 _mean = texture2D(mean, vec2(col_t, row_t));
-  vec4 _std = texture2D(std, vec2(col_t, row_t));
-  vec4 _gamma = texture2D(gamma, vec2(col_t, row_t));
-  vec4 _beta = texture2D(beta, vec2(col_t, row_t));
+  vec4 _x = texture2D(X, vec2(col_t, 0.5));
+  vec4 _mean = texture2D(mean, vec2(col_t, 0.5));
+  vec4 _std = texture2D(std, vec2(col_t, 0.5));
+  vec4 _gamma = texture2D(gamma, vec2(col_t, 0.5));
+  vec4 _beta = texture2D(beta, vec2(col_t, 0.5));
   vec4 sum_v = _beta + _gamma * (_x - _mean) / sqrt(_std);
 
   // fix padded region

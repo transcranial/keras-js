@@ -3,6 +3,8 @@ import Tensor from '../../Tensor'
 import ops from 'ndarray-ops'
 import unpack from 'ndarray-unpack'
 import flattenDeep from 'lodash/flattenDeep'
+import checkPipelineSupport from '../../utils/checkPipelineSupport'
+import WebGLBatchNorm from '../../ext/normalization/WebGLBatchNorm'
 
 /**
  * BatchNormalization layer class
@@ -35,14 +37,67 @@ export default class BatchNormalization extends Layer {
     this.params = this.mode === 0
       ? ['gamma', 'beta', 'running_mean', 'running_std']
       : ['gamma', 'beta']
+
+    // Enable layer pipeline mode if supported
+    if (this._useWeblas) {
+      const isPipelineModeSupported = checkPipelineSupport(this.layerClass, attrs)
+      if (isPipelineModeSupported) {
+        this._pipelineEnabled = true
+        this.webglBatchNorm = new WebGLBatchNorm()
+      }
+    }
   }
 
   /**
-   * Method for layer computational logic
+   * Method for setting layer weights. Extends `super` method.
+   * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
+   */
+  setWeights (weightsArr) {
+    super.setWeights(weightsArr)
+
+    if (this._useWeblas) {
+      this.weights.gamma.createWeblasTensor()
+      this.weights.gamma.weblasTensor = this.weights.gamma.weblasTensor.transpose()
+      this.weights.beta.createWeblasTensor()
+      this.weights.beta.weblasTensor = this.weights.beta.weblasTensor.transpose()
+      this.weights.running_mean.createWeblasTensor()
+      this.weights.running_mean.weblasTensor = this.weights.running_mean.weblasTensor.transpose()
+      this.weights.running_std.createWeblasTensor()
+      this.weights.running_std.weblasTensor = this.weights.running_std.weblasTensor.transpose()
+    }
+  }
+
+  /**
+   * Runs layer computational logic in pipeline mode
+   * Only works with a previous convolutional layer with its output containing
+   * a weblas pipeline tensor which is a 2-D tiled representation (tile data, channels).
+   * The output after normalization is still a 2-D tiled representation (typically as input
+   * to convolution or merge layers running in pipeline mode).
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call (x) {
+  _callPipelineMode (x) {
+    if (!x._fromPipeline) {
+      return this._callRegularMode(x)
+    }
+
+    x.weblasTensor = this.webglBatchNorm.call(
+      x.weblasTensor,
+      this.weights.gamma.weblasTensor,
+      this.weights.beta.weblasTensor,
+      this.weights.running_mean.weblasTensor,
+      this.weights.running_std.weblasTensor
+    )
+
+    return x
+  }
+
+  /**
+   * Runs layer computational logic in regular mode
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
+  _callRegularMode (x) {
     if (!this.axisNormalized) {
       this.axis = this.axis < 0 ? x.tensor.shape.length + this.axis : this.axis - 1
       this.axisNormalized = true
@@ -129,5 +184,18 @@ export default class BatchNormalization extends Layer {
     ops.addeq(x.tensor, _beta.tensor)
 
     return x
+  }
+
+  /**
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
+  call (x) {
+    if (this._pipelineEnabled) {
+      return this._callPipelineMode(x)
+    } else {
+      return this._callRegularMode(x)
+    }
   }
 }

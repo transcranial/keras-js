@@ -35,10 +35,10 @@ export default class _Pooling2D extends Layer {
    * dimensions, kernel size, and padding mode.
    * For tensorflow implementation of padding, see:
    * https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/common_shape_fns.cc
-   * @param {Tensor} x
+   * @param {number[]} inputShape
    */
-  _calcOutputShape (x) {
-    const [inputRows, inputCols, inputChannels] = x.tensor.shape
+  _calcOutputShape (inputShape) {
+    const [inputRows, inputCols, inputChannels] = inputShape
     const [nbRow, nbCol] = this.poolSize
 
     const outputRows = this.borderMode === 'same'
@@ -95,13 +95,75 @@ export default class _Pooling2D extends Layer {
   }
 
   /**
-   * Method for layer computational logic
+   * Creates a index mapping from the 2D-tiled input tensor with associated
+   * 3D tensor shape to the representation required prior to pooling.
+   * @param {number[]} inputShape
+   */
+  _poolIndexMapping (inputShape) {
+    if (this._poolIndicesPerChannel) {
+      return
+    }
+
+    const inputRows = inputShape[0]
+    const inputCols = inputShape[1]
+    const [nbRow, nbCol] = this.poolSize
+    const outputRows = this.outputShape[0]
+    const outputCols = this.outputShape[1]
+
+    let indicesRow = new Tensor([], [inputRows, inputCols])
+    let index = 0
+    for (let i = 0; i < inputRows; i++) {
+      for (let j = 0; j < inputCols; j++) {
+        indicesRow.tensor.set(i, j, index)
+        index += 1
+      }
+    }
+
+    this._poolIndicesPerChannel = new Tensor([], [outputRows * outputCols, nbRow * nbCol])
+
+    let patchRow = new Tensor([], [nbRow, nbCol])
+    let offset = 0
+    for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.strides[0]) {
+      for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.strides[1]) {
+        ops.assign(patchRow.tensor, indicesRow.tensor.hi(i + nbRow, j + nbCol).lo(i, j))
+        this._poolIndicesPerChannel.tensor.data.set(patchRow.tensor.data, offset)
+        offset += nbRow * nbCol
+      }
+    }
+    this._poolIndicesPerChannel.createWeblasTensor()
+  }
+
+  /**
+   * Runs layer computational logic in pipeline mode
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call (x) {
-    if (this.poolingFunc !== 'max' && this.poolingFunc !== 'average') {
-      throw new Error(`[pooling._Pooling2D] pooling function must be max or average.`)
+  _callPipelineMode (x) {
+    if (!x.weblasTensor) {
+      throw new Error('Variable passed in does not contain weblas tensor.')
+    }
+
+    this._poolIndexMapping(this.inputShape)
+
+    x.weblasTensor = this.webglPooling2D.call(
+      x.weblasTensor,
+      this._poolIndicesPerChannel.weblasTensor
+    )
+
+    x._fromPipeline = true
+    x._actualShape = this.outputShape
+
+    return x
+  }
+
+  /**
+   * Runs layer computational logic in regular mode
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
+  _callRegularMode (x) {
+    if (!x.tensor) {
+      throw new Error('Variable passed in does not contain tensor.')
     }
 
     // convert to tf ordering
@@ -109,7 +171,6 @@ export default class _Pooling2D extends Layer {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
 
-    this._calcOutputShape(x)
     this._padInput(x)
 
     const [inputRows, inputCols, inputChannels] = x.tensor.shape
@@ -157,5 +218,25 @@ export default class _Pooling2D extends Layer {
     }
 
     return x
+  }
+
+  /**
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
+  call (x) {
+    if (x._fromPipeline) {
+      this.inputShape = x._actualShape
+    } else {
+      this.inputShape = x.tensor.shape
+    }
+    this._calcOutputShape(this.inputShape)
+
+    if (this._pipelineEnabled && x._fromPipeline) {
+      return this._callPipelineMode(x)
+    } else {
+      return this._callRegularMode(x)
+    }
   }
 }

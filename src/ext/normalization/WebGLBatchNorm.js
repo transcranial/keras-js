@@ -29,11 +29,11 @@ export default class WebGLBatchNorm extends WebGLLayer {
     const pad = this.webgl.getPad(N)
 
     // bind our input textures containing matrix data
-    this._bindInputTexture(t0.texture, gl.TEXTURE0, WebGLBatchNorm.INPUT_TEXTURE_UNIFORM_NAME)
-    this._bindInputTexture(mean.texture, gl.TEXTURE1, WebGLBatchNorm.MEAN_UNIFORM_NAME)
-    this._bindInputTexture(std.texture, gl.TEXTURE2, WebGLBatchNorm.STD_UNIFORM_NAME)
-    this._bindInputTexture(gamma.texture, gl.TEXTURE3, WebGLBatchNorm.GAMMA_UNIFORM_NAME)
-    this._bindInputTexture(beta.texture, gl.TEXTURE4, WebGLBatchNorm.BETA_UNIFORM_NAME)
+    this._bindInputTexture(this.program, t0.texture, gl.TEXTURE0, WebGLBatchNorm.INPUT_TEXTURE_UNIFORM_NAME)
+    this._bindInputTexture(this.program, mean.texture, gl.TEXTURE1, WebGLBatchNorm.MEAN_UNIFORM_NAME)
+    this._bindInputTexture(this.program, std.texture, gl.TEXTURE2, WebGLBatchNorm.STD_UNIFORM_NAME)
+    this._bindInputTexture(this.program, gamma.texture, gl.TEXTURE3, WebGLBatchNorm.GAMMA_UNIFORM_NAME)
+    this._bindInputTexture(this.program, beta.texture, gl.TEXTURE4, WebGLBatchNorm.BETA_UNIFORM_NAME)
 
     // bind uniforms
     gl.uniform1i(gl.getUniformLocation(this.program, WebGLBatchNorm.LENGTH_UNIFORM_NAME), N)
