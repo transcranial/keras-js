@@ -143,7 +143,8 @@ export default class _Pooling2D extends Layer {
       throw new Error('Variable passed in does not contain weblas tensor.')
     }
 
-    this._poolIndexMapping(this.inputShape)
+    this._calcOutputShape(x._actualShape)
+    this._poolIndexMapping(x._actualShape)
 
     x.weblasTensor = this.webglPooling2D.call(
       x.weblasTensor,
@@ -171,6 +172,7 @@ export default class _Pooling2D extends Layer {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
 
+    this._calcOutputShape(x.tensor.shape)
     this._padInput(x)
 
     const [inputRows, inputCols, inputChannels] = x.tensor.shape
@@ -226,13 +228,6 @@ export default class _Pooling2D extends Layer {
    * @returns {Tensor} x
    */
   call (x) {
-    if (x._fromPipeline) {
-      this.inputShape = x._actualShape
-    } else {
-      this.inputShape = x.tensor.shape
-    }
-    this._calcOutputShape(this.inputShape)
-
     if (this._pipelineEnabled && x._fromPipeline) {
       return this._callPipelineMode(x)
     } else {
