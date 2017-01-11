@@ -78,10 +78,9 @@ See `demos/src/` for source code of real examples written in VueJS.
 
   - the weights metadata file: `model_metadata.json`
 
-4. Include both the Keras.js and Weblas libraries:
+4. Include Keras.js:
 
   ```html
-  <script src="lib/weblas.js"></script>
   <script src="dist/keras.js"></script>
   ```
 

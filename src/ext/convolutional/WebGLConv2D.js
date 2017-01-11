@@ -4,10 +4,10 @@ export default class WebGLConv2D extends WebGLLayer {
   constructor () {
     super()
     this.inputTransformProgram = this.webgl.createProgram(
-      require('shader-loader!./input_transform.glsl')
+      require('./input_transform.glsl')
     )
     this.mainProgram = this.webgl.createProgram(
-      require('shader-loader!./conv2d.glsl')
+      require('./conv2d.glsl')
     )
   }
 

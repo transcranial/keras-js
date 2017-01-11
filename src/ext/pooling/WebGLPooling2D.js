@@ -5,11 +5,11 @@ export default class WebGLPooling2D extends WebGLLayer {
     super()
     if (poolingFunc === 'max') {
       this.program = this.webgl.createProgram(
-        require('shader-loader!./maxpooling2d.glsl')
+        require('./maxpooling2d.glsl')
       )
     } else if (poolingFunc === 'average') {
       this.program = this.webgl.createProgram(
-        require('shader-loader!./avgpooling2d.glsl')
+        require('./avgpooling2d.glsl')
       )
     } else {
       throw new Error(`[WebGLPooling2D] pooling function must be max or average.`)

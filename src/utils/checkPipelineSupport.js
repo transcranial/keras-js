@@ -1,5 +1,4 @@
 export default function checkPipelineSupport (layerClass, attrs) {
-  return false
   switch (layerClass) {
     case 'Convolution2D':
       if (

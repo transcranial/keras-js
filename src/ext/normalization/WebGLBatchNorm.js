@@ -4,7 +4,7 @@ export default class WebGLBatchNorm extends WebGLLayer {
   constructor () {
     super()
     this.program = this.webgl.createProgram(
-      require('shader-loader!./batchnorm.glsl')
+      require('./batchnorm.glsl')
     )
   }
 
