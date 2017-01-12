@@ -50,13 +50,15 @@ describe('pipeline_2', function () {
     console.log('\n%cpipeline_2', styles.h1)
     console.log(`\n%c${title}`, styles.h3)
 
+    let weightsIndexOffset = 0
     for (let i = 0; i < testParams.layers.length; i++) {
       const layerConfig = testParams.layers[i]
       const attrs = Object.assign(layerConfig.attrs, { gpu: true, pipeline: true })
       const layerInstance = new layers[layerConfig.layerClass](attrs)
       const weightsArr = TEST_DATA[key].weights
-        .slice(2 * i, 2 * i + 2)
+        .slice(weightsIndexOffset, weightsIndexOffset + layerInstance.params.length)
         .map(w => new KerasJS.Tensor(w.data, w.shape))
+      weightsIndexOffset += layerInstance.params.length
       layerInstance.setWeights(weightsArr)
       modelLayers.push(layerInstance)
     }
