@@ -57,10 +57,11 @@ export default class Convolution2D extends Layer {
     this.params = this.bias ? ['W', 'b'] : ['W']
 
     // Enable layer pipeline mode if supported
-    if (this._useWeblas) {
+    if (this._useWeblas && this._pipelineEnabled) {
       const isPipelineModeSupported = checkPipelineSupport(this.layerClass, attrs)
-      if (isPipelineModeSupported) {
-        this._pipelineEnabled = true
+      if (!isPipelineModeSupported) {
+        this._pipelineEnabled = false
+      } else {
         this.webglConv2D = new WebGLConv2D()
       }
     }
@@ -74,18 +75,7 @@ export default class Convolution2D extends Layer {
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights (weightsArr) {
-    const [nbFilter, nbRow, nbCol] = this.kernelShape
-    let shape = weightsArr[0].tensor.shape
-
-    // check for legacy shape of weights
-    // Keras:    (nb_filter, input_dim, filter_length, 1)
-    // Keras.js: (nbFilter, inputChannels, nbRow, nbCol)
-    if (!(shape[0] === nbRow && shape[1] === nbCol) || shape[3] !== nbFilter) {
-      console.warn('Using legacy shape of weights')
-
-      if (!(shape[0] === nbFilter & (shape[2] === nbRow & shape[3] === nbCol))) {
-        throw new Error('Unsupported shape of weights')
-      }
+    if (this.dimOrdering === 'th') {
       weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 1, 0)
     }
     super.setWeights(weightsArr)
