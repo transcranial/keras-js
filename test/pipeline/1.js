@@ -1,6 +1,6 @@
 /* eslint-env browser, mocha */
 
-describe('pipeline_0', function () {
+describe.only('pipeline_1', function () {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -9,29 +9,37 @@ describe('pipeline_0', function () {
   const layers = KerasJS.layers
 
   const testParams = {
-    inputShape: [8, 8, 2],
+    inputShape: [17, 17, 2],
     layers: [
       {
         layerClass: 'Convolution2D',
-        attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
+        attrs: { nbFilter: 5, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'same', subsample: [2, 2], dimOrdering: 'tf', bias: true }
       },
       {
         layerClass: 'Convolution2D',
-        attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
+        attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'linear', borderMode: 'same', subsample: [1, 1], dimOrdering: 'tf', bias: true }
       },
       {
         layerClass: 'Convolution2D',
-        attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
+        attrs: { nbFilter: 2, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
+      },
+      {
+        layerClass: 'Convolution2D',
+        attrs: { nbFilter: 3, nbRow: 5, nbCol: 5, activation: 'relu', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
+      },
+      {
+        layerClass: 'Convolution2D',
+        attrs: { nbFilter: 2, nbRow: 3, nbCol: 3, activation: 'linear', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
       }
     ]
   }
 
-  const key = 'pipeline_0'
+  const key = 'pipeline_1'
   const title = `[${key}] ${testParams.layers.map(layer => layer.layerClass).join('-')}`
   let modelLayers = []
 
   before(function () {
-    console.log('\n%cpipeline_0', styles.h1)
+    console.log('\n%cpipeline_1', styles.h1)
     console.log(`\n%c${title}`, styles.h3)
 
     for (let i = 0; i < testParams.layers.length; i++) {
