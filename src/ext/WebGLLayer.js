@@ -4,12 +4,12 @@ export default class WebGLLayer {
   }
 
   /**
-   * Create a texture from the given texel data and bind it to our shader program.
+   * Bind WebGL input texture.
    *
-   * program - shader program
-   * texture - packed texels data
-   * textureUnit - the texture unit to bind to (gl.TEXTURE0, gl.TEXTURE1, etc)
-   * name - the uniform name to associate with (must match shader program)
+   * @param {WebGLProgram} program - shader program
+   * @param {WebGLTexture} texture - texels data
+   * @param {number} textureUnit - e.g., gl.TEXTURE0
+   * @param {string} name - uniform name in shader program
    */
   _bindInputTexture (program, texture, textureUnit, name) {
     const gl = this.webgl.context

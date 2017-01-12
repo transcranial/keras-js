@@ -1,34 +1,79 @@
+// Transform input matrix X based on index mappings, indexMappingRow and indexMappingCol.
+// This is an extension of weblas.
+// https://github.com/waylonflinn/weblas
+
 precision highp float;
 
-varying vec2 outTex; // texture coords of row/column to calculate
-uniform sampler2D A;
+varying vec2 outTex;
+uniform sampler2D X;
 uniform sampler2D indexMappingRow;
 uniform sampler2D indexMappingCol;
-uniform int N; // number of columns in output
-uniform int pad; // additional columns to nearest multiple of four
+uniform int inputRows;
+uniform int inputCols;
+uniform int outputCols;
+uniform int inputColPad;
+uniform int outputColPad;
+
+float select_index(vec4 v, int index) {
+  float val = 0.0;
+  if (index == 0) {
+    val = v.r;
+  } else if (index == 1) {
+    val = v.g;
+  } else if (index == 2) {
+    val = v.b;
+  } else if (index == 3) {
+    val = v.a;
+  }
+  return val;
+}
+
+void fix_pad(inout vec4 v, int pad) {
+  v.a = 0.0;
+  if (pad == 2) {
+    v.b = 0.0;
+  } else if (pad == 3) {
+    v.b = 0.0;
+    v.g = 0.0;
+  }
+}
 
 void main(void) {
-  float row_t = outTex.y;
-  float col_t = outTex.x;
-	float col = (col_t * float(N + pad) - 2.0); // index of first element in pixel (matrix space)
+  // index of first element in pixel (matrix space)
+  float col = floor(outTex.x * float(outputCols + outputColPad) - 1.5);
 
-  vec4 mapped_row_t = texture2D(indexMappingRow, vec2(col_t, row_t));
-  vec4 mapped_col_t = texture2D(indexMappingCol, vec2(col_t, row_t));
+  vec4 rowIndices = texture2D(indexMappingRow, vec2(outTex.x, outTex.y));
+  vec4 colIndices = texture2D(indexMappingCol, vec2(outTex.x, outTex.y));
 
-  vec4 mapped_input_val = vec4(0.0, 0.0, 0.0, 0.0);
-  mapped_input_val.r = texture2D(A, vec2(mapped_col_t.r, mapped_row_t.r)).r;
-  if (pad > 0 && (col + 4.0) > float(N)) {
-    if (pad < 3) {
-      mapped_input_val.g = texture2D(A, vec2(mapped_col_t.g, mapped_row_t.g)).g;
+  float rowIndex;
+  float colIndex;
+  float inputCoordX;
+  float inputCoordY;
+  vec2 inputCoords;
+  int inputChannel;
+  vec4 mappedVal = vec4(0.0, 0.0, 0.0, 0.0);
+  for (int i = 0; i < 4; i++) {
+    rowIndex = select_index(rowIndices, i);
+    colIndex = select_index(colIndices, i);
+    inputCoordX = (float(colIndex) + 0.5) / float(inputCols + inputColPad);
+    inputCoordY = (float(rowIndex) + 0.5) / float(inputRows);
+    inputCoords = vec2(inputCoordX, inputCoordY);
+    inputChannel = int(mod(colIndex, 4.0));
+    if (i == 0) {
+      mappedVal.r = select_index(texture2D(X, inputCoords), inputChannel);
+    } else if (i == 1) {
+      mappedVal.g = select_index(texture2D(X, inputCoords), inputChannel);
+    } else if (i == 2) {
+      mappedVal.b = select_index(texture2D(X, inputCoords), inputChannel);
+    } else if (i == 3) {
+      mappedVal.a = select_index(texture2D(X, inputCoords), inputChannel);
     }
-    if (pad < 2) {
-      mapped_input_val.b = texture2D(A, vec2(mapped_col_t.b, mapped_row_t.b)).b;
-    }
-  } else {
-    mapped_input_val.g = texture2D(A, vec2(mapped_col_t.g, mapped_row_t.g)).g;
-    mapped_input_val.b = texture2D(A, vec2(mapped_col_t.b, mapped_row_t.b)).b;
-    mapped_input_val.a = texture2D(A, vec2(mapped_col_t.a, mapped_row_t.a)).a;
   }
 
-  gl_FragColor = mapped_input_val;
+  // set pad values to 0.0, if in padded region of output texture
+  if (outputColPad > 0 && col + 4.0 > float(outputCols)) {
+    fix_pad(mappedVal, outputColPad);
+  }
+
+  gl_FragColor = mappedVal;
 }

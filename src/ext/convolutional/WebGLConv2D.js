@@ -11,16 +11,143 @@ export default class WebGLConv2D extends WebGLLayer {
     )
   }
 
-  static INPUT_TEXTURE_UNIFORM_NAME = 'A'
-  static WEIGHTS_TEXTURE_UNIFORM_NAME = 'B_t'
-  static BIAS_TEXTURE_UNIFORM_NAME = 'C'
-  static SHARED_LENGTH_UNIFORM_NAME = 'K'
-  static COLUMN_COUNT_UNIFORM_NAME = 'N'
-  static PAD_UNIFORM_NAME = 'pad'
+  static INPUT_TEXTURE_NAME = 'X'
+  static WEIGHTS_TEXTURE_NAME = 'W'
+  static BIAS_TEXTURE_NAME = 'b'
+  static INPUT_ROWS_UNIFORM_NAME = 'inputRows'
+  static INPUT_COLS_UNIFORM_NAME = 'inputCols'
+  static OUTPUT_COLS_UNIFORM_NAME = 'outputCols'
+  static INPUT_COL_PAD_UNIFORM_NAME = 'inputColPad'
+  static OUTPUT_COL_PAD_UNIFORM_NAME = 'outputColPad'
   static RELU_ACTIVATION_UNIFORM_NAME = 'relu'
-  static IMAP_ROW_TEXTURE_UNIFORM_NAME = 'indexMappingRow'
-  static IMAP_COL_TEXTURE_UNIFORM_NAME = 'indexMappingCol'
+  static IMAP_ROW_TEXTURE_NAME = 'indexMappingRow'
+  static IMAP_COL_TEXTURE_NAME = 'indexMappingCol'
 
+  /**
+   * Bind WebGL input textures for input transform operation.
+   *
+   * @param {weblas.pipeline.Tensor} input
+   * @param {weblas.pipeline.Tensor} indexMappingRow
+   * @param {weblas.pipeline.Tensor} indexMappingCol
+   */
+  _bindInputTexturesInputTransform (input, indexMappingRow, indexMappingCol) {
+    const gl = this.webgl.context
+    this._bindInputTexture(this.inputTransformProgram, input.texture, gl.TEXTURE0, WebGLConv2D.INPUT_TEXTURE_NAME)
+    this._bindInputTexture(this.inputTransformProgram, indexMappingRow.texture, gl.TEXTURE1, WebGLConv2D.IMAP_ROW_TEXTURE_NAME)
+    this._bindInputTexture(this.inputTransformProgram, indexMappingCol.texture, gl.TEXTURE2, WebGLConv2D.IMAP_COL_TEXTURE_NAME)
+  }
+
+  /**
+   * Bind WebGL input textures for main operation.
+   *
+   * @param {weblas.pipeline.Tensor} input
+   * @param {weblas.pipeline.Tensor} weights
+   * @param {weblas.pipeline.Tensor} bias
+   */
+  _bindInputTexturesMain (input, weights, bias) {
+    const gl = this.webgl.context
+    this._bindInputTexture(this.mainProgram, input.texture, gl.TEXTURE0, WebGLConv2D.INPUT_TEXTURE_NAME)
+    this._bindInputTexture(this.mainProgram, weights.texture, gl.TEXTURE1, WebGLConv2D.WEIGHTS_TEXTURE_NAME)
+    this._bindInputTexture(this.mainProgram, bias.texture, gl.TEXTURE2, WebGLConv2D.BIAS_TEXTURE_NAME)
+  }
+
+  /**
+   * Bind WebGL uniforms for input transform operation.
+   *
+   * @param {weblas.pipeline.Tensor} input
+   * @param {weblas.pipeline.Tensor} indexMappingRow
+   */
+  _bindUniformsInputTransform (input, indexMappingRow) {
+    const gl = this.webgl.context
+    const nbPatches = input.shape[0]
+    const patchLen = input.shape[1]
+    const nbFilter = indexMappingRow.shape[1]
+    const inputColPad = this.webgl.getPad(patchLen)
+    const outputColPad = this.webgl.getPad(nbFilter)
+    gl.uniform1i(gl.getUniformLocation(this.inputTransformProgram, WebGLConv2D.INPUT_ROWS_UNIFORM_NAME), nbPatches)
+    gl.uniform1i(gl.getUniformLocation(this.inputTransformProgram, WebGLConv2D.INPUT_COLS_UNIFORM_NAME), patchLen)
+    gl.uniform1i(gl.getUniformLocation(this.inputTransformProgram, WebGLConv2D.OUTPUT_COLS_UNIFORM_NAME), nbFilter)
+    gl.uniform1i(gl.getUniformLocation(this.inputTransformProgram, WebGLConv2D.INPUT_COL_PAD_UNIFORM_NAME), inputColPad)
+    gl.uniform1i(gl.getUniformLocation(this.inputTransformProgram, WebGLConv2D.OUTPUT_COL_PAD_UNIFORM_NAME), outputColPad)
+  }
+
+  /**
+   * Bind WebGL uniforms for main operation.
+   *
+   * @param {weblas.pipeline.Tensor} input
+   * @param {weblas.pipeline.Tensor} weights
+   * @param {string} activation
+   */
+  _bindUniformsMain (input, weights, activation) {
+    const gl = this.webgl.context
+    const nbFilter = weights.shape[0]
+    const patchLen = input.shape[1]
+    const inputColPad = this.webgl.getPad(patchLen)
+    const outputColPad = this.webgl.getPad(nbFilter)
+    gl.uniform1i(gl.getUniformLocation(this.mainProgram, WebGLConv2D.INPUT_COLS_UNIFORM_NAME), patchLen)
+    gl.uniform1i(gl.getUniformLocation(this.mainProgram, WebGLConv2D.OUTPUT_COLS_UNIFORM_NAME), nbFilter)
+    gl.uniform1i(gl.getUniformLocation(this.mainProgram, WebGLConv2D.INPUT_COL_PAD_UNIFORM_NAME), inputColPad)
+    gl.uniform1i(gl.getUniformLocation(this.mainProgram, WebGLConv2D.OUTPUT_COL_PAD_UNIFORM_NAME), outputColPad)
+    if (activation === 'relu') {
+      gl.uniform1i(gl.getUniformLocation(this.mainProgram, WebGLConv2D.RELU_ACTIVATION_UNIFORM_NAME), 1)
+    }
+  }
+
+  /**
+   * Bind WebGL output texture for input transform operation.
+   *
+   * @param {weblas.pipeline.Tensor} indexMappingRow
+   * @param {weblas.pipeline.Tensor} inputTransformed
+   */
+  _bindOutputTextureInputTransform (indexMappingRow, inputTransformed) {
+    const nbFilter = indexMappingRow.shape[1]
+    const outputColPad = this.webgl.getPad(nbFilter)
+    this.webgl.bindOutputTexture(indexMappingRow.shape[0], (nbFilter + outputColPad) / 4, inputTransformed.texture)
+  }
+
+  /**
+   * Bind WebGL output texture for main operation.
+   *
+   * @param {weblas.pipeline.Tensor} input
+   * @param {weblas.pipeline.Tensor} weights
+   * @param {weblas.pipeline.Tensor} tOut
+   */
+  _bindOutputTextureMain (input, weights, tOut) {
+    const nbPatches = input.shape[0]
+    const nbFilter = weights.shape[0]
+    const outputColPad = this.webgl.getPad(nbFilter)
+    this.webgl.bindOutputTexture(nbPatches, (nbFilter + outputColPad) / 4, tOut.texture)
+  }
+
+  /**
+   * Runs WebGL fragment shader program to perform computation.
+   */
+  _compute () {
+    const gl = this.webgl.context
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
+  }
+
+  /**
+   * Clean-up: unbind WebGL input textures.
+   */
+  _unbindInputTextures () {
+    const gl = this.webgl.context
+    this.webgl.unbindInputTexture(gl.TEXTURE0)
+    this.webgl.unbindInputTexture(gl.TEXTURE1)
+    this.webgl.unbindInputTexture(gl.TEXTURE2)
+  }
+
+  /**
+   * Transform input operation.
+   * indexMappingRow and indexMappingCol contain index mappings on the encoded input
+   * matrix.
+   *
+   * @param {weblas.pipeline.Tensor} input
+   * @param {weblas.pipeline.Tensor} indexMappingRow
+   * @param {weblas.pipeline.Tensor} indexMappingCol
+   *
+   * @returns {weblas.pipeline.Tensor}
+   */
   transformInput (input, indexMappingRow, indexMappingCol) {
     if (indexMappingRow.shape[0] !== indexMappingCol.shape[0] ||
       indexMappingRow.shape[1] !== indexMappingCol.shape[1]
@@ -29,75 +156,55 @@ export default class WebGLConv2D extends WebGLLayer {
     }
 
     this.webgl.selectProgram(this.inputTransformProgram)
-    const gl = this.webgl.context
 
     const inputTransformed = new weblas.pipeline.Tensor(indexMappingRow.shape, null)
 
-    this._bindInputTexture(this.inputTransformProgram, input.texture, gl.TEXTURE0, WebGLConv2D.INPUT_TEXTURE_UNIFORM_NAME)
-    this._bindInputTexture(this.inputTransformProgram, indexMappingRow.texture, gl.TEXTURE1, WebGLConv2D.IMAP_ROW_TEXTURE_UNIFORM_NAME)
-    this._bindInputTexture(this.inputTransformProgram, indexMappingCol.texture, gl.TEXTURE2, WebGLConv2D.IMAP_COL_TEXTURE_UNIFORM_NAME)
-
-    const pad = this.webgl.getPad(indexMappingRow.shape[1])
-
-    gl.uniform1i(gl.getUniformLocation(this.inputTransformProgram, WebGLConv2D.COLUMN_COUNT_UNIFORM_NAME), indexMappingRow.shape[1])
-    gl.uniform1i(gl.getUniformLocation(this.inputTransformProgram, WebGLConv2D.PAD_UNIFORM_NAME), pad)
-
-    this.webgl.bindOutputTexture(indexMappingRow.shape[0], (indexMappingRow.shape[1] + pad) / 4, inputTransformed.texture)
-
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
-
-    this.webgl.unbindInputTexture(gl.TEXTURE0)
-    this.webgl.unbindInputTexture(gl.TEXTURE1)
-    this.webgl.unbindInputTexture(gl.TEXTURE2)
+    this._bindInputTexturesInputTransform(input, indexMappingRow, indexMappingCol)
+    this._bindUniformsInputTransform(input, indexMappingRow)
+    this._bindOutputTextureInputTransform(indexMappingRow, inputTransformed)
+    this._compute()
+    this._unbindInputTextures()
 
     return inputTransformed
   }
 
+  /**
+   * Main operation.
+   *
+   * @param {weblas.pipeline.Tensor} input
+   * @param {weblas.pipeline.Tensor} weights
+   * @param {weblas.pipeline.Tensor} bias
+   * @param {string} activation
+   * @param {weblas.pipeline.Tensor} [indexMappingRow]
+   * @param {weblas.pipeline.Tensor} [indexMappingCol]
+   *
+   * @returns {weblas.pipeline.Tensor}
+   */
   call (input, weights, bias, activation, indexMappingRow, indexMappingCol) {
-    console.log('      --', input.shape, weights.shape)
+    // console.log('      --', input.shape, weights.shape)
+    // console.log('pre', input.transfer(true).slice(20,30))
     if (indexMappingRow && indexMappingCol) {
       input = this.transformInput(input, indexMappingRow, indexMappingCol)
     }
-    console.log('      ++', input.shape, weights.shape)
+    // console.log('      ++', input.shape, weights.shape)
+    // console.log('post', input.transfer(true).slice(20,30))
     if (input.shape[1] !== weights.shape[1]) {
       throw new Error('Invalid input or weights weblas tensor shapes.')
     }
 
     this.webgl.selectProgram(this.mainProgram)
-    const gl = this.webgl.context
 
-    const M = input.shape[0]
-    const N = weights.shape[0]
-    const K = input.shape[1]
+    const nbPatches = input.shape[0]
+    const nbFilter = weights.shape[0]
 
     // create an empty output Tensor
-    const tOut = new weblas.pipeline.Tensor([M, N], null)
+    const tOut = new weblas.pipeline.Tensor([nbPatches, nbFilter], null)
 
-    // bind our input textures containing matrix data
-    this._bindInputTexture(this.mainProgram, input.texture, gl.TEXTURE0, WebGLConv2D.INPUT_TEXTURE_UNIFORM_NAME)
-    this._bindInputTexture(this.mainProgram, weights.texture, gl.TEXTURE1, WebGLConv2D.WEIGHTS_TEXTURE_UNIFORM_NAME)
-    this._bindInputTexture(this.mainProgram, bias.texture, gl.TEXTURE2, WebGLConv2D.BIAS_TEXTURE_UNIFORM_NAME)
-
-    const kPad = this.webgl.getPad(K)
-    const nPad = this.webgl.getPad(N)
-
-    // bind uniforms
-    gl.uniform1i(gl.getUniformLocation(this.mainProgram, WebGLConv2D.SHARED_LENGTH_UNIFORM_NAME), K + kPad)
-    gl.uniform1i(gl.getUniformLocation(this.mainProgram, WebGLConv2D.COLUMN_COUNT_UNIFORM_NAME), N)
-    gl.uniform1i(gl.getUniformLocation(this.mainProgram, WebGLConv2D.PAD_UNIFORM_NAME), nPad)
-    if (activation === 'relu') {
-      gl.uniform1i(gl.getUniformLocation(this.mainProgram, WebGLConv2D.RELU_ACTIVATION_UNIFORM_NAME), 1)
-    }
-
-    // create our destination texture
-    this.webgl.bindOutputTexture(M, (N + nPad) / 4, tOut.texture)
-
-    // initiate calculation
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
-
-    this.webgl.unbindInputTexture(gl.TEXTURE0)
-    this.webgl.unbindInputTexture(gl.TEXTURE1)
-    this.webgl.unbindInputTexture(gl.TEXTURE2)
+    this._bindInputTexturesMain(input, weights, bias)
+    this._bindUniformsMain(input, weights, activation)
+    this._bindOutputTextureMain(input, weights, tOut)
+    this._compute()
+    this._unbindInputTextures()
 
     return tOut
   }
