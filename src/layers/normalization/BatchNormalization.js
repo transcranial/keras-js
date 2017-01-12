@@ -18,7 +18,7 @@ export default class BatchNormalization extends Layer {
     this.layerClass = 'BatchNormalization'
 
     const {
-      epsilon = 1e-5,
+      epsilon = 1e-3,
       mode = 0,
       axis = -1
     } = attrs
@@ -57,14 +57,9 @@ export default class BatchNormalization extends Layer {
     super.setWeights(weightsArr)
 
     if (this._useWeblas) {
-      this.weights.gamma.createWeblasTensor()
-      this.weights.gamma.weblasTensor = this.weights.gamma.weblasTensor.transpose()
-      this.weights.beta.createWeblasTensor()
-      this.weights.beta.weblasTensor = this.weights.beta.weblasTensor.transpose()
-      this.weights.running_mean.createWeblasTensor()
-      this.weights.running_mean.weblasTensor = this.weights.running_mean.weblasTensor.transpose()
-      this.weights.running_std.createWeblasTensor()
-      this.weights.running_std.weblasTensor = this.weights.running_std.weblasTensor.transpose()
+      this.params.forEach(param => {
+        this.weights[param].createWeblasTensor()
+      })
     }
   }
 
@@ -84,6 +79,7 @@ export default class BatchNormalization extends Layer {
 
     x.weblasTensor = this.webglBatchNorm.call(
       x.weblasTensor,
+      this.epsilon,
       this.weights.gamma.weblasTensor,
       this.weights.beta.weblasTensor,
       this.weights.running_mean.weblasTensor,
