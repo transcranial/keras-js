@@ -283,39 +283,6 @@ export default class Convolution2D extends Layer {
   }
 
   /**
-   * Pipeline transfer
-   * Typically called at the end of a pipelined layer sequence.
-
-   * @param {Tensor} x
-   * @returns {Tensor} x
-   */
-  transferFromPipeline (x) {
-    if (!x.weblasTensor) {
-      throw new Error('Variable passed in does not contain weblas tensor.')
-    }
-
-    const nbFilter = this.kernelShape[0]
-    const outputRows = this.outputShape[0]
-    const outputCols = this.outputShape[1]
-    const nbPatches = outputRows * outputCols
-
-    const tiled = new Tensor([], [nbPatches, nbFilter])
-    tiled.tensor.data = x.weblasTensor.transfer()
-
-    let output = new Tensor([], this.outputShape)
-    let outputChannelRaveled = new Tensor([], [outputRows * outputCols])
-    let outputChannel = new Tensor([], [outputRows, outputCols])
-    for (let n = 0; n < nbFilter; n++) {
-      ops.assign(outputChannelRaveled.tensor, tiled.tensor.pick(null, n))
-      outputChannel.replaceTensorData(outputChannelRaveled.tensor.data)
-      ops.assign(output.tensor.pick(null, null, n), outputChannel.tensor)
-    }
-    x.tensor = output.tensor
-
-    return x
-  }
-
-  /**
    * Runs layer computational logic in pipeline mode
    * @param {Tensor} x
    * @returns {Tensor} x
@@ -326,20 +293,6 @@ export default class Convolution2D extends Layer {
     }
 
     this._tiledIndexMapping(this.inputShape)
-
-    // let test_in = new Tensor([], x.weblasTensor.shape)
-    // test_in.tensor.data = x.weblasTensor.transfer(true)
-    // let test_out = new Tensor([], this._tiledIndexMappingCol.tensor.shape)
-    // for (let i = 0; i < this._tiledIndexMappingCol.tensor.shape[0]; i++) {
-    //   for (let j = 0; j < this._tiledIndexMappingCol.tensor.shape[1]; j++) {
-    //     test_out.tensor.set(i, j, test_in.tensor.get(
-    //       this._tiledIndexMappingRow.tensor.get(i, j),
-    //       this._tiledIndexMappingCol.tensor.get(i, j)
-    //     ))
-    //   }
-    // }
-    // console.log('pre',test_in.tensor.data.slice(20,30))
-    // console.log('post', test_out.tensor.data.slice(20,30))
 
     const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
     x.weblasTensor = this.webglConv2D.call(

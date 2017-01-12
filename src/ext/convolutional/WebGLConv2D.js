@@ -181,13 +181,9 @@ export default class WebGLConv2D extends WebGLLayer {
    * @returns {weblas.pipeline.Tensor}
    */
   call (input, weights, bias, activation, indexMappingRow, indexMappingCol) {
-    // console.log('      --', input.shape, weights.shape)
-    // console.log('pre', input.transfer(true).slice(20,30))
     if (indexMappingRow && indexMappingCol) {
       input = this.transformInput(input, indexMappingRow, indexMappingCol)
     }
-    // console.log('      ++', input.shape, weights.shape)
-    // console.log('post', input.transfer(true).slice(20,30))
     if (input.shape[1] !== weights.shape[1]) {
       throw new Error('Invalid input or weights weblas tensor shapes.')
     }

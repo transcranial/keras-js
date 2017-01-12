@@ -1,15 +1,19 @@
+// Batch normalization op.
+// This is an extension of weblas.
+// https://github.com/waylonflinn/weblas
+
 precision highp float;
 
-varying vec2 outTex; // texture coords of row/column to calculate
-uniform sampler2D X; // texture with data from padded X
-uniform sampler2D mean;
-uniform sampler2D std;
+varying vec2 outTex;
+uniform sampler2D X;
 uniform sampler2D gamma;
 uniform sampler2D beta;
-uniform int N; // number of columns
-uniform int pad; // additional columns to nearest multiple of four
+uniform sampler2D mean;
+uniform sampler2D std;
+uniform float epsilon;
+uniform int outputCols;
+uniform int outputColPad;
 
-// set pad values to 0.0, if in padded region of output texture
 void fix_pad(inout vec4 v, int pad) {
   v.a = 0.0;
   if (pad == 2) {
@@ -21,26 +25,20 @@ void fix_pad(inout vec4 v, int pad) {
 }
 
 void main(void) {
+  // index of first element in pixel (matrix space)
+  float col = floor(outTex.x * float(outputCols + outputColPad) - 1.5);
 
-  // get the implied row and column from .y and .x of passed (output)
-  // texture coordinate. These map directly to input texture space when
-  // the relevant dimensions are the same.
-  float row_t = outTex.y;
-  float col_t = outTex.x;
-  float col = (col_t * float(N + pad) - 2.0); // index of first element in pixel (matrix space)
+  vec4 _x = texture2D(X, vec2(outTex.x, outTex.y));
+  vec4 _mean = texture2D(mean, vec2(outTex.x, 0.5));
+  vec4 _std = texture2D(std, vec2(outTex.x, 0.5));
+  vec4 _gamma = texture2D(gamma, vec2(outTex.x, 0.5));
+  vec4 _beta = texture2D(beta, vec2(outTex.x, 0.5));
+  vec4 sumValues = _beta + _gamma * (_x - _mean) / sqrt(_std + epsilon);
 
-  // direct usage of col requires output be padded exactly like input
-  vec4 _x = texture2D(X, vec2(col_t, 0.5));
-  vec4 _mean = texture2D(mean, vec2(col_t, 0.5));
-  vec4 _std = texture2D(std, vec2(col_t, 0.5));
-  vec4 _gamma = texture2D(gamma, vec2(col_t, 0.5));
-  vec4 _beta = texture2D(beta, vec2(col_t, 0.5));
-  vec4 sum_v = _beta + _gamma * (_x - _mean) / sqrt(_std);
-
-  // fix padded region
-  if (pad > 0 && col + 4.0 > float(N)) {
-    fix_pad(sum_v, pad);
+  // set pad values to 0.0, if in padded region of output texture
+  if (outputColPad > 0 && col + 4.0 > float(outputCols)) {
+    fix_pad(sumValues, outputColPad);
   }
 
-  gl_FragColor = sum_v;
+  gl_FragColor = sumValues;
 }
