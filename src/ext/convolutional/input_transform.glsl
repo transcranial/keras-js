@@ -55,18 +55,21 @@ void main(void) {
   for (int i = 0; i < 4; i++) {
     rowIndex = select_index(rowIndices, i);
     colIndex = select_index(colIndices, i);
-    inputCoordX = (float(colIndex) + 0.5) / float(inputCols + inputColPad);
-    inputCoordY = (float(rowIndex) + 0.5) / float(inputRows);
-    inputCoords = vec2(inputCoordX, inputCoordY);
-    inputChannel = int(mod(colIndex, 4.0));
-    if (i == 0) {
-      mappedVal.r = select_index(texture2D(X, inputCoords), inputChannel);
-    } else if (i == 1) {
-      mappedVal.g = select_index(texture2D(X, inputCoords), inputChannel);
-    } else if (i == 2) {
-      mappedVal.b = select_index(texture2D(X, inputCoords), inputChannel);
-    } else if (i == 3) {
-      mappedVal.a = select_index(texture2D(X, inputCoords), inputChannel);
+
+    if (rowIndex != -1.0 && colIndex != -1.0) {
+      inputCoordX = (float(colIndex) + 0.5) / float(inputCols + inputColPad);
+      inputCoordY = (float(rowIndex) + 0.5) / float(inputRows);
+      inputCoords = vec2(inputCoordX, inputCoordY);
+      inputChannel = int(mod(colIndex, 4.0));
+      if (i == 0) {
+        mappedVal.r = select_index(texture2D(X, inputCoords), inputChannel);
+      } else if (i == 1) {
+        mappedVal.g = select_index(texture2D(X, inputCoords), inputChannel);
+      } else if (i == 2) {
+        mappedVal.b = select_index(texture2D(X, inputCoords), inputChannel);
+      } else if (i == 3) {
+        mappedVal.a = select_index(texture2D(X, inputCoords), inputChannel);
+      }
     }
   }
 

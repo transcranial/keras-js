@@ -134,15 +134,19 @@ export default class Convolution2D extends Layer {
    * Pad input tensor if necessary, for borderMode='same'.
    * See above for notes on calculating padding.
    * @param {Tensor} x
+   * @param {number} [padValue]
    * @returns {Tensor} x
    */
-  _padInput (x) {
+  _padInput (x, padValue = 0) {
     if (this.borderMode === 'same') {
       const [inputRows, inputCols, inputChannels] = x.tensor.shape
       const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.inputPadding
       const newRows = inputRows + paddingRowBefore + paddingRowAfter
       const newCols = inputCols + paddingColBefore + paddingColAfter
       let _x = new Tensor([], [newRows, newCols, inputChannels])
+      if (padValue !== 0) {
+        ops.assigns(_x.tensor, padValue)
+      }
       ops.assign(
         _x.tensor
           .hi(inputRows + paddingRowBefore, inputCols + paddingColBefore, inputChannels)
@@ -229,13 +233,7 @@ export default class Convolution2D extends Layer {
       return
     }
 
-    const [inputRows, inputCols, inputChannels] = inputShape
-    const nbRow = this.kernelShape[1]
-    const nbCol = this.kernelShape[2]
-    const outputRows = this.outputShape[0]
-    const outputCols = this.outputShape[1]
-    const nbPatches = outputRows * outputCols
-    const patchLen = nbRow * nbCol * inputChannels
+    let [inputRows, inputCols, inputChannels] = inputShape
 
     let indicesRow = new Tensor([], inputShape)
     let indicesCol = new Tensor([], inputShape)
@@ -247,6 +245,23 @@ export default class Convolution2D extends Layer {
     for (let k = 0; k < inputChannels; k++) {
       ops.assigns(indicesCol.tensor.pick(null, null, k), k)
     }
+
+    // padding for border mode 'same'
+    if (this.borderMode === 'same') {
+      const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.inputPadding
+      inputRows = inputRows + paddingRowBefore + paddingRowAfter
+      inputCols = inputCols + paddingColBefore + paddingColAfter
+      const padValue = -1
+      this._padInput(indicesRow, padValue)
+      this._padInput(indicesCol, padValue)
+    }
+
+    const nbRow = this.kernelShape[1]
+    const nbCol = this.kernelShape[2]
+    const outputRows = this.outputShape[0]
+    const outputCols = this.outputShape[1]
+    const nbPatches = outputRows * outputCols
+    const patchLen = nbRow * nbCol * inputChannels
 
     this._tiledIndexMappingRow = new Tensor([], [nbPatches, patchLen])
     this._tiledIndexMappingCol = new Tensor([], [nbPatches, patchLen])
