@@ -39,10 +39,11 @@ export default class BatchNormalization extends Layer {
       : ['gamma', 'beta']
 
     // Enable layer pipeline mode if supported
-    if (this._useWeblas) {
+    if (this._useWeblas && this._pipelineEnabled) {
       const isPipelineModeSupported = checkPipelineSupport(this.layerClass, attrs)
-      if (isPipelineModeSupported) {
-        this._pipelineEnabled = true
+      if (!isPipelineModeSupported) {
+        this._pipelineEnabled = false
+      } else {
         this.webglBatchNorm = new WebGLBatchNorm()
       }
     }

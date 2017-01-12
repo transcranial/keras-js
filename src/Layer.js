@@ -15,8 +15,12 @@ export default class Layer {
 
     // turn on weblas
     this._useWeblas = false
+    this._pipelineEnabled = false
     if (attrs.gpu && weblas) {
       this._useWeblas = true
+      if (attrs.pipeline) {
+        this._pipelineEnabled = true
+      }
     }
   }
 
