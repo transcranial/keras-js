@@ -81,7 +81,7 @@ class _DepthwiseConvolution2D extends Convolution2D {
    * @returns {Tensor} x
    */
   call (x) {
-    this._calcOutputShape(x)
+    this._calcOutputShape(x.tensor.shape)
     this._padInput(x)
 
     this._im2col(x)

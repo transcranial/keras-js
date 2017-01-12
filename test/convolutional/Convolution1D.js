@@ -1,6 +1,6 @@
 /* eslint-env browser, mocha */
 
-describe.only('convolutional layer: Convolution1D', function () {
+describe('convolutional layer: Convolution1D', function () {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime

@@ -31,11 +31,11 @@ export default class AtrousConvolution2D extends Convolution2D {
    * dimensions, kernel size, and padding mode.
    * For tensorflow implementation of padding, see:
    * https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/common_shape_fns.cc
-   * @param {Tensor} x
+   * @param {number[]} inputShape
    */
-  _calcOutputShape (x) {
-    const inputRows = x.tensor.shape[0]
-    const inputCols = x.tensor.shape[1]
+  _calcOutputShape (inputShape) {
+    const inputRows = inputShape[0]
+    const inputCols = inputShape[1]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
 
     // effective shape after filter dilation
