@@ -16,43 +16,99 @@ export default class WebGLPooling2D extends WebGLLayer {
     }
   }
 
-  static INPUT_TEXTURE_UNIFORM_NAME = 'X'
-  static POOL_IMAP_TEXTURE_UNIFORM_NAME = 'poolIndexMapping'
-  static PAD_UNIFORM_NAME = 'pad'
+  static INPUT_TEXTURE_NAME = 'X'
+  static POOL_IMAP_TEXTURE_NAME = 'poolIndexMapping'
+  static INPUT_ROWS_UNIFORM_NAME = 'inputRows'
   static CHANNELS_UNIFORM_NAME = 'channels'
+  static CHANNELS_PAD_UNIFORM_NAME = 'channelsPad'
   static POOL_ELEMENTS_UNIFORM_NAME = 'poolElements'
+  static POOL_ELEMENTS_PAD_UNIFORM_NAME = 'poolElementsPad'
 
-  call (input, poolIndexMapping) {
-    this.webgl.selectProgram(this.program)
+  /**
+   * Bind WebGL input textures for main operation.
+   *
+   * @param {weblas.pipeline.Tensor} input
+   * @param {weblas.pipeline.Tensor} poolIndexMapping
+   */
+  _bindInputTextures (input, poolIndexMapping) {
     const gl = this.webgl.context
+    this._bindInputTexture(this.program, input.texture, gl.TEXTURE0, WebGLPooling2D.INPUT_TEXTURE_NAME)
+    this._bindInputTexture(this.program, poolIndexMapping.texture, gl.TEXTURE1, WebGLPooling2D.POOL_IMAP_TEXTURE_NAME)
+  }
 
-    const outputLength = poolIndexMapping.shape[0]
-    const poolElements = poolIndexMapping.shape[1]
+  /**
+   * Bind WebGL uniforms for main operation.
+   *
+   * @param {weblas.pipeline.Tensor} input
+   * @param {weblas.pipeline.Tensor} poolIndexMapping
+   */
+  _bindUniforms (input, poolIndexMapping) {
+    const gl = this.webgl.context
+    const nbPatches = input.shape[0]
     const channels = input.shape[1]
-
-    // create an empty output Tensor
-    const output = new weblas.pipeline.Tensor([outputLength, channels], null)
-
-    // bind our input textures containing matrix data
-    this._bindInputTexture(this.program, input.texture, gl.TEXTURE0, WebGLPooling2D.INPUT_TEXTURE_UNIFORM_NAME)
-    this._bindInputTexture(this.program, poolIndexMapping.texture, gl.TEXTURE1, WebGLPooling2D.POOL_IMAP_TEXTURE_UNIFORM_NAME)
-
-    const pad = this.webgl.getPad(channels)
-
-    // bind uniforms
-    gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.PAD_UNIFORM_NAME), pad)
+    const channelsPad = this.webgl.getPad(channels)
+    const poolElements = poolIndexMapping.shape[1]
+    const poolElementsPad = this.webgl.getPad(poolElements)
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.INPUT_ROWS_UNIFORM_NAME), nbPatches)
     gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.CHANNELS_UNIFORM_NAME), channels)
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.CHANNELS_PAD_UNIFORM_NAME), channelsPad)
     gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.POOL_ELEMENTS_UNIFORM_NAME), poolElements)
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.POOL_ELEMENTS_PAD_UNIFORM_NAME), poolElementsPad)
+  }
 
-    // create our destination texture
-    this.webgl.bindOutputTexture(outputLength, (channels + pad) / 4, output.texture)
+  /**
+   * Bind WebGL output texture for main operation.
+   *
+   * @param {weblas.pipeline.Tensor} input
+   * @param {weblas.pipeline.Tensor} poolIndexMapping
+   * @param {weblas.pipeline.Tensor} tOut
+   */
+  _bindOutputTexture (input, poolIndexMapping, tOut) {
+    const outputLength = poolIndexMapping.shape[0]
+    const channels = input.shape[1]
+    const outputCols = this.webgl.getPad(channels)
+    this.webgl.bindOutputTexture(outputLength, (channels + outputCols) / 4, tOut.texture)
+  }
 
-    // initiate calculation
+  /**
+   * Runs WebGL fragment shader program to perform computation.
+   */
+  _compute () {
+    const gl = this.webgl.context
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
+  }
 
+  /**
+   * Clean-up: unbind WebGL input textures.
+   */
+  _unbindInputTextures () {
+    const gl = this.webgl.context
     this.webgl.unbindInputTexture(gl.TEXTURE0)
     this.webgl.unbindInputTexture(gl.TEXTURE1)
+  }
 
-    return output
+  /**
+   * Main operation.
+   *
+   * @param {weblas.pipeline.Tensor} input
+   * @param {weblas.pipeline.Tensor} poolIndexMapping
+   *
+   * @returns {weblas.pipeline.Tensor}
+   */
+  call (input, poolIndexMapping) {
+    this.webgl.selectProgram(this.program)
+
+    // create an empty output Tensor
+    const outputLength = poolIndexMapping.shape[0]
+    const channels = input.shape[1]
+    const tOut = new weblas.pipeline.Tensor([outputLength, channels], null)
+
+    this._bindInputTextures(input, poolIndexMapping)
+    this._bindUniforms(input, poolIndexMapping)
+    this._bindOutputTexture(input, poolIndexMapping, tOut)
+    this._compute()
+    this._unbindInputTextures()
+
+    return tOut
   }
 }

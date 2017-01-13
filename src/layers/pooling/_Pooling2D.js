@@ -104,11 +104,8 @@ export default class _Pooling2D extends Layer {
       return
     }
 
-    const inputRows = inputShape[0]
-    const inputCols = inputShape[1]
-    const [nbRow, nbCol] = this.poolSize
-    const outputRows = this.outputShape[0]
-    const outputCols = this.outputShape[1]
+    let inputRows = inputShape[0]
+    let inputCols = inputShape[1]
 
     let indicesRow = new Tensor([], [inputRows, inputCols])
     let index = 0
@@ -118,6 +115,26 @@ export default class _Pooling2D extends Layer {
         index += 1
       }
     }
+
+    // padding for border mode 'same'
+    if (this.borderMode === 'same') {
+      const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.inputPadding
+      inputRows = inputRows + paddingRowBefore + paddingRowAfter
+      inputCols = inputCols + paddingColBefore + paddingColAfter
+      let _indicesRow = new Tensor([], [inputRows, inputCols])
+      ops.assigns(_indicesRow.tensor, -1)
+      ops.assign(
+        _indicesRow.tensor
+          .hi(inputShape[0] + paddingRowBefore, inputShape[1] + paddingColBefore)
+          .lo(paddingRowBefore, paddingColBefore),
+        indicesRow.tensor
+      )
+      indicesRow.tensor = _indicesRow.tensor
+    }
+
+    const [nbRow, nbCol] = this.poolSize
+    const outputRows = this.outputShape[0]
+    const outputCols = this.outputShape[1]
 
     this._poolIndicesPerChannel = new Tensor([], [outputRows * outputCols, nbRow * nbCol])
 
