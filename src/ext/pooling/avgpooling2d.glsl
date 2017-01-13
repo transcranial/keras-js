@@ -47,8 +47,8 @@ void main(void) {
   float poolIndex;
   vec4 mappedVal;
   float inputCoordY;
-  const float min = -1.0e+08;
-  vec4 currentMax = vec4(min, min, min, min);
+  vec4 currentSum = vec4(0.0, 0.0, 0.0, 0.0);
+  int poolElementsEffective = poolElements;
   for (int i = 0; i < 100; i += 1) {
     if (i >= poolElements) {
       break;
@@ -59,18 +59,21 @@ void main(void) {
     poolIndexRGBA = int(mod(float(i), 4.0));
     poolIndex = select_index(poolIndices, poolIndexRGBA);
 
-    inputCoordY = (poolIndex + 0.5) / float(inputRows);
-    mappedVal = texture2D(X, vec2(outTex.x, inputCoordY));
-
-    currentMax = currentMax + mappedVal;
+    if (poolIndex != -1.0) {
+      inputCoordY = (poolIndex + 0.5) / float(inputRows);
+      mappedVal = texture2D(X, vec2(outTex.x, inputCoordY));
+      currentSum = currentSum + mappedVal;
+    } else {
+      poolElementsEffective = poolElementsEffective - 1;
+    }
   }
 
-  currentMax = currentMax / float(poolElements)
+  currentSum = currentSum / float(poolElementsEffective);
 
   // set pad values to 0.0, if in padded region of output texture
   if (channelsPad > 0 && col + 4.0 > float(channels)) {
     fix_pad(mappedVal, channelsPad);
   }
 
-  gl_FragColor = currentMax;
+  gl_FragColor = currentSum;
 }

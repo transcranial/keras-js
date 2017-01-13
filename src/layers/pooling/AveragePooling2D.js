@@ -21,7 +21,7 @@ export default class AveragePooling2D extends _Pooling2D {
       if (!isPipelineModeSupported) {
         this._pipelineEnabled = false
       } else {
-        this.webglPooling2D = new WebGLPooling2D(this.poolingFunc)
+        this.webglPooling2D = new WebGLPooling2D('average')
       }
     }
   }
