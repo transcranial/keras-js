@@ -1,6 +1,6 @@
 /* eslint-env browser, mocha */
 
-describe('pipeline_3', function () {
+describe('pipeline_05', function () {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -16,18 +16,18 @@ describe('pipeline_3', function () {
         attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
       },
       {
-        layerClass: 'BatchNormalization',
-        attrs: { mode: 0, axis: -1, epsilon: 1e-3 }
+        layerClass: 'MaxPooling2D',
+        attrs: { poolSize: [2, 2], strides: null, borderMode: 'valid', dim_ordering: 'tf' }
       }
     ]
   }
 
-  const key = 'pipeline_3'
+  const key = 'pipeline_05'
   const title = `[${key}] ${testParams.layers.map(layer => layer.layerClass).join('-')}`
   let modelLayers = []
 
   before(function () {
-    console.log('\n%cpipeline_3', styles.h1)
+    console.log('\n%cpipeline_5', styles.h1)
     console.log(`\n%c${title}`, styles.h3)
 
     let weightsIndexOffset = 0

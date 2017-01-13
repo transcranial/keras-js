@@ -1,6 +1,6 @@
 /* eslint-env browser, mocha */
 
-describe('pipeline_2', function () {
+describe('pipeline_08', function () {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -9,45 +9,29 @@ describe('pipeline_2', function () {
   const layers = KerasJS.layers
 
   const testParams = {
-    inputShape: [16, 16, 2],
+    inputShape: [8, 8, 2],
     layers: [
       {
         layerClass: 'Convolution2D',
-        attrs: { nbFilter: 5, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'same', subsample: [2, 2], dimOrdering: 'tf', bias: true }
+        attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'same', subsample: [1, 1], dimOrdering: 'tf', bias: true }
       },
       {
         layerClass: 'Convolution2D',
-        attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'linear', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
+        attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
       },
       {
-        layerClass: 'Convolution2D',
-        attrs: { nbFilter: 2, nbRow: 1, nbCol: 1, activation: 'relu', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
-      },
-      {
-        layerClass: 'Convolution2D',
-        attrs: { nbFilter: 3, nbRow: 5, nbCol: 5, activation: 'relu', borderMode: 'same', subsample: [1, 1], dimOrdering: 'tf', bias: true }
-      },
-      {
-        layerClass: 'Convolution2D',
-        attrs: { nbFilter: 2, nbRow: 3, nbCol: 3, activation: 'linear', borderMode: 'same', subsample: [1, 1], dimOrdering: 'tf', bias: true }
-      },
-      {
-        layerClass: 'Convolution2D',
-        attrs: { nbFilter: 4, nbRow: 1, nbCol: 1, activation: 'relu', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
-      },
-      {
-        layerClass: 'Convolution2D',
-        attrs: { nbFilter: 2, nbRow: 3, nbCol: 3, activation: 'linear', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
+        layerClass: 'MaxPooling2D',
+        attrs: { poolSize: [2, 2], strides: [1, 1], borderMode: 'same', dim_ordering: 'tf' }
       }
     ]
   }
 
-  const key = 'pipeline_2'
+  const key = 'pipeline_08'
   const title = `[${key}] ${testParams.layers.map(layer => layer.layerClass).join('-')}`
   let modelLayers = []
 
   before(function () {
-    console.log('\n%cpipeline_2', styles.h1)
+    console.log('\n%cpipeline_8', styles.h1)
     console.log(`\n%c${title}`, styles.h3)
 
     let weightsIndexOffset = 0

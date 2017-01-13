@@ -1,6 +1,6 @@
 /* eslint-env browser, mocha */
 
-describe('pipeline_6', function () {
+describe('pipeline_07', function () {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -9,65 +9,25 @@ describe('pipeline_6', function () {
   const layers = KerasJS.layers
 
   const testParams = {
-    inputShape: [24, 24, 2],
+    inputShape: [8, 8, 2],
     layers: [
       {
         layerClass: 'Convolution2D',
-        attrs: { nbFilter: 5, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'valid', subsample: [2, 2], dimOrdering: 'tf', bias: true }
-      },
-      {
-        layerClass: 'BatchNormalization',
-        attrs: { mode: 0, axis: -1, epsilon: 1e-3 }
-      },
-      {
-        layerClass: 'Convolution2D',
-        attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'same', subsample: [1, 1], dimOrdering: 'tf', bias: true }
-      },
-      {
-        layerClass: 'BatchNormalization',
-        attrs: { mode: 0, axis: -1, epsilon: 1e-3 }
-      },
-      {
-        layerClass: 'Convolution2D',
-        attrs: { nbFilter: 3, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'same', subsample: [1, 1], dimOrdering: 'tf', bias: true }
-      },
-      {
-        layerClass: 'BatchNormalization',
-        attrs: { mode: 0, axis: -1, epsilon: 1e-3 }
+        attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
       },
       {
         layerClass: 'MaxPooling2D',
-        attrs: { poolSize: [2, 2], strides: null, borderMode: 'valid', dim_ordering: 'tf' }
-      },
-      {
-        layerClass: 'Convolution2D',
-        attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'linear', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
-      },
-      {
-        layerClass: 'BatchNormalization',
-        attrs: { mode: 0, axis: -1, epsilon: 1e-3 }
-      },
-      {
-        layerClass: 'Convolution2D',
-        attrs: { nbFilter: 2, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'same', subsample: [1, 1], dimOrdering: 'tf', bias: true }
-      },
-      {
-        layerClass: 'BatchNormalization',
-        attrs: { mode: 0, axis: -1, epsilon: 1e-3 }
-      },
-      {
-        layerClass: 'MaxPooling2D',
-        attrs: { poolSize: [2, 2], strides: null, borderMode: 'valid', dim_ordering: 'tf' }
+        attrs: { poolSize: [2, 2], strides: [1, 1], borderMode: 'valid', dim_ordering: 'tf' }
       }
     ]
   }
 
-  const key = 'pipeline_6'
+  const key = 'pipeline_07'
   const title = `[${key}] ${testParams.layers.map(layer => layer.layerClass).join('-')}`
   let modelLayers = []
 
   before(function () {
-    console.log('\n%cpipeline_6', styles.h1)
+    console.log('\n%cpipeline_7', styles.h1)
     console.log(`\n%c${title}`, styles.h3)
 
     let weightsIndexOffset = 0
