@@ -28,6 +28,7 @@ export default class WebGLBatchNorm extends WebGLLayer {
    */
   _bindInputTextures (input, gamma, beta, mean, std) {
     const gl = this.webgl.context
+    this.numTextures = 5
     this._bindInputTexture(this.program, input.texture, gl.TEXTURE0, WebGLBatchNorm.INPUT_TEXTURE_NAME)
     this._bindInputTexture(this.program, mean.texture, gl.TEXTURE1, WebGLBatchNorm.MEAN_TEXTURE_NAME)
     this._bindInputTexture(this.program, std.texture, gl.TEXTURE2, WebGLBatchNorm.STD_TEXTURE_NAME)
@@ -58,26 +59,6 @@ export default class WebGLBatchNorm extends WebGLLayer {
   _bindOutputTexture (input, tOut) {
     const outputColPad = this.webgl.getPad(input.shape[1])
     this.webgl.bindOutputTexture(input.shape[0], (input.shape[1] + outputColPad) / 4, tOut.texture)
-  }
-
-  /**
-   * Runs WebGL fragment shader program to perform computation.
-   */
-  _compute () {
-    const gl = this.webgl.context
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
-  }
-
-  /**
-   * Clean-up: unbind WebGL input textures.
-   */
-  _unbindInputTextures () {
-    const gl = this.webgl.context
-    this.webgl.unbindInputTexture(gl.TEXTURE0)
-    this.webgl.unbindInputTexture(gl.TEXTURE1)
-    this.webgl.unbindInputTexture(gl.TEXTURE2)
-    this.webgl.unbindInputTexture(gl.TEXTURE3)
-    this.webgl.unbindInputTexture(gl.TEXTURE4)
   }
 
   /**

@@ -88,8 +88,6 @@ export default class Dense extends Layer {
         1, x.weblasTensor, this.weights.W.weblasTensor,
         1, bias
       ).transfer()
-      x.weblasTensor.delete()
-      delete x.weblasTensor
     } else {
       if (this.bias) {
         ops.assign(y.tensor, this.weights.b.tensor)

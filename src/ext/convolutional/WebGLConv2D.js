@@ -32,6 +32,7 @@ export default class WebGLConv2D extends WebGLLayer {
    */
   _bindInputTexturesInputTransform (input, indexMappingRow, indexMappingCol) {
     const gl = this.webgl.context
+    this.numTextures = 3
     this._bindInputTexture(this.inputTransformProgram, input.texture, gl.TEXTURE0, WebGLConv2D.INPUT_TEXTURE_NAME)
     this._bindInputTexture(this.inputTransformProgram, indexMappingRow.texture, gl.TEXTURE1, WebGLConv2D.IMAP_ROW_TEXTURE_NAME)
     this._bindInputTexture(this.inputTransformProgram, indexMappingCol.texture, gl.TEXTURE2, WebGLConv2D.IMAP_COL_TEXTURE_NAME)
@@ -46,6 +47,7 @@ export default class WebGLConv2D extends WebGLLayer {
    */
   _bindInputTexturesMain (input, weights, bias) {
     const gl = this.webgl.context
+    this.numTextures = 3
     this._bindInputTexture(this.mainProgram, input.texture, gl.TEXTURE0, WebGLConv2D.INPUT_TEXTURE_NAME)
     this._bindInputTexture(this.mainProgram, weights.texture, gl.TEXTURE1, WebGLConv2D.WEIGHTS_TEXTURE_NAME)
     this._bindInputTexture(this.mainProgram, bias.texture, gl.TEXTURE2, WebGLConv2D.BIAS_TEXTURE_NAME)
@@ -117,24 +119,6 @@ export default class WebGLConv2D extends WebGLLayer {
     const nbFilter = weights.shape[0]
     const outputColPad = this.webgl.getPad(nbFilter)
     this.webgl.bindOutputTexture(nbPatches, (nbFilter + outputColPad) / 4, tOut.texture)
-  }
-
-  /**
-   * Runs WebGL fragment shader program to perform computation.
-   */
-  _compute () {
-    const gl = this.webgl.context
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
-  }
-
-  /**
-   * Clean-up: unbind WebGL input textures.
-   */
-  _unbindInputTextures () {
-    const gl = this.webgl.context
-    this.webgl.unbindInputTexture(gl.TEXTURE0)
-    this.webgl.unbindInputTexture(gl.TEXTURE1)
-    this.webgl.unbindInputTexture(gl.TEXTURE2)
   }
 
   /**

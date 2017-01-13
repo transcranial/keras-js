@@ -32,6 +32,7 @@ export default class WebGLPooling2D extends WebGLLayer {
    */
   _bindInputTextures (input, poolIndexMapping) {
     const gl = this.webgl.context
+    this.numTextures = 2
     this._bindInputTexture(this.program, input.texture, gl.TEXTURE0, WebGLPooling2D.INPUT_TEXTURE_NAME)
     this._bindInputTexture(this.program, poolIndexMapping.texture, gl.TEXTURE1, WebGLPooling2D.POOL_IMAP_TEXTURE_NAME)
   }
@@ -68,23 +69,6 @@ export default class WebGLPooling2D extends WebGLLayer {
     const channels = input.shape[1]
     const outputCols = this.webgl.getPad(channels)
     this.webgl.bindOutputTexture(outputLength, (channels + outputCols) / 4, tOut.texture)
-  }
-
-  /**
-   * Runs WebGL fragment shader program to perform computation.
-   */
-  _compute () {
-    const gl = this.webgl.context
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
-  }
-
-  /**
-   * Clean-up: unbind WebGL input textures.
-   */
-  _unbindInputTextures () {
-    const gl = this.webgl.context
-    this.webgl.unbindInputTexture(gl.TEXTURE0)
-    this.webgl.unbindInputTexture(gl.TEXTURE1)
   }
 
   /**
