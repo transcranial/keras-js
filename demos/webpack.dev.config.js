@@ -13,20 +13,17 @@ module.exports = {
   },
   devtool: 'eval',
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
-        loaders: ['babel-loader'],
+        use: ['babel-loader'],
         exclude: /node_modules/
       },
       {
         test: /\.css$/,
-        loader: 'style-loader!css-loader!postcss-loader'
+        use: ['style-loader', 'css-loader', 'postcss-loader']
       }
     ]
-  },
-  resolve: {
-    extensions: ['.js']
   },
   plugins: [
     new webpack.LoaderOptionsPlugin({
@@ -40,8 +37,5 @@ module.exports = {
         'NODE_ENV': JSON.stringify('development')
       }
     })
-  ],
-  performance: {
-    hints: false
-  }
+  ]
 }

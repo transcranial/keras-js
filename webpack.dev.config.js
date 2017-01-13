@@ -14,27 +14,21 @@ module.exports = {
   },
   devtool: 'eval',
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
-        loaders: ['babel-loader'],
+        use: ['babel-loader'],
         exclude: /node_modules/
       },
       {
         test: /\.(glsl|frag|vert)$/,
-        loaders: ['raw-loader', 'glslify-loader']
+        use: ['raw-loader', 'glslify-loader']
       }
     ]
-  },
-  resolve: {
-    extensions: ['.js']
   },
   plugins: [
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development')
     })
-  ],
-  performance: {
-    hints: false
-  }
+  ]
 }

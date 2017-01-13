@@ -14,21 +14,18 @@ module.exports = {
   },
   devtool: 'cheap-module-source-map',
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
-        loaders: ['babel-loader'],
+        use: ['babel-loader'],
         exclude: /node_modules/
       },
       {
         test: /\.(glsl|frag|vert)$/,
-        loaders: ['raw-loader', 'glslify-loader'],
+        use: ['raw-loader', 'glslify-loader'],
         exclude: /node_modules/
       }
     ]
-  },
-  resolve: {
-    extensions: ['.js']
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -41,8 +38,5 @@ module.exports = {
       mangle: { screw_ie8: true },
       output: { comments: false, screw_ie8: true }
     })
-  ],
-  performance: {
-    hints: false
-  }
+  ]
 }
