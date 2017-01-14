@@ -63,14 +63,10 @@ export default class WebGLConv2D extends WebGLLayer {
     const gl = this.webgl.context
     const nbPatches = input.shape[0]
     const patchLen = input.shape[1]
-    const nbFilter = indexMappingRow.shape[1]
     const inputColPad = this.webgl.getPad(patchLen)
-    const outputColPad = this.webgl.getPad(nbFilter)
     gl.uniform1i(gl.getUniformLocation(this.inputTransformProgram, WebGLConv2D.INPUT_ROWS_UNIFORM_NAME), nbPatches)
     gl.uniform1i(gl.getUniformLocation(this.inputTransformProgram, WebGLConv2D.INPUT_COLS_UNIFORM_NAME), patchLen)
-    gl.uniform1i(gl.getUniformLocation(this.inputTransformProgram, WebGLConv2D.OUTPUT_COLS_UNIFORM_NAME), nbFilter)
     gl.uniform1i(gl.getUniformLocation(this.inputTransformProgram, WebGLConv2D.INPUT_COL_PAD_UNIFORM_NAME), inputColPad)
-    gl.uniform1i(gl.getUniformLocation(this.inputTransformProgram, WebGLConv2D.OUTPUT_COL_PAD_UNIFORM_NAME), outputColPad)
   }
 
   /**

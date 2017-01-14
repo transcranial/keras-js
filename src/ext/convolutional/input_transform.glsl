@@ -10,9 +10,7 @@ uniform sampler2D indexMappingRow;
 uniform sampler2D indexMappingCol;
 uniform int inputRows;
 uniform int inputCols;
-uniform int outputCols;
 uniform int inputColPad;
-uniform int outputColPad;
 
 float select_index(vec4 v, int index) {
   float val = 0.0;
@@ -28,20 +26,7 @@ float select_index(vec4 v, int index) {
   return val;
 }
 
-void fix_pad(inout vec4 v, int pad) {
-  v.a = 0.0;
-  if (pad == 2) {
-    v.b = 0.0;
-  } else if (pad == 3) {
-    v.b = 0.0;
-    v.g = 0.0;
-  }
-}
-
 void main(void) {
-  // index of first element in pixel (matrix space)
-  float col = floor(outTex.x * float(outputCols + outputColPad) - 1.5);
-
   vec4 rowIndices = texture2D(indexMappingRow, vec2(outTex.x, outTex.y));
   vec4 colIndices = texture2D(indexMappingCol, vec2(outTex.x, outTex.y));
 
@@ -51,7 +36,7 @@ void main(void) {
   float inputCoordY;
   vec2 inputCoords;
   int inputChannel;
-  vec4 mappedVal = vec4(0.0, 0.0, 0.0, 0.0);
+  vec4 mappedValues = vec4(0.0, 0.0, 0.0, 0.0);
   for (int i = 0; i < 4; i++) {
     rowIndex = select_index(rowIndices, i);
     colIndex = select_index(colIndices, i);
@@ -62,21 +47,16 @@ void main(void) {
       inputCoords = vec2(inputCoordX, inputCoordY);
       inputChannel = int(mod(colIndex, 4.0));
       if (i == 0) {
-        mappedVal.r = select_index(texture2D(X, inputCoords), inputChannel);
+        mappedValues.r = select_index(texture2D(X, inputCoords), inputChannel);
       } else if (i == 1) {
-        mappedVal.g = select_index(texture2D(X, inputCoords), inputChannel);
+        mappedValues.g = select_index(texture2D(X, inputCoords), inputChannel);
       } else if (i == 2) {
-        mappedVal.b = select_index(texture2D(X, inputCoords), inputChannel);
+        mappedValues.b = select_index(texture2D(X, inputCoords), inputChannel);
       } else if (i == 3) {
-        mappedVal.a = select_index(texture2D(X, inputCoords), inputChannel);
+        mappedValues.a = select_index(texture2D(X, inputCoords), inputChannel);
       }
     }
   }
 
-  // set pad values to 0.0, if in padded region of output texture
-  if (outputColPad > 0 && col + 4.0 > float(outputCols)) {
-    fix_pad(mappedVal, outputColPad);
-  }
-
-  gl_FragColor = mappedVal;
+  gl_FragColor = mappedValues;
 }
