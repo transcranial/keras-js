@@ -9,8 +9,23 @@ varying vec2 outTex;
 uniform sampler2D inputs[8]; // array length must be fixed
 uniform int numInputs;
 uniform int modeCode;
+uniform int outputCols;
+uniform int outputColPad;
+
+void fix_pad(inout vec4 v, int pad) {
+  v.a = 0.0;
+  if (pad == 2) {
+    v.b = 0.0;
+  } else if (pad == 3) {
+    v.b = 0.0;
+    v.g = 0.0;
+  }
+}
 
 void main(void) {
+  // index of first element in pixel (matrix space)
+  float col = floor(outTex.x * float(outputCols + outputColPad) - 1.5);
+
   vec4 mergeValues = vec4(0.0, 0.0, 0.0, 0.0);
   if (modeCode == 1) {
     // mul
@@ -42,6 +57,11 @@ void main(void) {
   if (modeCode == 3) {
     // ave
     mergeValues = mergeValues / float(numInputs);
+  }
+
+  // set pad values to 0.0, if in padded region of output texture
+  if (outputColPad > 0 && col + 4.0 > float(outputCols)) {
+    fix_pad(mergeValues, outputColPad);
   }
 
   gl_FragColor = mergeValues;

@@ -34,6 +34,8 @@ export default class WebGLMerge extends WebGLLayer {
   static NUM_INPUTS_UNIFORM_NAME = 'numInputs';
   static MODE_CODE_UNIFORM_NAME = 'modeCode';
   static OUTPUT_ROWS_UNIFORM_NAME = 'outputRows';
+  static OUTPUT_COLS_UNIFORM_NAME = 'outputCols'
+  static OUTPUT_COL_PAD_UNIFORM_NAME = 'outputColPad'
 
   /**
    * Bind WebGL input textures array with a single uniform name.
@@ -65,21 +67,25 @@ export default class WebGLMerge extends WebGLLayer {
   _bindUniforms (inputs) {
     const gl = this.webgl.context
 
+    const outputCols = inputs[0].shape[1]
+    const outputColPad = this.webgl.getPad(outputCols)
+
     gl.uniform1i(gl.getUniformLocation(this.program, WebGLMerge.NUM_INPUTS_UNIFORM_NAME), inputs.length)
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLMerge.OUTPUT_COLS_UNIFORM_NAME), outputCols)
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLMerge.OUTPUT_COL_PAD_UNIFORM_NAME), outputColPad)
 
     if (this.mode === 'concat') {
       // with concat, inputs are first transposed to be channel-first
       const inputChannelStartIndices = inputs
         .map(x => x.shape[0])
-        .reduce((c, a) => {
-          if (c.length === 0) {
-            c.push(0)
-          } else if (c.length > 0) {
-            a += c[c.length - 1]
-            c.push(a)
+        .reduce((arr, dim) => {
+          if (arr.length > 1) {
+            dim += arr[arr.length - 1]
           }
-          return c
-        }, [])
+          arr.push(dim)
+          return arr
+        }, [0])
+        .slice(0, -1)
 
       const outputRows = sum(inputs.map(x => x.shape[0]))
       gl.uniform1i(gl.getUniformLocation(this.program, WebGLMerge.OUTPUT_ROWS_UNIFORM_NAME), outputRows)
