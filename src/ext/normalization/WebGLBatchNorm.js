@@ -14,6 +14,8 @@ export default class WebGLBatchNorm extends WebGLLayer {
   static GAMMA_TEXTURE_NAME = 'gamma'
   static BETA_TEXTURE_NAME = 'beta'
   static EPSILON_UNIFORM_NAME = 'epsilon'
+  static OUTPUT_COLS_UNIFORM_NAME = 'outputCols'
+  static OUTPUT_COL_PAD_UNIFORM_NAME = 'outputColPad'
 
   /**
    * Bind WebGL input textures for main operation.
@@ -42,7 +44,10 @@ export default class WebGLBatchNorm extends WebGLLayer {
    */
   _bindUniforms (input, epsilon) {
     const gl = this.webgl.context
+    const outputColPad = this.webgl.getPad(input.shape[1])
     gl.uniform1f(gl.getUniformLocation(this.program, WebGLBatchNorm.EPSILON_UNIFORM_NAME), epsilon)
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLBatchNorm.OUTPUT_COLS_UNIFORM_NAME), input.shape[1])
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLBatchNorm.OUTPUT_COL_PAD_UNIFORM_NAME), outputColPad)
   }
 
   /**

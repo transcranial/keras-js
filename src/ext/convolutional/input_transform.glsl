@@ -10,7 +10,9 @@ uniform sampler2D indexMappingRow;
 uniform sampler2D indexMappingCol;
 uniform int inputRows;
 uniform int inputCols;
+uniform int outputCols;
 uniform int inputColPad;
+uniform int outputColPad;
 
 float select_index(vec4 v, int index) {
   float val = 0.0;
@@ -26,7 +28,20 @@ float select_index(vec4 v, int index) {
   return val;
 }
 
+void fix_pad(inout vec4 v, int pad) {
+  v.a = 0.0;
+  if (pad == 2) {
+    v.b = 0.0;
+  } else if (pad == 3) {
+    v.b = 0.0;
+    v.g = 0.0;
+  }
+}
+
 void main(void) {
+  // index of first element in pixel (matrix space)
+  float col = floor(outTex.x * float(outputCols + outputColPad) - 1.5);
+
   vec4 rowIndices = texture2D(indexMappingRow, vec2(outTex.x, outTex.y));
   vec4 colIndices = texture2D(indexMappingCol, vec2(outTex.x, outTex.y));
 
@@ -55,6 +70,11 @@ void main(void) {
       } else if (i == 3) {
         mappedValues.a = select_index(texture2D(X, inputCoords), inputChannel);
       }
+    }
+
+    // set pad values to 0.0, if in padded region of output texture
+    if (outputColPad > 0 && col + 4.0 > float(outputCols)) {
+      fix_pad(mappedValues, outputColPad);
     }
   }
 

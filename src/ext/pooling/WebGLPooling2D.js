@@ -19,6 +19,8 @@ export default class WebGLPooling2D extends WebGLLayer {
   static INPUT_TEXTURE_NAME = 'X'
   static POOL_IMAP_TEXTURE_NAME = 'poolIndexMapping'
   static INPUT_ROWS_UNIFORM_NAME = 'inputRows'
+  static CHANNELS_UNIFORM_NAME = 'channels'
+  static CHANNELS_PAD_UNIFORM_NAME = 'channelsPad'
   static POOL_ELEMENTS_UNIFORM_NAME = 'poolElements'
   static POOL_ELEMENTS_PAD_UNIFORM_NAME = 'poolElementsPad'
 
@@ -44,9 +46,13 @@ export default class WebGLPooling2D extends WebGLLayer {
   _bindUniforms (input, poolIndexMapping) {
     const gl = this.webgl.context
     const nbPatches = input.shape[0]
+    const channels = input.shape[1]
+    const channelsPad = this.webgl.getPad(channels)
     const poolElements = poolIndexMapping.shape[1]
     const poolElementsPad = this.webgl.getPad(poolElements)
     gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.INPUT_ROWS_UNIFORM_NAME), nbPatches)
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.CHANNELS_UNIFORM_NAME), channels)
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.CHANNELS_PAD_UNIFORM_NAME), channelsPad)
     gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.POOL_ELEMENTS_UNIFORM_NAME), poolElements)
     gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.POOL_ELEMENTS_PAD_UNIFORM_NAME), poolElementsPad)
   }
