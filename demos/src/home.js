@@ -1,5 +1,4 @@
-/* global Vue */
-import './home.css'
+import './home.css';
 
 const DEMO_INFO_DEV = [
   {
@@ -27,7 +26,7 @@ const DEMO_INFO_DEV = [
     path: 'imdb-bidirectional-lstm',
     imagePath: '/demos/assets/imdb-bidirectional-lstm.png'
   }
-]
+];
 
 const DEMO_INFO_PROD = [
   {
@@ -55,16 +54,15 @@ const DEMO_INFO_PROD = [
     path: 'imdb-bidirectional-lstm',
     imagePath: 'demos/assets/imdb-bidirectional-lstm.png'
   }
-]
+];
 
-const DEMO_INFO = (process.env.NODE_ENV === 'production') ? DEMO_INFO_PROD : DEMO_INFO_DEV
+const DEMO_INFO = process.env.NODE_ENV === 'production'
+  ? DEMO_INFO_PROD
+  : DEMO_INFO_DEV;
 
 export const Home = Vue.extend({
   template: require('raw-loader!./home.template.html'),
-
-  data: function () {
-    return {
-      demoInfo: DEMO_INFO
-    }
+  data: function() {
+    return { demoInfo: DEMO_INFO };
   }
-})
+});

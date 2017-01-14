@@ -1,5 +1,5 @@
-import * as activations from '../../activations'
-import Layer from '../../Layer'
+import * as activations from '../../activations';
+import Layer from '../../Layer';
 
 /**
  * Activation layer class
@@ -9,16 +9,14 @@ export default class Activation extends Layer {
    * Creates an Activation layer
    * @param {string} attrs.activation - name of activation function
    */
-  constructor (attrs = {}) {
-    super(attrs)
-    this.layerClass = 'Activation'
+  constructor(attrs = {}) {
+    super(attrs);
+    this.layerClass = 'Activation';
 
-    const {
-      activation = 'linear'
-    } = attrs
+    const { activation = 'linear' } = attrs;
 
-    this.activation = activation
-    this.activationFunc = activations[activation]
+    this.activation = activation;
+    this.activationFunc = activations[activation];
   }
 
   /**
@@ -26,8 +24,8 @@ export default class Activation extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call (x) {
-    this.activationFunc(x)
-    return x
+  call(x) {
+    this.activationFunc(x);
+    return x;
   }
 }

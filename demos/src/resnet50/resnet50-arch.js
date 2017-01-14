@@ -1,8 +1,6 @@
 export const ARCHITECTURE_DIAGRAM = [
-
   // /////////////////////////////////////////////////////////////////////
   // initial
-
   {
     name: 'zeropadding2d_1',
     className: 'ZeroPadding2D',
@@ -38,10 +36,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 4,
     col: 0
   },
-
   // /////////////////////////////////////////////////////////////////////
   // conv block 2a
-
   {
     name: 'res2a_branch2a',
     className: 'Convolution2D',
@@ -112,13 +108,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 6,
     col: 1
   },
-  {
-    name: 'merge_1',
-    className: 'Merge',
-    details: 'sum',
-    row: 13,
-    col: 1
-  },
+  { name: 'merge_1', className: 'Merge', details: 'sum', row: 13, col: 1 },
   {
     name: 'activation_4',
     className: 'Activation',
@@ -126,10 +116,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 14,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // identity block 2b
-
   {
     name: 'res2b_branch2a',
     className: 'Convolution2D',
@@ -186,13 +174,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 22,
     col: 0
   },
-  {
-    name: 'merge_2',
-    className: 'Merge',
-    details: 'sum',
-    row: 23,
-    col: 1
-  },
+  { name: 'merge_2', className: 'Merge', details: 'sum', row: 23, col: 1 },
   {
     name: 'activation_7',
     className: 'Activation',
@@ -200,10 +182,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 24,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // identity block 2c
-
   {
     name: 'res2c_branch2a',
     className: 'Convolution2D',
@@ -260,13 +240,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 32,
     col: 0
   },
-  {
-    name: 'merge_3',
-    className: 'Merge',
-    details: 'sum',
-    row: 33,
-    col: 1
-  },
+  { name: 'merge_3', className: 'Merge', details: 'sum', row: 33, col: 1 },
   {
     name: 'activation_10',
     className: 'Activation',
@@ -274,10 +248,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 34,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // conv block 3a
-
   {
     name: 'res3a_branch2a',
     className: 'Convolution2D',
@@ -348,13 +320,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 36,
     col: 1
   },
-  {
-    name: 'merge_4',
-    className: 'Merge',
-    details: 'sum',
-    row: 43,
-    col: 1
-  },
+  { name: 'merge_4', className: 'Merge', details: 'sum', row: 43, col: 1 },
   {
     name: 'activation_13',
     className: 'Activation',
@@ -362,10 +328,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 44,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // identity block 3b
-
   {
     name: 'res3b_branch2a',
     className: 'Convolution2D',
@@ -422,13 +386,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 52,
     col: 0
   },
-  {
-    name: 'merge_5',
-    className: 'Merge',
-    details: 'sum',
-    row: 53,
-    col: 1
-  },
+  { name: 'merge_5', className: 'Merge', details: 'sum', row: 53, col: 1 },
   {
     name: 'activation_16',
     className: 'Activation',
@@ -436,10 +394,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 54,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // identity block 3c
-
   {
     name: 'res3c_branch2a',
     className: 'Convolution2D',
@@ -496,13 +452,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 62,
     col: 0
   },
-  {
-    name: 'merge_6',
-    className: 'Merge',
-    details: 'sum',
-    row: 63,
-    col: 1
-  },
+  { name: 'merge_6', className: 'Merge', details: 'sum', row: 63, col: 1 },
   {
     name: 'activation_19',
     className: 'Activation',
@@ -510,10 +460,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 64,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // identity block 3d
-
   {
     name: 'res3d_branch2a',
     className: 'Convolution2D',
@@ -570,13 +518,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 72,
     col: 0
   },
-  {
-    name: 'merge_7',
-    className: 'Merge',
-    details: 'sum',
-    row: 73,
-    col: 1
-  },
+  { name: 'merge_7', className: 'Merge', details: 'sum', row: 73, col: 1 },
   {
     name: 'activation_22',
     className: 'Activation',
@@ -584,10 +526,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 74,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // conv block 4a
-
   {
     name: 'res4a_branch2a',
     className: 'Convolution2D',
@@ -658,13 +598,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 76,
     col: 1
   },
-  {
-    name: 'merge_8',
-    className: 'Merge',
-    details: 'sum',
-    row: 83,
-    col: 1
-  },
+  { name: 'merge_8', className: 'Merge', details: 'sum', row: 83, col: 1 },
   {
     name: 'activation_25',
     className: 'Activation',
@@ -672,10 +606,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 84,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // identity block 4b
-
   {
     name: 'res4b_branch2a',
     className: 'Convolution2D',
@@ -732,13 +664,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 92,
     col: 0
   },
-  {
-    name: 'merge_9',
-    className: 'Merge',
-    details: 'sum',
-    row: 93,
-    col: 1
-  },
+  { name: 'merge_9', className: 'Merge', details: 'sum', row: 93, col: 1 },
   {
     name: 'activation_28',
     className: 'Activation',
@@ -746,10 +672,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 94,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // identity block 4c
-
   {
     name: 'res4c_branch2a',
     className: 'Convolution2D',
@@ -806,13 +730,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 102,
     col: 0
   },
-  {
-    name: 'merge_10',
-    className: 'Merge',
-    details: 'sum',
-    row: 103,
-    col: 1
-  },
+  { name: 'merge_10', className: 'Merge', details: 'sum', row: 103, col: 1 },
   {
     name: 'activation_31',
     className: 'Activation',
@@ -820,10 +738,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 104,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // identity block 4d
-
   {
     name: 'res4d_branch2a',
     className: 'Convolution2D',
@@ -880,13 +796,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 112,
     col: 0
   },
-  {
-    name: 'merge_11',
-    className: 'Merge',
-    details: 'sum',
-    row: 113,
-    col: 1
-  },
+  { name: 'merge_11', className: 'Merge', details: 'sum', row: 113, col: 1 },
   {
     name: 'activation_34',
     className: 'Activation',
@@ -894,10 +804,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 114,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // identity block 4e
-
   {
     name: 'res4e_branch2a',
     className: 'Convolution2D',
@@ -954,13 +862,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 122,
     col: 0
   },
-  {
-    name: 'merge_12',
-    className: 'Merge',
-    details: 'sum',
-    row: 123,
-    col: 1
-  },
+  { name: 'merge_12', className: 'Merge', details: 'sum', row: 123, col: 1 },
   {
     name: 'activation_37',
     className: 'Activation',
@@ -968,10 +870,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 124,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // identity block 4f
-
   {
     name: 'res4f_branch2a',
     className: 'Convolution2D',
@@ -1028,13 +928,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 132,
     col: 0
   },
-  {
-    name: 'merge_13',
-    className: 'Merge',
-    details: 'sum',
-    row: 133,
-    col: 1
-  },
+  { name: 'merge_13', className: 'Merge', details: 'sum', row: 133, col: 1 },
   {
     name: 'activation_40',
     className: 'Activation',
@@ -1042,10 +936,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 134,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // conv block 5a
-
   {
     name: 'res5a_branch2a',
     className: 'Convolution2D',
@@ -1116,13 +1008,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 136,
     col: 1
   },
-  {
-    name: 'merge_14',
-    className: 'Merge',
-    details: 'sum',
-    row: 143,
-    col: 1
-  },
+  { name: 'merge_14', className: 'Merge', details: 'sum', row: 143, col: 1 },
   {
     name: 'activation_43',
     className: 'Activation',
@@ -1130,10 +1016,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 144,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // identity block 5b
-
   {
     name: 'res5b_branch2a',
     className: 'Convolution2D',
@@ -1190,13 +1074,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 152,
     col: 0
   },
-  {
-    name: 'merge_15',
-    className: 'Merge',
-    details: 'sum',
-    row: 153,
-    col: 1
-  },
+  { name: 'merge_15', className: 'Merge', details: 'sum', row: 153, col: 1 },
   {
     name: 'activation_46',
     className: 'Activation',
@@ -1204,10 +1082,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 154,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // identity block 5c
-
   {
     name: 'res5c_branch2a',
     className: 'Convolution2D',
@@ -1264,13 +1140,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 162,
     col: 0
   },
-  {
-    name: 'merge_16',
-    className: 'Merge',
-    details: 'sum',
-    row: 163,
-    col: 1
-  },
+  { name: 'merge_16', className: 'Merge', details: 'sum', row: 163, col: 1 },
   {
     name: 'activation_49',
     className: 'Activation',
@@ -1278,10 +1148,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 164,
     col: 1
   },
-
   // /////////////////////////////////////////////////////////////////////
   // final
-
   {
     name: 'avg_pool',
     className: 'AveragePooling2D',
@@ -1289,13 +1157,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 165,
     col: 1
   },
-  {
-    name: 'flatten_1',
-    className: 'Flatten',
-    details: '',
-    row: 166,
-    col: 1
-  },
+  { name: 'flatten_1', className: 'Flatten', details: '', row: 166, col: 1 },
   {
     name: 'fc1000',
     className: 'Dense',
@@ -1303,293 +1165,75 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 167,
     col: 1
   }
-]
+];
 
 export const ARCHITECTURE_CONNECTIONS = [
-
   // main
-
-  {
-    from: 'res2a_branch1',
-    to: 'fc1000'
-  },
-
+  { from: 'res2a_branch1', to: 'fc1000' },
   // initial + conv block 2a
-
-  {
-    from: 'zeropadding2d_1',
-    to: 'bn2a_branch2c'
-  },
-
+  { from: 'zeropadding2d_1', to: 'bn2a_branch2c' },
   // identity block 2b
-
-  {
-    from: 'res2b_branch2a',
-    to: 'bn2b_branch2c'
-  },
-
+  { from: 'res2b_branch2a', to: 'bn2b_branch2c' },
   // identity block 2c
-
-  {
-    from: 'res2c_branch2a',
-    to: 'bn2c_branch2c'
-  },
-
+  { from: 'res2c_branch2a', to: 'bn2c_branch2c' },
   // conv block 3a
-
-  {
-    from: 'res3a_branch2a',
-    to: 'bn3a_branch2c'
-  },
-
+  { from: 'res3a_branch2a', to: 'bn3a_branch2c' },
   // identity block 3b
-
-  {
-    from: 'res3b_branch2a',
-    to: 'bn3b_branch2c'
-  },
-
+  { from: 'res3b_branch2a', to: 'bn3b_branch2c' },
   // identity block 3c
-
-  {
-    from: 'res3c_branch2a',
-    to: 'bn3c_branch2c'
-  },
-
+  { from: 'res3c_branch2a', to: 'bn3c_branch2c' },
   // identity block 3d
-
-  {
-    from: 'res3d_branch2a',
-    to: 'bn3d_branch2c'
-  },
-
+  { from: 'res3d_branch2a', to: 'bn3d_branch2c' },
   // conv block 4a
-
-  {
-    from: 'res4a_branch2a',
-    to: 'bn4a_branch2c'
-  },
-
+  { from: 'res4a_branch2a', to: 'bn4a_branch2c' },
   // identity block 4b
-
-  {
-    from: 'res4b_branch2a',
-    to: 'bn4b_branch2c'
-  },
-
+  { from: 'res4b_branch2a', to: 'bn4b_branch2c' },
   // identity block 4c
-
-  {
-    from: 'res4c_branch2a',
-    to: 'bn4c_branch2c'
-  },
-
+  { from: 'res4c_branch2a', to: 'bn4c_branch2c' },
   // identity block 4d
-
-  {
-    from: 'res4d_branch2a',
-    to: 'bn4d_branch2c'
-  },
-
+  { from: 'res4d_branch2a', to: 'bn4d_branch2c' },
   // identity block 4e
-
-  {
-    from: 'res4e_branch2a',
-    to: 'bn4e_branch2c'
-  },
-
+  { from: 'res4e_branch2a', to: 'bn4e_branch2c' },
   // identity block 4f
-
-  {
-    from: 'res4f_branch2a',
-    to: 'bn4f_branch2c'
-  },
-
+  { from: 'res4f_branch2a', to: 'bn4f_branch2c' },
   // conv block 5a
-
-  {
-    from: 'res5a_branch2a',
-    to: 'bn5a_branch2c'
-  },
-
+  { from: 'res5a_branch2a', to: 'bn5a_branch2c' },
   // identity block 5b
-
-  {
-    from: 'res5b_branch2a',
-    to: 'bn5b_branch2c'
-  },
-
+  { from: 'res5b_branch2a', to: 'bn5b_branch2c' },
   // identity block 5c
-
-  {
-    from: 'res5c_branch2a',
-    to: 'bn5c_branch2c'
-  },
-
+  { from: 'res5c_branch2a', to: 'bn5c_branch2c' },
   // block connections start
-
-  {
-    from: 'maxpooling2d_1',
-    to: 'res2a_branch1',
-    corner: 'top-right'
-  },
-
-  {
-    from: 'activation_4',
-    to: 'res2b_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_7',
-    to: 'res2c_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_10',
-    to: 'res3a_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_13',
-    to: 'res3b_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_16',
-    to: 'res3c_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_19',
-    to: 'res3d_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_22',
-    to: 'res4a_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_25',
-    to: 'res4b_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_28',
-    to: 'res4c_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_31',
-    to: 'res4d_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_34',
-    to: 'res4e_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_37',
-    to: 'res4f_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_40',
-    to: 'res5a_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_43',
-    to: 'res5b_branch2a',
-    corner: 'top-left'
-  },
-  {
-    from: 'activation_46',
-    to: 'res5c_branch2a',
-    corner: 'top-left'
-  },
-
+  { from: 'maxpooling2d_1', to: 'res2a_branch1', corner: 'top-right' },
+  { from: 'activation_4', to: 'res2b_branch2a', corner: 'top-left' },
+  { from: 'activation_7', to: 'res2c_branch2a', corner: 'top-left' },
+  { from: 'activation_10', to: 'res3a_branch2a', corner: 'top-left' },
+  { from: 'activation_13', to: 'res3b_branch2a', corner: 'top-left' },
+  { from: 'activation_16', to: 'res3c_branch2a', corner: 'top-left' },
+  { from: 'activation_19', to: 'res3d_branch2a', corner: 'top-left' },
+  { from: 'activation_22', to: 'res4a_branch2a', corner: 'top-left' },
+  { from: 'activation_25', to: 'res4b_branch2a', corner: 'top-left' },
+  { from: 'activation_28', to: 'res4c_branch2a', corner: 'top-left' },
+  { from: 'activation_31', to: 'res4d_branch2a', corner: 'top-left' },
+  { from: 'activation_34', to: 'res4e_branch2a', corner: 'top-left' },
+  { from: 'activation_37', to: 'res4f_branch2a', corner: 'top-left' },
+  { from: 'activation_40', to: 'res5a_branch2a', corner: 'top-left' },
+  { from: 'activation_43', to: 'res5b_branch2a', corner: 'top-left' },
+  { from: 'activation_46', to: 'res5c_branch2a', corner: 'top-left' },
   // block connections to merge
-
-  {
-    from: 'bn2a_branch2c',
-    to: 'merge_1',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn2b_branch2c',
-    to: 'merge_2',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn2c_branch2c',
-    to: 'merge_3',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn3a_branch2c',
-    to: 'merge_4',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn3b_branch2c',
-    to: 'merge_5',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn3c_branch2c',
-    to: 'merge_6',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn3d_branch2c',
-    to: 'merge_7',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn4a_branch2c',
-    to: 'merge_8',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn4b_branch2c',
-    to: 'merge_9',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn4c_branch2c',
-    to: 'merge_10',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn4d_branch2c',
-    to: 'merge_11',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn4e_branch2c',
-    to: 'merge_12',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn4f_branch2c',
-    to: 'merge_13',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn5a_branch2c',
-    to: 'merge_14',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn5b_branch2c',
-    to: 'merge_15',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'bn5c_branch2c',
-    to: 'merge_16',
-    corner: 'bottom-left'
-  }
-]
+  { from: 'bn2a_branch2c', to: 'merge_1', corner: 'bottom-left' },
+  { from: 'bn2b_branch2c', to: 'merge_2', corner: 'bottom-left' },
+  { from: 'bn2c_branch2c', to: 'merge_3', corner: 'bottom-left' },
+  { from: 'bn3a_branch2c', to: 'merge_4', corner: 'bottom-left' },
+  { from: 'bn3b_branch2c', to: 'merge_5', corner: 'bottom-left' },
+  { from: 'bn3c_branch2c', to: 'merge_6', corner: 'bottom-left' },
+  { from: 'bn3d_branch2c', to: 'merge_7', corner: 'bottom-left' },
+  { from: 'bn4a_branch2c', to: 'merge_8', corner: 'bottom-left' },
+  { from: 'bn4b_branch2c', to: 'merge_9', corner: 'bottom-left' },
+  { from: 'bn4c_branch2c', to: 'merge_10', corner: 'bottom-left' },
+  { from: 'bn4d_branch2c', to: 'merge_11', corner: 'bottom-left' },
+  { from: 'bn4e_branch2c', to: 'merge_12', corner: 'bottom-left' },
+  { from: 'bn4f_branch2c', to: 'merge_13', corner: 'bottom-left' },
+  { from: 'bn5a_branch2c', to: 'merge_14', corner: 'bottom-left' },
+  { from: 'bn5b_branch2c', to: 'merge_15', corner: 'bottom-left' },
+  { from: 'bn5c_branch2c', to: 'merge_16', corner: 'bottom-left' }
+];

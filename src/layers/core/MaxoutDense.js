@@ -1,7 +1,7 @@
-import Tensor from '../../Tensor'
-import Layer from '../../Layer'
-import { gemv } from 'ndarray-blas-level2'
-import ops from 'ndarray-ops'
+import Tensor from '../../Tensor';
+import Layer from '../../Layer';
+import { gemv } from 'ndarray-blas-level2';
+import ops from 'ndarray-ops';
 
 /**
  * MaxoutDense layer class
@@ -16,21 +16,17 @@ export default class MaxoutDense extends Layer {
    * @param {number} attrs.outputDim - output dimension size
    * @param {Object} [attrs] - layer attributes
    */
-  constructor (attrs = {}) {
-    super(attrs)
-    this.layerClass = 'MaxoutDense'
+  constructor(attrs = {}) {
+    super(attrs);
+    this.layerClass = 'MaxoutDense';
 
-    const {
-      outputDim = 1,
-      inputDim = null,
-      bias = true
-    } = attrs
-    this.outputDim = outputDim
-    this.inputDim = inputDim
-    this.bias = bias
+    const { outputDim = 1, inputDim = null, bias = true } = attrs;
+    this.outputDim = outputDim;
+    this.inputDim = inputDim;
+    this.bias = bias;
 
     // Layer weights specification
-    this.params = this.bias ? ['W', 'b'] : ['W']
+    this.params = this.bias ? [ 'W', 'b' ] : [ 'W' ];
   }
 
   /**
@@ -38,20 +34,26 @@ export default class MaxoutDense extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call (x) {
-    const nbFeature = this.weights.W.tensor.shape[0]
+  call(x) {
+    const nbFeature = this.weights.W.tensor.shape[(0)];
 
-    let featMax = new Tensor([], [this.outputDim])
+    let featMax = new Tensor([], [ this.outputDim ]);
     for (let i = 0; i < nbFeature; i++) {
-      let y = new Tensor([], [this.outputDim])
+      let y = new Tensor([], [ this.outputDim ]);
       if (this.bias) {
-        ops.assign(y.tensor, this.weights.b.tensor.pick(i, null))
+        ops.assign(y.tensor, this.weights.b.tensor.pick(i, null));
       }
-      gemv(1.0, this.weights.W.tensor.pick(i, null, null).transpose(1, 0), x.tensor, 1.0, y.tensor)
-      ops.maxeq(featMax.tensor, y.tensor)
+      gemv(
+        1,
+        this.weights.W.tensor.pick(i, null, null).transpose(1, 0),
+        x.tensor,
+        1,
+        y.tensor
+      );
+      ops.maxeq(featMax.tensor, y.tensor);
     }
 
-    x.tensor = featMax.tensor
-    return x
+    x.tensor = featMax.tensor;
+    return x;
   }
 }

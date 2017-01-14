@@ -1,4 +1,4 @@
-import Layer from '../../Layer'
+import Layer from '../../Layer';
 
 /**
  * GaussianNoise layer class
@@ -10,14 +10,11 @@ export default class GaussianNoise extends Layer {
    * Creates a GaussianNoise layer
    * @param {number} attrs.p - fraction of the input units to drop (between 0 and 1)
    */
-  constructor (attrs = {}) {
-    super(attrs)
-    this.layerClass = 'GaussianNoise'
+  constructor(attrs = {}) {
+    super(attrs);
+    this.layerClass = 'GaussianNoise';
 
-    const {
-      sigma = 0
-    } = attrs
-
+    const { sigma = 0 } = attrs;
   }
 
   /**
@@ -25,7 +22,7 @@ export default class GaussianNoise extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call (x) {
-    return x
+  call(x) {
+    return x;
   }
 }

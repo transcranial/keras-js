@@ -1,7 +1,6 @@
-/* global Vue */
-import './menu.css'
+import './menu.css';
 
 export const Menu = Vue.extend({
-  props: ['currentView'],
+  props: [ 'currentView' ],
   template: require('raw-loader!./menu.template.html')
-})
+});

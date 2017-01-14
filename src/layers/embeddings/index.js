@@ -1,5 +1,3 @@
-import Embedding from './Embedding'
+import Embedding from './Embedding';
 
-export {
-  Embedding
-}
+export { Embedding };

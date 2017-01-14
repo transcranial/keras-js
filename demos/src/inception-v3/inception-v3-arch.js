@@ -1,8 +1,6 @@
 export const ARCHITECTURE_DIAGRAM = [
-
   // /////////////////////////////////////////////////////////////////////
   // initial
-
   {
     name: 'convolution2d_1',
     className: 'Convolution2D',
@@ -87,10 +85,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 11,
     col: 0
   },
-
   // /////////////////////////////////////////////////////////////////////
   // mixed block 0: 35 x 35 x 256
-
   {
     name: 'convolution2d_9',
     className: 'Convolution2D',
@@ -203,10 +199,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 18,
     col: 3
   },
-
   // /////////////////////////////////////////////////////////////////////
   // mixed block 1: 35 x 35 x 256
-
   {
     name: 'convolution2d_16',
     className: 'Convolution2D',
@@ -319,10 +313,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 25,
     col: 3
   },
-
   // /////////////////////////////////////////////////////////////////////
   // mixed block 2: 35 x 35 x 256
-
   {
     name: 'convolution2d_23',
     className: 'Convolution2D',
@@ -435,10 +427,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 32,
     col: 3
   },
-
   // /////////////////////////////////////////////////////////////////////
   // mixed block 3: 17 x 17 x 768
-
   {
     name: 'convolution2d_28',
     className: 'Convolution2D',
@@ -509,10 +499,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 39,
     col: 3
   },
-
   // /////////////////////////////////////////////////////////////////////
   // mixed block 4: 17 x 17 x 768
-
   {
     name: 'convolution2d_35',
     className: 'Convolution2D',
@@ -667,10 +655,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 50,
     col: 3
   },
-
   // /////////////////////////////////////////////////////////////////////
   // mixed block 5: 17 x 17 x 768
-
   {
     name: 'convolution2d_45',
     className: 'Convolution2D',
@@ -825,10 +811,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 61,
     col: 3
   },
-
   // /////////////////////////////////////////////////////////////////////
   // mixed block 6: 17 x 17 x 768
-
   {
     name: 'convolution2d_55',
     className: 'Convolution2D',
@@ -983,10 +967,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 72,
     col: 3
   },
-
   // /////////////////////////////////////////////////////////////////////
   // mixed block 7: 17 x 17 x 768
-
   {
     name: 'convolution2d_65',
     className: 'Convolution2D',
@@ -1141,10 +1123,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 83,
     col: 3
   },
-
   // /////////////////////////////////////////////////////////////////////
   // mixed block 8: 8 x 8 x 1280
-
   {
     name: 'convolution2d_73',
     className: 'Convolution2D',
@@ -1243,10 +1223,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 92,
     col: 3
   },
-
   // /////////////////////////////////////////////////////////////////////
   // mixed block 9: 8 x 8 x 2048
-
   {
     name: 'convolution2d_81',
     className: 'Convolution2D',
@@ -1409,10 +1387,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 100,
     col: 3
   },
-
   // /////////////////////////////////////////////////////////////////////
   // mixed block 10: 8 x 8 x 2048
-
   {
     name: 'convolution2d_90',
     className: 'Convolution2D',
@@ -1575,10 +1551,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 108,
     col: 3
   },
-
   // /////////////////////////////////////////////////////////////////////
   // final
-
   {
     name: 'avg_pool',
     className: 'AveragePooling2D',
@@ -1586,13 +1560,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 109,
     col: 3
   },
-  {
-    name: 'flatten',
-    className: 'Flatten',
-    details: '',
-    row: 110,
-    col: 3
-  },
+  { name: 'flatten', className: 'Flatten', details: '', row: 110, col: 3 },
   {
     name: 'predictions',
     className: 'Dense',
@@ -1600,521 +1568,120 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 111,
     col: 3
   }
-
-]
+];
 
 export const ARCHITECTURE_CONNECTIONS = [
-
   // main
-
-  {
-    from: 'averagepooling2d_1',
-    to: 'predictions'
-  },
-  {
-    from: 'convolution2d_1',
-    to: 'maxpooling2d_2'
-  },
-
+  { from: 'averagepooling2d_1', to: 'predictions' },
+  { from: 'convolution2d_1', to: 'maxpooling2d_2' },
   // mixed block 0: 35 x 35 x 256
-
-  {
-    from: 'maxpooling2d_2',
-    to: 'batchnormalization_9'
-  },
-  {
-    from: 'maxpooling2d_2',
-    to: 'batchnormalization_11',
-    corner: 'top-right'
-  },
-  {
-    from: 'maxpooling2d_2',
-    to: 'batchnormalization_8',
-    corner: 'top-right'
-  },
-  {
-    from: 'maxpooling2d_2',
-    to: 'averagepooling2d_1',
-    corner: 'top-right'
-  },
-  {
-    from: 'batchnormalization_9',
-    to: 'mixed0',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'batchnormalization_11',
-    to: 'mixed0',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'batchnormalization_8',
-    to: 'mixed0',
-    corner: 'bottom-left'
-  },
-
+  { from: 'maxpooling2d_2', to: 'batchnormalization_9' },
+  { from: 'maxpooling2d_2', to: 'batchnormalization_11', corner: 'top-right' },
+  { from: 'maxpooling2d_2', to: 'batchnormalization_8', corner: 'top-right' },
+  { from: 'maxpooling2d_2', to: 'averagepooling2d_1', corner: 'top-right' },
+  { from: 'batchnormalization_9', to: 'mixed0', corner: 'bottom-left' },
+  { from: 'batchnormalization_11', to: 'mixed0', corner: 'bottom-left' },
+  { from: 'batchnormalization_8', to: 'mixed0', corner: 'bottom-left' },
   // mixed block 1: 35 x 35 x 256
-
-  {
-    from: 'mixed0',
-    to: 'convolution2d_16',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed0',
-    to: 'convolution2d_14',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed0',
-    to: 'convolution2d_13',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'convolution2d_16',
-    to: 'mixed1',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_14',
-    to: 'mixed1',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_13',
-    to: 'mixed1',
-    corner: 'bottom-left'
-  },
-
+  { from: 'mixed0', to: 'convolution2d_16', corner: 'bottom-right' },
+  { from: 'mixed0', to: 'convolution2d_14', corner: 'bottom-right' },
+  { from: 'mixed0', to: 'convolution2d_13', corner: 'bottom-right' },
+  { from: 'convolution2d_16', to: 'mixed1', corner: 'bottom-left' },
+  { from: 'convolution2d_14', to: 'mixed1', corner: 'bottom-left' },
+  { from: 'convolution2d_13', to: 'mixed1', corner: 'bottom-left' },
   // mixed block 2: 35 x 35 x 256
-
-  {
-    from: 'mixed1',
-    to: 'convolution2d_23',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed1',
-    to: 'convolution2d_21',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed1',
-    to: 'convolution2d_20',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'convolution2d_23',
-    to: 'mixed2',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_21',
-    to: 'mixed2',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_20',
-    to: 'mixed2',
-    corner: 'bottom-left'
-  },
-
+  { from: 'mixed1', to: 'convolution2d_23', corner: 'bottom-right' },
+  { from: 'mixed1', to: 'convolution2d_21', corner: 'bottom-right' },
+  { from: 'mixed1', to: 'convolution2d_20', corner: 'bottom-right' },
+  { from: 'convolution2d_23', to: 'mixed2', corner: 'bottom-left' },
+  { from: 'convolution2d_21', to: 'mixed2', corner: 'bottom-left' },
+  { from: 'convolution2d_20', to: 'mixed2', corner: 'bottom-left' },
   // mixed block 3: 17 x 17 x 768
-
-  {
-    from: 'mixed2',
-    to: 'convolution2d_27',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed2',
-    to: 'convolution2d_28',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed2',
-    to: 'maxpooling2d_3',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'convolution2d_27',
-    to: 'mixed3',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_28',
-    to: 'mixed3',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'maxpooling2d_3',
-    to: 'mixed3',
-    corner: 'bottom-left'
-  },
-
+  { from: 'mixed2', to: 'convolution2d_27', corner: 'bottom-right' },
+  { from: 'mixed2', to: 'convolution2d_28', corner: 'bottom-right' },
+  { from: 'mixed2', to: 'maxpooling2d_3', corner: 'bottom-right' },
+  { from: 'convolution2d_27', to: 'mixed3', corner: 'bottom-left' },
+  { from: 'convolution2d_28', to: 'mixed3', corner: 'bottom-left' },
+  { from: 'maxpooling2d_3', to: 'mixed3', corner: 'bottom-left' },
   // mixed block 4: 17 x 17 x 768
-
-  {
-    from: 'mixed3',
-    to: 'convolution2d_31',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed3',
-    to: 'convolution2d_32',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed3',
-    to: 'convolution2d_35',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'convolution2d_31',
-    to: 'mixed4',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_32',
-    to: 'mixed4',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_35',
-    to: 'mixed4',
-    corner: 'bottom-left'
-  },
-
+  { from: 'mixed3', to: 'convolution2d_31', corner: 'bottom-right' },
+  { from: 'mixed3', to: 'convolution2d_32', corner: 'bottom-right' },
+  { from: 'mixed3', to: 'convolution2d_35', corner: 'bottom-right' },
+  { from: 'convolution2d_31', to: 'mixed4', corner: 'bottom-left' },
+  { from: 'convolution2d_32', to: 'mixed4', corner: 'bottom-left' },
+  { from: 'convolution2d_35', to: 'mixed4', corner: 'bottom-left' },
   // mixed block 5: 17 x 17 x 768
-
-  {
-    from: 'mixed4',
-    to: 'convolution2d_41',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed4',
-    to: 'convolution2d_42',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed4',
-    to: 'convolution2d_45',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'convolution2d_41',
-    to: 'mixed5',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_42',
-    to: 'mixed5',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_45',
-    to: 'mixed5',
-    corner: 'bottom-left'
-  },
-
+  { from: 'mixed4', to: 'convolution2d_41', corner: 'bottom-right' },
+  { from: 'mixed4', to: 'convolution2d_42', corner: 'bottom-right' },
+  { from: 'mixed4', to: 'convolution2d_45', corner: 'bottom-right' },
+  { from: 'convolution2d_41', to: 'mixed5', corner: 'bottom-left' },
+  { from: 'convolution2d_42', to: 'mixed5', corner: 'bottom-left' },
+  { from: 'convolution2d_45', to: 'mixed5', corner: 'bottom-left' },
   // mixed block 6: 17 x 17 x 768
-
-  {
-    from: 'mixed5',
-    to: 'convolution2d_51',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed5',
-    to: 'convolution2d_52',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed5',
-    to: 'convolution2d_55',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'convolution2d_51',
-    to: 'mixed6',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_52',
-    to: 'mixed6',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_55',
-    to: 'mixed6',
-    corner: 'bottom-left'
-  },
-
+  { from: 'mixed5', to: 'convolution2d_51', corner: 'bottom-right' },
+  { from: 'mixed5', to: 'convolution2d_52', corner: 'bottom-right' },
+  { from: 'mixed5', to: 'convolution2d_55', corner: 'bottom-right' },
+  { from: 'convolution2d_51', to: 'mixed6', corner: 'bottom-left' },
+  { from: 'convolution2d_52', to: 'mixed6', corner: 'bottom-left' },
+  { from: 'convolution2d_55', to: 'mixed6', corner: 'bottom-left' },
   // mixed block 7: 17 x 17 x 768
-
-  {
-    from: 'mixed6',
-    to: 'convolution2d_61',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed6',
-    to: 'convolution2d_62',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed6',
-    to: 'convolution2d_65',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'convolution2d_61',
-    to: 'mixed7',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_62',
-    to: 'mixed7',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_65',
-    to: 'mixed7',
-    corner: 'bottom-left'
-  },
-
+  { from: 'mixed6', to: 'convolution2d_61', corner: 'bottom-right' },
+  { from: 'mixed6', to: 'convolution2d_62', corner: 'bottom-right' },
+  { from: 'mixed6', to: 'convolution2d_65', corner: 'bottom-right' },
+  { from: 'convolution2d_61', to: 'mixed7', corner: 'bottom-left' },
+  { from: 'convolution2d_62', to: 'mixed7', corner: 'bottom-left' },
+  { from: 'convolution2d_65', to: 'mixed7', corner: 'bottom-left' },
   // mixed block 8: 8 x 8 x 1280
-
-  {
-    from: 'mixed7',
-    to: 'convolution2d_71',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed7',
-    to: 'convolution2d_73',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed7',
-    to: 'averagepooling2d_8',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'convolution2d_71',
-    to: 'mixed8',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'convolution2d_73',
-    to: 'mixed8',
-    corner: 'bottom-left'
-  },
-  {
-    from: 'averagepooling2d_8',
-    to: 'mixed8',
-    corner: 'bottom-left'
-  },
-
+  { from: 'mixed7', to: 'convolution2d_71', corner: 'bottom-right' },
+  { from: 'mixed7', to: 'convolution2d_73', corner: 'bottom-right' },
+  { from: 'mixed7', to: 'averagepooling2d_8', corner: 'bottom-right' },
+  { from: 'convolution2d_71', to: 'mixed8', corner: 'bottom-left' },
+  { from: 'convolution2d_73', to: 'mixed8', corner: 'bottom-left' },
+  { from: 'averagepooling2d_8', to: 'mixed8', corner: 'bottom-left' },
   // mixed block 9: 8 x 8 x 2048
-
-  {
-    from: 'mixed8',
-    to: 'convolution2d_77',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed8',
-    to: 'convolution2d_78',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed8',
-    to: 'convolution2d_81',
-    corner: 'bottom-right'
-  },
-
-  {
-    from: 'convolution2d_77',
-    to: 'mixed9',
-    corner: 'bottom-left'
-  },
-
-  {
-    from: 'convolution2d_78',
-    to: 'batchnormalization_78'
-  },
-  {
-    from: 'batchnormalization_78',
-    to: 'convolution2d_79'
-  },
-  {
-    from: 'batchnormalization_78',
-    to: 'convolution2d_80'
-  },
-  {
-    from: 'convolution2d_79',
-    to: 'batchnormalization_79'
-  },
-  {
-    from: 'convolution2d_80',
-    to: 'batchnormalization_80'
-  },
-  {
-    from: 'batchnormalization_79',
-    to: 'mixed9_0'
-  },
-  {
-    from: 'batchnormalization_80',
-    to: 'mixed9_0'
-  },
-  {
-    from: 'mixed9_0',
-    to: 'mixed9',
-    corner: 'bottom-left'
-  },
-
-  {
-    from: 'convolution2d_81',
-    to: 'batchnormalization_81'
-  },
-  {
-    from: 'batchnormalization_81',
-    to: 'convolution2d_82'
-  },
-  {
-    from: 'convolution2d_82',
-    to: 'batchnormalization_82'
-  },
-  {
-    from: 'batchnormalization_82',
-    to: 'convolution2d_83'
-  },
-  {
-    from: 'batchnormalization_82',
-    to: 'convolution2d_84'
-  },
-  {
-    from: 'convolution2d_83',
-    to: 'batchnormalization_83'
-  },
-  {
-    from: 'convolution2d_84',
-    to: 'batchnormalization_84'
-  },
-  {
-    from: 'batchnormalization_83',
-    to: 'merge_1'
-  },
-  {
-    from: 'batchnormalization_84',
-    to: 'merge_1'
-  },
-  {
-    from: 'merge_1',
-    to: 'mixed9',
-    corner: 'bottom-left'
-  },
-
+  { from: 'mixed8', to: 'convolution2d_77', corner: 'bottom-right' },
+  { from: 'mixed8', to: 'convolution2d_78', corner: 'bottom-right' },
+  { from: 'mixed8', to: 'convolution2d_81', corner: 'bottom-right' },
+  { from: 'convolution2d_77', to: 'mixed9', corner: 'bottom-left' },
+  { from: 'convolution2d_78', to: 'batchnormalization_78' },
+  { from: 'batchnormalization_78', to: 'convolution2d_79' },
+  { from: 'batchnormalization_78', to: 'convolution2d_80' },
+  { from: 'convolution2d_79', to: 'batchnormalization_79' },
+  { from: 'convolution2d_80', to: 'batchnormalization_80' },
+  { from: 'batchnormalization_79', to: 'mixed9_0' },
+  { from: 'batchnormalization_80', to: 'mixed9_0' },
+  { from: 'mixed9_0', to: 'mixed9', corner: 'bottom-left' },
+  { from: 'convolution2d_81', to: 'batchnormalization_81' },
+  { from: 'batchnormalization_81', to: 'convolution2d_82' },
+  { from: 'convolution2d_82', to: 'batchnormalization_82' },
+  { from: 'batchnormalization_82', to: 'convolution2d_83' },
+  { from: 'batchnormalization_82', to: 'convolution2d_84' },
+  { from: 'convolution2d_83', to: 'batchnormalization_83' },
+  { from: 'convolution2d_84', to: 'batchnormalization_84' },
+  { from: 'batchnormalization_83', to: 'merge_1' },
+  { from: 'batchnormalization_84', to: 'merge_1' },
+  { from: 'merge_1', to: 'mixed9', corner: 'bottom-left' },
   // mixed block 10: 8 x 8 x 2048
-
-  {
-    from: 'mixed9',
-    to: 'convolution2d_86',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed9',
-    to: 'convolution2d_87',
-    corner: 'bottom-right'
-  },
-  {
-    from: 'mixed9',
-    to: 'convolution2d_90',
-    corner: 'bottom-right'
-  },
-
-  {
-    from: 'convolution2d_86',
-    to: 'mixed10',
-    corner: 'bottom-left'
-  },
-
-  {
-    from: 'convolution2d_87',
-    to: 'batchnormalization_87'
-  },
-  {
-    from: 'batchnormalization_87',
-    to: 'convolution2d_88'
-  },
-  {
-    from: 'batchnormalization_87',
-    to: 'convolution2d_89'
-  },
-  {
-    from: 'convolution2d_88',
-    to: 'batchnormalization_88'
-  },
-  {
-    from: 'convolution2d_89',
-    to: 'batchnormalization_89'
-  },
-  {
-    from: 'batchnormalization_88',
-    to: 'mixed9_1'
-  },
-  {
-    from: 'batchnormalization_89',
-    to: 'mixed9_1'
-  },
-  {
-    from: 'mixed9_1',
-    to: 'mixed10',
-    corner: 'bottom-left'
-  },
-
-  {
-    from: 'convolution2d_90',
-    to: 'batchnormalization_90'
-  },
-  {
-    from: 'batchnormalization_90',
-    to: 'convolution2d_91'
-  },
-  {
-    from: 'convolution2d_91',
-    to: 'batchnormalization_91'
-  },
-  {
-    from: 'batchnormalization_91',
-    to: 'convolution2d_92'
-  },
-  {
-    from: 'batchnormalization_91',
-    to: 'convolution2d_93'
-  },
-  {
-    from: 'convolution2d_92',
-    to: 'batchnormalization_92'
-  },
-  {
-    from: 'convolution2d_93',
-    to: 'batchnormalization_93'
-  },
-  {
-    from: 'batchnormalization_92',
-    to: 'merge_2'
-  },
-  {
-    from: 'batchnormalization_93',
-    to: 'merge_2'
-  },
-  {
-    from: 'merge_2',
-    to: 'mixed10',
-    corner: 'bottom-left'
-  }
-
-]
+  { from: 'mixed9', to: 'convolution2d_86', corner: 'bottom-right' },
+  { from: 'mixed9', to: 'convolution2d_87', corner: 'bottom-right' },
+  { from: 'mixed9', to: 'convolution2d_90', corner: 'bottom-right' },
+  { from: 'convolution2d_86', to: 'mixed10', corner: 'bottom-left' },
+  { from: 'convolution2d_87', to: 'batchnormalization_87' },
+  { from: 'batchnormalization_87', to: 'convolution2d_88' },
+  { from: 'batchnormalization_87', to: 'convolution2d_89' },
+  { from: 'convolution2d_88', to: 'batchnormalization_88' },
+  { from: 'convolution2d_89', to: 'batchnormalization_89' },
+  { from: 'batchnormalization_88', to: 'mixed9_1' },
+  { from: 'batchnormalization_89', to: 'mixed9_1' },
+  { from: 'mixed9_1', to: 'mixed10', corner: 'bottom-left' },
+  { from: 'convolution2d_90', to: 'batchnormalization_90' },
+  { from: 'batchnormalization_90', to: 'convolution2d_91' },
+  { from: 'convolution2d_91', to: 'batchnormalization_91' },
+  { from: 'batchnormalization_91', to: 'convolution2d_92' },
+  { from: 'batchnormalization_91', to: 'convolution2d_93' },
+  { from: 'convolution2d_92', to: 'batchnormalization_92' },
+  { from: 'convolution2d_93', to: 'batchnormalization_93' },
+  { from: 'batchnormalization_92', to: 'merge_2' },
+  { from: 'batchnormalization_93', to: 'merge_2' },
+  { from: 'merge_2', to: 'mixed10', corner: 'bottom-left' }
+];

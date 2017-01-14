@@ -1,5 +1,5 @@
-import Tensor from '../../Tensor'
-import Layer from '../../Layer'
+import Tensor from '../../Tensor';
+import Layer from '../../Layer';
 
 /**
  * Flatten layer class
@@ -9,9 +9,9 @@ export default class Flatten extends Layer {
   /**
    * Creates a Flatten layer
    */
-  constructor (attrs = {}) {
-    super(attrs)
-    this.layerClass = 'Flatten'
+  constructor(attrs = {}) {
+    super(attrs);
+    this.layerClass = 'Flatten';
   }
 
   /**
@@ -19,12 +19,14 @@ export default class Flatten extends Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call (x) {
+  call(x) {
     if (x.tensor.shape.length > 1) {
-      let raveled = new Tensor([], [x.tensor.shape.reduce((a, b) => a * b, 1)])
-      raveled.replaceTensorData(x.tensor.data)
-      x.tensor = raveled.tensor
+      let raveled = new Tensor([], [
+        x.tensor.shape.reduce((a, b) => a * b, 1)
+      ]);
+      raveled.replaceTensorData(x.tensor.data);
+      x.tensor = raveled.tensor;
     }
-    return x
+    return x;
   }
 }

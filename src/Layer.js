@@ -1,5 +1,5 @@
-import Tensor from './Tensor'
-import ops from 'ndarray-ops'
+import Tensor from './Tensor';
+import ops from 'ndarray-ops';
 
 /**
  * Layer class
@@ -9,20 +9,20 @@ export default class Layer {
    * Creates a layer
    * @param {Object} [attrs] - layer attributes
    */
-  constructor (attrs = {}) {
-    this.layerClass = 'Layer'
-    this.name = attrs.name
+  constructor(attrs = {}) {
+    this.layerClass = 'Layer';
+    this.name = attrs.name;
 
-    this.params = []
-    this.weights = {}
+    this.params = [];
+    this.weights = {};
 
     // turn on weblas
-    this._useWeblas = false
-    this._pipelineEnabled = false
+    this._useWeblas = false;
+    this._pipelineEnabled = false;
     if (attrs.gpu && weblas) {
-      this._useWeblas = true
+      this._useWeblas = true;
       if (attrs.pipeline) {
-        this._pipelineEnabled = true
+        this._pipelineEnabled = true;
       }
     }
   }
@@ -35,10 +35,10 @@ export default class Layer {
    *
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
-  setWeights (weightsArr) {
+  setWeights(weightsArr) {
     this.params.forEach((p, i) => {
-      this.weights[p] = weightsArr[i]
-    })
+      this.weights[p] = weightsArr[i];
+    });
   }
 
   /**
@@ -46,12 +46,12 @@ export default class Layer {
    * weblas must be available
    * @param {boolean} mode - on/off
    */
-  toggleGpu (mode) {
-    const newMode = typeof mode === 'undefined' ? !this._useWeblas : mode
+  toggleGpu(mode) {
+    const newMode = typeof mode === 'undefined' ? !this._useWeblas : mode;
     if (newMode && weblas) {
-      this._useWeblas = true
+      this._useWeblas = true;
     } else {
-      this._useWeblas = false
+      this._useWeblas = false;
     }
   }
 
@@ -60,8 +60,8 @@ export default class Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  call (x) {
-    return x
+  call(x) {
+    return x;
   }
 
   /**
@@ -71,35 +71,35 @@ export default class Layer {
    * @param {Tensor} x
    * @returns {Tensor} x
    */
-  transferFromPipeline (x) {
+  transferFromPipeline(x) {
     if (!x.weblasTensor) {
-      throw new Error('Variable passed in does not contain weblas tensor.')
+      throw new Error('Variable passed in does not contain weblas tensor.');
     }
     if (!x._fromPipeline) {
-      throw new Error('Variable passed in does not contain _fromPipeline.')
+      throw new Error('Variable passed in does not contain _fromPipeline.');
     }
     if (!x._actualShape) {
-      throw new Error('Variable passed in does not contain _actualShape.')
+      throw new Error('Variable passed in does not contain _actualShape.');
     }
 
     // last axis is channel axis
-    const channels = x.weblasTensor.shape[1]
-    const nbPatches = x._actualShape.slice(0, -1).reduce((a, b) => a * b, 1)
+    const channels = x.weblasTensor.shape[(1)];
+    const nbPatches = x._actualShape.slice(0, -1).reduce((a, b) => a * b, 1);
 
-    const tiled = new Tensor([], x.weblasTensor.shape)
-    tiled.tensor.data = x.weblasTensor.transfer()
+    const tiled = new Tensor([], x.weblasTensor.shape);
+    tiled.tensor.data = x.weblasTensor.transfer();
 
-    let output = new Tensor([], x._actualShape)
-    let outputChannelRaveled = new Tensor([], [nbPatches])
-    let outputChannel = new Tensor([], x._actualShape.slice(0, -1))
+    let output = new Tensor([], x._actualShape);
+    let outputChannelRaveled = new Tensor([], [ nbPatches ]);
+    let outputChannel = new Tensor([], x._actualShape.slice(0, -1));
     for (let n = 0; n < channels; n++) {
-      ops.assign(outputChannelRaveled.tensor, tiled.tensor.pick(null, n))
-      outputChannel.replaceTensorData(outputChannelRaveled.tensor.data)
-      const axisSlices = Array(x._actualShape.length - 1).fill(null)
-      ops.assign(output.tensor.pick(...axisSlices, n), outputChannel.tensor)
+      ops.assign(outputChannelRaveled.tensor, tiled.tensor.pick(null, n));
+      outputChannel.replaceTensorData(outputChannelRaveled.tensor.data);
+      const axisSlices = Array(x._actualShape.length - 1).fill(null);
+      ops.assign(output.tensor.pick(...axisSlices, n), outputChannel.tensor);
     }
-    x.tensor = output.tensor
+    x.tensor = output.tensor;
 
-    return x
+    return x;
   }
 }
