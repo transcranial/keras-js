@@ -65,7 +65,7 @@ describe('pipeline_14', function () {
     }
     empty = new KerasJS.Tensor([], TEST_DATA[key].inputs[1].shape)
     for (let i = 0; i < branch1.length; i++) {
-      empty = branch0[i].call(empty)
+      empty = branch1[i].call(empty)
     }
   })
 

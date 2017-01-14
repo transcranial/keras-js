@@ -1,6 +1,6 @@
 /* eslint-env browser, mocha */
 
-describe.only('pipeline_17', function () {
+describe('pipeline_17', function () {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -65,7 +65,7 @@ describe.only('pipeline_17', function () {
     }
     empty = new KerasJS.Tensor([], TEST_DATA[key].inputs[1].shape)
     for (let i = 0; i < branch1.length; i++) {
-      empty = branch0[i].call(empty)
+      empty = branch1[i].call(empty)
     }
   })
 
