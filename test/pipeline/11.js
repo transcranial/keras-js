@@ -27,7 +27,7 @@ describe('pipeline_11', function () {
   let modelLayers = []
 
   before(function () {
-    console.log('\n%cpipeline_7', styles.h1)
+    console.log('\n%cpipeline_11', styles.h1)
     console.log(`\n%c${title}`, styles.h3)
 
     let weightsIndexOffset = 0

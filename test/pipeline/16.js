@@ -1,6 +1,6 @@
 /* eslint-env browser, mocha */
 
-describe('pipeline_08', function () {
+describe('pipeline_16', function () {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -12,26 +12,31 @@ describe('pipeline_08', function () {
     inputShape: [8, 8, 2],
     layers: [
       {
-        layerClass: 'Convolution2D',
-        attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'same', subsample: [1, 1], dimOrdering: 'tf', bias: true }
-      },
-      {
+        branch: 0,
         layerClass: 'Convolution2D',
         attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
       },
       {
-        layerClass: 'MaxPooling2D',
-        attrs: { poolSize: [2, 2], strides: [1, 1], borderMode: 'same', dim_ordering: 'tf' }
+        branch: 1,
+        layerClass: 'Convolution2D',
+        attrs: { nbFilter: 4, nbRow: 3, nbCol: 3, activation: 'relu', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
+      },
+      {
+        branches: [0, 1],
+        layerClass: 'Merge',
+        attrs: { mode: 'max' }
       }
     ]
   }
 
-  const key = 'pipeline_08'
+  const key = 'pipeline_16'
   const title = `[${key}] ${testParams.layers.map(layer => layer.layerClass).join('-')}`
-  let modelLayers = []
+  let branch0 = []
+  let branch1 = []
+  let mergeLayer
 
   before(function () {
-    console.log('\n%cpipeline_08', styles.h1)
+    console.log('\n%cpipeline_16', styles.h1)
     console.log(`\n%c${title}`, styles.h3)
 
     let weightsIndexOffset = 0
@@ -44,24 +49,40 @@ describe('pipeline_08', function () {
         .map(w => new KerasJS.Tensor(w.data, w.shape))
       weightsIndexOffset += layerInstance.params.length
       layerInstance.setWeights(weightsArr)
-      modelLayers.push(layerInstance)
+      if (layerConfig.branch === 0) {
+        branch0.push(layerInstance)
+      } else if (layerConfig.branch === 1) {
+        branch1.push(layerInstance)
+      } else {
+        mergeLayer = layerInstance
+      }
     }
 
     // run dummy data once through to cache shape inference data, etc.
-    let empty = new KerasJS.Tensor([], TEST_DATA[key].input.shape)
-    for (let i = 0; i < testParams.layers.length; i++) {
-      empty = modelLayers[i].call(empty)
+    let empty = new KerasJS.Tensor([], TEST_DATA[key].inputs[0].shape)
+    for (let i = 0; i < branch0.length; i++) {
+      empty = branch0[i].call(empty)
+    }
+    empty = new KerasJS.Tensor([], TEST_DATA[key].inputs[1].shape)
+    for (let i = 0; i < branch1.length; i++) {
+      empty = branch0[i].call(empty)
     }
   })
 
   it(title, function () {
-    let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-    console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+    let t0 = new KerasJS.Tensor(TEST_DATA[key].inputs[0].data, TEST_DATA[key].inputs[0].shape)
+    let t1 = new KerasJS.Tensor(TEST_DATA[key].inputs[1].data, TEST_DATA[key].inputs[1].shape)
+    console.log('%cin (branch 0)', styles.h4, stringifyCondensed(t0.tensor))
+    console.log('%cin (branch 1)', styles.h4, stringifyCondensed(t1.tensor))
     const startTime = performance.now()
-    for (let i = 0; i < testParams.layers.length; i++) {
-      t = modelLayers[i].call(t)
+    for (let i = 0; i < branch0.length; i++) {
+      t0 = branch0[i].call(t0)
     }
-    t = modelLayers[testParams.layers.length - 1].transferFromPipeline(t)
+    for (let i = 0; i < branch1.length; i++) {
+      t1 = branch1[i].call(t1)
+    }
+    let t = mergeLayer.call([t0, t1])
+    t = mergeLayer.transferFromPipeline(t)
     const endTime = performance.now()
     console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
     logTime(startTime, endTime)
