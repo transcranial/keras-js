@@ -8,8 +8,6 @@ varying vec2 outTex;
 uniform sampler2D X;
 uniform sampler2D poolIndexMapping;
 uniform int inputRows;
-uniform int channels;
-uniform int channelsPad;
 uniform int poolElements;
 uniform int poolElementsPad;
 
@@ -27,25 +25,12 @@ float select_index(vec4 v, int index) {
   return val;
 }
 
-void fix_pad(inout vec4 v, int pad) {
-  v.a = 0.0;
-  if (pad == 2) {
-    v.b = 0.0;
-  } else if (pad == 3) {
-    v.b = 0.0;
-    v.g = 0.0;
-  }
-}
-
 void main(void) {
-  // index of first element in pixel (matrix space)
-  float col = floor(outTex.x * float(channels + channelsPad) - 1.5);
-
   float poolIndexCoordX;
   vec4 poolIndices;
   int poolIndexRGBA;
   float poolIndex;
-  vec4 mappedVal;
+  vec4 mappedValues;
   float inputCoordY;
   vec4 currentSum = vec4(0.0, 0.0, 0.0, 0.0);
   int poolElementsEffective = poolElements;
@@ -61,19 +46,14 @@ void main(void) {
 
     if (poolIndex != -1.0) {
       inputCoordY = (poolIndex + 0.5) / float(inputRows);
-      mappedVal = texture2D(X, vec2(outTex.x, inputCoordY));
-      currentSum = currentSum + mappedVal;
+      mappedValues = texture2D(X, vec2(outTex.x, inputCoordY));
+      currentSum = currentSum + mappedValues;
     } else {
       poolElementsEffective = poolElementsEffective - 1;
     }
   }
 
   currentSum = currentSum / float(poolElementsEffective);
-
-  // set pad values to 0.0, if in padded region of output texture
-  if (channelsPad > 0 && col + 4.0 > float(channels)) {
-    fix_pad(mappedVal, channelsPad);
-  }
 
   gl_FragColor = currentSum;
 }
