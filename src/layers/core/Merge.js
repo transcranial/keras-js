@@ -6,6 +6,9 @@ import unsqueeze from 'ndarray-unsqueeze'
 import concatFirstAxis from 'ndarray-concat-rows'
 import isEqual from 'lodash/isEqual'
 import range from 'lodash/range'
+import sum from 'lodash/sum'
+import checkPipelineSupport from '../../utils/checkPipelineSupport'
+import WebGLMerge from '../../ext/core/WebGLMerge'
 
 /**
  * Merge layer class
@@ -50,6 +53,16 @@ export default class Merge extends Layer {
 
     this.outputShape = outputShape
     this.outputMask = outputMask
+
+    // Enable layer pipeline mode if supported
+    if (this._useWeblas && this._pipelineEnabled) {
+      const isPipelineModeSupported = checkPipelineSupport(this.layerClass, attrs)
+      if (!isPipelineModeSupported) {
+        this._pipelineEnabled = false
+      } else {
+        this.webglMerge = new WebGLMerge(this.mode)
+      }
+    }
   }
 
   /**
@@ -92,11 +105,42 @@ export default class Merge extends Layer {
   }
 
   /**
-   * Method for layer computational logic
-   * @param {Tensor[]} inputs
-   * @returns {Tensor} `this`
+   * Runs layer computational logic in pipeline mode
+   * Only works with inputs containing weblas pipeline tensors which are 2-D tiled
+   * representations (tile data, channels).
+   * For now, support only ['sum', 'mul', 'concat', 'ave', 'max']
+   * @param {Tensor} x
+   * @returns {Tensor} x
    */
-  call (inputs) {
+  _callPipelineMode (inputs) {
+    if (!inputs.every(x => x._fromPipeline)) {
+      return this._callRegularMode(inputs)
+    }
+
+    let output = new Tensor([], inputs[0].weblasTensor.shape)
+
+    output.weblasTensor = this.webglMerge.call(
+      inputs.map(x => x.weblasTensor)
+    )
+
+    output._fromPipeline = true
+    output._actualShape = inputs[0]._actualShape
+    if (this.mode === 'concat') {
+      output._actualShape = [
+        ...inputs[0]._actualShape.slice(0, -1),
+        sum(inputs.map(x => x._actualShape.slice(-1)[0]))
+      ]
+    }
+
+    return output
+  }
+
+  /**
+   * Runs layer computational logic in regular mode
+   * @param {Tensor[]} inputs
+   * @returns {Tensor} output
+   */
+  _callRegularMode (inputs) {
     const valid = this._validateInputs(inputs)
     if (!valid) {
       throw new Error(`${this.name} [Merge layer] Invalid inputs to call method.`)
@@ -195,5 +239,18 @@ export default class Merge extends Layer {
     }
 
     return output
+  }
+
+  /**
+   * Method for layer computational logic
+   * @param {Tensor} x
+   * @returns {Tensor} x
+   */
+  call (x) {
+    if (this._pipelineEnabled) {
+      return this._callPipelineMode(x)
+    } else {
+      return this._callRegularMode(x)
+    }
   }
 }
