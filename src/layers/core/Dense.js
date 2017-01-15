@@ -60,7 +60,7 @@ export default class Dense extends Layer {
       if (this.bias) {
         this.weights.b.createWeblasTensor();
       } else {
-        this._zerosVec = new Tensor([], [ this.weights.W.tensor.shape[(1)] ]);
+        this._zerosVec = new Tensor([], [ this.weights.W.tensor.shape[1] ]);
         this._zerosVec.createWeblasTensor();
       }
     }

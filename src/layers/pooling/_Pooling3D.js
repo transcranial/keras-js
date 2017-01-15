@@ -42,37 +42,31 @@ export default class _Pooling3D extends Layer {
     const [ poolDim1, poolDim2, poolDim3 ] = this.poolSize;
 
     const outputDim1 = this.borderMode === 'same'
-      ? Math.floor((inputDim1 + this.strides[(0)] - 1) / this.strides[(0)])
-      : Math.floor(
-        (inputDim1 - poolDim1 + this.strides[(0)]) / this.strides[(0)]
-      );
+      ? Math.floor((inputDim1 + this.strides[0] - 1) / this.strides[0])
+      : Math.floor((inputDim1 - poolDim1 + this.strides[0]) / this.strides[0]);
     const outputDim2 = this.borderMode === 'same'
-      ? Math.floor((inputDim2 + this.strides[(1)] - 1) / this.strides[(1)])
-      : Math.floor(
-        (inputDim2 - poolDim2 + this.strides[(1)]) / this.strides[(1)]
-      );
+      ? Math.floor((inputDim2 + this.strides[1] - 1) / this.strides[1])
+      : Math.floor((inputDim2 - poolDim2 + this.strides[1]) / this.strides[1]);
     const outputDim3 = this.borderMode === 'same'
-      ? Math.floor((inputDim3 + this.strides[(2)] - 1) / this.strides[(2)])
-      : Math.floor(
-        (inputDim3 - poolDim3 + this.strides[(2)]) / this.strides[(2)]
-      );
+      ? Math.floor((inputDim3 + this.strides[2] - 1) / this.strides[2])
+      : Math.floor((inputDim3 - poolDim3 + this.strides[2]) / this.strides[2]);
 
     const paddingDim1 = this.borderMode === 'same'
       ? Math.max(
         0,
-        Math.floor((outputDim1 - 1) * this.strides[(0)] + poolDim1 - inputDim1)
+        Math.floor((outputDim1 - 1) * this.strides[0] + poolDim1 - inputDim1)
       )
       : 0;
     const paddingDim2 = this.borderMode === 'same'
       ? Math.max(
         0,
-        Math.floor((outputDim2 - 1) * this.strides[(1)] + poolDim2 - inputDim2)
+        Math.floor((outputDim2 - 1) * this.strides[1] + poolDim2 - inputDim2)
       )
       : 0;
     const paddingDim3 = this.borderMode === 'same'
       ? Math.max(
         0,
-        Math.floor((outputDim3 - 1) * this.strides[(2)] + poolDim3 - inputDim3)
+        Math.floor((outputDim3 - 1) * this.strides[2] + poolDim3 - inputDim3)
       )
       : 0;
     const paddingDim1Before = Math.floor(paddingDim1 / 2);
@@ -176,7 +170,7 @@ export default class _Pooling3D extends Layer {
     for (
       let i = 0, _i = 0;
       i <= inputDim1 - poolDim1;
-      i += this.strides[(0)], _i++
+      i += this.strides[0], _i++
     ) {
       let dim1InPadding = 0;
       if (i < paddingDim1Before) {
@@ -188,7 +182,7 @@ export default class _Pooling3D extends Layer {
       for (
         let j = 0, _j = 0;
         j <= inputDim2 - poolDim2;
-        j += this.strides[(1)], _j++
+        j += this.strides[1], _j++
       ) {
         let dim2InPadding = 0;
         if (j < paddingDim2Before) {
@@ -200,7 +194,7 @@ export default class _Pooling3D extends Layer {
         for (
           let k = 0, _k = 0;
           k <= inputDim3 - poolDim3;
-          k += this.strides[(2)], _k++
+          k += this.strides[2], _k++
         ) {
           let dim3InPadding = 0;
           if (k < paddingDim3Before) {

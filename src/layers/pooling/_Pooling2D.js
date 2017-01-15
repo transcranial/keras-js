@@ -42,22 +42,22 @@ export default class _Pooling2D extends Layer {
     const [ nbRow, nbCol ] = this.poolSize;
 
     const outputRows = this.borderMode === 'same'
-      ? Math.floor((inputRows + this.strides[(0)] - 1) / this.strides[(0)])
-      : Math.floor((inputRows - nbRow + this.strides[(0)]) / this.strides[(0)]);
+      ? Math.floor((inputRows + this.strides[0] - 1) / this.strides[0])
+      : Math.floor((inputRows - nbRow + this.strides[0]) / this.strides[0]);
     const outputCols = this.borderMode === 'same'
-      ? Math.floor((inputCols + this.strides[(1)] - 1) / this.strides[(1)])
-      : Math.floor((inputCols - nbCol + this.strides[(1)]) / this.strides[(1)]);
+      ? Math.floor((inputCols + this.strides[1] - 1) / this.strides[1])
+      : Math.floor((inputCols - nbCol + this.strides[1]) / this.strides[1]);
 
     const paddingRow = this.borderMode === 'same'
       ? Math.max(
         0,
-        Math.floor((outputRows - 1) * this.strides[(0)] + nbRow - inputRows)
+        Math.floor((outputRows - 1) * this.strides[0] + nbRow - inputRows)
       )
       : 0;
     const paddingCol = this.borderMode === 'same'
       ? Math.max(
         0,
-        Math.floor((outputCols - 1) * this.strides[(1)] + nbCol - inputCols)
+        Math.floor((outputCols - 1) * this.strides[1] + nbCol - inputCols)
       )
       : 0;
     const paddingRowBefore = Math.floor(paddingRow / 2);
@@ -124,8 +124,8 @@ export default class _Pooling2D extends Layer {
       return;
     }
 
-    let inputRows = inputShape[(0)];
-    let inputCols = inputShape[(1)];
+    let inputRows = inputShape[0];
+    let inputCols = inputShape[1];
 
     let indicesRow = new Tensor([], [ inputRows, inputCols ]);
     let index = 0;
@@ -151,8 +151,8 @@ export default class _Pooling2D extends Layer {
       ops.assign(
         _indicesRow.tensor
           .hi(
-            inputShape[(0)] + paddingRowBefore,
-            inputShape[(1)] + paddingColBefore
+            inputShape[0] + paddingRowBefore,
+            inputShape[1] + paddingColBefore
           )
           .lo(paddingRowBefore, paddingColBefore),
         indicesRow.tensor
@@ -161,8 +161,8 @@ export default class _Pooling2D extends Layer {
     }
 
     const [ nbRow, nbCol ] = this.poolSize;
-    const outputRows = this.outputShape[(0)];
-    const outputCols = this.outputShape[(1)];
+    const outputRows = this.outputShape[0];
+    const outputCols = this.outputShape[1];
 
     this._poolIndicesPerChannel = new Tensor([], [
       outputRows * outputCols,
@@ -174,12 +174,12 @@ export default class _Pooling2D extends Layer {
     for (
       let i = 0, limit = inputRows - nbRow;
       i <= limit;
-      i += this.strides[(0)]
+      i += this.strides[0]
     ) {
       for (
         let j = 0, limit = inputCols - nbCol;
         j <= limit;
-        j += this.strides[(1)]
+        j += this.strides[1]
       ) {
         ops.assign(
           patchRow.tensor,
@@ -254,7 +254,7 @@ export default class _Pooling2D extends Layer {
     for (
       let i = 0, _i = 0;
       i <= inputRows - nbRow;
-      i += this.strides[(0)], _i++
+      i += this.strides[0], _i++
     ) {
       let nbRowInPadding = 0;
       if (i < paddingRowBefore) {
@@ -266,7 +266,7 @@ export default class _Pooling2D extends Layer {
       for (
         let j = 0, _j = 0;
         j <= inputCols - nbCol;
-        j += this.strides[(1)], _j++
+        j += this.strides[1], _j++
       ) {
         let nbColInPadding = 0;
         if (j < paddingColBefore) {

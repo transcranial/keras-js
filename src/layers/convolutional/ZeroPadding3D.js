@@ -33,21 +33,21 @@ export default class ZeroPadding3D extends Layer {
 
     const inputShape = x.tensor.shape;
     const outputShape = [
-      inputShape[(0)] + this.padding[(0)] * 2,
-      inputShape[(1)] + this.padding[(1)] * 2,
-      inputShape[(2)] + this.padding[(2)] * 2,
-      inputShape[(3)]
+      inputShape[0] + this.padding[0] * 2,
+      inputShape[1] + this.padding[1] * 2,
+      inputShape[2] + this.padding[2] * 2,
+      inputShape[3]
     ];
     let y = new Tensor([], outputShape);
     ops.assign(
       y.tensor
         .hi(
-          inputShape[(0)] + this.padding[(0)],
-          inputShape[(1)] + this.padding[(1)],
-          inputShape[(2)] + this.padding[(2)],
-          inputShape[(3)]
+          inputShape[0] + this.padding[0],
+          inputShape[1] + this.padding[1],
+          inputShape[2] + this.padding[2],
+          inputShape[3]
         )
-        .lo(this.padding[(0)], this.padding[(1)], this.padding[(2)], 0),
+        .lo(this.padding[0], this.padding[1], this.padding[2], 0),
       x.tensor
     );
     x.tensor = y.tensor;

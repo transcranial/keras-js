@@ -79,11 +79,11 @@ describe('pipeline_15', function() {
     }
 
     // run dummy data once through to cache shape inference data, etc.
-    let empty = new KerasJS.Tensor([], TEST_DATA[key].inputs[(0)].shape);
+    let empty = new KerasJS.Tensor([], TEST_DATA[key].inputs[0].shape);
     for (let i = 0; i < branch_0.length; i++) {
       empty = branch_0[i].call(empty);
     }
-    empty = new KerasJS.Tensor([], TEST_DATA[key].inputs[(1)].shape);
+    empty = new KerasJS.Tensor([], TEST_DATA[key].inputs[1].shape);
     for (let i = 0; i < branch_1.length; i++) {
       empty = branch_1[i].call(empty);
     }
@@ -91,12 +91,12 @@ describe('pipeline_15', function() {
 
   it(title, function() {
     let t_0 = new KerasJS.Tensor(
-      TEST_DATA[key].inputs[(0)].data,
-      TEST_DATA[key].inputs[(0)].shape
+      TEST_DATA[key].inputs[0].data,
+      TEST_DATA[key].inputs[0].shape
     );
     let t_1 = new KerasJS.Tensor(
-      TEST_DATA[key].inputs[(1)].data,
-      TEST_DATA[key].inputs[(1)].shape
+      TEST_DATA[key].inputs[1].data,
+      TEST_DATA[key].inputs[1].shape
     );
     console.log('%cin (branch 0)', styles.h4, stringifyCondensed(t_0.tensor));
     console.log('%cin (branch 1)', styles.h4, stringifyCondensed(t_1.tensor));

@@ -25,7 +25,7 @@ export default class UpSampling1D extends Layer {
    */
   call(x) {
     const inputShape = x.tensor.shape;
-    const outputShape = [ inputShape[(0)] * this.length, inputShape[(1)] ];
+    const outputShape = [ inputShape[0] * this.length, inputShape[1] ];
     let y = new Tensor([], outputShape);
     for (let i = 0; i < this.length; i++) {
       ops.assign(y.tensor.lo(i, 0).step(this.length, 1), x.tensor);

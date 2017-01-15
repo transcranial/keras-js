@@ -99,7 +99,7 @@ describe('wrappers layer: Bidirectional', function() {
     ) =>
       {
         const key = `wrappers.Bidirectional.${i}`;
-        const title = `[${key}] [CPU] test: ${inputShape[(0)]}x${inputShape[(1)]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
+        const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
           wrappedLayerAttrs
         )}`;
 
@@ -145,7 +145,7 @@ describe('wrappers layer: Bidirectional', function() {
     ) =>
       {
         const key = `wrappers.Bidirectional.${i}`;
-        const title = `[${key}] [GPU] test: ${inputShape[(0)]}x${inputShape[(1)]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
+        const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
           wrappedLayerAttrs
         )}`;
 

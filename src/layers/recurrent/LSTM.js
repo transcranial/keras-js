@@ -81,12 +81,12 @@ export default class LSTM extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    let currentX = new Tensor([], [ x.tensor.shape[(1)] ]);
+    let currentX = new Tensor([], [ x.tensor.shape[1] ]);
 
-    const dimInputGate = this.weights['b_i'].tensor.shape[(0)];
-    const dimCandidate = this.weights['b_c'].tensor.shape[(0)];
-    const dimForgetGate = this.weights['b_f'].tensor.shape[(0)];
-    const dimOutputGate = this.weights['b_o'].tensor.shape[(0)];
+    const dimInputGate = this.weights['b_i'].tensor.shape[0];
+    const dimCandidate = this.weights['b_c'].tensor.shape[0];
+    const dimForgetGate = this.weights['b_f'].tensor.shape[0];
+    const dimOutputGate = this.weights['b_o'].tensor.shape[0];
 
     let currentInputGateState = new Tensor([], [ dimInputGate ]);
     let tempXI = new Tensor([], [ dimInputGate ]);
@@ -113,7 +113,7 @@ export default class LSTM extends Layer {
     let previousHiddenState = new Tensor([], [ dimCandidate ]);
 
     this.hiddenStateSequence = new Tensor([], [
-      x.tensor.shape[(0)],
+      x.tensor.shape[0],
       dimCandidate
     ]);
 
@@ -239,7 +239,7 @@ export default class LSTM extends Layer {
       );
     };
 
-    for (let i = 0, len = x.tensor.shape[(0)]; i < len; i++) {
+    for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
       const inputIndex = this.goBackwards ? len - i - 1 : i;
       ops.assign(currentX.tensor, x.tensor.pick(inputIndex, null));
       _clearTemp();

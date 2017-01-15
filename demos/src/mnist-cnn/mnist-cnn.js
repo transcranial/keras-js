@@ -152,8 +152,8 @@ export const MnistCnn = Vue.extend({
       for (let s = 0, slen = this.strokes.length; s < slen; s++) {
         points = this.strokes[s];
 
-        let p1 = points[(0)];
-        let p2 = points[(1)];
+        let p1 = points[0];
+        let p2 = points[1];
         ctx.beginPath();
         ctx.moveTo(...p1);
 

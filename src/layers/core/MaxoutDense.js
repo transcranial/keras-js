@@ -35,7 +35,7 @@ export default class MaxoutDense extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    const nbFeature = this.weights.W.tensor.shape[(0)];
+    const nbFeature = this.weights.W.tensor.shape[0];
 
     let featMax = new Tensor([], [ this.outputDim ]);
     for (let i = 0; i < nbFeature; i++) {

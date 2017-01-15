@@ -32,23 +32,23 @@ export default class AtrousConvolution2D extends Convolution2D {
    * @param {number[]} inputShape
    */
   _calcOutputShape(inputShape) {
-    const inputRows = inputShape[(0)];
-    const inputCols = inputShape[(1)];
+    const inputRows = inputShape[0];
+    const inputCols = inputShape[1];
     const [ nbFilter, nbRow, nbCol ] = this.kernelShape;
 
     // effective shape after filter dilation
-    const nbRowDilated = nbRow + (nbRow - 1) * (this.atrousRate[(0)] - 1);
-    const nbColDilated = nbCol + (nbCol - 1) * (this.atrousRate[(1)] - 1);
+    const nbRowDilated = nbRow + (nbRow - 1) * (this.atrousRate[0] - 1);
+    const nbColDilated = nbCol + (nbCol - 1) * (this.atrousRate[1] - 1);
 
     const outputRows = this.borderMode === 'same'
-      ? Math.floor((inputRows + this.subsample[(0)] - 1) / this.subsample[(0)])
+      ? Math.floor((inputRows + this.subsample[0] - 1) / this.subsample[0])
       : Math.floor(
-        (inputRows - nbRowDilated + this.subsample[(0)]) / this.subsample[(0)]
+        (inputRows - nbRowDilated + this.subsample[0]) / this.subsample[0]
       );
     const outputCols = this.borderMode === 'same'
-      ? Math.floor((inputCols + this.subsample[(1)] - 1) / this.subsample[(1)])
+      ? Math.floor((inputCols + this.subsample[1] - 1) / this.subsample[1])
       : Math.floor(
-        (inputCols - nbColDilated + this.subsample[(1)]) / this.subsample[(1)]
+        (inputCols - nbColDilated + this.subsample[1]) / this.subsample[1]
       );
     const outputChannels = nbFilter;
 
@@ -56,7 +56,7 @@ export default class AtrousConvolution2D extends Convolution2D {
       ? Math.max(
         0,
         Math.floor(
-          (outputRows - 1) * this.subsample[(0)] + nbRowDilated - inputRows
+          (outputRows - 1) * this.subsample[0] + nbRowDilated - inputRows
         )
       )
       : 0;
@@ -64,7 +64,7 @@ export default class AtrousConvolution2D extends Convolution2D {
       ? Math.max(
         0,
         Math.floor(
-          (outputCols - 1) * this.subsample[(1)] + nbColDilated - inputCols
+          (outputCols - 1) * this.subsample[1] + nbColDilated - inputCols
         )
       )
       : 0;
@@ -89,16 +89,16 @@ export default class AtrousConvolution2D extends Convolution2D {
    */
   _im2col(x) {
     const [ inputRows, inputCols, inputChannels ] = x.tensor.shape;
-    const nbRow = this.kernelShape[(1)];
-    const nbCol = this.kernelShape[(2)];
-    const outputRows = this.outputShape[(0)];
-    const outputCols = this.outputShape[(1)];
+    const nbRow = this.kernelShape[1];
+    const nbCol = this.kernelShape[2];
+    const outputRows = this.outputShape[0];
+    const outputCols = this.outputShape[1];
     const nbPatches = outputRows * outputCols;
     const patchLen = nbRow * nbCol * inputChannels;
 
     // effective shape after filter dilation
-    const nbRowDilated = nbRow + (nbRow - 1) * (this.atrousRate[(0)] - 1);
-    const nbColDilated = nbCol + (nbCol - 1) * (this.atrousRate[(1)] - 1);
+    const nbRowDilated = nbRow + (nbRow - 1) * (this.atrousRate[0] - 1);
+    const nbColDilated = nbCol + (nbCol - 1) * (this.atrousRate[1] - 1);
 
     if (!this._imColsMat) {
       this._imColsMat = new Tensor([], [ nbPatches, patchLen ]);
@@ -109,19 +109,19 @@ export default class AtrousConvolution2D extends Convolution2D {
     for (
       let i = 0, limit = inputRows - nbRowDilated;
       i <= limit;
-      i += this.subsample[(0)]
+      i += this.subsample[0]
     ) {
       for (
         let j = 0, limit = inputCols - nbColDilated;
         j <= limit;
-        j += this.subsample[(1)]
+        j += this.subsample[1]
       ) {
         ops.assign(
           patch.tensor,
           x.tensor
             .hi(i + nbRowDilated, j + nbColDilated, inputChannels)
             .lo(i, j, 0)
-            .step(this.atrousRate[(0)], this.atrousRate[(1)], 1)
+            .step(this.atrousRate[0], this.atrousRate[1], 1)
         );
         this._imColsMat.tensor.data.set(patch.tensor.data, offset);
         offset += patchLen;

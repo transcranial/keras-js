@@ -81,7 +81,7 @@ export default class Layer {
     }
 
     // last axis is channel axis
-    const channels = x.weblasTensor.shape[(1)];
+    const channels = x.weblasTensor.shape[1];
     const nbPatches = x._actualShape.slice(0, -1).reduce((a, b) => a * b, 1);
 
     const tiled = new Tensor([], x.weblasTensor.shape);

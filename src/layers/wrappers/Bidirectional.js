@@ -70,23 +70,21 @@ export default class Bidirectional extends Layer {
       let y = new Tensor([], outShape);
       if (this.forwardLayer.returnSequences) {
         ops.assign(
-          y.tensor.hi(outShape[(0)], yForward.tensor.shape[(1)]).lo(0, 0),
+          y.tensor.hi(outShape[0], yForward.tensor.shape[1]).lo(0, 0),
           yForward.tensor
         );
         // when returnSequences = true, reverse results of backwardLayer before concat
         ops.assign(
-          y.tensor
-            .hi(outShape[(0)], outShape[(1)])
-            .lo(0, yForward.tensor.shape[(1)]),
+          y.tensor.hi(outShape[0], outShape[1]).lo(0, yForward.tensor.shape[1]),
           yBackward.tensor.step(-1)
         );
       } else {
         ops.assign(
-          y.tensor.hi(yForward.tensor.shape[(0)]).lo(0),
+          y.tensor.hi(yForward.tensor.shape[0]).lo(0),
           yForward.tensor
         );
         ops.assign(
-          y.tensor.hi(outShape[(0)]).lo(yForward.tensor.shape[(0)]),
+          y.tensor.hi(outShape[0]).lo(yForward.tensor.shape[0]),
           yBackward.tensor
         );
       }

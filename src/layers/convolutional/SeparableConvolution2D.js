@@ -20,10 +20,10 @@ class _DepthwiseConvolution2D extends Convolution2D {
    */
   _im2col(x) {
     const [ inputRows, inputCols, inputChannels ] = x.tensor.shape;
-    const nbRow = this.kernelShape[(1)];
-    const nbCol = this.kernelShape[(2)];
-    const outputRows = this.outputShape[(0)];
-    const outputCols = this.outputShape[(1)];
+    const nbRow = this.kernelShape[1];
+    const nbCol = this.kernelShape[2];
+    const outputRows = this.outputShape[0];
+    const outputCols = this.outputShape[1];
     const nbPatches = outputRows * outputCols;
     const patchLen = nbRow * nbCol;
 
@@ -37,12 +37,12 @@ class _DepthwiseConvolution2D extends Convolution2D {
       for (
         let i = 0, limit = inputRows - nbRow;
         i <= limit;
-        i += this.subsample[(0)]
+        i += this.subsample[0]
       ) {
         for (
           let j = 0, limit = inputCols - nbCol;
           j <= limit;
-          j += this.subsample[(1)]
+          j += this.subsample[1]
         ) {
           ops.assign(
             patch.tensor,
@@ -65,7 +65,7 @@ class _DepthwiseConvolution2D extends Convolution2D {
    * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
    */
   _w2row() {
-    const inputChannels = this.weights.W.tensor.shape[(2)];
+    const inputChannels = this.weights.W.tensor.shape[2];
     const [ nbFilter, nbRow, nbCol ] = this.kernelShape;
     const patchLen = nbRow * nbCol;
 
@@ -97,13 +97,13 @@ class _DepthwiseConvolution2D extends Convolution2D {
 
     this._im2col(x);
 
-    const nbFilter = this.kernelShape[(0)];
-    const outputRows = this.outputShape[(0)];
-    const outputCols = this.outputShape[(1)];
+    const nbFilter = this.kernelShape[0];
+    const outputRows = this.outputShape[0];
+    const outputCols = this.outputShape[1];
     const nbPatches = outputRows * outputCols;
     const matMul = new Tensor([], [
-      nbPatches * x.tensor.shape[(2)],
-      nbFilter * x.tensor.shape[(2)]
+      nbPatches * x.tensor.shape[2],
+      nbFilter * x.tensor.shape[2]
     ]);
 
     if (
@@ -129,18 +129,18 @@ class _DepthwiseConvolution2D extends Convolution2D {
     let output = new Tensor([], [
       outputRows,
       outputCols,
-      x.tensor.shape[(2)] * nbFilter
+      x.tensor.shape[2] * nbFilter
     ]);
-    const outputDataLength = outputRows * outputCols * x.tensor.shape[(2)] *
+    const outputDataLength = outputRows * outputCols * x.tensor.shape[2] *
       nbFilter;
     let dataFiltered = new Float32Array(outputDataLength);
-    for (let c = 0; c < x.tensor.shape[(2)]; c++) {
+    for (let c = 0; c < x.tensor.shape[2]; c++) {
       for (
         let i = 0,
           n = c * outputDataLength + c * nbFilter,
           len = (c + 1) * outputDataLength;
         n < len;
-        i++, n += nbFilter * x.tensor.shape[(2)]
+        i++, n += nbFilter * x.tensor.shape[2]
       ) {
         for (let m = 0; m < nbFilter; m++) {
           dataFiltered[n + m - c * outputDataLength] = matMul.tensor.data[n +

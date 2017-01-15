@@ -122,7 +122,7 @@ describe('recurrent layer: LSTM', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `recurrent.LSTM.${i}`;
-      const title = `[${key}] [CPU] test: ${inputShape[(0)]}x${inputShape[(1)]} input, activation='${attrs.activation}', innerActivation='${attrs.innerActivation}', returnSequences=${attrs.returnSequences}, goBackwards=${attrs.goBackwards}, stateful=${attrs.stateful}`;
+      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, activation='${attrs.activation}', innerActivation='${attrs.innerActivation}', returnSequences=${attrs.returnSequences}, goBackwards=${attrs.goBackwards}, stateful=${attrs.stateful}`;
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3);
@@ -168,7 +168,7 @@ describe('recurrent layer: LSTM', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `recurrent.LSTM.${i}`;
-      const title = `[${key}] [GPU] test: ${inputShape[(0)]}x${inputShape[(1)]} input, activation='${attrs.activation}', innerActivation='${attrs.innerActivation}', returnSequences=${attrs.returnSequences}, goBackwards=${attrs.goBackwards}, stateful=${attrs.stateful}`;
+      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, activation='${attrs.activation}', innerActivation='${attrs.innerActivation}', returnSequences=${attrs.returnSequences}, goBackwards=${attrs.goBackwards}, stateful=${attrs.stateful}`;
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3);

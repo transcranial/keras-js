@@ -28,15 +28,15 @@ export default class Cropping1D extends Layer {
   call(x) {
     const inputShape = x.tensor.shape;
     const outputShape = [
-      inputShape[(0)] - this.cropping[(0)] - this.cropping[(1)],
-      inputShape[(1)]
+      inputShape[0] - this.cropping[0] - this.cropping[1],
+      inputShape[1]
     ];
     let y = new Tensor([], outputShape);
     ops.assign(
       y.tensor,
       x.tensor
-        .hi(inputShape[(0)] - this.cropping[(1)], inputShape[(2)])
-        .lo(this.cropping[(0)], 0)
+        .hi(inputShape[0] - this.cropping[1], inputShape[2])
+        .lo(this.cropping[0], 0)
     );
     x.tensor = y.tensor;
     return x;

@@ -85,7 +85,7 @@ export default class Convolution2D extends Layer {
    */
   setWeights(weightsArr) {
     if (this.dimOrdering === 'th') {
-      weightsArr[(0)].tensor = weightsArr[(0)].tensor.transpose(2, 3, 1, 0);
+      weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 1, 0);
     }
     super.setWeights(weightsArr);
 
@@ -98,7 +98,7 @@ export default class Convolution2D extends Layer {
       if (this.bias) {
         this.weights.b.createWeblasTensor();
       } else {
-        this._zerosVec = new Tensor([], [ this.weights.W.tensor.shape[(3)] ]);
+        this._zerosVec = new Tensor([], [ this.weights.W.tensor.shape[3] ]);
         this._zerosVec.createWeblasTensor();
       }
     }
@@ -112,32 +112,28 @@ export default class Convolution2D extends Layer {
    * @param {number[]} inputShape
    */
   _calcOutputShape(inputShape) {
-    const inputRows = inputShape[(0)];
-    const inputCols = inputShape[(1)];
+    const inputRows = inputShape[0];
+    const inputCols = inputShape[1];
     const [ nbFilter, nbRow, nbCol ] = this.kernelShape;
 
     const outputRows = this.borderMode === 'same'
-      ? Math.floor((inputRows + this.subsample[(0)] - 1) / this.subsample[(0)])
-      : Math.floor(
-        (inputRows - nbRow + this.subsample[(0)]) / this.subsample[(0)]
-      );
+      ? Math.floor((inputRows + this.subsample[0] - 1) / this.subsample[0])
+      : Math.floor((inputRows - nbRow + this.subsample[0]) / this.subsample[0]);
     const outputCols = this.borderMode === 'same'
-      ? Math.floor((inputCols + this.subsample[(1)] - 1) / this.subsample[(1)])
-      : Math.floor(
-        (inputCols - nbCol + this.subsample[(1)]) / this.subsample[(1)]
-      );
+      ? Math.floor((inputCols + this.subsample[1] - 1) / this.subsample[1])
+      : Math.floor((inputCols - nbCol + this.subsample[1]) / this.subsample[1]);
     const outputChannels = nbFilter;
 
     const paddingRow = this.borderMode === 'same'
       ? Math.max(
         0,
-        Math.floor((outputRows - 1) * this.subsample[(0)] + nbRow - inputRows)
+        Math.floor((outputRows - 1) * this.subsample[0] + nbRow - inputRows)
       )
       : 0;
     const paddingCol = this.borderMode === 'same'
       ? Math.max(
         0,
-        Math.floor((outputCols - 1) * this.subsample[(1)] + nbCol - inputCols)
+        Math.floor((outputCols - 1) * this.subsample[1] + nbCol - inputCols)
       )
       : 0;
     const paddingRowBefore = Math.floor(paddingRow / 2);
@@ -198,10 +194,10 @@ export default class Convolution2D extends Layer {
    */
   _im2col(x) {
     const [ inputRows, inputCols, inputChannels ] = x.tensor.shape;
-    const nbRow = this.kernelShape[(1)];
-    const nbCol = this.kernelShape[(2)];
-    const outputRows = this.outputShape[(0)];
-    const outputCols = this.outputShape[(1)];
+    const nbRow = this.kernelShape[1];
+    const nbCol = this.kernelShape[2];
+    const outputRows = this.outputShape[0];
+    const outputCols = this.outputShape[1];
     const nbPatches = outputRows * outputCols;
     const patchLen = nbRow * nbCol * inputChannels;
 
@@ -210,8 +206,8 @@ export default class Convolution2D extends Layer {
     }
 
     if (
-      nbRow === 1 && nbCol === 1 && this.subsample[(0)] === 1 &&
-        this.subsample[(1)] === 1
+      nbRow === 1 && nbCol === 1 && this.subsample[0] === 1 &&
+        this.subsample[1] === 1
     ) {
       this._imColsMat.replaceTensorData(x.tensor.data);
       if (this._useWeblas) {
@@ -225,12 +221,12 @@ export default class Convolution2D extends Layer {
     for (
       let i = 0, limit = inputRows - nbRow;
       i <= limit;
-      i += this.subsample[(0)]
+      i += this.subsample[0]
     ) {
       for (
         let j = 0, limit = inputCols - nbCol;
         j <= limit;
-        j += this.subsample[(1)]
+        j += this.subsample[1]
       ) {
         ops.assign(
           patch.tensor,
@@ -251,7 +247,7 @@ export default class Convolution2D extends Layer {
    * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
    */
   _w2row() {
-    const inputChannels = this.weights.W.tensor.shape[(2)];
+    const inputChannels = this.weights.W.tensor.shape[2];
     const [ nbFilter, nbRow, nbCol ] = this.kernelShape;
     const patchLen = nbRow * nbCol * inputChannels;
 
@@ -308,10 +304,10 @@ export default class Convolution2D extends Layer {
       this._padInput(indicesCol, padValue);
     }
 
-    const nbRow = this.kernelShape[(1)];
-    const nbCol = this.kernelShape[(2)];
-    const outputRows = this.outputShape[(0)];
-    const outputCols = this.outputShape[(1)];
+    const nbRow = this.kernelShape[1];
+    const nbCol = this.kernelShape[2];
+    const outputRows = this.outputShape[0];
+    const outputCols = this.outputShape[1];
     const nbPatches = outputRows * outputCols;
     const patchLen = nbRow * nbCol * inputChannels;
 
@@ -324,12 +320,12 @@ export default class Convolution2D extends Layer {
     for (
       let i = 0, limit = inputRows - nbRow;
       i <= limit;
-      i += this.subsample[(0)]
+      i += this.subsample[0]
     ) {
       for (
         let j = 0, limit = inputCols - nbCol;
         j <= limit;
-        j += this.subsample[(1)]
+        j += this.subsample[1]
       ) {
         ops.assign(
           patchRow.tensor,
@@ -399,9 +395,9 @@ export default class Convolution2D extends Layer {
       x.tensor = x.tensor.transpose(1, 2, 0);
     }
 
-    const nbFilter = this.kernelShape[(0)];
-    const outputRows = this.outputShape[(0)];
-    const outputCols = this.outputShape[(1)];
+    const nbFilter = this.kernelShape[0];
+    const outputRows = this.outputShape[0];
+    const outputCols = this.outputShape[1];
     const nbPatches = outputRows * outputCols;
     const matMul = new Tensor([], [ nbPatches, nbFilter ]);
 

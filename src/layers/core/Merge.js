@@ -49,8 +49,8 @@ export default class Merge extends Layer {
     this.concatAxis = concatAxis <= 0 ? concatAxis : concatAxis - 1;
     if (Array.isArray(dotAxes)) {
       this.dotAxes = [
-        dotAxes[(0)] <= 0 ? dotAxes[(0)] : dotAxes[(0)] - 1,
-        dotAxes[(1)] <= 0 ? dotAxes[(1)] : dotAxes[(1)] - 1
+        dotAxes[0] <= 0 ? dotAxes[0] : dotAxes[0] - 1,
+        dotAxes[1] <= 0 ? dotAxes[1] : dotAxes[1] - 1
       ];
     } else {
       this.dotAxes = [
@@ -88,7 +88,7 @@ export default class Merge extends Layer {
   _validateInputs(inputs) {
     const shapes = inputs.map(x => x.tensor.shape.slice());
     if ([ 'sum', 'mul', 'ave', 'cos', 'max' ].indexOf(this.mode) > -1) {
-      if (!shapes.every(shape => isEqual(shape, shapes[(0)]))) {
+      if (!shapes.every(shape => isEqual(shape, shapes[0]))) {
         throw new Error(
           `${this.name} [Merge layer] All input shapes must be the same for mode ${this.mode}.`
         );
@@ -100,13 +100,13 @@ export default class Merge extends Layer {
           `${this.name} [Merge layer] Exactly 2 inputs required for mode ${this.mode}.`
         );
       }
-      if (this.dotAxes[(0)] < 0) {
-        this.dotAxes[(0)] = shapes[(0)].length + this.dotAxes[(0)];
+      if (this.dotAxes[0] < 0) {
+        this.dotAxes[0] = shapes[0].length + this.dotAxes[0];
       }
-      if (this.dotAxes[(1)] < 0) {
-        this.dotAxes[(1)] = shapes[(1)].length + this.dotAxes[(1)];
+      if (this.dotAxes[1] < 0) {
+        this.dotAxes[1] = shapes[1].length + this.dotAxes[1];
       }
-      if (shapes[(0)][this.dotAxes[(0)]] !== shapes[(1)][this.dotAxes[(1)]]) {
+      if (shapes[0][this.dotAxes[0]] !== shapes[1][this.dotAxes[1]]) {
         throw new Error(
           `${this.name} [Merge layer] Dimensions incompatibility using dot mode.`
         );
@@ -114,16 +114,14 @@ export default class Merge extends Layer {
     } else if (this.mode === 'concat') {
       let nonConcatShapes = shapes.slice();
       let _concatAxis = this.concatAxis < 0
-        ? nonConcatShapes[(0)].length + this.concatAxis
+        ? nonConcatShapes[0].length + this.concatAxis
         : this.concatAxis;
       if (this.concatAxis === 0)
         _concatAxis = 0;
       range(nonConcatShapes.length).forEach(i => {
         nonConcatShapes[i].splice(_concatAxis, 1);
       });
-      if (
-        !nonConcatShapes.every(shape => isEqual(shape, nonConcatShapes[(0)]))
-      ) {
+      if (!nonConcatShapes.every(shape => isEqual(shape, nonConcatShapes[0]))) {
         throw new Error(
           `${this.name} [Merge layer] In concat mode, all shapes must be the same except along the concat axis.`
         );
@@ -145,16 +143,16 @@ export default class Merge extends Layer {
       return this._callRegularMode(inputs);
     }
 
-    let output = new Tensor([], inputs[(0)].weblasTensor.shape);
+    let output = new Tensor([], inputs[0].weblasTensor.shape);
 
     output.weblasTensor = this.webglMerge.call(inputs.map(x => x.weblasTensor));
 
     output._fromPipeline = true;
-    output._actualShape = inputs[(0)]._actualShape;
+    output._actualShape = inputs[0]._actualShape;
     if (this.mode === 'concat') {
       output._actualShape = [
-        ...inputs[(0)]._actualShape.slice(0, -1),
-        sum(inputs.map(x => x._actualShape.slice(-1)[(0)]))
+        ...inputs[0]._actualShape.slice(0, -1),
+        sum(inputs.map(x => x._actualShape.slice(-1)[0]))
       ];
     }
 
@@ -177,10 +175,10 @@ export default class Merge extends Layer {
     let output;
     let outputShape;
     if ([ 'sum', 'mul', 'ave', 'max' ].indexOf(this.mode) > -1) {
-      outputShape = inputs[(0)].tensor.shape.slice();
+      outputShape = inputs[0].tensor.shape.slice();
       output = new Tensor([], outputShape);
     } else if (this.mode === 'concat') {
-      outputShape = inputs[(0)].tensor.shape.slice();
+      outputShape = inputs[0].tensor.shape.slice();
       let _concatAxis = this.concatAxis < 0
         ? outputShape.length + this.concatAxis
         : this.concatAxis;
@@ -192,10 +190,10 @@ export default class Merge extends Layer {
       });
       output = new Tensor([], outputShape);
     } else if ([ 'cos', 'dot' ].indexOf(this.mode) > -1) {
-      let shape1 = inputs[(0)].tensor.shape.slice();
-      let shape2 = inputs[(1)].tensor.shape.slice();
-      shape1.splice(this.dotAxes[(0)], 1);
-      shape2.splice(this.dotAxes[(1)], 1);
+      let shape1 = inputs[0].tensor.shape.slice();
+      let shape2 = inputs[1].tensor.shape.slice();
+      shape1.splice(this.dotAxes[0], 1);
+      shape2.splice(this.dotAxes[1], 1);
       outputShape = shape1.concat(shape2);
       if (outputShape.length === 1) {
         outputShape.push(1);
@@ -218,13 +216,13 @@ export default class Merge extends Layer {
       }
       ops.divseq(output.tensor, inputs.length);
     } else if (this.mode === 'max') {
-      ops.assign(output.tensor, inputs[(0)].tensor);
+      ops.assign(output.tensor, inputs[0].tensor);
       for (let i = 1; i < inputs.length; i++) {
         ops.maxeq(output.tensor, inputs[i].tensor);
       }
     } else if (this.mode === 'concat') {
       let _concatAxis = this.concatAxis < 0
-        ? inputs[(0)].tensor.shape.length + this.concatAxis
+        ? inputs[0].tensor.shape.length + this.concatAxis
         : this.concatAxis;
       if (this.concatAxis === 0)
         _concatAxis = 0;
@@ -232,7 +230,7 @@ export default class Merge extends Layer {
         concatFirstAxis(output.tensor, inputs.map(x => x.tensor));
       } else {
         let dimsAxisSwap = [ _concatAxis ];
-        for (let i = 0; i < inputs[(0)].tensor.shape.length; i++) {
+        for (let i = 0; i < inputs[0].tensor.shape.length; i++) {
           if (i !== _concatAxis)
             dimsAxisSwap.push(i);
         }
@@ -243,20 +241,20 @@ export default class Merge extends Layer {
       }
     } else if (this.mode === 'dot') {
       if (
-        inputs[(0)].tensor.shape.length === 2 &&
-          inputs[(1)].tensor.shape.length === 2
+        inputs[0].tensor.shape.length === 2 &&
+          inputs[1].tensor.shape.length === 2
       ) {
-        if (this.dotAxes[(0)] === 0 && this.dotAxes[(1)] === 0) {
+        if (this.dotAxes[0] === 0 && this.dotAxes[1] === 0) {
           gemm(
             output.tensor,
-            inputs[(0)].tensor.transpose(1, 0),
-            inputs[(1)].tensor
+            inputs[0].tensor.transpose(1, 0),
+            inputs[1].tensor
           );
-        } else if (this.dotAxes[(0)] === 1 && this.dotAxes[(1)] === 1) {
+        } else if (this.dotAxes[0] === 1 && this.dotAxes[1] === 1) {
           gemm(
             output.tensor,
-            inputs[(0)].tensor,
-            inputs[(1)].tensor.transpose(1, 0)
+            inputs[0].tensor,
+            inputs[1].tensor.transpose(1, 0)
           );
         }
       } else {
@@ -266,42 +264,26 @@ export default class Merge extends Layer {
       }
     } else if (this.mode === 'cos') {
       if (
-        inputs[(0)].tensor.shape.length === 2 &&
-          inputs[(1)].tensor.shape.length === 2
+        inputs[0].tensor.shape.length === 2 &&
+          inputs[1].tensor.shape.length === 2
       ) {
         let a = new Tensor([], output.tensor.shape);
         let b = new Tensor([], output.tensor.shape);
-        if (this.dotAxes[(0)] === 0 && this.dotAxes[(1)] === 0) {
-          gemm(
-            a.tensor,
-            inputs[(0)].tensor.transpose(1, 0),
-            inputs[(0)].tensor
-          );
-          gemm(
-            b.tensor,
-            inputs[(1)].tensor.transpose(1, 0),
-            inputs[(1)].tensor
-          );
+        if (this.dotAxes[0] === 0 && this.dotAxes[1] === 0) {
+          gemm(a.tensor, inputs[0].tensor.transpose(1, 0), inputs[0].tensor);
+          gemm(b.tensor, inputs[1].tensor.transpose(1, 0), inputs[1].tensor);
           gemm(
             output.tensor,
-            inputs[(0)].tensor.transpose(1, 0),
-            inputs[(1)].tensor
+            inputs[0].tensor.transpose(1, 0),
+            inputs[1].tensor
           );
-        } else if (this.dotAxes[(0)] === 1 && this.dotAxes[(1)] === 1) {
-          gemm(
-            a.tensor,
-            inputs[(0)].tensor,
-            inputs[(0)].tensor.transpose(1, 0)
-          );
-          gemm(
-            b.tensor,
-            inputs[(1)].tensor,
-            inputs[(1)].tensor.transpose(1, 0)
-          );
+        } else if (this.dotAxes[0] === 1 && this.dotAxes[1] === 1) {
+          gemm(a.tensor, inputs[0].tensor, inputs[0].tensor.transpose(1, 0));
+          gemm(b.tensor, inputs[1].tensor, inputs[1].tensor.transpose(1, 0));
           gemm(
             output.tensor,
-            inputs[(0)].tensor,
-            inputs[(1)].tensor.transpose(1, 0)
+            inputs[0].tensor,
+            inputs[1].tensor.transpose(1, 0)
           );
         }
         ops.muleq(a.tensor, b.tensor);

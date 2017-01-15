@@ -28,7 +28,7 @@ export default class GlobalMaxPooling2D extends Layer {
       x.tensor = x.tensor.transpose(1, 2, 0);
     }
 
-    const channels = x.tensor.shape[(2)];
+    const channels = x.tensor.shape[2];
     let y = new Tensor([], [ channels ]);
     for (let i = 0, len = channels; i < len; i++) {
       y.tensor.set(i, ops.sup(x.tensor.pick(null, null, i)));

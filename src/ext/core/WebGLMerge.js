@@ -62,7 +62,7 @@ export default class WebGLMerge extends WebGLLayer {
   _bindUniforms(inputs) {
     const gl = this.webgl.context;
 
-    const outputCols = inputs[(0)].shape[(1)];
+    const outputCols = inputs[0].shape[1];
     const outputColPad = this.webgl.getPad(outputCols);
 
     gl.uniform1i(
@@ -84,7 +84,7 @@ export default class WebGLMerge extends WebGLLayer {
     if (this.mode === 'concat') {
       // with concat, inputs are first transposed to be channel-first
       const inputChannelStartIndices = inputs
-        .map(x => x.shape[(0)])
+        .map(x => x.shape[0])
         .reduce(
           (arr, dim) => {
             if (arr.length > 1) {
@@ -97,7 +97,7 @@ export default class WebGLMerge extends WebGLLayer {
         )
         .slice(0, -1);
 
-      const outputRows = sum(inputs.map(x => x.shape[(0)]));
+      const outputRows = sum(inputs.map(x => x.shape[0]));
       gl.uniform1i(
         gl.getUniformLocation(
           this.program,
@@ -127,11 +127,11 @@ export default class WebGLMerge extends WebGLLayer {
    * @param {weblas.pipeline.Tensor} tOut
    */
   _bindOutputTexture(inputs, tOut) {
-    let outputRows = inputs[(0)].shape[(0)];
+    let outputRows = inputs[0].shape[0];
     if (this.mode === 'concat') {
-      outputRows = sum(inputs.map(x => x.shape[(0)]));
+      outputRows = sum(inputs.map(x => x.shape[0]));
     }
-    const outputCols = inputs[(0)].shape[(1)];
+    const outputCols = inputs[0].shape[1];
     const outputColPad = this.webgl.getPad(outputCols);
     this.webgl.bindOutputTexture(
       outputRows,
@@ -153,7 +153,7 @@ export default class WebGLMerge extends WebGLLayer {
     let tOut;
     if (this.mode === 'concat') {
       // concat along channel axis
-      if (!inputs.every(x => x.shape[(0)] === inputs[(0)].shape[(0)])) {
+      if (!inputs.every(x => x.shape[0] === inputs[0].shape[0])) {
         throw new Error(
           'Non-concat axis dimension of inputs to WebGLMerge must all be the same.'
         );
@@ -162,8 +162,8 @@ export default class WebGLMerge extends WebGLLayer {
       // into shape with channels as rows
       const inputsTransposed = inputs.map(x => x.transpose());
       const newShape = [
-        sum(inputsTransposed.map(x => x.shape[(0)])),
-        inputsTransposed[(0)].shape[(1)]
+        sum(inputsTransposed.map(x => x.shape[0])),
+        inputsTransposed[0].shape[1]
       ];
       tOut = new weblas.pipeline.Tensor(newShape, null);
 
@@ -174,7 +174,7 @@ export default class WebGLMerge extends WebGLLayer {
       this._bindUniforms(inputsTransposed);
       this._bindOutputTexture(inputsTransposed, tOut);
     } else {
-      tOut = new weblas.pipeline.Tensor(inputs[(0)].shape, null);
+      tOut = new weblas.pipeline.Tensor(inputs[0].shape, null);
 
       this._bindInputTexturesArray(inputs);
       this._bindUniforms(inputs);

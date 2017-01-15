@@ -57,9 +57,9 @@ export default class SimpleRNN extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    let currentX = new Tensor([], [ x.tensor.shape[(1)] ]);
+    let currentX = new Tensor([], [ x.tensor.shape[1] ]);
 
-    const dimHiddenState = this.weights['b'].tensor.shape[(0)];
+    const dimHiddenState = this.weights['b'].tensor.shape[0];
     let currentHiddenState = this.stateful && this.currentHiddenState
       ? this.currentHiddenState
       : new Tensor([], [ dimHiddenState ]);
@@ -68,7 +68,7 @@ export default class SimpleRNN extends Layer {
     let previousHiddenState = new Tensor([], [ dimHiddenState ]);
 
     this.hiddenStateSequence = new Tensor([], [
-      x.tensor.shape[(0)],
+      x.tensor.shape[0],
       dimHiddenState
     ]);
 
@@ -103,7 +103,7 @@ export default class SimpleRNN extends Layer {
       this.activationFunc(currentHiddenState);
     };
 
-    for (let i = 0, len = x.tensor.shape[(0)]; i < len; i++) {
+    for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
       const inputIndex = this.goBackwards ? len - i - 1 : i;
       ops.assign(currentX.tensor, x.tensor.pick(inputIndex, null));
       _clearTemp();

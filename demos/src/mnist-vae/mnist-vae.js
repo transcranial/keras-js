@@ -131,8 +131,8 @@ export const MnistVae = Vue.extend({
       let { clientX, clientY } = e;
       // for touch event
       if (e.touches && e.touches.length) {
-        clientX = e.touches[(0)].clientX;
-        clientY = e.touches[(0)].clientY;
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
       }
 
       const canvas = document.getElementById('input-canvas');

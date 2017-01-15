@@ -75,7 +75,7 @@ export default class Convolution3D extends Layer {
   setWeights(weightsArr) {
     if (this.dimOrdering === 'th') {
       // W
-      weightsArr[(0)].tensor = weightsArr[(0)].tensor.transpose(2, 3, 4, 1, 0);
+      weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 4, 1, 0);
     }
     super.setWeights(weightsArr);
 
@@ -88,7 +88,7 @@ export default class Convolution3D extends Layer {
       if (this.bias) {
         this.weights.b.createWeblasTensor();
       } else {
-        this._zerosVec = new Tensor([], [ this.weights.W.tensor.shape[(4)] ]);
+        this._zerosVec = new Tensor([], [ this.weights.W.tensor.shape[4] ]);
         this._zerosVec.createWeblasTensor();
       }
     }
@@ -102,25 +102,25 @@ export default class Convolution3D extends Layer {
    * @param {Tensor} x
    */
   _calcOutputShape(x) {
-    const inputDim1 = x.tensor.shape[(0)];
-    const inputDim2 = x.tensor.shape[(1)];
-    const inputDim3 = x.tensor.shape[(2)];
+    const inputDim1 = x.tensor.shape[0];
+    const inputDim2 = x.tensor.shape[1];
+    const inputDim3 = x.tensor.shape[2];
     const [ nbFilter, kernelDim1, kernelDim2, kernelDim3 ] = this.kernelShape;
 
     const outputDim1 = this.borderMode === 'same'
-      ? Math.floor((inputDim1 + this.subsample[(0)] - 1) / this.subsample[(0)])
+      ? Math.floor((inputDim1 + this.subsample[0] - 1) / this.subsample[0])
       : Math.floor(
-        (inputDim1 - kernelDim1 + this.subsample[(0)]) / this.subsample[(0)]
+        (inputDim1 - kernelDim1 + this.subsample[0]) / this.subsample[0]
       );
     const outputDim2 = this.borderMode === 'same'
-      ? Math.floor((inputDim2 + this.subsample[(1)] - 1) / this.subsample[(1)])
+      ? Math.floor((inputDim2 + this.subsample[1] - 1) / this.subsample[1])
       : Math.floor(
-        (inputDim2 - kernelDim2 + this.subsample[(1)]) / this.subsample[(1)]
+        (inputDim2 - kernelDim2 + this.subsample[1]) / this.subsample[1]
       );
     const outputDim3 = this.borderMode === 'same'
-      ? Math.floor((inputDim3 + this.subsample[(2)] - 1) / this.subsample[(2)])
+      ? Math.floor((inputDim3 + this.subsample[2] - 1) / this.subsample[2])
       : Math.floor(
-        (inputDim3 - kernelDim3 + this.subsample[(2)]) / this.subsample[(2)]
+        (inputDim3 - kernelDim3 + this.subsample[2]) / this.subsample[2]
       );
     const outputChannels = nbFilter;
 
@@ -128,7 +128,7 @@ export default class Convolution3D extends Layer {
       ? Math.max(
         0,
         Math.floor(
-          (outputDim1 - 1) * this.subsample[(0)] + kernelDim1 - inputDim1
+          (outputDim1 - 1) * this.subsample[0] + kernelDim1 - inputDim1
         )
       )
       : 0;
@@ -136,7 +136,7 @@ export default class Convolution3D extends Layer {
       ? Math.max(
         0,
         Math.floor(
-          (outputDim2 - 1) * this.subsample[(1)] + kernelDim2 - inputDim2
+          (outputDim2 - 1) * this.subsample[1] + kernelDim2 - inputDim2
         )
       )
       : 0;
@@ -144,7 +144,7 @@ export default class Convolution3D extends Layer {
       ? Math.max(
         0,
         Math.floor(
-          (outputDim3 - 1) * this.subsample[(2)] + kernelDim3 - inputDim3
+          (outputDim3 - 1) * this.subsample[2] + kernelDim3 - inputDim3
         )
       )
       : 0;
@@ -209,12 +209,12 @@ export default class Convolution3D extends Layer {
    */
   _vol2col(x) {
     const [ inputDim1, inputDim2, inputDim3, inputChannels ] = x.tensor.shape;
-    const kernelDim1 = this.kernelShape[(1)];
-    const kernelDim2 = this.kernelShape[(2)];
-    const kernelDim3 = this.kernelShape[(3)];
-    const outputDim1 = this.outputShape[(0)];
-    const outputDim2 = this.outputShape[(1)];
-    const outputDim3 = this.outputShape[(2)];
+    const kernelDim1 = this.kernelShape[1];
+    const kernelDim2 = this.kernelShape[2];
+    const kernelDim3 = this.kernelShape[3];
+    const outputDim1 = this.outputShape[0];
+    const outputDim2 = this.outputShape[1];
+    const outputDim3 = this.outputShape[2];
     const nbPatches = outputDim1 * outputDim2 * outputDim3;
     const patchLen = kernelDim1 * kernelDim2 * kernelDim3 * inputChannels;
 
@@ -224,9 +224,9 @@ export default class Convolution3D extends Layer {
 
     if (
       kernelDim1 === 1 && kernelDim2 === 1 && kernelDim3 === 1 &&
-        this.subsample[(0)] === 1 &&
-        this.subsample[(1)] === 1 &&
-        this.subsample[(2)] === 1
+        this.subsample[0] === 1 &&
+        this.subsample[1] === 1 &&
+        this.subsample[2] === 1
     ) {
       this._volColsMat.replaceTensorData(x.tensor.data);
       if (this._useWeblas) {
@@ -245,17 +245,17 @@ export default class Convolution3D extends Layer {
     for (
       let i = 0, limit = inputDim1 - kernelDim1;
       i <= limit;
-      i += this.subsample[(0)]
+      i += this.subsample[0]
     ) {
       for (
         let j = 0, limit = inputDim2 - kernelDim2;
         j <= limit;
-        j += this.subsample[(1)]
+        j += this.subsample[1]
       ) {
         for (
           let k = 0, limit = inputDim3 - kernelDim3;
           k <= limit;
-          k += this.subsample[(2)]
+          k += this.subsample[2]
         ) {
           ops.assign(
             patch.tensor,
@@ -279,7 +279,7 @@ export default class Convolution3D extends Layer {
    * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
    */
   _w2row() {
-    const inputChannels = this.weights.W.tensor.shape[(3)];
+    const inputChannels = this.weights.W.tensor.shape[3];
     const [ nbFilter, kernelDim1, kernelDim2, kernelDim3 ] = this.kernelShape;
     const patchLen = kernelDim1 * kernelDim2 * kernelDim3 * inputChannels;
 
@@ -320,10 +320,10 @@ export default class Convolution3D extends Layer {
 
     this._vol2col(x);
 
-    const nbFilter = this.kernelShape[(0)];
-    const outputDim1 = this.outputShape[(0)];
-    const outputDim2 = this.outputShape[(1)];
-    const outputDim3 = this.outputShape[(2)];
+    const nbFilter = this.kernelShape[0];
+    const outputDim1 = this.outputShape[0];
+    const outputDim2 = this.outputShape[1];
+    const outputDim3 = this.outputShape[2];
     const nbPatches = outputDim1 * outputDim2 * outputDim3;
     const matMul = new Tensor([], [ nbPatches, nbFilter ]);
 

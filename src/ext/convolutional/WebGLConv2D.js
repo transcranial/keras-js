@@ -89,9 +89,9 @@ export default class WebGLConv2D extends WebGLLayer {
    */
   _bindUniformsInputTransform(input, indexMappingRow) {
     const gl = this.webgl.context;
-    const nbPatches = input.shape[(0)];
-    const patchLen = input.shape[(1)];
-    const nbFilter = indexMappingRow.shape[(1)];
+    const nbPatches = input.shape[0];
+    const patchLen = input.shape[1];
+    const nbFilter = indexMappingRow.shape[1];
     const inputColPad = this.webgl.getPad(patchLen);
     const outputColPad = this.webgl.getPad(nbFilter);
     gl.uniform1i(
@@ -140,8 +140,8 @@ export default class WebGLConv2D extends WebGLLayer {
    */
   _bindUniformsMain(input, weights, activation) {
     const gl = this.webgl.context;
-    const nbFilter = weights.shape[(0)];
-    const patchLen = input.shape[(1)];
+    const nbFilter = weights.shape[0];
+    const patchLen = input.shape[1];
     const inputColPad = this.webgl.getPad(patchLen);
     const outputColPad = this.webgl.getPad(nbFilter);
     gl.uniform1i(
@@ -190,10 +190,10 @@ export default class WebGLConv2D extends WebGLLayer {
    * @param {weblas.pipeline.Tensor} inputTransformed
    */
   _bindOutputTextureInputTransform(indexMappingRow, inputTransformed) {
-    const nbFilter = indexMappingRow.shape[(1)];
+    const nbFilter = indexMappingRow.shape[1];
     const outputColPad = this.webgl.getPad(nbFilter);
     this.webgl.bindOutputTexture(
-      indexMappingRow.shape[(0)],
+      indexMappingRow.shape[0],
       (nbFilter + outputColPad) / 4,
       inputTransformed.texture
     );
@@ -207,8 +207,8 @@ export default class WebGLConv2D extends WebGLLayer {
    * @param {weblas.pipeline.Tensor} tOut
    */
   _bindOutputTextureMain(input, weights, tOut) {
-    const nbPatches = input.shape[(0)];
-    const nbFilter = weights.shape[(0)];
+    const nbPatches = input.shape[0];
+    const nbFilter = weights.shape[0];
     const outputColPad = this.webgl.getPad(nbFilter);
     this.webgl.bindOutputTexture(
       nbPatches,
@@ -230,8 +230,8 @@ export default class WebGLConv2D extends WebGLLayer {
    */
   transformInput(input, indexMappingRow, indexMappingCol) {
     if (
-      indexMappingRow.shape[(0)] !== indexMappingCol.shape[(0)] ||
-        indexMappingRow.shape[(1)] !== indexMappingCol.shape[(1)]
+      indexMappingRow.shape[0] !== indexMappingCol.shape[0] ||
+        indexMappingRow.shape[1] !== indexMappingCol.shape[1]
     ) {
       throw new Error(
         'Invalid indexMappingRow or indexMappingCol weblas tensor shapes.'
@@ -274,14 +274,14 @@ export default class WebGLConv2D extends WebGLLayer {
     if (indexMappingRow && indexMappingCol) {
       input = this.transformInput(input, indexMappingRow, indexMappingCol);
     }
-    if (input.shape[(1)] !== weights.shape[(1)]) {
+    if (input.shape[1] !== weights.shape[1]) {
       throw new Error('Invalid input or weights weblas tensor shapes.');
     }
 
     this.webgl.selectProgram(this.mainProgram);
 
-    const nbPatches = input.shape[(0)];
-    const nbFilter = weights.shape[(0)];
+    const nbPatches = input.shape[0];
+    const nbFilter = weights.shape[0];
 
     // create an empty output Tensor
     const tOut = new weblas.pipeline.Tensor([ nbPatches, nbFilter ], null);

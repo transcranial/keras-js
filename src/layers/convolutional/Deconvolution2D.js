@@ -35,7 +35,7 @@ export default class Deconvolution2D extends Layer {
 
     this.kernelShape = [ nbFilter, nbRow, nbCol ];
 
-    if (outputShape[(0)] == null) {
+    if (outputShape[0] == null) {
       this.outputShape = outputShape.slice(1);
     } else {
       this.outputShape = outputShape;
@@ -84,7 +84,7 @@ export default class Deconvolution2D extends Layer {
   setWeights(weightsArr) {
     if (this.dimOrdering === 'th') {
       // W
-      weightsArr[(0)].tensor = weightsArr[(0)].tensor.transpose(2, 3, 1, 0);
+      weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 1, 0);
     }
     super.setWeights(weightsArr);
 
@@ -109,29 +109,29 @@ export default class Deconvolution2D extends Layer {
    * @param {Tensor} x
    */
   _calcOutputPadding(x) {
-    const inputRows = x.tensor.shape[(0)];
-    const inputCols = x.tensor.shape[(1)];
-    const nbRow = this.kernelShape[(1)];
-    const nbCol = this.kernelShape[(2)];
+    const inputRows = x.tensor.shape[0];
+    const inputCols = x.tensor.shape[1];
+    const nbRow = this.kernelShape[1];
+    const nbCol = this.kernelShape[2];
 
     // In contrast to Convolution2D, where we calculate the output shape,
     // the output shape is taken from the construtor variable, since
     // there is some level of ambiguity: input of shape [4, 4, inputChannels]
     // can have an output shape of either [7, 7, nbFilter] or [8, 8, nbFilter]
     // with borderMode `same` and subsample (stride) [2, 2].
-    const outputRows = this.outputShape[(0)];
-    const outputCols = this.outputShape[(1)];
+    const outputRows = this.outputShape[0];
+    const outputCols = this.outputShape[1];
 
     const paddingRow = this.borderMode === 'same'
       ? Math.max(
         0,
-        Math.floor((inputRows - 1) * this.subsample[(0)] + nbRow - outputRows)
+        Math.floor((inputRows - 1) * this.subsample[0] + nbRow - outputRows)
       )
       : 0;
     const paddingCol = this.borderMode === 'same'
       ? Math.max(
         0,
-        Math.floor((inputCols - 1) * this.subsample[(1)] + nbCol - outputCols)
+        Math.floor((inputCols - 1) * this.subsample[1] + nbCol - outputCols)
       )
       : 0;
     const paddingRowBefore = Math.floor(paddingRow / 2);
@@ -215,8 +215,8 @@ export default class Deconvolution2D extends Layer {
       imColsMat.createWeblasTensor();
     }
 
-    const inputRows = x.tensor.shape[(0)];
-    const inputCols = x.tensor.shape[(1)];
+    const inputRows = x.tensor.shape[0];
+    const inputCols = x.tensor.shape[1];
     const [ nbFilter, nbRow, nbCol ] = this.kernelShape;
     const matMul = new Tensor([], [
       inputRows * inputCols,
@@ -227,7 +227,7 @@ export default class Deconvolution2D extends Layer {
       this._useWeblas &&
         !(imColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)
     ) {
-      let _zerosVec = new Tensor([], [ this.weights.W.tensor.shape[(3)] ]);
+      let _zerosVec = new Tensor([], [ this.weights.W.tensor.shape[3] ]);
       _zerosVec.createWeblasTensor();
       matMul.tensor.data = weblas.pipeline
         .sgemm(
@@ -255,9 +255,9 @@ export default class Deconvolution2D extends Layer {
     ] = this.outputPadding;
     let output = new Tensor([], this.outputShape);
     let outputPadded = new Tensor([], [
-      this.outputShape[(0)] + paddingRowBefore + paddingRowAfter,
-      this.outputShape[(1)] + paddingColBefore + paddingColAfter,
-      this.outputShape[(2)]
+      this.outputShape[0] + paddingRowBefore + paddingRowAfter,
+      this.outputShape[1] + paddingColBefore + paddingColAfter,
+      this.outputShape[2]
     ]);
 
     // bias
@@ -278,11 +278,11 @@ export default class Deconvolution2D extends Layer {
       for (let j = 0; j < inputCols; j++) {
         ops.assign(patchRaveled.tensor, matMul.tensor.pick(index, null));
         patch.replaceTensorData(patchRaveled.tensor.data);
-        const iOutPos = i * this.subsample[(0)];
-        const jOutPos = j * this.subsample[(1)];
+        const iOutPos = i * this.subsample[0];
+        const jOutPos = j * this.subsample[1];
         ops.addeq(
           outputPadded.tensor
-            .hi(iOutPos + nbRow, jOutPos + nbCol, this.outputShape[(2)])
+            .hi(iOutPos + nbRow, jOutPos + nbCol, this.outputShape[2])
             .lo(iOutPos, jOutPos, 0),
           patch.tensor
         );
@@ -295,9 +295,9 @@ export default class Deconvolution2D extends Layer {
       output.tensor,
       outputPadded.tensor
         .hi(
-          this.outputShape[(0)] + paddingRowBefore,
-          this.outputShape[(1)] + paddingColBefore,
-          this.outputShape[(2)]
+          this.outputShape[0] + paddingRowBefore,
+          this.outputShape[1] + paddingColBefore,
+          this.outputShape[2]
         )
         .lo(paddingRowBefore, paddingColBefore, 0)
     );

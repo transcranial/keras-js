@@ -47,7 +47,7 @@ describe('wrappers layer: TimeDistributed', function() {
 
     testParams.forEach(({ wrappedLayer, inputShape, wrappedLayerAttrs }, i) => {
       const key = `wrappers.TimeDistributed.${i}`;
-      const title = `[${key}] [CPU] test: ${inputShape[(0)]}x${inputShape[(1)]} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
+      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
         wrappedLayerAttrs
       )}`;
 
@@ -87,7 +87,7 @@ describe('wrappers layer: TimeDistributed', function() {
 
     testParams.forEach(({ wrappedLayer, inputShape, wrappedLayerAttrs }, i) => {
       const key = `wrappers.TimeDistributed.${i}`;
-      const title = `[${key}] [GPU] test: ${inputShape[(0)]}x${inputShape[(1)]} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
+      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
         wrappedLayerAttrs
       )}`;
 

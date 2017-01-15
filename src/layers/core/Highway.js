@@ -49,14 +49,14 @@ export default class Highway extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    let y = new Tensor([], [ this.weights.W.tensor.shape[(1)] ]);
+    let y = new Tensor([], [ this.weights.W.tensor.shape[1] ]);
     if (this.bias) {
       ops.assign(y.tensor, this.weights.b.tensor);
     }
     gemv(1, this.weights.W.tensor.transpose(1, 0), x.tensor, 1, y.tensor);
     this.activationFunc(y);
 
-    let transform = new Tensor([], [ this.weights.W_carry.tensor.shape[(1)] ]);
+    let transform = new Tensor([], [ this.weights.W_carry.tensor.shape[1] ]);
     if (this.bias) {
       ops.assign(transform.tensor, this.weights.b_carry.tensor);
     }

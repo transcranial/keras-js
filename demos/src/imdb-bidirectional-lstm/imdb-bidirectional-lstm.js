@@ -102,10 +102,10 @@ export const ImdbBidirectionalLstm = Vue.extend({
       return this.model.getLoadingProgress();
     },
     outputColor: function() {
-      if (this.output[(0)] > 0 && this.output[(0)] < 0.5) {
-        return `rgba(242, 38, 19, ${1 - this.output[(0)]})`;
-      } else if (this.output[(0)] >= 0.5) {
-        return `rgba(27, 188, 155, ${this.output[(0)]})`;
+      if (this.output[0] > 0 && this.output[0] < 0.5) {
+        return `rgba(242, 38, 19, ${1 - this.output[0]})`;
+      } else if (this.output[0] >= 0.5) {
+        return `rgba(27, 188, 155, ${this.output[0]})`;
       }
       return '#69707a';
     },
@@ -231,8 +231,8 @@ export const ImdbBidirectionalLstm = Vue.extend({
       const backwardHiddenStates = this.model.modelLayersMap.get(
         'bidirectional_1'
       ).backwardLayer.hiddenStateSequence;
-      const forwardDim = forwardHiddenStates.tensor.shape[(1)];
-      const backwardDim = backwardHiddenStates.tensor.shape[(1)];
+      const forwardDim = forwardHiddenStates.tensor.shape[1];
+      const backwardDim = backwardHiddenStates.tensor.shape[1];
 
       const start = findIndex(this.input, idx => idx >= INDEX_FROM);
       if (start === -1)
@@ -249,7 +249,7 @@ export const ImdbBidirectionalLstm = Vue.extend({
           tempTensor.tensor.hi(forwardDim + backwardDim).lo(forwardDim),
           backwardHiddenStates.tensor.pick(MAXLEN - i - 1, null)
         );
-        stepwiseOutput.push(fcLayer.call(tempTensor).tensor.data[(0)]);
+        stepwiseOutput.push(fcLayer.call(tempTensor).tensor.data[0]);
       }
       this.stepwiseOutput = stepwiseOutput;
     }

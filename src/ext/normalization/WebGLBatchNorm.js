@@ -67,7 +67,7 @@ export default class WebGLBatchNorm extends WebGLLayer {
    */
   _bindUniforms(input, epsilon) {
     const gl = this.webgl.context;
-    const outputColPad = this.webgl.getPad(input.shape[(1)]);
+    const outputColPad = this.webgl.getPad(input.shape[1]);
     gl.uniform1f(
       gl.getUniformLocation(this.program, WebGLBatchNorm.EPSILON_UNIFORM_NAME),
       epsilon
@@ -77,7 +77,7 @@ export default class WebGLBatchNorm extends WebGLLayer {
         this.program,
         WebGLBatchNorm.OUTPUT_COLS_UNIFORM_NAME
       ),
-      input.shape[(1)]
+      input.shape[1]
     );
     gl.uniform1i(
       gl.getUniformLocation(
@@ -95,10 +95,10 @@ export default class WebGLBatchNorm extends WebGLLayer {
    * @param {weblas.pipeline.Tensor} tOut
    */
   _bindOutputTexture(input, tOut) {
-    const outputColPad = this.webgl.getPad(input.shape[(1)]);
+    const outputColPad = this.webgl.getPad(input.shape[1]);
     this.webgl.bindOutputTexture(
-      input.shape[(0)],
-      (input.shape[(1)] + outputColPad) / 4,
+      input.shape[0],
+      (input.shape[1] + outputColPad) / 4,
       tOut.texture
     );
   }

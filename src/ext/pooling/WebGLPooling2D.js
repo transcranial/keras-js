@@ -53,10 +53,10 @@ export default class WebGLPooling2D extends WebGLLayer {
    */
   _bindUniforms(input, poolIndexMapping) {
     const gl = this.webgl.context;
-    const nbPatches = input.shape[(0)];
-    const channels = input.shape[(1)];
+    const nbPatches = input.shape[0];
+    const channels = input.shape[1];
     const channelsPad = this.webgl.getPad(channels);
-    const poolElements = poolIndexMapping.shape[(1)];
+    const poolElements = poolIndexMapping.shape[1];
     const poolElementsPad = this.webgl.getPad(poolElements);
     gl.uniform1i(
       gl.getUniformLocation(
@@ -100,8 +100,8 @@ export default class WebGLPooling2D extends WebGLLayer {
    * @param {weblas.pipeline.Tensor} tOut
    */
   _bindOutputTexture(input, poolIndexMapping, tOut) {
-    const outputLength = poolIndexMapping.shape[(0)];
-    const channels = input.shape[(1)];
+    const outputLength = poolIndexMapping.shape[0];
+    const channels = input.shape[1];
     const outputCols = this.webgl.getPad(channels);
     this.webgl.bindOutputTexture(
       outputLength,
@@ -122,8 +122,8 @@ export default class WebGLPooling2D extends WebGLLayer {
     this.webgl.selectProgram(this.program);
 
     // create an empty output Tensor
-    const outputLength = poolIndexMapping.shape[(0)];
-    const channels = input.shape[(1)];
+    const outputLength = poolIndexMapping.shape[0];
+    const channels = input.shape[1];
     const tOut = new weblas.pipeline.Tensor([ outputLength, channels ], null);
 
     this._bindInputTextures(input, poolIndexMapping);

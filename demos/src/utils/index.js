@@ -24,8 +24,8 @@ export function getCoordinates(e) {
   let { clientX, clientY } = e;
   // for touch event
   if (e.touches && e.touches.length) {
-    clientX = e.touches[(0)].clientX;
-    clientY = e.touches[(0)].clientY;
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
   }
   const { left, top } = e.target.getBoundingClientRect();
   const [ x, y ] = [ clientX - left, clientY - top ];
@@ -131,7 +131,7 @@ export function image1Dtensor(tensor) {
   for (let i = 0, len = imageData.length; i < len; i += 4) {
     imageData[i + 3] = 255 * (tensor.data[i / 4] - min) / (max - min);
   }
-  return new ImageData(imageData, tensor.shape[(0)], 1);
+  return new ImageData(imageData, tensor.shape[0], 1);
 }
 
 /**
@@ -144,7 +144,7 @@ export function image2Dtensor(tensor) {
   for (let i = 0, len = imageData.length; i < len; i += 4) {
     imageData[i + 3] = 255 * (tensor.data[i / 4] - min) / (max - min);
   }
-  return new ImageData(imageData, tensor.shape[(0)], tensor.shape[(1)]);
+  return new ImageData(imageData, tensor.shape[0], tensor.shape[1]);
 }
 
 /**
@@ -155,9 +155,9 @@ export function image2Darray(arr, width, height, rgb = [ 0, 0, 0 ]) {
   const size = width * height * 4;
   let imageData = new Uint8ClampedArray(size);
   for (let i = 0; i < size; i += 4) {
-    imageData[i] = rgb[(0)];
-    imageData[i + 1] = rgb[(1)];
-    imageData[i + 2] = rgb[(2)];
+    imageData[i] = rgb[0];
+    imageData[i + 1] = rgb[1];
+    imageData[i + 2] = rgb[2];
     imageData[i + 3] = 255 * arr[i / 4];
   }
   return new ImageData(imageData, width, height);
@@ -171,7 +171,7 @@ export function unroll3Dtensor(tensor) {
   const { min, max } = tensorMinMax(tensor);
   let shape = tensor.shape.slice();
   let unrolled = [];
-  for (let k = 0, channels = shape[(2)]; k < channels; k++) {
+  for (let k = 0, channels = shape[2]; k < channels; k++) {
     const channelData = flatten(unpack(tensor.pick(null, null, k)));
     unrolled.push(channelData);
   }
@@ -184,7 +184,7 @@ export function unroll3Dtensor(tensor) {
       imageData[i * 4 + 2] = 0;
       imageData[i * 4 + 3] = 255 * (channelData[i] - min) / (max - min);
     }
-    return new ImageData(imageData, shape[(0)], shape[(1)]);
+    return new ImageData(imageData, shape[0], shape[1]);
   });
 }
 
@@ -199,16 +199,16 @@ export function imagenetClassesTopK(classProbabilities, k = 5) {
   const sorted = reverse(
     sortBy(
       probs.map((prob, index) => [ prob, index ]),
-      probIndex => probIndex[(0)]
+      probIndex => probIndex[0]
     )
   );
 
   const topK = take(sorted, k).map(probIndex => {
-    const iClass = imagenetClasses[probIndex[(1)]];
+    const iClass = imagenetClasses[probIndex[1]];
     return {
-      id: iClass[(0)],
-      name: iClass[(1)].replace(/_/, ' '),
-      probability: probIndex[(0)]
+      id: iClass[0],
+      name: iClass[1].replace(/_/, ' '),
+      probability: probIndex[0]
     };
   });
   return topK;

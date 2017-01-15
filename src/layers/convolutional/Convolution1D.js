@@ -62,24 +62,21 @@ export default class Convolution1D extends Layer {
    */
   setWeights(weightsArr) {
     const { nbFilter, nbRow, nbCol } = this._conv2dAttrs;
-    let shape = weightsArr[(0)].tensor.shape;
+    let shape = weightsArr[0].tensor.shape;
 
     // check for legacy shape of weights
     // Keras:    (nb_filter, input_dim, filter_length, 1)
     // Keras.js: (nbFilter, inputChannels, nbRow, nbCol)
-    if (
-      !(shape[(0)] === nbRow && shape[(1)] === nbCol) || shape[(3)] !== nbFilter
-    ) {
+    if (!(shape[0] === nbRow && shape[1] === nbCol) || shape[3] !== nbFilter) {
       console.warn('Using legacy shape of weights');
 
       if (
-        !(shape[(0)] === nbFilter &
-          (shape[(2)] === nbRow & shape[(3)] === nbCol))
+        !(shape[0] === nbFilter & (shape[2] === nbRow & shape[3] === nbCol))
       ) {
         throw new Error('Unsupported shape of weights');
       }
     } else {
-      weightsArr[(0)].tensor = weightsArr[(0)].tensor.transpose(3, 2, 0, 1);
+      weightsArr[0].tensor = weightsArr[0].tensor.transpose(3, 2, 0, 1);
     }
     this._conv2d.setWeights(weightsArr);
   }

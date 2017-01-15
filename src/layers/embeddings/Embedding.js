@@ -42,11 +42,11 @@ export default class Embedding extends Layer {
    */
   call(x) {
     let y = new Tensor([], [
-      x.tensor.shape[(0)],
-      this.weights.W.tensor.shape[(1)]
+      x.tensor.shape[0],
+      this.weights.W.tensor.shape[1]
     ]);
 
-    for (let i = 0, len = x.tensor.shape[(0)]; i < len; i++) {
+    for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
       ops.assign(
         y.tensor.pick(i, null),
         this.weights.W.tensor.pick(x.tensor.get(i), null)

@@ -78,11 +78,11 @@ export default class GRU extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    let currentX = new Tensor([], [ x.tensor.shape[(1)] ]);
+    let currentX = new Tensor([], [ x.tensor.shape[1] ]);
 
-    const dimUpdateGate = this.weights['b_z'].tensor.shape[(0)];
-    const dimResetGate = this.weights['b_r'].tensor.shape[(0)];
-    const dimHiddenState = this.weights['b_h'].tensor.shape[(0)];
+    const dimUpdateGate = this.weights['b_z'].tensor.shape[0];
+    const dimResetGate = this.weights['b_r'].tensor.shape[0];
+    const dimHiddenState = this.weights['b_h'].tensor.shape[0];
 
     let currentUpdateGateState = new Tensor([], [ dimUpdateGate ]);
     let tempXZ = new Tensor([], [ dimUpdateGate ]);
@@ -100,7 +100,7 @@ export default class GRU extends Layer {
     let previousHiddenState = new Tensor([], [ dimHiddenState ]);
 
     this.hiddenStateSequence = new Tensor([], [
-      x.tensor.shape[(0)],
+      x.tensor.shape[0],
       dimHiddenState
     ]);
 
@@ -186,7 +186,7 @@ export default class GRU extends Layer {
       );
     };
 
-    for (let i = 0, len = x.tensor.shape[(0)]; i < len; i++) {
+    for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
       const inputIndex = this.goBackwards ? len - i - 1 : i;
       ops.assign(currentX.tensor, x.tensor.pick(inputIndex, null));
       _clearTemp();
