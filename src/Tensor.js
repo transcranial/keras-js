@@ -41,7 +41,22 @@ export default class Tensor {
       this.tensor = ndarray(new this._type([]), []);
     }
 
+    this.webgl = weblas.gpu.gl;
+
     this._gpuMaxSizeExceeded = false;
+  }
+
+  /**
+   * Replaces data in the underlying ndarray.
+   */
+  replaceTensorData(data) {
+    if (data && data.length && data instanceof this._type) {
+      this.tensor.data = data;
+    } else if (data && data.length && data instanceof Array) {
+      this.tensor.data = new this._type(data);
+    } else {
+      throw new Error('[Tensor] invalid input for replaceTensorData method.');
+    }
   }
 
   /**
@@ -58,7 +73,7 @@ export default class Tensor {
     }
 
     if (this.tensor.shape.length === 1) {
-      const len = this.tensor.shape[(0)];
+      const len = this.tensor.shape[0];
       if (len > MAX_TEXTURE_SIZE) {
         this._gpuMaxSizeExceeded = true;
       } else {
@@ -80,36 +95,30 @@ export default class Tensor {
   }
 
   /**
-   * Transfers weblas pipeline tensor from GPU memory
+   * Copies from another weblas pipeline tensor
    */
-  transferWeblasTensor() {
-    if (this.weblasTensor) {
-      const shape = this.weblasTensor.shape;
-      const arr = this.weblasTensor.transfer(true);
-      this.tensor = squeeze(ndarray(arr, shape));
-    }
-  }
+  copyFromWeblasTensor(weblasTensor) {
+    const gl = this.webgl.context;
+    this.weblasTensor = new weblas.pipeline.Tensor(weblasTensor.shape, null);
 
-  /**
-   * Delete weblas pipeline tensor
-   */
-  deleteWeblasTensor() {
-    if (this.weblasTensor) {
-      this.weblasTensor.delete();
-      delete this.weblasTensor;
-    }
-  }
+    gl.activeTexture(weblasTensor.texture);
 
-  /**
-   * Replaces data in the underlying ndarray.
-   */
-  replaceTensorData(data) {
-    if (data && data.length && data instanceof this._type) {
-      this.tensor.data = data;
-    } else if (data && data.length && data instanceof Array) {
-      this.tensor.data = new this._type(data);
-    } else {
-      throw new Error('[Tensor] invalid input for replaceTensorData method.');
-    }
+    // texture dimensions, with padding if necessary
+    // see https://github.com/waylonflinn/weblas/blob/master/lib/tensor.js
+    const [ h, w ] = this.weblasTensor.shape;
+    const pad = this.webgl.getPad(w);
+
+    // target, level, internalformat, x, y, width, height, border
+    // https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/copyTexImage2D
+    gl.copyTexImage2D(
+      this.weblasTensor.texture,
+      0,
+      gl.RGBA,
+      0,
+      0,
+      (w + pad) / WebGL.COMPONENTS_PER_TEXEL,
+      h,
+      0
+    );
   }
 }
