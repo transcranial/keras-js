@@ -13,12 +13,16 @@ module.exports = {
   module: {
     rules: [
       { test: /\.js$/, use: [ 'babel-loader' ], exclude: /node_modules/ },
-      { test: /\.(glsl|frag|vert)$/, use: [ 'raw-loader', 'glslify-loader' ] }
+      {
+        test: /\.(glsl|frag|vert)$/,
+        use: [ 'raw-loader', 'glslify-loader' ],
+        exclude: /node_modules/
+      }
     ]
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development')
+      'process.env': { NODE_ENV: JSON.stringify('development') }
     })
   ]
 };
