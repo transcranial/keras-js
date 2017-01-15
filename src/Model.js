@@ -397,10 +397,14 @@ export default class Model {
       // the same input(s) (thus copyBeforeCall is true), then we directly copy
       // the weblas tensors.
       inputs.forEach((x, i) => {
-        let xNew = new Tensor([], x.tensor.shape);
+        let xNew = new Tensor([], x.tensor.shape, { gpuCopy: true });
         xNew.copyFromWeblasTensor(x.weblasTensor);
         x = xNew;
       });
+    }
+
+    if (canRunInPipeline && currentLayer._pipelineEnabled) {
+      console.log(`     ${currentLayer.layerClass} pipeline mode`);
     }
 
     if (currentLayer.layerClass === 'Merge') {

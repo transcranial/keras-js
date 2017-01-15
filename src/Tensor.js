@@ -41,9 +41,12 @@ export default class Tensor {
       this.tensor = ndarray(new this._type([]), []);
     }
 
-    this.webgl = weblas.gpu.gl;
-
-    this._gpuMaxSizeExceeded = false;
+    if (options.gpuCopy) {
+      this.webgl = weblas.gpu.gl;
+      this.copyProgram = this.webgl.createProgram(
+        require('./texture_copy.glsl')
+      );
+    }
   }
 
   /**
@@ -101,24 +104,23 @@ export default class Tensor {
     const gl = this.webgl.context;
     this.weblasTensor = new weblas.pipeline.Tensor(weblasTensor.shape, null);
 
-    gl.activeTexture(weblasTensor.texture);
+    this.webgl.selectProgram(this.copyProgram);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, weblasTensor.texture);
+    const sampler = gl.getUniformLocation(this.copyProgram, 'source');
+    gl.uniform1i(sampler, 0);
 
     // texture dimensions, with padding if necessary
-    // see https://github.com/waylonflinn/weblas/blob/master/lib/tensor.js
+    // bind to output texture
+    // see https://github.com/waylonflinn/weblas/blob/master/lib/webgl.js#L478
     const [ h, w ] = this.weblasTensor.shape;
     const pad = this.webgl.getPad(w);
+    this.webgl.bindOutputTexture(h, (w + pad) / 4, this.weblasTensor.texture);
 
-    // target, level, internalformat, x, y, width, height, border
-    // https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/copyTexImage2D
-    gl.copyTexImage2D(
-      this.weblasTensor.texture,
-      0,
-      gl.RGBA,
-      0,
-      0,
-      (w + pad) / WebGL.COMPONENTS_PER_TEXEL,
-      h,
-      0
-    );
+    // run shader program to copy
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+
+    // unbind source texture
+    this.webgl.unbindInputTexture(gl.TEXTURE0);
   }
 }
