@@ -96,8 +96,12 @@ export default class Layer {
       const axisSlices = Array(x._actualShape.length - 1).fill(null);
       ops.assign(output.tensor.pick(...axisSlices, n), outputChannel.tensor);
     }
-    x.tensor = output.tensor;
 
-    return x;
+    output._fromPipeline = false;
+    if (output._actualShape) {
+      delete output._actualShape;
+    }
+
+    return output;
   }
 }

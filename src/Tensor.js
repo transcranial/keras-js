@@ -40,13 +40,6 @@ export default class Tensor {
     } else {
       this.tensor = ndarray(new this._type([]), []);
     }
-
-    if (options.gpuCopy) {
-      this.webgl = weblas.gpu.gl;
-      this.copyProgram = this.webgl.createProgram(
-        require('./texture_copy.glsl')
-      );
-    }
   }
 
   /**
@@ -98,29 +91,41 @@ export default class Tensor {
   }
 
   /**
+   * Delete weblas pipeline tensor
+   */
+  deleteWeblasTensor() {
+    if (this.weblasTensor) {
+      this.weblasTensor.delete();
+      delete this.weblasTensor;
+    }
+  }
+
+  /**
    * Copies from another weblas pipeline tensor
    */
   copyFromWeblasTensor(weblasTensor) {
-    const gl = this.webgl.context;
+    const webgl = weblas.gpu.gl;
+    const glCtx = webgl.context;
+    const program = webgl.createProgram(require('./texture_copy.glsl'));
     this.weblasTensor = new weblas.pipeline.Tensor(weblasTensor.shape, null);
 
-    this.webgl.selectProgram(this.copyProgram);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, weblasTensor.texture);
-    const sampler = gl.getUniformLocation(this.copyProgram, 'source');
-    gl.uniform1i(sampler, 0);
+    webgl.selectProgram(program);
+    glCtx.activeTexture(glCtx.TEXTURE0);
+    glCtx.bindTexture(glCtx.TEXTURE_2D, weblasTensor.texture);
+    const sampler = glCtx.getUniformLocation(program, 'source');
+    glCtx.uniform1i(sampler, 0);
 
     // texture dimensions, with padding if necessary
     // bind to output texture
     // see https://github.com/waylonflinn/weblas/blob/master/lib/webgl.js#L478
     const [ h, w ] = this.weblasTensor.shape;
-    const pad = this.webgl.getPad(w);
-    this.webgl.bindOutputTexture(h, (w + pad) / 4, this.weblasTensor.texture);
+    const pad = webgl.getPad(w);
+    webgl.bindOutputTexture(h, (w + pad) / 4, this.weblasTensor.texture);
 
     // run shader program to copy
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+    glCtx.drawElements(glCtx.TRIANGLES, 6, glCtx.UNSIGNED_SHORT, 0);
 
     // unbind source texture
-    this.webgl.unbindInputTexture(gl.TEXTURE0);
+    webgl.unbindInputTexture(glCtx.TEXTURE0);
   }
 }

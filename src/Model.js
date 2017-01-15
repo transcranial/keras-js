@@ -360,20 +360,14 @@ export default class Model {
   }
 
   /**
-   * Runs .call() on layer
+   * Runs .call() on Merge layer
    * @param {Layer} currentLayer
    * @param {Layer[]} inboundLayers
    * @param {boolean} copyBeforeCall
    * @returns {Tensor}
    */
-  _layerCall(currentLayer, inboundLayers, copyBeforeCall) {
-    if (inboundLayers.length > 1 && currentLayer.layerClass !== 'Merge') {
-      throw new Error(
-        `Layer name ${currentLayer.name} has ${inboundLayers.length} inbound nodes, but is not a Merge layer.`
-      );
-    }
-
-    const inputs = inboundLayers.map(layer => layer.result);
+  _mergeLayerCall(currentLayer, inboundLayers, copyBeforeCall) {
+    let inputs = inboundLayers.map(layer => layer.result);
     const canRunInPipeline = inputs.every(x => x._fromPipeline);
     if (!canRunInPipeline || !currentLayer._pipelineEnabled) {
       // If currentLayer is not pipeline enabled, then all inbound results
@@ -382,36 +376,71 @@ export default class Model {
       // If currentLayer is pipeline enabled, but not all inbound results are
       // from pipeline mode, then all must still be converted from weblas
       // tensors to regular tensors.
-      inputs.forEach((x, i) => {
+      inputs = inputs.map((x, i) => {
         if (x._fromPipeline) {
           // copy from weblas tensor into regular tensor
-          x = inboundLayers[i].transferFromPipeline(x);
+          return inboundLayers[i].transferFromPipeline(x);
         } else if (copyBeforeCall) {
           // make a copy of regular tensor
-          x = new Tensor(x.tensor.data, x.tensor.shape);
+          return new Tensor(x.tensor.data, x.tensor.shape);
         }
+        return x;
       });
     } else if (copyBeforeCall) {
       // If currentLayer is pipeline enabled, and all inbound results are from
       // pipeline mode as well, but there are sibling layer nodes that require
       // the same input(s) (thus copyBeforeCall is true), then we directly copy
       // the weblas tensors.
-      inputs.forEach((x, i) => {
-        let xNew = new Tensor([], x.tensor.shape, { gpuCopy: true });
+      inputs = inputs.map(x => {
+        let xNew = new Tensor([], x.tensor.shape);
         xNew.copyFromWeblasTensor(x.weblasTensor);
-        x = xNew;
+        xNew._fromPipeline = true;
+        xNew._actualShape = x._actualShape.slice();
+        return xNew;
       });
     }
 
-    if (canRunInPipeline && currentLayer._pipelineEnabled) {
-      console.log(`     ${currentLayer.layerClass} pipeline mode`);
+    return currentLayer.call(inputs);
+  }
+
+  /**
+   * Runs .call() on regular layer
+   * @param {Layer} currentLayer
+   * @param {Layer} inboundLayer
+   * @param {boolean} copyBeforeCall
+   * @returns {Tensor}
+   */
+  _regularLayerCall(currentLayer, inboundLayer, copyBeforeCall) {
+    let inboundLayerResult = inboundLayer.result;
+    if (!inboundLayerResult._fromPipeline || !currentLayer._pipelineEnabled) {
+      // If currentLayer is not pipeline enabled or inbound layer result is not
+      // from pipeline mode, then result must first be converted from a weblas
+      // tensor to a regular tensor, if necessary.
+      if (inboundLayerResult._fromPipeline) {
+        // copy from weblas tensor into regular tensor
+        inboundLayerResult = inboundLayer.transferFromPipeline(
+          inboundLayerResult
+        );
+      } else if (copyBeforeCall) {
+        // make a copy of regular tensor
+        inboundLayerResult = new Tensor(
+          inboundLayerResult.tensor.data,
+          inboundLayerResult.tensor.shape
+        );
+      }
+    } else if (copyBeforeCall) {
+      // If currentLayer is pipeline enabled, and prev layer result is from
+      // pipeline mode as well, but there are sibling layer nodes that require
+      // the same input (thus copyBeforeCall is true), then we directly copy
+      // the weblas tensor.
+      let xNew = new Tensor([], inboundLayerResult.tensor.shape);
+      xNew.copyFromWeblasTensor(inboundLayerResult.weblasTensor);
+      xNew._fromPipeline = true;
+      xNew._actualShape = inboundLayerResult._actualShape.slice();
+      inboundLayerResult = xNew;
     }
 
-    if (currentLayer.layerClass === 'Merge') {
-      return currentLayer.call(inputs);
-    } else {
-      return currentLayer.call(inputs[0]);
-    }
+    return currentLayer.call(inboundLayerResult);
   }
 
   /**
@@ -449,19 +478,27 @@ export default class Model {
           return false;
         }
 
-        const copyBeforeCall = outbound.length > 1;
-        currentLayer.result = this._layerCall(
-          currentLayer,
-          inboundLayers,
-          copyBeforeCall
-        );
+        const numSiblingNodes = inbound
+          .map(n => this.modelDAG[n].outbound)
+          .reduce((num, outbound) => num + outbound.length, 0);
+        const copyBeforeCall = numSiblingNodes >= 1;
+        currentLayer.result = layerClass === 'Merge'
+          ? this._mergeLayerCall(currentLayer, inboundLayers, copyBeforeCall)
+          : this._regularLayerCall(
+            currentLayer,
+            inboundLayers[0],
+            copyBeforeCall
+          );
 
         currentLayer.hasResult = true;
         currentLayer.visited = true;
         this.layersWithResults.push(currentLayer.name);
         let end = performance.now();
-        console.log(layerClass, (end - start).toFixed(2));
-
+        console.log(
+          layerClass,
+          currentLayer._pipelineEnabled,
+          (end - start).toFixed(2)
+        );
         if (this.layerCallPauses) {
           // temporarily pause 0 ms
           // useful for allowing DOM operations and other simultaneously running functions on the main thread
