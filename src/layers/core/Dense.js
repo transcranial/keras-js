@@ -37,6 +37,12 @@ export default class Dense extends Layer {
     if (this.inputDim) {
       this.inputShape = [ this.inputDim ];
     }
+
+    // Enable layer gpu +/- pipeline mode if supported
+    if (this.gpu && weblas) {
+      this._useWeblas = true;
+      this._pipelineEnabled = false;
+    }
   }
 
   /**

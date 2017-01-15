@@ -15,16 +15,20 @@ export default class MaxPooling2D extends _Pooling2D {
 
     this.poolingFunc = 'max';
 
-    // Enable layer pipeline mode if supported
-    if (this._useWeblas && this._pipelineEnabled) {
-      const isPipelineModeSupported = checkPipelineSupport(
-        this.layerClass,
-        attrs
-      );
-      if (!isPipelineModeSupported) {
-        this._pipelineEnabled = false;
-      } else {
-        this.webglPooling2D = new WebGLPooling2D(this.poolingFunc);
+    // Enable layer gpu +/- pipeline mode if supported
+    if (this.gpu && weblas) {
+      this._useWeblas = true;
+      if (this.pipeline) {
+        const isPipelineModeSupported = checkPipelineSupport(
+          this.layerClass,
+          attrs
+        );
+        if (isPipelineModeSupported) {
+          this._pipelineEnabled = true;
+          this.webglPooling2D = new WebGLPooling2D(this.poolingFunc);
+        } else {
+          this._pipelineEnabled = false;
+        }
       }
     }
   }

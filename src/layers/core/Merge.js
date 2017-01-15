@@ -62,16 +62,20 @@ export default class Merge extends Layer {
     this.outputShape = outputShape;
     this.outputMask = outputMask;
 
-    // Enable layer pipeline mode if supported
-    if (this._useWeblas && this._pipelineEnabled) {
-      const isPipelineModeSupported = checkPipelineSupport(
-        this.layerClass,
-        attrs
-      );
-      if (!isPipelineModeSupported) {
-        this._pipelineEnabled = false;
-      } else {
-        this.webglMerge = new WebGLMerge(this.mode);
+    // Enable layer gpu +/- pipeline mode if supported
+    if (this.gpu && weblas) {
+      this._useWeblas = true;
+      if (this.pipeline) {
+        const isPipelineModeSupported = checkPipelineSupport(
+          this.layerClass,
+          attrs
+        );
+        if (isPipelineModeSupported) {
+          this._pipelineEnabled = true;
+          this.webglMerge = new WebGLMerge(this.mode);
+        } else {
+          this._pipelineEnabled = false;
+        }
       }
     }
   }

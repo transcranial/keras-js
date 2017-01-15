@@ -16,15 +16,13 @@ export default class Layer {
     this.params = [];
     this.weights = {};
 
-    // turn on weblas
+    // gpu and pipeline flags from Model
+    this.gpu = attrs.gpu;
+    this.pipeline = attrs.pipeline;
+
+    // layer flags off by default
     this._useWeblas = false;
     this._pipelineEnabled = false;
-    if (attrs.gpu && weblas) {
-      this._useWeblas = true;
-      if (attrs.pipeline) {
-        this._pipelineEnabled = true;
-      }
-    }
   }
 
   /**

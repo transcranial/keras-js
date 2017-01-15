@@ -34,16 +34,20 @@ export default class BatchNormalization extends Layer {
       ? [ 'gamma', 'beta', 'running_mean', 'running_std' ]
       : [ 'gamma', 'beta' ];
 
-    // Enable layer pipeline mode if supported
-    if (this._useWeblas && this._pipelineEnabled) {
-      const isPipelineModeSupported = checkPipelineSupport(
-        this.layerClass,
-        attrs
-      );
-      if (!isPipelineModeSupported) {
-        this._pipelineEnabled = false;
-      } else {
-        this.webglBatchNorm = new WebGLBatchNorm();
+    // Enable layer gpu +/- pipeline mode if supported
+    if (this.gpu && weblas) {
+      this._useWeblas = true;
+      if (this.pipeline) {
+        const isPipelineModeSupported = checkPipelineSupport(
+          this.layerClass,
+          attrs
+        );
+        if (isPipelineModeSupported) {
+          this._pipelineEnabled = true;
+          this.webglBatchNorm = new WebGLBatchNorm();
+        } else {
+          this._pipelineEnabled = false;
+        }
       }
     }
   }

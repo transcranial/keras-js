@@ -22,13 +22,16 @@ export default class Model {
    * @param {string} config.filepaths.weightsFilepath - path to weights data (arraybuffer)
    * @param {string} config.filepaths.metadataFilepath - path to weights metadata (json)
    * @param {object} [config.headers] - any additional HTTP headers required for resource fetching
-   * @param {boolean} [config.GPU] - enable GPU
+   * @param {boolean} [config.gpu] - enable GPU
+   * @param {boolean} [config.pipeline] - configure capable layers to run in pipeline mode (gpu must be enabled)
+   * @param {boolean} [config.layerCallPauses] - force next tick after each layer call
    */
   constructor(config = {}) {
     const {
       filepaths = {},
       headers = {},
       gpu = false,
+      pipeline = false,
       layerCallPauses = false
     } = config;
 
@@ -49,6 +52,8 @@ export default class Model {
 
     // flag to enable GPU where possible
     this.gpu = gpu;
+    // flag to enable GPU pipeline mode where possible
+    this.pipeline = pipeline;
     // flag to enable 0 ms pauses after layer computation calls
     this.layerCallPauses = layerCallPauses;
 
@@ -84,7 +89,7 @@ export default class Model {
     this.inputTensors = {};
 
     // Promise for when Model class is initialized
-    this._ready = this.initialize();
+    this._ready = this._initialize();
 
     // flag while computations are being performed
     this.isRunning = false;
@@ -101,7 +106,7 @@ export default class Model {
   /**
    * Cancels any existing XHR requests
    */
-  interrupt() {
+  _interrupt() {
     const dataTypes = [ 'model', 'weights', 'metdata' ];
     dataTypes.forEach(type => {
       if (this.xhrs[type]) {
@@ -115,17 +120,17 @@ export default class Model {
    * Model initialization
    * @returns {Promise}
    */
-  initialize() {
+  _initialize() {
     const dataTypes = [ 'model', 'weights', 'metadata' ];
     return Promise
-      .all(dataTypes.map(type => this.dataRequest(type, this.headers)))
+      .all(dataTypes.map(type => this._dataRequest(type, this.headers)))
       .then(() => {
-        this.createLayers();
+        this._createLayers();
         return Promise.resolve();
       })
       .catch(err => {
         console.log(err);
-        this.interrupt();
+        this._interrupt();
       });
   }
 
@@ -136,7 +141,7 @@ export default class Model {
    * @param {Object} [headers] - any XHR headers to be passed along with request
    * @returns {Promise}
    */
-  dataRequest(type, headers = {}) {
+  _dataRequest(type, headers = {}) {
     return new Promise((resolve, reject) => {
       let xhr = new XMLHttpRequest();
       xhr.open('GET', this.filepaths[type], true);
@@ -172,6 +177,22 @@ export default class Model {
   }
 
   /**
+   * Toggle GPU mode on/off
+   * Iterate through all layers and set `gpu` attribute
+   * @param {boolean} mode - on/off
+   */
+  toggleGpu(mode) {
+    if (typeof mode === 'undefined') {
+      this.gpu = !this.gpu;
+    } else {
+      this.gpu = mode;
+    }
+    for (let layer of this.modelLayersMap.values()) {
+      layer.toggleGpu(this.gpu);
+    }
+  }
+
+  /**
    * Builds network layer DAG
    *
    * For Keras models of class Sequential, we still convert the list into DAG format
@@ -185,7 +206,7 @@ export default class Model {
    * other information. Note that in the Keras model config object variables are
    * in snake_case. We convert the variable names to camelCase here.
    */
-  createLayers() {
+  _createLayers() {
     const modelClass = this.data.model.class_name;
 
     let modelConfig = [];
@@ -264,6 +285,7 @@ export default class Model {
           attrs.innerActivation = camelCase(attrs.innerActivation);
         }
         attrs.gpu = this.gpu;
+        attrs.pipeline = this.pipeline;
 
         layer = new layers[layerClass](attrs);
       }
@@ -327,8 +349,8 @@ export default class Model {
         }
       } else if (modelClass === 'Model') {
         if (layerDef.inbound_nodes && layerDef.inbound_nodes.length) {
-          layerDef.inbound_nodes[(0)].forEach(node => {
-            const inboundLayerName = node[(0)];
+          layerDef.inbound_nodes[0].forEach(node => {
+            const inboundLayerName = node[0];
             this.modelDAG[layerConfig.name].inbound.push(inboundLayerName);
             this.modelDAG[inboundLayerName].outbound.push(layerConfig.name);
           });
@@ -338,18 +360,45 @@ export default class Model {
   }
 
   /**
-   * Toggle GPU mode on/off
-   * Iterate through all layers and set `gpu` attribute
-   * @param {boolean} mode - on/off
+   * Runs .call() on Merge layer
+   * @param {Layer} currentLayer
+   * @param {Layer[]} inboundLayers
+   * @returns {Tensor}
    */
-  toggleGpu(mode) {
-    if (typeof mode === 'undefined') {
-      this.gpu = !this.gpu;
-    } else {
-      this.gpu = mode;
+  _mergeLayerCall(currentLayer, inboundLayers) {
+    return currentLayer.call(
+      inboundLayers.map(layer => {
+        return new Tensor(layer.result.tensor.data, layer.result.tensor.shape);
+      })
+    );
+  }
+
+  /**
+   * Runs .call() on non-Merge layer
+   * @param {Layer} currentLayer
+   * @param {Layer[]} inboundLayers
+   * @returns {Tensor}
+   */
+  _regularLayerCall(currentLayer, inboundLayers) {
+    if (inboundLayers.length !== 1) {
+      throw new Error(
+        `Layer name ${currentLayer.name} has ${inboundLayers.length} inbound nodes, but is not a Merge layer.`
+      );
     }
-    for (let layer of this.modelLayersMap.values()) {
-      layer.toggleGpu(this.gpu);
+    const prevLayerResult = inboundLayers[0].result;
+    if (prevLayerResult._fromPipeline && currentLayer._pipelineEnabled) {
+      console.log('  pipeline (from pipeline)', layerClass);
+      currentLayer.result = currentLayer.call(prevLayerResult);
+    } else if (
+      prevLayerResult._fromPipeline && !currentLayer._pipelineEnabled
+    ) {
+      console.log('  pipeline (from regular)', layerClass);
+    } else {
+      console.log('  regular', layerClass);
+      currentLayer.result = currentLayer.call(new Tensor(
+        prevLayerResult.tensor.data,
+        prevLayerResult.tensor.shape
+      ));
     }
   }
 
@@ -361,7 +410,7 @@ export default class Model {
    * @param {[]string} nodes - array of layer names
    * @returns {Promise.<boolean>}
    */
-  async traverseDAG(nodes) {
+  async _traverseDAG(nodes) {
     if (nodes.length === 0) {
       // Stopping criterion:
       // an output node will have 0 outbound nodes.
@@ -375,7 +424,7 @@ export default class Model {
       //    complete asynchronously)
       // - Runs computation for current layer node: .call()
       // - Starts new generator function for outbound nodes
-      const node = nodes[(0)];
+      const node = nodes[0];
       const { layerClass, inbound, outbound } = this.modelDAG[node];
       if (layerClass !== 'InputLayer') {
         let currentLayer = this.modelLayersMap.get(node);
@@ -388,33 +437,10 @@ export default class Model {
           return false;
         }
 
-        if (layerClass === 'Merge') {
-          currentLayer.result = currentLayer.call(
-            inboundLayers.map(layer => {
-              return new Tensor(
-                layer.result.tensor.data,
-                layer.result.tensor.shape
-              );
-            })
-          );
-        } else {
-          if (inboundLayers.length !== 1) {
-            throw new Error(
-              `Layer name ${currentLayer.name} has ${inboundLayers.length} inbound nodes, but is not a Merge layer.`
-            );
-          }
-          const prevLayerResult = inboundLayers[(0)].result;
-          if (currentLayer._pipelineEnabled && prevLayerResult._fromPipeline) {
-            console.log('  pipeline', layerClass);
-            currentLayer.result = currentLayer.call(prevLayerResult);
-          } else {
-            console.log('  regular', layerClass);
-            currentLayer.result = currentLayer.call(new Tensor(
-              prevLayerResult.tensor.data,
-              prevLayerResult.tensor.shape
-            ));
-          }
-        }
+        currentLayer.result = layerClass === 'Merge'
+          ? this._mergeLayerCall(currentLayer)
+          : this._regularLayerCall(currentLayer);
+
         currentLayer.hasResult = true;
         currentLayer.visited = true;
         this.layersWithResults.push(currentLayer.name);
@@ -427,9 +453,9 @@ export default class Model {
           await Promise.delay(0);
         }
       }
-      await this.traverseDAG(outbound);
+      await this._traverseDAG(outbound);
     } else {
-      await Promise.all(nodes.map(node => this.traverseDAG([ node ])));
+      await Promise.all(nodes.map(node => this._traverseDAG([ node ])));
     }
   }
 
@@ -480,7 +506,7 @@ export default class Model {
     });
 
     // start traversing DAG at input
-    await this.traverseDAG(inputNames);
+    await this._traverseDAG(inputNames);
 
     // outputs are layers with no outbound nodes
     const modelClass = this.data.model.class_name;

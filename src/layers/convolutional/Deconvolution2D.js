@@ -66,6 +66,12 @@ export default class Deconvolution2D extends Layer {
 
     // Layer weights specification
     this.params = this.bias ? [ 'W', 'b' ] : [ 'W' ];
+
+    // Enable layer gpu +/- pipeline mode if supported
+    if (this.gpu && weblas) {
+      this._useWeblas = true;
+      this._pipelineEnabled = false;
+    }
   }
 
   /**
