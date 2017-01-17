@@ -3,9 +3,8 @@
   "version": "0.1.0",
   "description": "Run Keras models (tensorflow backend) in the browser, with GPU support",
   "scripts": {
-    "lint": "standard src test",
     "watch": "webpack --watch --config webpack.dev.config.js",
-    "build": "npm run lint && webpack --config webpack.prod.config.js",
+    "build": "webpack --config webpack.prod.config.js",
     "watch:demos": "cd demos && webpack --watch --config webpack.dev.config.js",
     "build:demos": "cd demos && webpack --config webpack.prod.config.js",
     "server": "http-server . -c-1 -p 3000"

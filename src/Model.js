@@ -457,7 +457,6 @@ export default class Model {
       // an output node will have 0 outbound nodes.
       return true;
     } else if (nodes.length === 1) {
-      let start = performance.now();
       // Where computational logic lives for a given layer node
       // - Makes sure results are available from inbound layer nodes
       // - Keeps generator going until results are available from inbound layer nodes
@@ -493,12 +492,6 @@ export default class Model {
         currentLayer.hasResult = true;
         currentLayer.visited = true;
         this.layersWithResults.push(currentLayer.name);
-        let end = performance.now();
-        console.log(
-          layerClass,
-          currentLayer._pipelineEnabled,
-          (end - start).toFixed(2)
-        );
         if (this.layerCallPauses) {
           // temporarily pause 0 ms
           // useful for allowing DOM operations and other simultaneously running functions on the main thread

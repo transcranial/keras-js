@@ -98,7 +98,7 @@ export const ResNet50 = Vue.extend({
           this.architectureConnections.forEach(conn => {
             const containerElem = document.getElementsByClassName(
               'architecture-container'
-            )[(0)];
+            )[0];
             const fromElem = document.getElementById(conn.from);
             const toElem = document.getElementById(conn.to);
             const containerElemCoords = containerElem.getBoundingClientRect();
