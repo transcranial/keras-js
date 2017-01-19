@@ -48,9 +48,7 @@ export default class Convolution3D extends Layer {
     if (dimOrdering === 'tf' || dimOrdering === 'th') {
       this.dimOrdering = dimOrdering;
     } else {
-      throw new Error(
-        `${this.name} [Convolution3D layer] Only tf and th dim ordering are allowed.`
-      );
+      throw new Error(`${this.name} [Convolution3D layer] Only tf and th dim ordering are allowed.`);
     }
 
     this.bias = bias;
@@ -109,44 +107,23 @@ export default class Convolution3D extends Layer {
 
     const outputDim1 = this.borderMode === 'same'
       ? Math.floor((inputDim1 + this.subsample[0] - 1) / this.subsample[0])
-      : Math.floor(
-        (inputDim1 - kernelDim1 + this.subsample[0]) / this.subsample[0]
-      );
+      : Math.floor((inputDim1 - kernelDim1 + this.subsample[0]) / this.subsample[0]);
     const outputDim2 = this.borderMode === 'same'
       ? Math.floor((inputDim2 + this.subsample[1] - 1) / this.subsample[1])
-      : Math.floor(
-        (inputDim2 - kernelDim2 + this.subsample[1]) / this.subsample[1]
-      );
+      : Math.floor((inputDim2 - kernelDim2 + this.subsample[1]) / this.subsample[1]);
     const outputDim3 = this.borderMode === 'same'
       ? Math.floor((inputDim3 + this.subsample[2] - 1) / this.subsample[2])
-      : Math.floor(
-        (inputDim3 - kernelDim3 + this.subsample[2]) / this.subsample[2]
-      );
+      : Math.floor((inputDim3 - kernelDim3 + this.subsample[2]) / this.subsample[2]);
     const outputChannels = nbFilter;
 
     const paddingDim1 = this.borderMode === 'same'
-      ? Math.max(
-        0,
-        Math.floor(
-          (outputDim1 - 1) * this.subsample[0] + kernelDim1 - inputDim1
-        )
-      )
+      ? Math.max(0, Math.floor((outputDim1 - 1) * this.subsample[0] + kernelDim1 - inputDim1))
       : 0;
     const paddingDim2 = this.borderMode === 'same'
-      ? Math.max(
-        0,
-        Math.floor(
-          (outputDim2 - 1) * this.subsample[1] + kernelDim2 - inputDim2
-        )
-      )
+      ? Math.max(0, Math.floor((outputDim2 - 1) * this.subsample[1] + kernelDim2 - inputDim2))
       : 0;
     const paddingDim3 = this.borderMode === 'same'
-      ? Math.max(
-        0,
-        Math.floor(
-          (outputDim3 - 1) * this.subsample[2] + kernelDim3 - inputDim3
-        )
-      )
+      ? Math.max(0, Math.floor((outputDim3 - 1) * this.subsample[2] + kernelDim3 - inputDim3))
       : 0;
     const paddingDim1Before = Math.floor(paddingDim1 / 2);
     const paddingDim1After = paddingDim1 - paddingDim1Before;
@@ -223,7 +200,9 @@ export default class Convolution3D extends Layer {
     }
 
     if (
-      kernelDim1 === 1 && kernelDim2 === 1 && kernelDim3 === 1 &&
+      kernelDim1 === 1 &&
+        kernelDim2 === 1 &&
+        kernelDim3 === 1 &&
         this.subsample[0] === 1 &&
         this.subsample[1] === 1 &&
         this.subsample[2] === 1
@@ -235,33 +214,14 @@ export default class Convolution3D extends Layer {
       return this._volColsMat;
     }
 
-    let patch = new Tensor([], [
-      kernelDim1,
-      kernelDim2,
-      kernelDim3,
-      inputChannels
-    ]);
+    let patch = new Tensor([], [ kernelDim1, kernelDim2, kernelDim3, inputChannels ]);
     let offset = 0;
-    for (
-      let i = 0, limit = inputDim1 - kernelDim1;
-      i <= limit;
-      i += this.subsample[0]
-    ) {
-      for (
-        let j = 0, limit = inputDim2 - kernelDim2;
-        j <= limit;
-        j += this.subsample[1]
-      ) {
-        for (
-          let k = 0, limit = inputDim3 - kernelDim3;
-          k <= limit;
-          k += this.subsample[2]
-        ) {
+    for (let i = 0, limit = inputDim1 - kernelDim1; i <= limit; i += this.subsample[0]) {
+      for (let j = 0, limit = inputDim2 - kernelDim2; j <= limit; j += this.subsample[1]) {
+        for (let k = 0, limit = inputDim3 - kernelDim3; k <= limit; k += this.subsample[2]) {
           ops.assign(
             patch.tensor,
-            x.tensor
-              .hi(i + kernelDim1, j + kernelDim2, k + kernelDim3, inputChannels)
-              .lo(i, j, k, 0)
+            x.tensor.hi(i + kernelDim1, j + kernelDim2, k + kernelDim3, inputChannels).lo(i, j, k, 0)
           );
           this._volColsMat.tensor.data.set(patch.tensor.data, offset);
           offset += patchLen;
@@ -285,18 +245,10 @@ export default class Convolution3D extends Layer {
 
     const wRowsMat = new Tensor([], [ patchLen, nbFilter ]);
 
-    let patch = new Tensor([], [
-      kernelDim1,
-      kernelDim2,
-      kernelDim3,
-      inputChannels
-    ]);
+    let patch = new Tensor([], [ kernelDim1, kernelDim2, kernelDim3, inputChannels ]);
     let patchRaveled = new Tensor([], [ patchLen ]);
     for (let n = 0; n < nbFilter; n++) {
-      ops.assign(
-        patch.tensor,
-        this.weights.W.tensor.pick(null, null, null, null, n)
-      );
+      ops.assign(patch.tensor, this.weights.W.tensor.pick(null, null, null, null, n));
       patchRaveled.replaceTensorData(patch.tensor.data);
       ops.assign(wRowsMat.tensor.pick(null, n), patchRaveled.tensor);
     }
@@ -327,39 +279,22 @@ export default class Convolution3D extends Layer {
     const nbPatches = outputDim1 * outputDim2 * outputDim3;
     const matMul = new Tensor([], [ nbPatches, nbFilter ]);
 
-    if (
-      this._useWeblas &&
-        !(this._volColsMat._gpuMaxSizeExceeded ||
-          this._wRowsMat._gpuMaxSizeExceeded)
-    ) {
-      const bias = this.bias
-        ? this.weights.b.weblasTensor
-        : this._zerosVec.weblasTensor;
+    if (this._useWeblas && !(this._volColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
+      const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor;
       matMul.tensor.data = weblas.pipeline
-        .sgemm(
-          1,
-          this._volColsMat.weblasTensor,
-          this._wRowsMat.weblasTensor,
-          1,
-          bias
-        )
+        .sgemm(1, this._volColsMat.weblasTensor, this._wRowsMat.weblasTensor, 1, bias)
         .transfer();
     } else {
       if (this.bias) {
         for (let n = 0; n < nbFilter; n++) {
-          ops.assigns(
-            matMul.tensor.pick(null, n),
-            this.weights.b.tensor.get(n)
-          );
+          ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n));
         }
       }
       gemm(matMul.tensor, this._volColsMat.tensor, this._wRowsMat.tensor, 1, 1);
     }
 
     let output = new Tensor([], this.outputShape);
-    let outputChannelRaveled = new Tensor([], [
-      outputDim1 * outputDim2 * outputDim3
-    ]);
+    let outputChannelRaveled = new Tensor([], [ outputDim1 * outputDim2 * outputDim3 ]);
     let outputChannel = new Tensor([], [ outputDim1, outputDim2, outputDim3 ]);
     for (let n = 0; n < nbFilter; n++) {
       ops.assign(outputChannelRaveled.tensor, matMul.tensor.pick(null, n));

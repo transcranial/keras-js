@@ -67,10 +67,7 @@ export default class SimpleRNN extends Layer {
     let tempHH = new Tensor([], [ dimHiddenState ]);
     let previousHiddenState = new Tensor([], [ dimHiddenState ]);
 
-    this.hiddenStateSequence = new Tensor([], [
-      x.tensor.shape[0],
-      dimHiddenState
-    ]);
+    this.hiddenStateSequence = new Tensor([], [ x.tensor.shape[0], dimHiddenState ]);
 
     const _clearTemp = () => {
       const tempTensors = [ tempXH, tempHH ];
@@ -80,26 +77,9 @@ export default class SimpleRNN extends Layer {
     const _step = () => {
       ops.assign(previousHiddenState.tensor, currentHiddenState.tensor);
 
-      gemv(
-        1,
-        this.weights['W'].tensor.transpose(1, 0),
-        currentX.tensor,
-        1,
-        tempXH.tensor
-      );
-      gemv(
-        1,
-        this.weights['U'].tensor.transpose(1, 0),
-        previousHiddenState.tensor,
-        1,
-        tempHH.tensor
-      );
-      this._combine(
-        currentHiddenState.tensor,
-        tempXH.tensor,
-        tempHH.tensor,
-        this.weights['b'].tensor
-      );
+      gemv(1, this.weights['W'].tensor.transpose(1, 0), currentX.tensor, 1, tempXH.tensor);
+      gemv(1, this.weights['U'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHH.tensor);
+      this._combine(currentHiddenState.tensor, tempXH.tensor, tempHH.tensor, this.weights['b'].tensor);
       this.activationFunc(currentHiddenState);
     };
 
@@ -110,10 +90,7 @@ export default class SimpleRNN extends Layer {
       _step();
 
       if (this.returnSequences) {
-        ops.assign(
-          this.hiddenStateSequence.tensor.pick(i, null),
-          currentHiddenState.tensor
-        );
+        ops.assign(this.hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor);
       }
     }
 

@@ -12,9 +12,7 @@ export default class WebGLMerge extends WebGLLayer {
     } else if ([ 'sum', 'mul', 'ave', 'max' ].indexOf(mode) > -1) {
       this.program = this.webgl.createProgram(require('./merge.glsl'));
     } else {
-      throw new Error(
-        `${mode} mode currently not supported in WebGLMerge layer.`
-      );
+      throw new Error(`${mode} mode currently not supported in WebGLMerge layer.`);
     }
 
     this.mode = mode;
@@ -47,10 +45,7 @@ export default class WebGLMerge extends WebGLLayer {
       gl.bindTexture(gl.TEXTURE_2D, inputs[i].texture);
     }
 
-    const sampler = gl.getUniformLocation(
-      this.program,
-      `${WebGLMerge.INPUT_TEXTURES_ARRAY_NAME}[0]`
-    );
+    const sampler = gl.getUniformLocation(this.program, `${WebGLMerge.INPUT_TEXTURES_ARRAY_NAME}[0]`);
     gl.uniform1iv(sampler, range(this.numTextures));
   }
 
@@ -65,21 +60,9 @@ export default class WebGLMerge extends WebGLLayer {
     const outputCols = inputs[0].shape[1];
     const outputColPad = this.webgl.getPad(outputCols);
 
-    gl.uniform1i(
-      gl.getUniformLocation(this.program, WebGLMerge.NUM_INPUTS_UNIFORM_NAME),
-      inputs.length
-    );
-    gl.uniform1i(
-      gl.getUniformLocation(this.program, WebGLMerge.OUTPUT_COLS_UNIFORM_NAME),
-      outputCols
-    );
-    gl.uniform1i(
-      gl.getUniformLocation(
-        this.program,
-        WebGLMerge.OUTPUT_COL_PAD_UNIFORM_NAME
-      ),
-      outputColPad
-    );
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLMerge.NUM_INPUTS_UNIFORM_NAME), inputs.length);
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLMerge.OUTPUT_COLS_UNIFORM_NAME), outputCols);
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLMerge.OUTPUT_COL_PAD_UNIFORM_NAME), outputColPad);
 
     if (this.mode === 'concat') {
       // with concat, inputs are first transposed to be channel-first
@@ -98,25 +81,13 @@ export default class WebGLMerge extends WebGLLayer {
         .slice(0, -1);
 
       const outputRows = sum(inputs.map(x => x.shape[0]));
-      gl.uniform1i(
-        gl.getUniformLocation(
-          this.program,
-          WebGLMerge.OUTPUT_ROWS_UNIFORM_NAME
-        ),
-        outputRows
-      );
+      gl.uniform1i(gl.getUniformLocation(this.program, WebGLMerge.OUTPUT_ROWS_UNIFORM_NAME), outputRows);
       gl.uniform1iv(
-        gl.getUniformLocation(
-          this.program,
-          WebGLMerge.INPUT_CHANNEL_START_INDICES_UNIFORM_NAME
-        ),
+        gl.getUniformLocation(this.program, WebGLMerge.INPUT_CHANNEL_START_INDICES_UNIFORM_NAME),
         inputChannelStartIndices
       );
     } else {
-      gl.uniform1i(
-        gl.getUniformLocation(this.program, WebGLMerge.MODE_CODE_UNIFORM_NAME),
-        this.modeCode
-      );
+      gl.uniform1i(gl.getUniformLocation(this.program, WebGLMerge.MODE_CODE_UNIFORM_NAME), this.modeCode);
     }
   }
 
@@ -133,11 +104,7 @@ export default class WebGLMerge extends WebGLLayer {
     }
     const outputCols = inputs[0].shape[1];
     const outputColPad = this.webgl.getPad(outputCols);
-    this.webgl.bindOutputTexture(
-      outputRows,
-      (outputCols + outputColPad) / 4,
-      tOut.texture
-    );
+    this.webgl.bindOutputTexture(outputRows, (outputCols + outputColPad) / 4, tOut.texture);
   }
 
   /**
@@ -154,17 +121,12 @@ export default class WebGLMerge extends WebGLLayer {
     if (this.mode === 'concat') {
       // concat along channel axis
       if (!inputs.every(x => x.shape[0] === inputs[0].shape[0])) {
-        throw new Error(
-          'Non-concat axis dimension of inputs to WebGLMerge must all be the same.'
-        );
+        throw new Error('Non-concat axis dimension of inputs to WebGLMerge must all be the same.');
       }
       // for fragment shader ease-of-operation, we first transpose weblas tensors
       // into shape with channels as rows
       const inputsTransposed = inputs.map(x => x.transpose());
-      const newShape = [
-        sum(inputsTransposed.map(x => x.shape[0])),
-        inputsTransposed[0].shape[1]
-      ];
+      const newShape = [ sum(inputsTransposed.map(x => x.shape[0])), inputsTransposed[0].shape[1] ];
       tOut = new weblas.pipeline.Tensor(newShape, null);
 
       // must select WebGL program again since differen program was loaded during transpose

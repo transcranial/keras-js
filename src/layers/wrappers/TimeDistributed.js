@@ -16,8 +16,7 @@ export default class TimeDistributed extends Layer {
 
     const { layer } = attrs;
 
-    if (!layer)
-      throw new Error('[TimeDistributed] wrapped layer is undefined.');
+    if (!layer) throw new Error('[TimeDistributed] wrapped layer is undefined.');
     this.layer = layer;
   }
 

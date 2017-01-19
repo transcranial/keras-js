@@ -42,31 +42,17 @@ export default class AtrousConvolution2D extends Convolution2D {
 
     const outputRows = this.borderMode === 'same'
       ? Math.floor((inputRows + this.subsample[0] - 1) / this.subsample[0])
-      : Math.floor(
-        (inputRows - nbRowDilated + this.subsample[0]) / this.subsample[0]
-      );
+      : Math.floor((inputRows - nbRowDilated + this.subsample[0]) / this.subsample[0]);
     const outputCols = this.borderMode === 'same'
       ? Math.floor((inputCols + this.subsample[1] - 1) / this.subsample[1])
-      : Math.floor(
-        (inputCols - nbColDilated + this.subsample[1]) / this.subsample[1]
-      );
+      : Math.floor((inputCols - nbColDilated + this.subsample[1]) / this.subsample[1]);
     const outputChannels = nbFilter;
 
     const paddingRow = this.borderMode === 'same'
-      ? Math.max(
-        0,
-        Math.floor(
-          (outputRows - 1) * this.subsample[0] + nbRowDilated - inputRows
-        )
-      )
+      ? Math.max(0, Math.floor((outputRows - 1) * this.subsample[0] + nbRowDilated - inputRows))
       : 0;
     const paddingCol = this.borderMode === 'same'
-      ? Math.max(
-        0,
-        Math.floor(
-          (outputCols - 1) * this.subsample[1] + nbColDilated - inputCols
-        )
-      )
+      ? Math.max(0, Math.floor((outputCols - 1) * this.subsample[1] + nbColDilated - inputCols))
       : 0;
     const paddingRowBefore = Math.floor(paddingRow / 2);
     const paddingRowAfter = paddingRow - paddingRowBefore;
@@ -74,12 +60,7 @@ export default class AtrousConvolution2D extends Convolution2D {
     const paddingColAfter = paddingCol - paddingColBefore;
 
     this.outputShape = [ outputRows, outputCols, outputChannels ];
-    this.inputPadding = [
-      paddingRowBefore,
-      paddingRowAfter,
-      paddingColBefore,
-      paddingColAfter
-    ];
+    this.inputPadding = [ paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter ];
   }
 
   /**
@@ -106,16 +87,8 @@ export default class AtrousConvolution2D extends Convolution2D {
 
     let patch = new Tensor([], [ nbRow, nbCol, inputChannels ]);
     let offset = 0;
-    for (
-      let i = 0, limit = inputRows - nbRowDilated;
-      i <= limit;
-      i += this.subsample[0]
-    ) {
-      for (
-        let j = 0, limit = inputCols - nbColDilated;
-        j <= limit;
-        j += this.subsample[1]
-      ) {
+    for (let i = 0, limit = inputRows - nbRowDilated; i <= limit; i += this.subsample[0]) {
+      for (let j = 0, limit = inputCols - nbColDilated; j <= limit; j += this.subsample[1]) {
         ops.assign(
           patch.tensor,
           x.tensor

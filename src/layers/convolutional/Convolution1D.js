@@ -50,9 +50,7 @@ export default class Convolution1D extends Layer {
       bias
     };
     this._conv2dAttrs = conv2dAttrs;
-    this._conv2d = new Convolution2D(
-      Object.assign(conv2dAttrs, { gpu: attrs.gpu })
-    );
+    this._conv2d = new Convolution2D(Object.assign(conv2dAttrs, { gpu: attrs.gpu }));
   }
 
   /**
@@ -70,9 +68,7 @@ export default class Convolution1D extends Layer {
     if (!(shape[0] === nbRow && shape[1] === nbCol) || shape[3] !== nbFilter) {
       console.warn('Using legacy shape of weights');
 
-      if (
-        !(shape[0] === nbFilter & (shape[2] === nbRow & shape[3] === nbCol))
-      ) {
+      if (!(shape[0] === nbFilter & (shape[2] === nbRow & shape[3] === nbCol))) {
         throw new Error('Unsupported shape of weights');
       }
     } else {

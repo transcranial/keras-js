@@ -30,11 +30,7 @@ export default class ParametricSoftplus extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    this._compute(
-      x.tensor,
-      this.weights.alphas.tensor,
-      this.weights.betas.tensor
-    );
+    this._compute(x.tensor, this.weights.alphas.tensor, this.weights.betas.tensor);
     return x;
   }
 }

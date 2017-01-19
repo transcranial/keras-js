@@ -27,36 +27,11 @@ export default class WebGLBatchNorm extends WebGLLayer {
   _bindInputTextures(input, gamma, beta, mean, std) {
     const gl = this.webgl.context;
     this.numTextures = 5;
-    this._bindInputTexture(
-      this.program,
-      input.texture,
-      gl.TEXTURE0,
-      WebGLBatchNorm.INPUT_TEXTURE_NAME
-    );
-    this._bindInputTexture(
-      this.program,
-      mean.texture,
-      gl.TEXTURE1,
-      WebGLBatchNorm.MEAN_TEXTURE_NAME
-    );
-    this._bindInputTexture(
-      this.program,
-      std.texture,
-      gl.TEXTURE2,
-      WebGLBatchNorm.STD_TEXTURE_NAME
-    );
-    this._bindInputTexture(
-      this.program,
-      gamma.texture,
-      gl.TEXTURE3,
-      WebGLBatchNorm.GAMMA_TEXTURE_NAME
-    );
-    this._bindInputTexture(
-      this.program,
-      beta.texture,
-      gl.TEXTURE4,
-      WebGLBatchNorm.BETA_TEXTURE_NAME
-    );
+    this._bindInputTexture(this.program, input.texture, gl.TEXTURE0, WebGLBatchNorm.INPUT_TEXTURE_NAME);
+    this._bindInputTexture(this.program, mean.texture, gl.TEXTURE1, WebGLBatchNorm.MEAN_TEXTURE_NAME);
+    this._bindInputTexture(this.program, std.texture, gl.TEXTURE2, WebGLBatchNorm.STD_TEXTURE_NAME);
+    this._bindInputTexture(this.program, gamma.texture, gl.TEXTURE3, WebGLBatchNorm.GAMMA_TEXTURE_NAME);
+    this._bindInputTexture(this.program, beta.texture, gl.TEXTURE4, WebGLBatchNorm.BETA_TEXTURE_NAME);
   }
 
   /**
@@ -68,24 +43,9 @@ export default class WebGLBatchNorm extends WebGLLayer {
   _bindUniforms(input, epsilon) {
     const gl = this.webgl.context;
     const outputColPad = this.webgl.getPad(input.shape[1]);
-    gl.uniform1f(
-      gl.getUniformLocation(this.program, WebGLBatchNorm.EPSILON_UNIFORM_NAME),
-      epsilon
-    );
-    gl.uniform1i(
-      gl.getUniformLocation(
-        this.program,
-        WebGLBatchNorm.OUTPUT_COLS_UNIFORM_NAME
-      ),
-      input.shape[1]
-    );
-    gl.uniform1i(
-      gl.getUniformLocation(
-        this.program,
-        WebGLBatchNorm.OUTPUT_COL_PAD_UNIFORM_NAME
-      ),
-      outputColPad
-    );
+    gl.uniform1f(gl.getUniformLocation(this.program, WebGLBatchNorm.EPSILON_UNIFORM_NAME), epsilon);
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLBatchNorm.OUTPUT_COLS_UNIFORM_NAME), input.shape[1]);
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLBatchNorm.OUTPUT_COL_PAD_UNIFORM_NAME), outputColPad);
   }
 
   /**
@@ -96,11 +56,7 @@ export default class WebGLBatchNorm extends WebGLLayer {
    */
   _bindOutputTexture(input, tOut) {
     const outputColPad = this.webgl.getPad(input.shape[1]);
-    this.webgl.bindOutputTexture(
-      input.shape[0],
-      (input.shape[1] + outputColPad) / 4,
-      tOut.texture
-    );
+    this.webgl.bindOutputTexture(input.shape[0], (input.shape[1] + outputColPad) / 4, tOut.texture);
   }
 
   /**

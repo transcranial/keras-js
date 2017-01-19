@@ -42,12 +42,7 @@ export default class UpSampling3D extends Layer {
     for (let i = 0; i < this.size[0]; i++) {
       for (let j = 0; j < this.size[1]; j++) {
         for (let k = 0; k < this.size[2]; k++) {
-          ops.assign(
-            y.tensor
-              .lo(i, j, k, 0)
-              .step(this.size[0], this.size[1], this.size[2], 1),
-            x.tensor
-          );
+          ops.assign(y.tensor.lo(i, j, k, 0).step(this.size[0], this.size[1], this.size[2], 1), x.tensor);
         }
       }
     }

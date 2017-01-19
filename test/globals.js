@@ -1,6 +1,5 @@
 (function() {
   'use strict';
-
   var styles = {
     h1: 'color:#001f3f;font-weight:bold;font-size:160%;',
     h2: 'color:#0074D9;font-weight:bold;font-size:130%;',
@@ -10,10 +9,7 @@
   };
 
   function logTime(startTime, endTime) {
-    console.log(
-      `%c>>>> exec: ${Math.round(100 * (endTime - startTime)) / 100} ms`,
-      styles.time
-    );
+    console.log(`%c>>>> exec: ${Math.round(100 * (endTime - startTime)) / 100} ms`, styles.time);
   }
 
   function stringifyCondensed(obj) {

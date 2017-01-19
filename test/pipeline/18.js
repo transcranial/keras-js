@@ -105,9 +105,7 @@ describe('pipeline_18', function() {
   };
 
   const key = 'pipeline_18';
-  const title = `[${key}] ${testParams.layers
-    .map(layer => layer.layerClass)
-    .join('-')}`;
+  const title = `[${key}] ${testParams.layers.map(layer => layer.layerClass).join('-')}`;
   let branch_0 = [];
   let branch_1 = [];
   let branch_2 = [];
@@ -120,16 +118,10 @@ describe('pipeline_18', function() {
     let weightsIndexOffset = 0;
     for (let i = 0; i < testParams.layers.length; i++) {
       const layerConfig = testParams.layers[i];
-      const attrs = Object.assign(layerConfig.attrs, {
-        gpu: true,
-        pipeline: true
-      });
+      const attrs = Object.assign(layerConfig.attrs, { gpu: true, pipeline: true });
       const layerInstance = new layers[layerConfig.layerClass](attrs);
       const weightsArr = TEST_DATA[key].weights
-        .slice(
-          weightsIndexOffset,
-          weightsIndexOffset + layerInstance.params.length
-        )
+        .slice(weightsIndexOffset, weightsIndexOffset + layerInstance.params.length)
         .map(w => new KerasJS.Tensor(w.data, w.shape));
       weightsIndexOffset += layerInstance.params.length;
       layerInstance.setWeights(weightsArr);
@@ -160,18 +152,9 @@ describe('pipeline_18', function() {
   });
 
   it(title, function() {
-    let t_0 = new KerasJS.Tensor(
-      TEST_DATA[key].inputs[0].data,
-      TEST_DATA[key].inputs[0].shape
-    );
-    let t_1 = new KerasJS.Tensor(
-      TEST_DATA[key].inputs[1].data,
-      TEST_DATA[key].inputs[1].shape
-    );
-    let t_2 = new KerasJS.Tensor(
-      TEST_DATA[key].inputs[2].data,
-      TEST_DATA[key].inputs[2].shape
-    );
+    let t_0 = new KerasJS.Tensor(TEST_DATA[key].inputs[0].data, TEST_DATA[key].inputs[0].shape);
+    let t_1 = new KerasJS.Tensor(TEST_DATA[key].inputs[1].data, TEST_DATA[key].inputs[1].shape);
+    let t_2 = new KerasJS.Tensor(TEST_DATA[key].inputs[2].data, TEST_DATA[key].inputs[2].shape);
     console.log('%cin (branch 0)', styles.h4, stringifyCondensed(t_0.tensor));
     console.log('%cin (branch 1)', styles.h4, stringifyCondensed(t_1.tensor));
     console.log('%cin (branch 2)', styles.h4, stringifyCondensed(t_2.tensor));

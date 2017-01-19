@@ -7,36 +7,9 @@ describe('embeddings layer: Embedding', function() {
   const layers = KerasJS.layers;
 
   const testParams = [
-    {
-      inputShape: [ 7 ],
-      attrs: {
-        inputDim: 5,
-        outputDim: 3,
-        inputLength: 7,
-        maskZero: false,
-        dropout: 0
-      }
-    },
-    {
-      inputShape: [ 10 ],
-      attrs: {
-        inputDim: 20,
-        outputDim: 5,
-        inputLength: 10,
-        maskZero: true,
-        dropout: 0
-      }
-    },
-    {
-      inputShape: [ 5 ],
-      attrs: {
-        inputDim: 33,
-        outputDim: 2,
-        inputLength: 5,
-        maskZero: false,
-        dropout: 0.5
-      }
-    }
+    { inputShape: [ 7 ], attrs: { inputDim: 5, outputDim: 3, inputLength: 7, maskZero: false, dropout: 0 } },
+    { inputShape: [ 10 ], attrs: { inputDim: 20, outputDim: 5, inputLength: 10, maskZero: true, dropout: 0 } },
+    { inputShape: [ 5 ], attrs: { inputDim: 33, outputDim: 2, inputLength: 5, maskZero: false, dropout: 0.5 } }
   ];
 
   before(function() {
@@ -50,13 +23,8 @@ describe('embeddings layer: Embedding', function() {
     it(title, function() {
       console.log(`\n%c${title}`, styles.h3);
       let testLayer = new layers.Embedding(attrs);
-      testLayer.setWeights(
-        TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape))
-      );
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)));
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       t = testLayer.call(t);

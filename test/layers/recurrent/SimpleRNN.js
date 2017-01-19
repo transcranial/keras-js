@@ -9,93 +9,39 @@ describe('recurrent layer: SimpleRNN', function() {
   const testParams = [
     {
       inputShape: [ 3, 6 ],
-      attrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: false,
-        goBackwards: false,
-        stateful: false
-      }
+      attrs: { outputDim: 4, activation: 'tanh', returnSequences: false, goBackwards: false, stateful: false }
     },
     {
       inputShape: [ 8, 5 ],
-      attrs: {
-        outputDim: 5,
-        activation: 'sigmoid',
-        returnSequences: false,
-        goBackwards: false,
-        stateful: false
-      }
+      attrs: { outputDim: 5, activation: 'sigmoid', returnSequences: false, goBackwards: false, stateful: false }
     },
     {
       inputShape: [ 7, 6 ],
-      attrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: true,
-        goBackwards: false,
-        stateful: false
-      }
+      attrs: { outputDim: 4, activation: 'tanh', returnSequences: true, goBackwards: false, stateful: false }
     },
     {
       inputShape: [ 7, 6 ],
-      attrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: false,
-        goBackwards: true,
-        stateful: false
-      }
+      attrs: { outputDim: 4, activation: 'tanh', returnSequences: false, goBackwards: true, stateful: false }
     },
     {
       inputShape: [ 7, 6 ],
-      attrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: true,
-        goBackwards: true,
-        stateful: false
-      }
+      attrs: { outputDim: 4, activation: 'tanh', returnSequences: true, goBackwards: true, stateful: false }
     },
     {
       inputShape: [ 7, 6 ],
-      attrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: false,
-        goBackwards: false,
-        stateful: true
-      }
+      attrs: { outputDim: 4, activation: 'tanh', returnSequences: false, goBackwards: false, stateful: true }
     },
     {
       inputShape: [ 7, 6 ],
-      attrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: true,
-        goBackwards: false,
-        stateful: true
-      }
+      attrs: { outputDim: 4, activation: 'tanh', returnSequences: true, goBackwards: false, stateful: true }
     },
     {
       inputShape: [ 7, 6 ],
-      attrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: false,
-        goBackwards: true,
-        stateful: true
-      }
+      attrs: { outputDim: 4, activation: 'tanh', returnSequences: false, goBackwards: true, stateful: true }
     },
     {
       inputShape: [ 7, 6 ],
-      attrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: true,
-        goBackwards: true,
-        stateful: true
-      }
+      attrs: { outputDim: 4, activation: 'tanh', returnSequences: true, goBackwards: true, stateful: true }
     }
   ];
 
@@ -118,23 +64,15 @@ describe('recurrent layer: SimpleRNN', function() {
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3);
         let testLayer = new layers.SimpleRNN(attrs);
-        testLayer.setWeights(
-          TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape))
-        );
-        let t = new KerasJS.Tensor(
-          TEST_DATA[key].input.data,
-          TEST_DATA[key].input.shape
-        );
+        testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)));
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
         const startTime = performance.now();
 
         // To test statefulness, we run call() twice (see corresponding jupyter notebook)
         t = testLayer.call(t);
         if (attrs.stateful) {
-          t = new KerasJS.Tensor(
-            TEST_DATA[key].input.data,
-            TEST_DATA[key].input.shape
-          );
+          t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
           t = testLayer.call(t);
         }
 
@@ -163,26 +101,16 @@ describe('recurrent layer: SimpleRNN', function() {
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3);
-        let testLayer = new layers.SimpleRNN(
-          Object.assign(attrs, { gpu: true })
-        );
-        testLayer.setWeights(
-          TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape))
-        );
-        let t = new KerasJS.Tensor(
-          TEST_DATA[key].input.data,
-          TEST_DATA[key].input.shape
-        );
+        let testLayer = new layers.SimpleRNN(Object.assign(attrs, { gpu: true }));
+        testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)));
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
         const startTime = performance.now();
 
         // To test statefulness, we run call() twice (see corresponding jupyter notebook)
         t = testLayer.call(t);
         if (attrs.stateful) {
-          t = new KerasJS.Tensor(
-            TEST_DATA[key].input.data,
-            TEST_DATA[key].input.shape
-          );
+          t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
           t = testLayer.call(t);
         }
 

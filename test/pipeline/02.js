@@ -104,9 +104,7 @@ describe('pipeline_02', function() {
   };
 
   const key = 'pipeline_02';
-  const title = `[${key}] ${testParams.layers
-    .map(layer => layer.layerClass)
-    .join('-')}`;
+  const title = `[${key}] ${testParams.layers.map(layer => layer.layerClass).join('-')}`;
   let modelLayers = [];
 
   before(function() {
@@ -116,16 +114,10 @@ describe('pipeline_02', function() {
     let weightsIndexOffset = 0;
     for (let i = 0; i < testParams.layers.length; i++) {
       const layerConfig = testParams.layers[i];
-      const attrs = Object.assign(layerConfig.attrs, {
-        gpu: true,
-        pipeline: true
-      });
+      const attrs = Object.assign(layerConfig.attrs, { gpu: true, pipeline: true });
       const layerInstance = new layers[layerConfig.layerClass](attrs);
       const weightsArr = TEST_DATA[key].weights
-        .slice(
-          weightsIndexOffset,
-          weightsIndexOffset + layerInstance.params.length
-        )
+        .slice(weightsIndexOffset, weightsIndexOffset + layerInstance.params.length)
         .map(w => new KerasJS.Tensor(w.data, w.shape));
       weightsIndexOffset += layerInstance.params.length;
       layerInstance.setWeights(weightsArr);
@@ -140,10 +132,7 @@ describe('pipeline_02', function() {
   });
 
   it(title, function() {
-    let t = new KerasJS.Tensor(
-      TEST_DATA[key].input.data,
-      TEST_DATA[key].input.shape
-    );
+    let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();
     for (let i = 0; i < testParams.layers.length; i++) {

@@ -19,8 +19,7 @@ export default class Bidirectional extends Layer {
 
     const { layer, mergeMode = 'concat' } = attrs;
 
-    if (!layer)
-      throw new Error('[Bidirectional] wrapped layer is undefined.');
+    if (!layer) throw new Error('[Bidirectional] wrapped layer is undefined.');
 
     this.forwardLayer = layer;
 
@@ -33,9 +32,7 @@ export default class Bidirectional extends Layer {
       'stateful'
     ]);
     backwardLayerAttrs.goBackwards = !backwardLayerAttrs.goBackwards;
-    this.backwardLayer = new recurrentLayers[layer.layerClass](
-      backwardLayerAttrs
-    );
+    this.backwardLayer = new recurrentLayers[layer.layerClass](backwardLayerAttrs);
 
     this.mergeMode = mergeMode;
   }
@@ -65,28 +62,15 @@ export default class Bidirectional extends Layer {
 
     if (this.mergeMode === 'concat') {
       let outShape = yForward.tensor.shape.slice();
-      outShape[outShape.length - 1] += yBackward.tensor.shape[outShape.length -
-        1];
+      outShape[outShape.length - 1] += yBackward.tensor.shape[outShape.length - 1];
       let y = new Tensor([], outShape);
       if (this.forwardLayer.returnSequences) {
-        ops.assign(
-          y.tensor.hi(outShape[0], yForward.tensor.shape[1]).lo(0, 0),
-          yForward.tensor
-        );
+        ops.assign(y.tensor.hi(outShape[0], yForward.tensor.shape[1]).lo(0, 0), yForward.tensor);
         // when returnSequences = true, reverse results of backwardLayer before concat
-        ops.assign(
-          y.tensor.hi(outShape[0], outShape[1]).lo(0, yForward.tensor.shape[1]),
-          yBackward.tensor.step(-1)
-        );
+        ops.assign(y.tensor.hi(outShape[0], outShape[1]).lo(0, yForward.tensor.shape[1]), yBackward.tensor.step(-1));
       } else {
-        ops.assign(
-          y.tensor.hi(yForward.tensor.shape[0]).lo(0),
-          yForward.tensor
-        );
-        ops.assign(
-          y.tensor.hi(outShape[0]).lo(yForward.tensor.shape[0]),
-          yBackward.tensor
-        );
+        ops.assign(y.tensor.hi(yForward.tensor.shape[0]).lo(0), yForward.tensor);
+        ops.assign(y.tensor.hi(outShape[0]).lo(yForward.tensor.shape[0]), yBackward.tensor);
       }
       x.tensor = y.tensor;
     } else if (this.mergeMode === 'sum') {

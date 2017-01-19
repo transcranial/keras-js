@@ -10,57 +10,27 @@ describe('convolutional layer: Convolution3D', function() {
     {
       inputShape: [ 5, 5, 5, 2 ],
       kernelShape: [ 4, 3, 3, 3 ],
-      attrs: {
-        activation: 'linear',
-        borderMode: 'valid',
-        subsample: [ 1, 1, 1 ],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      attrs: { activation: 'linear', borderMode: 'valid', subsample: [ 1, 1, 1 ], dimOrdering: 'tf', bias: true }
     },
     {
       inputShape: [ 4, 4, 4, 2 ],
       kernelShape: [ 2, 3, 3, 3 ],
-      attrs: {
-        activation: 'sigmoid',
-        borderMode: 'valid',
-        subsample: [ 1, 1, 1 ],
-        dimOrdering: 'tf',
-        bias: false
-      }
+      attrs: { activation: 'sigmoid', borderMode: 'valid', subsample: [ 1, 1, 1 ], dimOrdering: 'tf', bias: false }
     },
     {
       inputShape: [ 4, 4, 3, 2 ],
       kernelShape: [ 2, 3, 3, 3 ],
-      attrs: {
-        activation: 'relu',
-        borderMode: 'same',
-        subsample: [ 1, 1, 1 ],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 1, 1, 1 ], dimOrdering: 'tf', bias: true }
     },
     {
       inputShape: [ 4, 4, 3, 2 ],
       kernelShape: [ 2, 3, 3, 2 ],
-      attrs: {
-        activation: 'relu',
-        borderMode: 'same',
-        subsample: [ 2, 1, 1 ],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 2, 1, 1 ], dimOrdering: 'tf', bias: true }
     },
     {
       inputShape: [ 6, 6, 4, 2 ],
       kernelShape: [ 2, 3, 3, 3 ],
-      attrs: {
-        activation: 'relu',
-        borderMode: 'same',
-        subsample: [ 3, 3, 2 ],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 3, 3, 2 ], dimOrdering: 'tf', bias: true }
     }
   ];
 
@@ -87,13 +57,8 @@ describe('convolutional layer: Convolution3D', function() {
         let testLayer = new layers.Convolution3D(
           Object.assign({ nbFilter, kernelDim1, kernelDim2, kernelDim3 }, attrs)
         );
-        testLayer.setWeights(
-          TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape))
-        );
-        let t = new KerasJS.Tensor(
-          TEST_DATA[key].input.data,
-          TEST_DATA[key].input.shape
-        );
+        testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)));
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
         const startTime = performance.now();
         t = testLayer.call(t);
@@ -125,19 +90,10 @@ describe('convolutional layer: Convolution3D', function() {
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3);
         let testLayer = new layers.Convolution3D(
-          Object.assign(
-            { nbFilter, kernelDim1, kernelDim2, kernelDim3 },
-            attrs,
-            { gpu: true }
-          )
+          Object.assign({ nbFilter, kernelDim1, kernelDim2, kernelDim3 }, attrs, { gpu: true })
         );
-        testLayer.setWeights(
-          TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape))
-        );
-        let t = new KerasJS.Tensor(
-          TEST_DATA[key].input.data,
-          TEST_DATA[key].input.shape
-        );
+        testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)));
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
         const startTime = performance.now();
         t = testLayer.call(t);

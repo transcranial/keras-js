@@ -14,10 +14,7 @@ describe('core layer: Flatten', function() {
     const key = 'core.Flatten.0';
     console.log(`\n%c[${key}] 1D`, styles.h3);
     let testLayer = new layers.Flatten();
-    let t = new KerasJS.Tensor(
-      TEST_DATA[key].input.data,
-      TEST_DATA[key].input.shape
-    );
+    let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();
     t = testLayer.call(t);
@@ -34,10 +31,7 @@ describe('core layer: Flatten', function() {
     const key = 'core.Flatten.1';
     console.log(`\n%c[${key}] 2D`, styles.h3);
     let testLayer = new layers.Flatten();
-    let t = new KerasJS.Tensor(
-      TEST_DATA[key].input.data,
-      TEST_DATA[key].input.shape
-    );
+    let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();
     t = testLayer.call(t);
@@ -54,10 +48,7 @@ describe('core layer: Flatten', function() {
     const key = 'core.Flatten.2';
     console.log(`\n%c[${key}] 3D`, styles.h3);
     let testLayer = new layers.Flatten();
-    let t = new KerasJS.Tensor(
-      TEST_DATA[key].input.data,
-      TEST_DATA[key].input.shape
-    );
+    let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();
     t = testLayer.call(t);

@@ -30,18 +30,13 @@ export default class BatchNormalization extends Layer {
 
     // Layer weights specification
     // running mean and std are non_trainable_weights in mode 0
-    this.params = this.mode === 0
-      ? [ 'gamma', 'beta', 'running_mean', 'running_std' ]
-      : [ 'gamma', 'beta' ];
+    this.params = this.mode === 0 ? [ 'gamma', 'beta', 'running_mean', 'running_std' ] : [ 'gamma', 'beta' ];
 
     // Enable layer gpu +/- pipeline mode if supported
     if (this.gpu && weblas) {
       this._useWeblas = true;
       if (this.pipeline) {
-        const isPipelineModeSupported = checkPipelineSupport(
-          this.layerClass,
-          attrs
-        );
+        const isPipelineModeSupported = checkPipelineSupport(this.layerClass, attrs);
         if (isPipelineModeSupported) {
           this._pipelineEnabled = true;
           this.webglBatchNorm = new WebGLBatchNorm();
@@ -99,18 +94,14 @@ export default class BatchNormalization extends Layer {
    */
   _callRegularMode(x) {
     if (!this.axisNormalized) {
-      this.axis = this.axis < 0
-        ? x.tensor.shape.length + this.axis
-        : this.axis - 1;
+      this.axis = this.axis < 0 ? x.tensor.shape.length + this.axis : this.axis - 1;
       this.axisNormalized = true;
     }
 
     let broadcast = [];
     for (let d = 0; d < x.tensor.shape.length; d++) {
-      if (d === this.axis)
-        broadcast.push(1);
-      else
-        broadcast.push(null);
+      if (d === this.axis) broadcast.push(1);
+      else broadcast.push(null);
     }
 
     // broadcast weights
@@ -118,14 +109,8 @@ export default class BatchNormalization extends Layer {
     let _beta = new Tensor([], x.tensor.shape);
     for (let i = 0; i < x.tensor.shape[this.axis]; i++) {
       broadcast[this.axis] = i;
-      ops.assigns(
-        _gamma.tensor.pick(...broadcast),
-        this.weights.gamma.tensor.get(i)
-      );
-      ops.assigns(
-        _beta.tensor.pick(...broadcast),
-        this.weights.beta.tensor.get(i)
-      );
+      ops.assigns(_gamma.tensor.pick(...broadcast), this.weights.gamma.tensor.get(i));
+      ops.assigns(_beta.tensor.pick(...broadcast), this.weights.beta.tensor.get(i));
     }
 
     let _mean = new Tensor([], x.tensor.shape);
@@ -135,14 +120,8 @@ export default class BatchNormalization extends Layer {
       // feature-wise normalization
       for (let i = 0; i < x.tensor.shape[this.axis]; i++) {
         broadcast[this.axis] = i;
-        ops.assigns(
-          _mean.tensor.pick(...broadcast),
-          this.weights.running_mean.tensor.get(i)
-        );
-        ops.assigns(
-          _std.tensor.pick(...broadcast),
-          this.weights.running_std.tensor.get(i) + this.epsilon
-        );
+        ops.assigns(_mean.tensor.pick(...broadcast), this.weights.running_mean.tensor.get(i));
+        ops.assigns(_std.tensor.pick(...broadcast), this.weights.running_std.tensor.get(i) + this.epsilon);
       }
       ops.sqrteq(_std.tensor);
     } else if (this.mode === 1) {
@@ -193,9 +172,7 @@ export default class BatchNormalization extends Layer {
       }
       ops.sqrteq(_std.tensor);
     } else {
-      throw new Error(
-        `[normalization.BatchNormalization] Invalid mode ${this.mode}.`
-      );
+      throw new Error(`[normalization.BatchNormalization] Invalid mode ${this.mode}.`);
     }
 
     ops.subeq(x.tensor, _mean.tensor);

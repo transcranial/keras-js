@@ -43,13 +43,7 @@ export default class MaxoutDense extends Layer {
       if (this.bias) {
         ops.assign(y.tensor, this.weights.b.tensor.pick(i, null));
       }
-      gemv(
-        1,
-        this.weights.W.tensor.pick(i, null, null).transpose(1, 0),
-        x.tensor,
-        1,
-        y.tensor
-      );
+      gemv(1, this.weights.W.tensor.pick(i, null, null).transpose(1, 0), x.tensor, 1, y.tensor);
       ops.maxeq(featMax.tensor, y.tensor);
     }
 

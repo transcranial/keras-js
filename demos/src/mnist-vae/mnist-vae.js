@@ -12,38 +12,16 @@ const MODEL_FILEPATHS_PROD = {
   weights: 'https://transcranial.github.io/keras-js-demos-data/mnist_vae/mnist_vae_weights.buf',
   metadata: 'demos/data/mnist_vae/mnist_vae_metadata.json'
 };
-const MODEL_CONFIG = {
-  filepaths: process.env.NODE_ENV === 'production'
-    ? MODEL_FILEPATHS_PROD
-    : MODEL_FILEPATHS_DEV
-};
+const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV };
 
 const LAYER_DISPLAY_CONFIG = {
-  dense_10: {
-    heading: 'input dimensions = 2, output dimensions = 128, ReLU activation',
-    scalingFactor: 2
-  },
-  dense_11: {
-    heading: 'ReLU activation, output dimensions = 25088 (64 x 14 x 14)',
-    scalingFactor: 2
-  },
+  dense_10: { heading: 'input dimensions = 2, output dimensions = 128, ReLU activation', scalingFactor: 2 },
+  dense_11: { heading: 'ReLU activation, output dimensions = 25088 (64 x 14 x 14)', scalingFactor: 2 },
   reshape_4: { heading: '', scalingFactor: 2 },
-  deconvolution2d_10: {
-    heading: '64 3x3 filters, border mode same, 1x1 strides, ReLU activation',
-    scalingFactor: 2
-  },
-  deconvolution2d_11: {
-    heading: '64 3x3 filters, border mode same, 1x1 strides, ReLU activation',
-    scalingFactor: 2
-  },
-  deconvolution2d_12: {
-    heading: '64 2x2 filters, border mode valid, 2x2 strides, ReLU activation',
-    scalingFactor: 2
-  },
-  convolution2d_8: {
-    heading: '1 2x2 filters, border mode valid, 1x1 strides, sigmoid activation',
-    scalingFactor: 2
-  }
+  deconvolution2d_10: { heading: '64 3x3 filters, border mode same, 1x1 strides, ReLU activation', scalingFactor: 2 },
+  deconvolution2d_11: { heading: '64 3x3 filters, border mode same, 1x1 strides, ReLU activation', scalingFactor: 2 },
+  deconvolution2d_12: { heading: '64 2x2 filters, border mode valid, 2x2 strides, ReLU activation', scalingFactor: 2 },
+  convolution2d_8: { heading: '1 2x2 filters, border mode valid, 1x1 strides, sigmoid activation', scalingFactor: 2 }
 };
 
 /**
@@ -58,9 +36,7 @@ export const MnistVae = Vue.extend({
     return {
       showInfoPanel: true,
       useGpu: this.hasWebgl,
-      model: new KerasJS.Model(
-        Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)
-      ),
+      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)),
       modelLoading: true,
       output: new Float32Array(27 * 27),
       crosshairsActivated: false,
@@ -163,17 +139,10 @@ export const MnistVae = Vue.extend({
       ctx.putImageData(image, 0, 0);
 
       // scale up
-      const ctxScaled = document
-        .getElementById('output-canvas-scaled')
-        .getContext('2d');
+      const ctxScaled = document.getElementById('output-canvas-scaled').getContext('2d');
       ctxScaled.save();
       ctxScaled.scale(150 / 27, 150 / 27);
-      ctxScaled.clearRect(
-        0,
-        0,
-        ctxScaled.canvas.width,
-        ctxScaled.canvas.height
-      );
+      ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height);
       ctxScaled.drawImage(document.getElementById('output-canvas'), 0, 0);
       ctxScaled.restore();
     },
@@ -181,8 +150,7 @@ export const MnistVae = Vue.extend({
       let results = [];
       for (let [ name, layer ] of this.model.modelLayersMap.entries()) {
         const layerClass = layer.layerClass || '';
-        if (layerClass === 'InputLayer')
-          continue;
+        if (layerClass === 'InputLayer') continue;
 
         let images = [];
         if (layer.result && layer.result.tensor.shape.length === 3) {
@@ -206,30 +174,15 @@ export const MnistVae = Vue.extend({
       this.layerResultImages.forEach((result, layerNum) => {
         const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor;
         result.images.forEach((image, imageNum) => {
-          const ctx = document
-            .getElementById(`intermediate-result-${layerNum}-${imageNum}`)
-            .getContext('2d');
+          const ctx = document.getElementById(`intermediate-result-${layerNum}-${imageNum}`).getContext('2d');
           ctx.putImageData(image, 0, 0);
           const ctxScaled = document
-            .getElementById(
-              `intermediate-result-${layerNum}-${imageNum}-scaled`
-            )
+            .getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`)
             .getContext('2d');
           ctxScaled.save();
           ctxScaled.scale(scalingFactor, scalingFactor);
-          ctxScaled.clearRect(
-            0,
-            0,
-            ctxScaled.canvas.width,
-            ctxScaled.canvas.height
-          );
-          ctxScaled.drawImage(
-            document.getElementById(
-              `intermediate-result-${layerNum}-${imageNum}`
-            ),
-            0,
-            0
-          );
+          ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height);
+          ctxScaled.drawImage(document.getElementById(`intermediate-result-${layerNum}-${imageNum}`), 0, 0);
           ctxScaled.restore();
         });
       });
@@ -239,18 +192,11 @@ export const MnistVae = Vue.extend({
         const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor;
         result.images.forEach((image, imageNum) => {
           const ctxScaled = document
-            .getElementById(
-              `intermediate-result-${layerNum}-${imageNum}-scaled`
-            )
+            .getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`)
             .getContext('2d');
           ctxScaled.save();
           ctxScaled.scale(scalingFactor, scalingFactor);
-          ctxScaled.clearRect(
-            0,
-            0,
-            ctxScaled.canvas.width,
-            ctxScaled.canvas.height
-          );
+          ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height);
           ctxScaled.restore();
         });
       });

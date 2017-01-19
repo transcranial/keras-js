@@ -140,10 +140,7 @@
         },
         { data: [ 0.08681, -0.443261, -0.150965, 0.689552 ], shape: [ 4 ] }
       ],
-      expected: {
-        data: [ -0.449265, 0.56076, -2.92837, 1.056555 ],
-        shape: [ 1, 1, 4 ]
-      }
+      expected: { data: [ -0.449265, 0.56076, -2.92837, 1.056555 ], shape: [ 1, 1, 4 ] }
     },
     'convolutional.AtrousConvolution2D.1': {
       input: {
@@ -280,10 +277,7 @@
           shape: [ 3, 3, 2, 4 ]
         }
       ],
-      expected: {
-        data: [ -0.578839, 1.046696, 1.078234, 0.69352 ],
-        shape: [ 1, 1, 4 ]
-      }
+      expected: { data: [ -0.578839, 1.046696, 1.078234, 0.69352 ], shape: [ 1, 1, 4 ] }
     },
     'convolutional.AtrousConvolution2D.2': {
       input: {

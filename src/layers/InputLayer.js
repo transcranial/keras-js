@@ -14,9 +14,7 @@ export default class InputLayer extends Layer {
 
     const { shape = [] } = attrs;
 
-    this.shape = attrs.batchInputShape && attrs.batchInputShape.length
-      ? attrs.batchInputShape.slice(1)
-      : shape;
+    this.shape = attrs.batchInputShape && attrs.batchInputShape.length ? attrs.batchInputShape.slice(1) : shape;
   }
 
   call(x) {

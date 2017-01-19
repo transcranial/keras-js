@@ -113,16 +113,9 @@ describe('convolutional layer: SeparableConvolution2D', function() {
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3);
-        let testLayer = new layers.SeparableConvolution2D(
-          Object.assign({ nbFilter, nbRow, nbCol }, attrs)
-        );
-        testLayer.setWeights(
-          TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape))
-        );
-        let t = new KerasJS.Tensor(
-          TEST_DATA[key].input.data,
-          TEST_DATA[key].input.shape
-        );
+        let testLayer = new layers.SeparableConvolution2D(Object.assign({ nbFilter, nbRow, nbCol }, attrs));
+        testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)));
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
         const startTime = performance.now();
         t = testLayer.call(t);
@@ -156,13 +149,8 @@ describe('convolutional layer: SeparableConvolution2D', function() {
         let testLayer = new layers.SeparableConvolution2D(
           Object.assign({ nbFilter, nbRow, nbCol }, attrs, { gpu: true })
         );
-        testLayer.setWeights(
-          TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape))
-        );
-        let t = new KerasJS.Tensor(
-          TEST_DATA[key].input.data,
-          TEST_DATA[key].input.shape
-        );
+        testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)));
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
         const startTime = performance.now();
         t = testLayer.call(t);

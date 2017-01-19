@@ -27,25 +27,13 @@ export default class Model {
    * @param {boolean} [config.layerCallPauses] - force next tick after each layer call
    */
   constructor(config = {}) {
-    const {
-      filepaths = {},
-      headers = {},
-      gpu = false,
-      pipeline = false,
-      layerCallPauses = false
-    } = config;
+    const { filepaths = {}, headers = {}, gpu = false, pipeline = false, layerCallPauses = false } = config;
 
     if (!filepaths.model || !filepaths.weights || !filepaths.metadata) {
-      throw new Error(
-        'File paths must be declared for model, weights, and metadata.'
-      );
+      throw new Error('File paths must be declared for model, weights, and metadata.');
     }
     this.filepaths = filepaths;
-    this.filetypes = {
-      model: 'json',
-      weights: 'arraybuffer',
-      metadata: 'json'
-    };
+    this.filetypes = { model: 'json', weights: 'arraybuffer', metadata: 'json' };
 
     // HTTP(S) headers used during data fetching
     this.headers = headers;
@@ -221,9 +209,7 @@ export default class Model {
       const layerConfig = layerDef.config;
 
       if (!(layerClass in layers)) {
-        throw new Error(
-          `Layer ${layerClass} specified in model configuration is not implemented!`
-        );
+        throw new Error(`Layer ${layerClass} specified in model configuration is not implemented!`);
       }
 
       // create InputLayer node for Sequential class (which is not explicitly defined in config)
@@ -231,17 +217,9 @@ export default class Model {
       if (modelClass === 'Sequential' && index === 0) {
         const inputName = 'input';
         const inputShape = layerConfig.batch_input_shape.slice(1);
-        const layer = new layers.InputLayer({
-          name: inputName,
-          shape: inputShape
-        });
+        const layer = new layers.InputLayer({ name: inputName, shape: inputShape });
         this.modelLayersMap.set(inputName, layer);
-        this.modelDAG[inputName] = {
-          layerClass: 'InputLayer',
-          name: inputName,
-          inbound: [],
-          outbound: []
-        };
+        this.modelDAG[inputName] = { layerClass: 'InputLayer', name: inputName, inbound: [], outbound: [] };
         this.inputTensors[inputName] = new Tensor([], inputShape);
       } else if (modelClass === 'Model' && layerClass === 'InputLayer') {
         const inputShape = layerConfig.batch_input_shape.slice(1);
@@ -254,26 +232,17 @@ export default class Model {
         let attrs = mapKeys(layerConfig, (v, k) => camelCase(k));
         const wrappedLayerConfig = layerConfig.layer.config;
         const wrappedLayerClass = layerConfig.layer.class_name;
-        let wrappedLayerAttrs = mapKeys(
-          wrappedLayerConfig,
-          (v, k) => camelCase(k)
-        );
+        let wrappedLayerAttrs = mapKeys(wrappedLayerConfig, (v, k) => camelCase(k));
         if ('activation' in wrappedLayerAttrs) {
-          wrappedLayerAttrs.activation = camelCase(
-            wrappedLayerAttrs.activation
-          );
+          wrappedLayerAttrs.activation = camelCase(wrappedLayerAttrs.activation);
         }
         if ('innerActivation' in wrappedLayerAttrs) {
-          wrappedLayerAttrs.innerActivation = camelCase(
-            wrappedLayerAttrs.innerActivation
-          );
+          wrappedLayerAttrs.innerActivation = camelCase(wrappedLayerAttrs.innerActivation);
         }
         wrappedLayerAttrs.gpu = this.gpu;
 
         layer = new layers[layerClass](
-          Object.assign(attrs, {
-            layer: new layers[wrappedLayerClass](wrappedLayerAttrs)
-          })
+          Object.assign(attrs, { layer: new layers[wrappedLayerClass](wrappedLayerAttrs) })
         );
       } else {
         // create regular layers
@@ -295,17 +264,11 @@ export default class Model {
       if (layerClass === 'Bidirectional') {
         const forwardName = layerConfig.layer.config.name;
         const backwardName = forwardName.replace(/forward/, 'backward');
-        const forwardWeightNames = layer.forwardLayer.params.map(
-          param => `${forwardName}_${param}`
-        );
-        const backwardWeightNames = layer.backwardLayer.params.map(
-          param => `${backwardName}_${param}`
-        );
+        const forwardWeightNames = layer.forwardLayer.params.map(param => `${forwardName}_${param}`);
+        const backwardWeightNames = layer.backwardLayer.params.map(param => `${backwardName}_${param}`);
         weightNames = forwardWeightNames.concat(backwardWeightNames);
       } else if (layerClass === 'TimeDistributed') {
-        weightNames = layer.layer.params.map(
-          param => `${layerConfig.layer.config.name}_${param}`
-        );
+        weightNames = layer.layer.params.map(param => `${layerConfig.layer.config.name}_${param}`);
       } else {
         weightNames = layer.params.map(param => `${layerConfig.name}_${param}`);
       }
@@ -313,29 +276,20 @@ export default class Model {
         const weights = weightNames.map(weightName => {
           const paramMetadata = find(this.data.metadata, meta => {
             const weightRE = new RegExp(`^${weightName}`);
-            return meta.layer_name === layerConfig.name &&
-              weightRE.test(meta.weight_name);
+            return meta.layer_name === layerConfig.name && weightRE.test(meta.weight_name);
           });
           if (!paramMetadata) {
             throw new Error(`[Model] error loading weights.`);
           }
 
           const { offset, length, shape } = paramMetadata;
-          return new Tensor(
-            new Float32Array(this.data.weights, offset, length),
-            shape
-          );
+          return new Tensor(new Float32Array(this.data.weights, offset, length), shape);
         });
         layer.setWeights(weights);
       }
 
       this.modelLayersMap.set(layerConfig.name, layer);
-      this.modelDAG[layerConfig.name] = {
-        layerClass,
-        name: layerConfig.name,
-        inbound: [],
-        outbound: []
-      };
+      this.modelDAG[layerConfig.name] = { layerClass, name: layerConfig.name, inbound: [], outbound: [] };
 
       if (modelClass === 'Sequential') {
         if (index === 0) {
@@ -418,15 +372,10 @@ export default class Model {
       // tensor to a regular tensor, if necessary.
       if (inboundLayerResult._fromPipeline) {
         // copy from weblas tensor into regular tensor
-        inboundLayerResult = inboundLayer.transferFromPipeline(
-          inboundLayerResult
-        );
+        inboundLayerResult = inboundLayer.transferFromPipeline(inboundLayerResult);
       } else if (copyBeforeCall) {
         // make a copy of regular tensor
-        inboundLayerResult = new Tensor(
-          inboundLayerResult.tensor.data,
-          inboundLayerResult.tensor.shape
-        );
+        inboundLayerResult = new Tensor(inboundLayerResult.tensor.data, inboundLayerResult.tensor.shape);
       }
     } else if (copyBeforeCall) {
       // If currentLayer is pipeline enabled, and prev layer result is from
@@ -457,6 +406,7 @@ export default class Model {
       // an output node will have 0 outbound nodes.
       return true;
     } else if (nodes.length === 1) {
+      // let start = performance.now();
       // Where computational logic lives for a given layer node
       // - Makes sure results are available from inbound layer nodes
       // - Keeps generator going until results are available from inbound layer nodes
@@ -483,15 +433,13 @@ export default class Model {
         const copyBeforeCall = numSiblingNodes >= 1;
         currentLayer.result = layerClass === 'Merge'
           ? this._mergeLayerCall(currentLayer, inboundLayers, copyBeforeCall)
-          : this._regularLayerCall(
-            currentLayer,
-            inboundLayers[0],
-            copyBeforeCall
-          );
+          : this._regularLayerCall(currentLayer, inboundLayers[0], copyBeforeCall);
 
         currentLayer.hasResult = true;
         currentLayer.visited = true;
         this.layersWithResults.push(currentLayer.name);
+        // let end = performance.now();
+        // console.log(layerClass, currentLayer._pipelineEnabled, (end - start).toFixed(2));
         if (this.layerCallPauses) {
           // temporarily pause 0 ms
           // useful for allowing DOM operations and other simultaneously running functions on the main thread
@@ -518,20 +466,11 @@ export default class Model {
     const inputNames = keys(this.inputTensors).sort();
     if (!isEqual(keys(inputData).sort(), inputNames)) {
       this.isRunning = false;
-      throw new Error(
-        `predict() must take an object where the keys are the named inputs of the model: ${inputNames}.`
-      );
+      throw new Error(`predict() must take an object where the keys are the named inputs of the model: ${inputNames}.`);
     }
-    if (
-      !every(
-        inputNames,
-        inputName => inputData[inputName] instanceof Float32Array
-      )
-    ) {
+    if (!every(inputNames, inputName => inputData[inputName] instanceof Float32Array)) {
       this.isRunning = false;
-      throw new Error(
-        'predict() must take an object where the values are the flattened data as Float32Array.'
-      );
+      throw new Error('predict() must take an object where the values are the flattened data as Float32Array.');
     }
 
     // reset hasResult and visited flags in all layers
@@ -556,18 +495,13 @@ export default class Model {
     // outputs are layers with no outbound nodes
     const modelClass = this.data.model.class_name;
     if (modelClass === 'Sequential') {
-      const outputLayer = find(
-        values(this.modelDAG),
-        node => !node.outbound.length
-      );
+      const outputLayer = find(values(this.modelDAG), node => !node.outbound.length);
       const { result } = this.modelLayersMap.get(outputLayer.name);
       const outputData = { output: result.tensor.data };
       this.isRunning = false;
       return outputData;
     } else if (modelClass === 'Model') {
-      const outputLayers = values(this.modelDAG).filter(
-        node => !node.outbound.length
-      );
+      const outputLayers = values(this.modelDAG).filter(node => !node.outbound.length);
       let outputData = {};
       outputLayers.forEach(layer => {
         const { result } = this.modelLayersMap.get(layer.name);

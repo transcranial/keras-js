@@ -24,7 +24,8 @@ export default class SReLU extends Layer {
   _compute = cwise({
     args: [ 'array', 'array', 'array', 'array', 'array' ],
     body: function(_x, tL, aL, tR, aR) {
-      _x = tL + Math.min(Math.max(_x - tL, 0), Math.abs(tR)) +
+      _x = tL +
+        Math.min(Math.max(_x - tL, 0), Math.abs(tR)) +
         aL * Math.min(_x - tL, 0) +
         Math.max(_x - (tL + Math.abs(tR)), 0) * aR;
     }

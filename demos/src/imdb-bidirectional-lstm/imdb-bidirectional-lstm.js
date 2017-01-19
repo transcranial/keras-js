@@ -17,11 +17,7 @@ const MODEL_FILEPATHS_PROD = {
   weights: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm_weights.buf',
   metadata: 'demos/data/imdb_bidirectional_lstm/imdb_bidirectional_lstm_metadata.json'
 };
-const MODEL_CONFIG = {
-  filepaths: process.env.NODE_ENV === 'production'
-    ? MODEL_FILEPATHS_PROD
-    : MODEL_FILEPATHS_DEV
-};
+const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV };
 
 const ADDITIONAL_DATA_FILEPATHS_DEV = {
   wordIndex: '/demos/data/imdb_bidirectional_lstm/imdb_dataset_word_index_top20000.json',
@@ -47,26 +43,14 @@ const INDEX_FROM = 3;
 
 // network layers
 const ARCHITECTURE_DIAGRAM_LAYERS = [
-  {
-    name: 'embedding_1',
-    className: 'Embedding',
-    details: '200 time steps, dim 20000 -> 64'
-  },
+  { name: 'embedding_1', className: 'Embedding', details: '200 time steps, dim 20000 -> 64' },
   {
     name: 'bidirectional_1',
     className: 'Bidirectional [LSTM]',
     details: '200 time steps, dim 64 -> 32, concat merge, tanh activation, hard sigmoid inner activation'
   },
-  {
-    name: 'dropout_1',
-    className: 'Dropout',
-    details: 'p=0.5 (active during training)'
-  },
-  {
-    name: 'dense_1',
-    className: 'Dense',
-    details: 'output dim 1, sigmoid activation'
-  }
+  { name: 'dropout_1', className: 'Dropout', details: 'p=0.5 (active during training)' },
+  { name: 'dense_1', className: 'Dense', details: 'output dim 1, sigmoid activation' }
 ];
 
 /**
@@ -158,9 +142,7 @@ export const ImdbBidirectionalLstm = Vue.extend({
 
       const randSampleIdx = random(0, this.testSamples.length - 1);
       const values = this.testSamples[randSampleIdx].values;
-      this.sampleTextLabel = this.testSamples[randSampleIdx].label === 0
-        ? 'negative'
-        : 'positive';
+      this.sampleTextLabel = this.testSamples[randSampleIdx].label === 0 ? 'negative' : 'positive';
 
       const words = values.map(idx => {
         if (idx === 0 || idx === 1) {
@@ -184,8 +166,7 @@ export const ImdbBidirectionalLstm = Vue.extend({
     },
     inputChanged: debounce(
       function() {
-        if (this.modelRunning)
-          return;
+        if (this.modelRunning) return;
         if (this.inputText.trim() === '') {
           this.inputTextParsed = [];
           return;
@@ -194,10 +175,7 @@ export const ImdbBidirectionalLstm = Vue.extend({
         this.modelRunning = true;
         this.isSampleText = false;
 
-        this.inputTextParsed = this.inputText
-          .trim()
-          .toLowerCase()
-          .split(/[\s\.,!?]+/ig);
+        this.inputTextParsed = this.inputText.trim().toLowerCase().split(/[\s\.,!?]+/ig);
 
         this.input = new Float32Array(MAXLEN);
         // by convention, use 2 as OOV word
@@ -225,26 +203,18 @@ export const ImdbBidirectionalLstm = Vue.extend({
     ),
     stepwiseCalc: function() {
       const fcLayer = this.model.modelLayersMap.get('dense_1');
-      const forwardHiddenStates = this.model.modelLayersMap.get(
-        'bidirectional_1'
-      ).forwardLayer.hiddenStateSequence;
-      const backwardHiddenStates = this.model.modelLayersMap.get(
-        'bidirectional_1'
-      ).backwardLayer.hiddenStateSequence;
+      const forwardHiddenStates = this.model.modelLayersMap.get('bidirectional_1').forwardLayer.hiddenStateSequence;
+      const backwardHiddenStates = this.model.modelLayersMap.get('bidirectional_1').backwardLayer.hiddenStateSequence;
       const forwardDim = forwardHiddenStates.tensor.shape[1];
       const backwardDim = backwardHiddenStates.tensor.shape[1];
 
       const start = findIndex(this.input, idx => idx >= INDEX_FROM);
-      if (start === -1)
-        return;
+      if (start === -1) return;
 
       let stepwiseOutput = [];
       for (let i = start; i < MAXLEN; i++) {
         let tempTensor = new Tensor([], [ forwardDim + backwardDim ]);
-        ops.assign(
-          tempTensor.tensor.hi(forwardDim).lo(0),
-          forwardHiddenStates.tensor.pick(i, null)
-        );
+        ops.assign(tempTensor.tensor.hi(forwardDim).lo(0), forwardHiddenStates.tensor.pick(i, null));
         ops.assign(
           tempTensor.tensor.hi(forwardDim + backwardDim).lo(forwardDim),
           backwardHiddenStates.tensor.pick(MAXLEN - i - 1, null)

@@ -45,17 +45,7 @@ export default class GRU extends Layer {
     this.stateful = stateful;
 
     // Layer weights specification
-    this.params = [
-      'W_z',
-      'U_z',
-      'b_z',
-      'W_r',
-      'U_r',
-      'b_r',
-      'W_h',
-      'U_h',
-      'b_h'
-    ];
+    this.params = [ 'W_z', 'U_z', 'b_z', 'W_r', 'U_r', 'b_r', 'W_h', 'U_h', 'b_h' ];
   }
 
   _combine = cwise({
@@ -99,10 +89,7 @@ export default class GRU extends Layer {
     let tempHH = new Tensor([], [ dimHiddenState ]);
     let previousHiddenState = new Tensor([], [ dimHiddenState ]);
 
-    this.hiddenStateSequence = new Tensor([], [
-      x.tensor.shape[0],
-      dimHiddenState
-    ]);
+    this.hiddenStateSequence = new Tensor([], [ x.tensor.shape[0], dimHiddenState ]);
 
     const _clearTemp = () => {
       const tempTensors = [ tempXZ, tempHZ, tempXR, tempHR, tempXH, tempHH ];
@@ -112,78 +99,23 @@ export default class GRU extends Layer {
     const _step = () => {
       ops.assign(previousHiddenState.tensor, currentHiddenState.tensor);
 
-      gemv(
-        1,
-        this.weights['W_z'].tensor.transpose(1, 0),
-        currentX.tensor,
-        1,
-        tempXZ.tensor
-      );
-      gemv(
-        1,
-        this.weights['U_z'].tensor.transpose(1, 0),
-        previousHiddenState.tensor,
-        1,
-        tempHZ.tensor
-      );
-      this._combine(
-        currentUpdateGateState.tensor,
-        tempXZ.tensor,
-        tempHZ.tensor,
-        this.weights['b_z'].tensor
-      );
+      gemv(1, this.weights['W_z'].tensor.transpose(1, 0), currentX.tensor, 1, tempXZ.tensor);
+      gemv(1, this.weights['U_z'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHZ.tensor);
+      this._combine(currentUpdateGateState.tensor, tempXZ.tensor, tempHZ.tensor, this.weights['b_z'].tensor);
       this.innerActivationFunc(currentUpdateGateState);
 
-      gemv(
-        1,
-        this.weights['W_r'].tensor.transpose(1, 0),
-        currentX.tensor,
-        1,
-        tempXR.tensor
-      );
-      gemv(
-        1,
-        this.weights['U_r'].tensor.transpose(1, 0),
-        previousHiddenState.tensor,
-        1,
-        tempHR.tensor
-      );
-      this._combine(
-        currentResetGateState.tensor,
-        tempXR.tensor,
-        tempHR.tensor,
-        this.weights['b_r'].tensor
-      );
+      gemv(1, this.weights['W_r'].tensor.transpose(1, 0), currentX.tensor, 1, tempXR.tensor);
+      gemv(1, this.weights['U_r'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHR.tensor);
+      this._combine(currentResetGateState.tensor, tempXR.tensor, tempHR.tensor, this.weights['b_r'].tensor);
       this.innerActivationFunc(currentResetGateState);
 
       ops.muleq(currentResetGateState.tensor, previousHiddenState.tensor);
-      gemv(
-        1,
-        this.weights['W_h'].tensor.transpose(1, 0),
-        currentX.tensor,
-        1,
-        tempXH.tensor
-      );
-      gemv(
-        1,
-        this.weights['U_h'].tensor.transpose(1, 0),
-        currentResetGateState.tensor,
-        1,
-        tempHH.tensor
-      );
-      this._combine(
-        currentHiddenState.tensor,
-        tempXH.tensor,
-        tempHH.tensor,
-        this.weights['b_h'].tensor
-      );
+      gemv(1, this.weights['W_h'].tensor.transpose(1, 0), currentX.tensor, 1, tempXH.tensor);
+      gemv(1, this.weights['U_h'].tensor.transpose(1, 0), currentResetGateState.tensor, 1, tempHH.tensor);
+      this._combine(currentHiddenState.tensor, tempXH.tensor, tempHH.tensor, this.weights['b_h'].tensor);
       this.activationFunc(currentHiddenState);
 
-      this._update(
-        currentHiddenState.tensor,
-        previousHiddenState.tensor,
-        currentUpdateGateState.tensor
-      );
+      this._update(currentHiddenState.tensor, previousHiddenState.tensor, currentUpdateGateState.tensor);
     };
 
     for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
@@ -193,10 +125,7 @@ export default class GRU extends Layer {
       _step();
 
       if (this.returnSequences) {
-        ops.assign(
-          this.hiddenStateSequence.tensor.pick(i, null),
-          currentHiddenState.tensor
-        );
+        ops.assign(this.hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor);
       }
     }
 

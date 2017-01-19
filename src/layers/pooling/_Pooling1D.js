@@ -31,15 +31,11 @@ export default class _Pooling1D extends Layer {
    */
   call(x) {
     if (this.poolingFunc !== 'max' && this.poolingFunc !== 'average') {
-      throw new Error(
-        `[pooling._Pooling1D] pooling function must be max or average.`
-      );
+      throw new Error(`[pooling._Pooling1D] pooling function must be max or average.`);
     }
 
     const stepsNew = this.borderMode === 'valid'
-      ? Math.floor(
-        (x.tensor.shape[0] - this.poolLength + this.stride) / this.stride
-      )
+      ? Math.floor((x.tensor.shape[0] - this.poolLength + this.stride) / this.stride)
       : Math.floor((x.tensor.shape[0] + this.stride - 1) / this.stride);
 
     let y = new Tensor([], [ stepsNew, x.tensor.shape[1] ]);
@@ -48,13 +44,7 @@ export default class _Pooling1D extends Layer {
     // in borderMode same, start negative from beyond step 0
     let step = this.borderMode === 'valid'
       ? 0
-      : Math.min(
-        0,
-        Math.ceil(
-          (x.tensor.shape[0] - (stepsNew - 1) * this.stride - this.poolLength) /
-            2
-        )
-      );
+      : Math.min(0, Math.ceil((x.tensor.shape[0] - (stepsNew - 1) * this.stride - this.poolLength) / 2));
 
     for (let i = 0; i < stepsNew; i++) {
       let _step = Math.max(0, step);

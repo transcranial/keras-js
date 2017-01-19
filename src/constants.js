@@ -1,6 +1,5 @@
 const canvas = document.createElement('canvas');
-const gl = canvas.getContext('webgl') ||
-  canvas.getContext('experimental-webgl');
+const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
 let MAX_TEXTURE_SIZE = 16384;
 if (gl) {

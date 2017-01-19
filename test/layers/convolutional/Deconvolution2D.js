@@ -11,73 +11,37 @@ describe('convolutional layer: Deconvolution2D', function() {
       inputShape: [ 4, 4, 2 ],
       kernelShape: [ 4, 3, 3 ],
       outputShape: [ 6, 6, 4 ],
-      attrs: {
-        activation: 'linear',
-        borderMode: 'valid',
-        subsample: [ 1, 1 ],
-        dimOrdering: 'tf',
-        bias: false
-      }
+      attrs: { activation: 'linear', borderMode: 'valid', subsample: [ 1, 1 ], dimOrdering: 'tf', bias: false }
     },
     {
       inputShape: [ 4, 4, 2 ],
       kernelShape: [ 4, 3, 3 ],
       outputShape: [ 6, 6, 4 ],
-      attrs: {
-        activation: 'linear',
-        borderMode: 'valid',
-        subsample: [ 1, 1 ],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      attrs: { activation: 'linear', borderMode: 'valid', subsample: [ 1, 1 ], dimOrdering: 'tf', bias: true }
     },
     {
       inputShape: [ 4, 4, 2 ],
       kernelShape: [ 4, 3, 3 ],
       outputShape: [ 9, 9, 4 ],
-      attrs: {
-        activation: 'relu',
-        borderMode: 'valid',
-        subsample: [ 2, 2 ],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      attrs: { activation: 'relu', borderMode: 'valid', subsample: [ 2, 2 ], dimOrdering: 'tf', bias: true }
     },
     {
       inputShape: [ 4, 4, 2 ],
       kernelShape: [ 4, 3, 3 ],
       outputShape: [ 4, 4, 4 ],
-      attrs: {
-        activation: 'relu',
-        borderMode: 'same',
-        subsample: [ 1, 1 ],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 1, 1 ], dimOrdering: 'tf', bias: true }
     },
     {
       inputShape: [ 4, 4, 2 ],
       kernelShape: [ 5, 3, 3 ],
       outputShape: [ 8, 8, 5 ],
-      attrs: {
-        activation: 'relu',
-        borderMode: 'same',
-        subsample: [ 2, 2 ],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 2, 2 ], dimOrdering: 'tf', bias: true }
     },
     {
       inputShape: [ 4, 4, 2 ],
       kernelShape: [ 5, 3, 3 ],
       outputShape: [ 7, 7, 5 ],
-      attrs: {
-        activation: 'relu',
-        borderMode: 'same',
-        subsample: [ 2, 2 ],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 2, 2 ], dimOrdering: 'tf', bias: true }
     }
   ];
 
@@ -102,16 +66,9 @@ describe('convolutional layer: Deconvolution2D', function() {
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3);
-        let testLayer = new layers.Deconvolution2D(
-          Object.assign({ nbFilter, nbRow, nbCol, outputShape }, attrs)
-        );
-        testLayer.setWeights(
-          TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape))
-        );
-        let t = new KerasJS.Tensor(
-          TEST_DATA[key].input.data,
-          TEST_DATA[key].input.shape
-        );
+        let testLayer = new layers.Deconvolution2D(Object.assign({ nbFilter, nbRow, nbCol, outputShape }, attrs));
+        testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)));
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
         const startTime = performance.now();
         t = testLayer.call(t);
@@ -144,17 +101,10 @@ describe('convolutional layer: Deconvolution2D', function() {
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3);
         let testLayer = new layers.Deconvolution2D(
-          Object.assign({ nbFilter, nbRow, nbCol, outputShape }, attrs, {
-            gpu: true
-          })
+          Object.assign({ nbFilter, nbRow, nbCol, outputShape }, attrs, { gpu: true })
         );
-        testLayer.setWeights(
-          TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape))
-        );
-        let t = new KerasJS.Tensor(
-          TEST_DATA[key].input.data,
-          TEST_DATA[key].input.shape
-        );
+        testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)));
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
         const startTime = performance.now();
         t = testLayer.call(t);

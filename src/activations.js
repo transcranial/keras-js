@@ -23,9 +23,7 @@ export function softmax(x) {
       ops.divseq(x.tensor.pick(i, null), sum);
     }
   } else {
-    throw new Error(
-      `[activations.softmax] tensor shape ${x.tensor.shape} not supported.`
-    );
+    throw new Error(`[activations.softmax] tensor shape ${x.tensor.shape} not supported.`);
   }
   return this;
 }

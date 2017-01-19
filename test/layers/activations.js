@@ -21,10 +21,7 @@ describe('activations', function() {
     it('[activations.softmax.0] should work for 1D tensor', function() {
       const key = 'activations.softmax.0';
       console.log(`\n%c[${key}] 1D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.softmax(t);
@@ -40,10 +37,7 @@ describe('activations', function() {
     it('[activations.softmax.1] should work for 2D tensor', function() {
       const key = 'activations.softmax.1';
       console.log(`\n%c[${key}] 2D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.softmax(t);
@@ -59,10 +53,7 @@ describe('activations', function() {
     it('[activations.softmax.2] should work for very large values', function() {
       const key = 'activations.softmax.2';
       console.log(`\n%c[${key}] 1D, large values`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.softmax(t);
@@ -87,10 +78,7 @@ describe('activations', function() {
     it('[activations.softplus.0] should work for 1D tensor', function() {
       const key = 'activations.softplus.0';
       console.log(`\n%c[${key}] 1D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.softplus(t);
@@ -106,10 +94,7 @@ describe('activations', function() {
     it('[activations.softplus.1] should work for 2D tensor', function() {
       const key = 'activations.softplus.1';
       console.log(`\n%c[${key}] 2D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.softplus(t);
@@ -125,10 +110,7 @@ describe('activations', function() {
     it('[activations.softplus.2] should work for 3D tensor', function() {
       const key = 'activations.softplus.2';
       console.log(`\n%c[${key}] 3D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.softplus(t);
@@ -153,10 +135,7 @@ describe('activations', function() {
     it('[activations.softsign.0] should work for 1D tensor', function() {
       const key = 'activations.softsign.0';
       console.log(`\n%c[${key}] 1D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.softsign(t);
@@ -172,10 +151,7 @@ describe('activations', function() {
     it('[activations.softsign.1] should work for 2D tensor', function() {
       const key = 'activations.softsign.1';
       console.log(`\n%c[${key}] 2D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.softsign(t);
@@ -191,10 +167,7 @@ describe('activations', function() {
     it('[activations.softsign.2] should work for 3D tensor', function() {
       const key = 'activations.softsign.2';
       console.log(`\n%c[${key}] 3D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.softsign(t);
@@ -219,10 +192,7 @@ describe('activations', function() {
     it('[activations.relu.0] should work for 1D tensor', function() {
       const key = 'activations.relu.0';
       console.log(`\n%c[${key}] 1D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.relu(t);
@@ -238,10 +208,7 @@ describe('activations', function() {
     it('[activations.relu.1] should work for 2D tensor', function() {
       const key = 'activations.relu.1';
       console.log(`\n%c[${key}] 2D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.relu(t);
@@ -257,10 +224,7 @@ describe('activations', function() {
     it('[activations.relu.2] should work for 3D tensor', function() {
       const key = 'activations.relu.2';
       console.log(`\n%c[${key}] 3D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.relu(t);
@@ -276,10 +240,7 @@ describe('activations', function() {
     it('[activations.relu.3] should work with maxValue', function() {
       const key = 'activations.relu.3';
       console.log(`\n%c[${key}] 3D, maxValue=0.5`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.relu(t, { maxValue: 0.5 });
@@ -292,27 +253,21 @@ describe('activations', function() {
       assert.isTrue(approxEquals(t.tensor, dataExpected));
     });
 
-    it(
-      '[activations.relu.4] should work with alpha (slope of negative portion)',
-      function() {
-        const key = 'activations.relu.4';
-        console.log(`\n%c[${key}] 3D, alpha=0.3`, styles.h3);
-        let t = new KerasJS.Tensor(
-          TEST_DATA[key].input.data,
-          TEST_DATA[key].input.shape
-        );
-        console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
-        const startTime = performance.now();
-        activations.relu(t, { alpha: 0.3 });
-        const endTime = performance.now();
-        console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
-        logTime(startTime, endTime);
-        const dataExpected = new Float32Array(TEST_DATA[key].expected.data);
-        const shapeExpected = TEST_DATA[key].expected.shape;
-        assert.deepEqual(t.tensor.shape, shapeExpected);
-        assert.isTrue(approxEquals(t.tensor, dataExpected));
-      }
-    );
+    it('[activations.relu.4] should work with alpha (slope of negative portion)', function() {
+      const key = 'activations.relu.4';
+      console.log(`\n%c[${key}] 3D, alpha=0.3`, styles.h3);
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
+      console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
+      const startTime = performance.now();
+      activations.relu(t, { alpha: 0.3 });
+      const endTime = performance.now();
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
+      logTime(startTime, endTime);
+      const dataExpected = new Float32Array(TEST_DATA[key].expected.data);
+      const shapeExpected = TEST_DATA[key].expected.shape;
+      assert.deepEqual(t.tensor.shape, shapeExpected);
+      assert.isTrue(approxEquals(t.tensor, dataExpected));
+    });
   });
 
   /*********************************************************
@@ -326,10 +281,7 @@ describe('activations', function() {
     it('[activations.tanh.0] should work for 1D tensor', function() {
       const key = 'activations.tanh.0';
       console.log(`\n%c[${key}] 1D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.tanh(t);
@@ -345,10 +297,7 @@ describe('activations', function() {
     it('[activations.tanh.1] should work for 2D tensor', function() {
       const key = 'activations.tanh.1';
       console.log(`\n%c[${key}] 2D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.tanh(t);
@@ -364,10 +313,7 @@ describe('activations', function() {
     it('[activations.tanh.2] should work for 3D tensor', function() {
       const key = 'activations.tanh.2';
       console.log(`\n%c[${key}] 3D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.tanh(t);
@@ -392,10 +338,7 @@ describe('activations', function() {
     it('[activations.sigmoid.0] should work for 1D tensor', function() {
       const key = 'activations.sigmoid.0';
       console.log(`\n%c[${key}] 1D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.sigmoid(t);
@@ -411,10 +354,7 @@ describe('activations', function() {
     it('[activations.sigmoid.1] should work for 2D tensor', function() {
       const key = 'activations.sigmoid.1';
       console.log(`\n%c[${key}] 2D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.sigmoid(t);
@@ -430,10 +370,7 @@ describe('activations', function() {
     it('[activations.sigmoid.2] should work for 3D tensor', function() {
       const key = 'activations.sigmoid.2';
       console.log(`\n%c[${key}] 3D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.sigmoid(t);
@@ -458,10 +395,7 @@ describe('activations', function() {
     it('[activations.hardSigmoid.0] should work for 1D tensor', function() {
       const key = 'activations.hardSigmoid.0';
       console.log(`\n%c[${key}] 1D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.hardSigmoid(t);
@@ -477,10 +411,7 @@ describe('activations', function() {
     it('[activations.hardSigmoid.1] should work for 2D tensor', function() {
       const key = 'activations.hardSigmoid.1';
       console.log(`\n%c[${key}] 2D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.hardSigmoid(t);
@@ -496,10 +427,7 @@ describe('activations', function() {
     it('[activations.hardSigmoid.2] should work for 3D tensor', function() {
       const key = 'activations.hardSigmoid.2';
       console.log(`\n%c[${key}] 3D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.hardSigmoid(t);
@@ -524,10 +452,7 @@ describe('activations', function() {
     it('[activations.linear.0] should work for 1D tensor', function() {
       const key = 'activations.linear.0';
       console.log(`\n%c[${key}] 1D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.linear(t);
@@ -543,10 +468,7 @@ describe('activations', function() {
     it('[activations.linear.1] should work for 2D tensor', function() {
       const key = 'activations.linear.1';
       console.log(`\n%c[${key}] 2D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.linear(t);
@@ -562,10 +484,7 @@ describe('activations', function() {
     it('[activations.linear.2] should work for 3D tensor', function() {
       const key = 'activations.linear.2';
       console.log(`\n%c[${key}] 3D`, styles.h3);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       activations.linear(t);

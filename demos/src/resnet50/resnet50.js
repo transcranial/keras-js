@@ -5,10 +5,7 @@ import ops from 'ndarray-ops';
 import find from 'lodash/find';
 import * as utils from '../utils';
 import { IMAGE_URLS } from '../image-urls';
-import {
-  ARCHITECTURE_DIAGRAM,
-  ARCHITECTURE_CONNECTIONS
-} from './resnet50-arch';
+import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from './resnet50-arch';
 
 const MODEL_FILEPATHS_DEV = {
   model: '/demos/data/resnet50/resnet50.json',
@@ -20,11 +17,7 @@ const MODEL_FILEPATHS_PROD = {
   weights: 'https://transcranial.github.io/keras-js-demos-data/resnet50/resnet50_weights.buf',
   metadata: 'demos/data/resnet50/resnet50_metadata.json'
 };
-const MODEL_CONFIG = {
-  filepaths: process.env.NODE_ENV === 'production'
-    ? MODEL_FILEPATHS_PROD
-    : MODEL_FILEPATHS_DEV
-};
+const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV };
 
 /**
  *
@@ -39,10 +32,7 @@ export const ResNet50 = Vue.extend({
       showInfoPanel: true,
       useGpu: this.hasWebgl,
       model: new KerasJS.Model(
-        Object.assign(
-          { gpu: this.hasWebgl, layerCallPauses: true },
-          MODEL_CONFIG
-        )
+        Object.assign({ gpu: this.hasWebgl, pipeline: true, layerCallPauses: true }, MODEL_CONFIG)
       ),
       modelLoading: true,
       modelRunning: false,
@@ -96,9 +86,7 @@ export const ResNet50 = Vue.extend({
       setTimeout(
         () => {
           this.architectureConnections.forEach(conn => {
-            const containerElem = document.getElementsByClassName(
-              'architecture-container'
-            )[0];
+            const containerElem = document.getElementsByClassName('architecture-container')[0];
             const fromElem = document.getElementById(conn.from);
             const toElem = document.getElementById(conn.to);
             const containerElemCoords = containerElem.getBoundingClientRect();
@@ -106,25 +94,18 @@ export const ResNet50 = Vue.extend({
             const toElemCoords = toElem.getBoundingClientRect();
             const xContainer = containerElemCoords.left;
             const yContainer = containerElemCoords.top;
-            const xFrom = fromElemCoords.left + fromElemCoords.width / 2 -
-              xContainer;
-            const yFrom = fromElemCoords.top + fromElemCoords.height / 2 -
-              yContainer;
+            const xFrom = fromElemCoords.left + fromElemCoords.width / 2 - xContainer;
+            const yFrom = fromElemCoords.top + fromElemCoords.height / 2 - yContainer;
             const xTo = toElemCoords.left + toElemCoords.width / 2 - xContainer;
             const yTo = toElemCoords.top + toElemCoords.height / 2 - yContainer;
 
             let path = `M${xFrom},${yFrom} L${xTo},${yTo}`;
             if (conn.corner === 'top-right') {
-              path = `M${xFrom},${yFrom} L${xTo -
-                10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom +
-                10} L${xTo},${yTo}`;
+              path = `M${xFrom},${yFrom} L${xTo - 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`;
             } else if (conn.corner === 'bottom-left') {
-              path = `M${xFrom},${yFrom} L${xFrom},${yTo -
-                10} Q${xFrom},${yTo} ${xFrom + 10},${yTo} L${xTo},${yTo}`;
+              path = `M${xFrom},${yFrom} L${xFrom},${yTo - 10} Q${xFrom},${yTo} ${xFrom + 10},${yTo} L${xTo},${yTo}`;
             } else if (conn.corner === 'top-left') {
-              path = `M${xFrom},${yFrom} L${xTo +
-                10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom +
-                10} L${xTo},${yTo}`;
+              path = `M${xFrom},${yFrom} L${xTo + 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`;
             }
 
             this.architectureDiagramPaths.push(path);
@@ -167,9 +148,7 @@ export const ResNet50 = Vue.extend({
             this.imageLoading = false;
           } else {
             // load image data onto input canvas
-            const ctx = document
-              .getElementById('input-canvas')
-              .getContext('2d');
+            const ctx = document.getElementById('input-canvas').getContext('2d');
             ctx.drawImage(img, 0, 0);
             this.imageLoadingError = false;
             this.imageLoading = false;
@@ -185,52 +164,30 @@ export const ResNet50 = Vue.extend({
             });
           }
         },
-        {
-          maxWidth: 224,
-          maxHeight: 224,
-          cover: true,
-          crop: true,
-          canvas: true,
-          crossOrigin: 'Anonymous'
-        }
+        { maxWidth: 224, maxHeight: 224, cover: true, crop: true, canvas: true, crossOrigin: 'Anonymous' }
       );
     },
     runModel: function() {
       const ctx = document.getElementById('input-canvas').getContext('2d');
-      const imageData = ctx.getImageData(
-        0,
-        0,
-        ctx.canvas.width,
-        ctx.canvas.height
-      );
+      const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
       const { data, width, height } = imageData;
 
       // data processing
       // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
       let dataTensor = ndarray(new Float32Array(data), [ width, height, 4 ]);
-      let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [
-        width,
-        height,
-        3
-      ]);
+      let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [ width, height, 3 ]);
       ops.subseq(dataTensor.pick(null, null, 2), 103.939);
       ops.subseq(dataTensor.pick(null, null, 1), 116.779);
       ops.subseq(dataTensor.pick(null, null, 0), 123.68);
-      ops.assign(
-        dataProcessedTensor.pick(null, null, 0),
-        dataTensor.pick(null, null, 2)
-      );
-      ops.assign(
-        dataProcessedTensor.pick(null, null, 1),
-        dataTensor.pick(null, null, 1)
-      );
-      ops.assign(
-        dataProcessedTensor.pick(null, null, 2),
-        dataTensor.pick(null, null, 0)
-      );
+      ops.assign(dataProcessedTensor.pick(null, null, 0), dataTensor.pick(null, null, 2));
+      ops.assign(dataProcessedTensor.pick(null, null, 1), dataTensor.pick(null, null, 1));
+      ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 0));
 
       const inputData = { input_1: dataProcessedTensor.data };
+      // var start = performance.now();
       this.model.predict(inputData).then(outputData => {
+        // var end = performance.now();
+        // console.log((end - start).toFixed(2));
         this.output = outputData['fc1000'];
         this.modelRunning = false;
       });

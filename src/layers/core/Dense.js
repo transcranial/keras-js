@@ -17,12 +17,7 @@ export default class Dense extends Layer {
     super(attrs);
     this.layerClass = 'Dense';
 
-    const {
-      outputDim = 1,
-      activation = 'linear',
-      inputDim = null,
-      bias = true
-    } = attrs;
+    const { outputDim = 1, activation = 'linear', inputDim = null, bias = true } = attrs;
 
     this.activation = activation;
     this.activationFunc = activations[activation];
@@ -88,16 +83,9 @@ export default class Dense extends Layer {
       x.createWeblasTensor();
     }
 
-    if (
-      this._useWeblas &&
-        !(x._gpuMaxSizeExceeded || this.weights.W._gpuMaxSizeExceeded)
-    ) {
-      const bias = this.bias
-        ? this.weights.b.weblasTensor
-        : this._zerosVec.weblasTensor;
-      y.tensor.data = weblas.pipeline
-        .sgemm(1, x.weblasTensor, this.weights.W.weblasTensor, 1, bias)
-        .transfer();
+    if (this._useWeblas && !(x._gpuMaxSizeExceeded || this.weights.W._gpuMaxSizeExceeded)) {
+      const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor;
+      y.tensor.data = weblas.pipeline.sgemm(1, x.weblasTensor, this.weights.W.weblasTensor, 1, bias).transfer();
     } else {
       if (this.bias) {
         ops.assign(y.tensor, this.weights.b.tensor);

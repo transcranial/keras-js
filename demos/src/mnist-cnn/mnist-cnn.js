@@ -14,35 +14,19 @@ const MODEL_FILEPATHS_PROD = {
   weights: 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn_weights.buf',
   metadata: 'demos/data/mnist_cnn/mnist_cnn_metadata.json'
 };
-const MODEL_CONFIG = {
-  filepaths: process.env.NODE_ENV === 'production'
-    ? MODEL_FILEPATHS_PROD
-    : MODEL_FILEPATHS_DEV
-};
+const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV };
 
 const LAYER_DISPLAY_CONFIG = {
-  convolution2d_1: {
-    heading: '32 3x3 filters, border mode valid, 1x1 strides',
-    scalingFactor: 2
-  },
+  convolution2d_1: { heading: '32 3x3 filters, border mode valid, 1x1 strides', scalingFactor: 2 },
   activation_1: { heading: 'ReLU', scalingFactor: 2 },
-  convolution2d_2: {
-    heading: '32 3x3 filters, border mode valid, 1x1 strides',
-    scalingFactor: 2
-  },
+  convolution2d_2: { heading: '32 3x3 filters, border mode valid, 1x1 strides', scalingFactor: 2 },
   activation_2: { heading: 'ReLU', scalingFactor: 2 },
   maxpooling2d_1: { heading: '2x2 pools, 1x1 strides', scalingFactor: 2 },
-  dropout_1: {
-    heading: 'p=0.25 (only active during training phase)',
-    scalingFactor: 2
-  },
+  dropout_1: { heading: 'p=0.25 (only active during training phase)', scalingFactor: 2 },
   flatten_1: { heading: '', scalingFactor: 2 },
   dense_1: { heading: 'output dimensionality 128', scalingFactor: 4 },
   activation_3: { heading: 'ReLU', scalingFactor: 4 },
-  dropout_2: {
-    heading: 'p=0.5 (only active during training phase)',
-    scalingFactor: 4
-  },
+  dropout_2: { heading: 'p=0.5 (only active during training phase)', scalingFactor: 4 },
   dense_2: { heading: 'output dimensionality 10', scalingFactor: 8 },
   activation_4: { heading: 'Softmax', scalingFactor: 8 }
 };
@@ -59,9 +43,7 @@ export const MnistCnn = Vue.extend({
     return {
       showInfoPanel: true,
       useGpu: this.hasWebgl,
-      model: new KerasJS.Model(
-        Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)
-      ),
+      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)),
       modelLoading: true,
       input: new Float32Array(784),
       output: new Float32Array(10),
@@ -80,10 +62,7 @@ export const MnistCnn = Vue.extend({
       if (this.output.reduce((a, b) => a + b, 0) === 0) {
         return -1;
       }
-      return this.output.reduce(
-        (argmax, n, i) => n > this.output[argmax] ? i : argmax,
-        0
-      );
+      return this.output.reduce((argmax, n, i) => n > this.output[argmax] ? i : argmax, 0);
     }
   },
   ready: function() {
@@ -105,24 +84,10 @@ export const MnistCnn = Vue.extend({
       this.clearIntermediateResults();
       const ctx = document.getElementById('input-canvas').getContext('2d');
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      const ctxCenterCrop = document
-        .getElementById('input-canvas-centercrop')
-        .getContext('2d');
-      ctxCenterCrop.clearRect(
-        0,
-        0,
-        ctxCenterCrop.canvas.width,
-        ctxCenterCrop.canvas.height
-      );
-      const ctxScaled = document
-        .getElementById('input-canvas-scaled')
-        .getContext('2d');
-      ctxScaled.clearRect(
-        0,
-        0,
-        ctxScaled.canvas.width,
-        ctxScaled.canvas.height
-      );
+      const ctxCenterCrop = document.getElementById('input-canvas-centercrop').getContext('2d');
+      ctxCenterCrop.clearRect(0, 0, ctxCenterCrop.canvas.width, ctxCenterCrop.canvas.height);
+      const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d');
+      ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height);
       this.output = new Float32Array(10);
       this.drawing = false;
       this.strokes = [];
@@ -134,8 +99,7 @@ export const MnistCnn = Vue.extend({
       points.push(utils.getCoordinates(e));
     },
     draw: function(e) {
-      if (!this.drawing)
-        return;
+      if (!this.drawing) return;
 
       const ctx = document.getElementById('input-canvas').getContext('2d');
 
@@ -169,49 +133,25 @@ export const MnistCnn = Vue.extend({
       }
     },
     deactivateDrawAndPredict: debounce(function() {
-      if (!this.drawing)
-        return;
+      if (!this.drawing) return;
       this.drawing = false;
 
       const ctx = document.getElementById('input-canvas').getContext('2d');
 
       // center crop
-      const imageDataCenterCrop = utils.centerCrop(
-        ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
-      );
-      const ctxCenterCrop = document
-        .getElementById('input-canvas-centercrop')
-        .getContext('2d');
+      const imageDataCenterCrop = utils.centerCrop(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height));
+      const ctxCenterCrop = document.getElementById('input-canvas-centercrop').getContext('2d');
       ctxCenterCrop.canvas.width = imageDataCenterCrop.width;
       ctxCenterCrop.canvas.height = imageDataCenterCrop.height;
       ctxCenterCrop.putImageData(imageDataCenterCrop, 0, 0);
 
       // scaled to 28 x 28
-      const ctxScaled = document
-        .getElementById('input-canvas-scaled')
-        .getContext('2d');
+      const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d');
       ctxScaled.save();
-      ctxScaled.scale(
-        28 / ctxCenterCrop.canvas.width,
-        28 / ctxCenterCrop.canvas.height
-      );
-      ctxScaled.clearRect(
-        0,
-        0,
-        ctxCenterCrop.canvas.width,
-        ctxCenterCrop.canvas.height
-      );
-      ctxScaled.drawImage(
-        document.getElementById('input-canvas-centercrop'),
-        0,
-        0
-      );
-      const imageDataScaled = ctxScaled.getImageData(
-        0,
-        0,
-        ctxScaled.canvas.width,
-        ctxScaled.canvas.height
-      );
+      ctxScaled.scale(28 / ctxCenterCrop.canvas.width, 28 / ctxCenterCrop.canvas.height);
+      ctxScaled.clearRect(0, 0, ctxCenterCrop.canvas.width, ctxCenterCrop.canvas.height);
+      ctxScaled.drawImage(document.getElementById('input-canvas-centercrop'), 0, 0);
+      const imageDataScaled = ctxScaled.getImageData(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height);
       ctxScaled.restore();
 
       // process image data for model input
@@ -229,8 +169,7 @@ export const MnistCnn = Vue.extend({
     getIntermediateResults: function() {
       let results = [];
       for (let [ name, layer ] of this.model.modelLayersMap.entries()) {
-        if (name === 'input')
-          continue;
+        if (name === 'input') continue;
 
         const layerClass = layer.layerClass || '';
 
@@ -256,30 +195,15 @@ export const MnistCnn = Vue.extend({
       this.layerResultImages.forEach((result, layerNum) => {
         const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor;
         result.images.forEach((image, imageNum) => {
-          const ctx = document
-            .getElementById(`intermediate-result-${layerNum}-${imageNum}`)
-            .getContext('2d');
+          const ctx = document.getElementById(`intermediate-result-${layerNum}-${imageNum}`).getContext('2d');
           ctx.putImageData(image, 0, 0);
           const ctxScaled = document
-            .getElementById(
-              `intermediate-result-${layerNum}-${imageNum}-scaled`
-            )
+            .getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`)
             .getContext('2d');
           ctxScaled.save();
           ctxScaled.scale(scalingFactor, scalingFactor);
-          ctxScaled.clearRect(
-            0,
-            0,
-            ctxScaled.canvas.width,
-            ctxScaled.canvas.height
-          );
-          ctxScaled.drawImage(
-            document.getElementById(
-              `intermediate-result-${layerNum}-${imageNum}`
-            ),
-            0,
-            0
-          );
+          ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height);
+          ctxScaled.drawImage(document.getElementById(`intermediate-result-${layerNum}-${imageNum}`), 0, 0);
           ctxScaled.restore();
         });
       });
@@ -289,18 +213,11 @@ export const MnistCnn = Vue.extend({
         const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor;
         result.images.forEach((image, imageNum) => {
           const ctxScaled = document
-            .getElementById(
-              `intermediate-result-${layerNum}-${imageNum}-scaled`
-            )
+            .getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`)
             .getContext('2d');
           ctxScaled.save();
           ctxScaled.scale(scalingFactor, scalingFactor);
-          ctxScaled.clearRect(
-            0,
-            0,
-            ctxScaled.canvas.width,
-            ctxScaled.canvas.height
-          );
+          ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height);
           ctxScaled.restore();
         });
       });

@@ -7,42 +7,15 @@ describe('pooling layer: AveragePooling1D', function() {
   const layers = KerasJS.layers;
 
   const testParams = [
-    {
-      inputShape: [ 6, 6 ],
-      attrs: { poolLength: 2, stride: null, borderMode: 'valid' }
-    },
-    {
-      inputShape: [ 6, 6 ],
-      attrs: { poolLength: 2, stride: 1, borderMode: 'valid' }
-    },
-    {
-      inputShape: [ 6, 6 ],
-      attrs: { poolLength: 2, stride: 3, borderMode: 'valid' }
-    },
-    {
-      inputShape: [ 6, 6 ],
-      attrs: { poolLength: 2, stride: null, borderMode: 'same' }
-    },
-    {
-      inputShape: [ 6, 6 ],
-      attrs: { poolLength: 2, stride: 1, borderMode: 'same' }
-    },
-    {
-      inputShape: [ 6, 6 ],
-      attrs: { poolLength: 2, stride: 3, borderMode: 'same' }
-    },
-    {
-      inputShape: [ 6, 6 ],
-      attrs: { poolLength: 3, stride: null, borderMode: 'valid' }
-    },
-    {
-      inputShape: [ 7, 7 ],
-      attrs: { poolLength: 3, stride: 1, borderMode: 'same' }
-    },
-    {
-      inputShape: [ 7, 7 ],
-      attrs: { poolLength: 3, stride: 3, borderMode: 'same' }
-    }
+    { inputShape: [ 6, 6 ], attrs: { poolLength: 2, stride: null, borderMode: 'valid' } },
+    { inputShape: [ 6, 6 ], attrs: { poolLength: 2, stride: 1, borderMode: 'valid' } },
+    { inputShape: [ 6, 6 ], attrs: { poolLength: 2, stride: 3, borderMode: 'valid' } },
+    { inputShape: [ 6, 6 ], attrs: { poolLength: 2, stride: null, borderMode: 'same' } },
+    { inputShape: [ 6, 6 ], attrs: { poolLength: 2, stride: 1, borderMode: 'same' } },
+    { inputShape: [ 6, 6 ], attrs: { poolLength: 2, stride: 3, borderMode: 'same' } },
+    { inputShape: [ 6, 6 ], attrs: { poolLength: 3, stride: null, borderMode: 'valid' } },
+    { inputShape: [ 7, 7 ], attrs: { poolLength: 3, stride: 1, borderMode: 'same' } },
+    { inputShape: [ 7, 7 ], attrs: { poolLength: 3, stride: 3, borderMode: 'same' } }
   ];
 
   before(function() {
@@ -57,10 +30,7 @@ describe('pooling layer: AveragePooling1D', function() {
     it(title, function() {
       console.log(`\n%c${title}`, styles.h3);
       let testLayer = new layers.AveragePooling1D(attrs);
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       t = testLayer.call(t);

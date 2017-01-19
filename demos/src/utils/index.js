@@ -45,14 +45,10 @@ export function centerCrop(imageData) {
     for (let j = 0; j < height; j++) {
       const idx = i + j * width;
       if (data[4 * idx + 3] > 0) {
-        if (i < xmin)
-          xmin = i;
-        if (i > xmax)
-          xmax = i;
-        if (j < ymin)
-          ymin = j;
-        if (j > ymax)
-          ymax = j;
+        if (i < xmin) xmin = i;
+        if (i > xmax) xmax = i;
+        if (j < ymin) ymin = j;
+        if (j > ymax) ymax = j;
       }
     }
   }
@@ -100,9 +96,7 @@ export function centerCrop(imageData) {
  */
 export function tensorStats(tensor) {
   const mean = sum(tensor.data) / tensor.data.length;
-  const stddev = Math.sqrt(
-    sum(tensor.data.map(x => (x - mean) ** 2)) / tensor.data.length
-  );
+  const stddev = Math.sqrt(sum(tensor.data.map(x => (x - mean) ** 2)) / tensor.data.length);
   return { mean, stddev };
 }
 
@@ -113,10 +107,8 @@ export function tensorMinMax(tensor) {
   let min = Infinity;
   let max = -Infinity;
   for (let i = 0, len = tensor.data.length; i < len; i++) {
-    if (tensor.data[i] < min)
-      min = tensor.data[i];
-    if (tensor.data[i] > max)
-      max = tensor.data[i];
+    if (tensor.data[i] < min) min = tensor.data[i];
+    if (tensor.data[i] > max) max = tensor.data[i];
   }
   return { min, max };
 }
@@ -192,24 +184,13 @@ export function unroll3Dtensor(tensor) {
  * Find top k imagenet classes
  */
 export function imagenetClassesTopK(classProbabilities, k = 5) {
-  const probs = isTypedArray(classProbabilities)
-    ? Array.prototype.slice.call(classProbabilities)
-    : classProbabilities;
+  const probs = isTypedArray(classProbabilities) ? Array.prototype.slice.call(classProbabilities) : classProbabilities;
 
-  const sorted = reverse(
-    sortBy(
-      probs.map((prob, index) => [ prob, index ]),
-      probIndex => probIndex[0]
-    )
-  );
+  const sorted = reverse(sortBy(probs.map((prob, index) => [ prob, index ]), probIndex => probIndex[0]));
 
   const topK = take(sorted, k).map(probIndex => {
     const iClass = imagenetClasses[probIndex[1]];
-    return {
-      id: iClass[0],
-      name: iClass[1].replace(/_/, ' '),
-      probability: probIndex[0]
-    };
+    return { id: iClass[0], name: iClass[1].replace(/_/, ' '), probability: probIndex[0] };
   });
   return topK;
 }

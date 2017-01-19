@@ -6,11 +6,7 @@ describe('pooling layer: GlobalMaxPooling1D', function() {
   const approxEquals = KerasJS.testUtils.approxEquals;
   const layers = KerasJS.layers;
 
-  const testParams = [
-    { inputShape: [ 6, 6 ] },
-    { inputShape: [ 3, 7 ] },
-    { inputShape: [ 8, 4 ] }
-  ];
+  const testParams = [ { inputShape: [ 6, 6 ] }, { inputShape: [ 3, 7 ] }, { inputShape: [ 8, 4 ] } ];
 
   before(function() {
     console.log('\n%cpooling layer: GlobalMaxPooling1D', styles.h1);
@@ -24,10 +20,7 @@ describe('pooling layer: GlobalMaxPooling1D', function() {
     it(title, function() {
       console.log(`\n%c${title}`, styles.h3);
       let testLayer = new layers.GlobalMaxPooling1D();
-      let t = new KerasJS.Tensor(
-        TEST_DATA[key].input.data,
-        TEST_DATA[key].input.shape
-      );
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
       const startTime = performance.now();
       t = testLayer.call(t);

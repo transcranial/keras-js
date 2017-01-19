@@ -45,20 +45,7 @@ export default class LSTM extends Layer {
     this.stateful = stateful;
 
     // Layer weights specification
-    this.params = [
-      'W_i',
-      'U_i',
-      'b_i',
-      'W_c',
-      'U_c',
-      'b_c',
-      'W_f',
-      'U_f',
-      'b_f',
-      'W_o',
-      'U_o',
-      'b_o'
-    ];
+    this.params = [ 'W_i', 'U_i', 'b_i', 'W_c', 'U_c', 'b_c', 'W_f', 'U_f', 'b_f', 'W_o', 'U_o', 'b_o' ];
   }
 
   _combine = cwise({
@@ -112,114 +99,34 @@ export default class LSTM extends Layer {
       : new Tensor([], [ dimCandidate ]);
     let previousHiddenState = new Tensor([], [ dimCandidate ]);
 
-    this.hiddenStateSequence = new Tensor([], [
-      x.tensor.shape[0],
-      dimCandidate
-    ]);
+    this.hiddenStateSequence = new Tensor([], [ x.tensor.shape[0], dimCandidate ]);
 
     const _clearTemp = () => {
-      const tempTensors = [
-        tempXI,
-        tempHI,
-        tempXF,
-        tempHF,
-        tempXO,
-        tempHO,
-        tempXC,
-        tempHC
-      ];
+      const tempTensors = [ tempXI, tempHI, tempXF, tempHF, tempXO, tempHO, tempXC, tempHC ];
       tempTensors.forEach(temp => ops.assigns(temp.tensor, 0));
     };
 
     const _step = () => {
       ops.assign(previousHiddenState.tensor, currentHiddenState.tensor);
 
-      gemv(
-        1,
-        this.weights['W_i'].tensor.transpose(1, 0),
-        currentX.tensor,
-        1,
-        tempXI.tensor
-      );
-      gemv(
-        1,
-        this.weights['U_i'].tensor.transpose(1, 0),
-        previousHiddenState.tensor,
-        1,
-        tempHI.tensor
-      );
-      this._combine(
-        currentInputGateState.tensor,
-        tempXI.tensor,
-        tempHI.tensor,
-        this.weights['b_i'].tensor
-      );
+      gemv(1, this.weights['W_i'].tensor.transpose(1, 0), currentX.tensor, 1, tempXI.tensor);
+      gemv(1, this.weights['U_i'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHI.tensor);
+      this._combine(currentInputGateState.tensor, tempXI.tensor, tempHI.tensor, this.weights['b_i'].tensor);
       this.innerActivationFunc(currentInputGateState);
 
-      gemv(
-        1,
-        this.weights['W_f'].tensor.transpose(1, 0),
-        currentX.tensor,
-        1,
-        tempXF.tensor
-      );
-      gemv(
-        1,
-        this.weights['U_f'].tensor.transpose(1, 0),
-        previousHiddenState.tensor,
-        1,
-        tempHF.tensor
-      );
-      this._combine(
-        currentForgetGateState.tensor,
-        tempXF.tensor,
-        tempHF.tensor,
-        this.weights['b_f'].tensor
-      );
+      gemv(1, this.weights['W_f'].tensor.transpose(1, 0), currentX.tensor, 1, tempXF.tensor);
+      gemv(1, this.weights['U_f'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHF.tensor);
+      this._combine(currentForgetGateState.tensor, tempXF.tensor, tempHF.tensor, this.weights['b_f'].tensor);
       this.innerActivationFunc(currentForgetGateState);
 
-      gemv(
-        1,
-        this.weights['W_o'].tensor.transpose(1, 0),
-        currentX.tensor,
-        1,
-        tempXO.tensor
-      );
-      gemv(
-        1,
-        this.weights['U_o'].tensor.transpose(1, 0),
-        previousHiddenState.tensor,
-        1,
-        tempHO.tensor
-      );
-      this._combine(
-        currentOutputGateState.tensor,
-        tempXO.tensor,
-        tempHO.tensor,
-        this.weights['b_o'].tensor
-      );
+      gemv(1, this.weights['W_o'].tensor.transpose(1, 0), currentX.tensor, 1, tempXO.tensor);
+      gemv(1, this.weights['U_o'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHO.tensor);
+      this._combine(currentOutputGateState.tensor, tempXO.tensor, tempHO.tensor, this.weights['b_o'].tensor);
       this.innerActivationFunc(currentOutputGateState);
 
-      gemv(
-        1,
-        this.weights['W_c'].tensor.transpose(1, 0),
-        currentX.tensor,
-        1,
-        tempXC.tensor
-      );
-      gemv(
-        1,
-        this.weights['U_c'].tensor.transpose(1, 0),
-        previousHiddenState.tensor,
-        1,
-        tempHC.tensor
-      );
-      this._combine(
-        currentCandidate.tensor,
-        tempXC.tensor,
-        tempHC.tensor,
-        this.weights['b_c'].tensor
-      );
+      gemv(1, this.weights['W_c'].tensor.transpose(1, 0), currentX.tensor, 1, tempXC.tensor);
+      gemv(1, this.weights['U_c'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHC.tensor);
+      this._combine(currentCandidate.tensor, tempXC.tensor, tempHC.tensor, this.weights['b_c'].tensor);
       this.activationFunc(currentCandidate);
 
       this._update(
@@ -232,11 +139,7 @@ export default class LSTM extends Layer {
       ops.assign(previousCandidate.tensor, currentCandidate.tensor);
 
       this.activationFunc(currentCandidate);
-      ops.mul(
-        currentHiddenState.tensor,
-        currentOutputGateState.tensor,
-        currentCandidate.tensor
-      );
+      ops.mul(currentHiddenState.tensor, currentOutputGateState.tensor, currentCandidate.tensor);
     };
 
     for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
@@ -245,10 +148,7 @@ export default class LSTM extends Layer {
       _clearTemp();
       _step();
 
-      ops.assign(
-        this.hiddenStateSequence.tensor.pick(i, null),
-        currentHiddenState.tensor
-      );
+      ops.assign(this.hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor);
     }
 
     if (this.returnSequences) {

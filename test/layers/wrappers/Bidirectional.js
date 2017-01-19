@@ -11,73 +11,43 @@ describe('wrappers layer: Bidirectional', function() {
       wrappedLayer: 'SimpleRNN',
       inputShape: [ 3, 6 ],
       attrs: { mergeMode: 'sum' },
-      wrappedLayerAttrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: false
-      }
+      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: false }
     },
     {
       wrappedLayer: 'SimpleRNN',
       inputShape: [ 3, 6 ],
       attrs: { mergeMode: 'mul' },
-      wrappedLayerAttrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: false
-      }
+      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: false }
     },
     {
       wrappedLayer: 'SimpleRNN',
       inputShape: [ 3, 6 ],
       attrs: { mergeMode: 'concat' },
-      wrappedLayerAttrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: false
-      }
+      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: false }
     },
     {
       wrappedLayer: 'SimpleRNN',
       inputShape: [ 3, 6 ],
       attrs: { mergeMode: 'ave' },
-      wrappedLayerAttrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: false
-      }
+      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: false }
     },
     {
       wrappedLayer: 'SimpleRNN',
       inputShape: [ 3, 6 ],
       attrs: { mergeMode: 'concat' },
-      wrappedLayerAttrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        returnSequences: true
-      }
+      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: true }
     },
     {
       wrappedLayer: 'GRU',
       inputShape: [ 3, 6 ],
       attrs: { mergeMode: 'concat' },
-      wrappedLayerAttrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        innerActivation: 'hardSigmoid',
-        returnSequences: true
-      }
+      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', innerActivation: 'hardSigmoid', returnSequences: true }
     },
     {
       wrappedLayer: 'LSTM',
       inputShape: [ 3, 6 ],
       attrs: { mergeMode: 'concat' },
-      wrappedLayerAttrs: {
-        outputDim: 4,
-        activation: 'tanh',
-        innerActivation: 'hardSigmoid',
-        returnSequences: true
-      }
+      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', innerActivation: 'hardSigmoid', returnSequences: true }
     }
   ];
 
@@ -93,42 +63,31 @@ describe('wrappers layer: Bidirectional', function() {
       console.log('\n%cCPU', styles.h2);
     });
 
-    testParams.forEach((
-      { wrappedLayer, inputShape, attrs, wrappedLayerAttrs },
-      i
-    ) =>
-      {
-        const key = `wrappers.Bidirectional.${i}`;
-        const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
-          wrappedLayerAttrs
-        )}`;
+    testParams.forEach(({ wrappedLayer, inputShape, attrs, wrappedLayerAttrs }, i) => {
+      const key = `wrappers.Bidirectional.${i}`;
+      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
+        wrappedLayerAttrs
+      )}`;
 
-        it(title, function() {
-          console.log(`\n%c${title}`, styles.h3);
-          let testLayer = new layers.Bidirectional(
-            Object.assign(attrs, {
-              layer: new layers[wrappedLayer](wrappedLayerAttrs)
-            })
-          );
-          testLayer.setWeights(
-            TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape))
-          );
-          let t = new KerasJS.Tensor(
-            TEST_DATA[key].input.data,
-            TEST_DATA[key].input.shape
-          );
-          console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
-          const startTime = performance.now();
-          t = testLayer.call(t);
-          const endTime = performance.now();
-          console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
-          logTime(startTime, endTime);
-          const dataExpected = new Float32Array(TEST_DATA[key].expected.data);
-          const shapeExpected = TEST_DATA[key].expected.shape;
-          assert.deepEqual(t.tensor.shape, shapeExpected);
-          assert.isTrue(approxEquals(t.tensor, dataExpected));
-        });
+      it(title, function() {
+        console.log(`\n%c${title}`, styles.h3);
+        let testLayer = new layers.Bidirectional(
+          Object.assign(attrs, { layer: new layers[wrappedLayer](wrappedLayerAttrs) })
+        );
+        testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)));
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
+        console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
+        const startTime = performance.now();
+        t = testLayer.call(t);
+        const endTime = performance.now();
+        console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
+        logTime(startTime, endTime);
+        const dataExpected = new Float32Array(TEST_DATA[key].expected.data);
+        const shapeExpected = TEST_DATA[key].expected.shape;
+        assert.deepEqual(t.tensor.shape, shapeExpected);
+        assert.isTrue(approxEquals(t.tensor, dataExpected));
       });
+    });
   });
 
   /*********************************************************
@@ -139,42 +98,30 @@ describe('wrappers layer: Bidirectional', function() {
       console.log('\n%cGPU', styles.h2);
     });
 
-    testParams.forEach((
-      { wrappedLayer, inputShape, attrs, wrappedLayerAttrs },
-      i
-    ) =>
-      {
-        const key = `wrappers.Bidirectional.${i}`;
-        const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
-          wrappedLayerAttrs
-        )}`;
+    testParams.forEach(({ wrappedLayer, inputShape, attrs, wrappedLayerAttrs }, i) => {
+      const key = `wrappers.Bidirectional.${i}`;
+      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
+        wrappedLayerAttrs
+      )}`;
 
-        it(title, function() {
-          console.log(`\n%c${title}`, styles.h3);
-          let testLayer = new layers.Bidirectional(
-            Object.assign(attrs, {
-              layer: new layers[wrappedLayer](wrappedLayerAttrs),
-              gpu: true
-            })
-          );
-          testLayer.setWeights(
-            TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape))
-          );
-          let t = new KerasJS.Tensor(
-            TEST_DATA[key].input.data,
-            TEST_DATA[key].input.shape
-          );
-          console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
-          const startTime = performance.now();
-          t = testLayer.call(t);
-          const endTime = performance.now();
-          console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
-          logTime(startTime, endTime);
-          const dataExpected = new Float32Array(TEST_DATA[key].expected.data);
-          const shapeExpected = TEST_DATA[key].expected.shape;
-          assert.deepEqual(t.tensor.shape, shapeExpected);
-          assert.isTrue(approxEquals(t.tensor, dataExpected));
-        });
+      it(title, function() {
+        console.log(`\n%c${title}`, styles.h3);
+        let testLayer = new layers.Bidirectional(
+          Object.assign(attrs, { layer: new layers[wrappedLayer](wrappedLayerAttrs), gpu: true })
+        );
+        testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)));
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
+        console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
+        const startTime = performance.now();
+        t = testLayer.call(t);
+        const endTime = performance.now();
+        console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
+        logTime(startTime, endTime);
+        const dataExpected = new Float32Array(TEST_DATA[key].expected.data);
+        const shapeExpected = TEST_DATA[key].expected.shape;
+        assert.deepEqual(t.tensor.shape, shapeExpected);
+        assert.isTrue(approxEquals(t.tensor, dataExpected));
       });
+    });
   });
 });

@@ -8,9 +8,7 @@ export default class WebGLPooling2D extends WebGLLayer {
     } else if (poolingFunc === 'average') {
       this.program = this.webgl.createProgram(require('./avgpooling2d.glsl'));
     } else {
-      throw new Error(
-        `[WebGLPooling2D] pooling function must be max or average.`
-      );
+      throw new Error(`[WebGLPooling2D] pooling function must be max or average.`);
     }
   }
 
@@ -31,18 +29,8 @@ export default class WebGLPooling2D extends WebGLLayer {
   _bindInputTextures(input, poolIndexMapping) {
     const gl = this.webgl.context;
     this.numTextures = 2;
-    this._bindInputTexture(
-      this.program,
-      input.texture,
-      gl.TEXTURE0,
-      WebGLPooling2D.INPUT_TEXTURE_NAME
-    );
-    this._bindInputTexture(
-      this.program,
-      poolIndexMapping.texture,
-      gl.TEXTURE1,
-      WebGLPooling2D.POOL_IMAP_TEXTURE_NAME
-    );
+    this._bindInputTexture(this.program, input.texture, gl.TEXTURE0, WebGLPooling2D.INPUT_TEXTURE_NAME);
+    this._bindInputTexture(this.program, poolIndexMapping.texture, gl.TEXTURE1, WebGLPooling2D.POOL_IMAP_TEXTURE_NAME);
   }
 
   /**
@@ -58,38 +46,11 @@ export default class WebGLPooling2D extends WebGLLayer {
     const channelsPad = this.webgl.getPad(channels);
     const poolElements = poolIndexMapping.shape[1];
     const poolElementsPad = this.webgl.getPad(poolElements);
-    gl.uniform1i(
-      gl.getUniformLocation(
-        this.program,
-        WebGLPooling2D.INPUT_ROWS_UNIFORM_NAME
-      ),
-      nbPatches
-    );
-    gl.uniform1i(
-      gl.getUniformLocation(this.program, WebGLPooling2D.CHANNELS_UNIFORM_NAME),
-      channels
-    );
-    gl.uniform1i(
-      gl.getUniformLocation(
-        this.program,
-        WebGLPooling2D.CHANNELS_PAD_UNIFORM_NAME
-      ),
-      channelsPad
-    );
-    gl.uniform1i(
-      gl.getUniformLocation(
-        this.program,
-        WebGLPooling2D.POOL_ELEMENTS_UNIFORM_NAME
-      ),
-      poolElements
-    );
-    gl.uniform1i(
-      gl.getUniformLocation(
-        this.program,
-        WebGLPooling2D.POOL_ELEMENTS_PAD_UNIFORM_NAME
-      ),
-      poolElementsPad
-    );
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.INPUT_ROWS_UNIFORM_NAME), nbPatches);
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.CHANNELS_UNIFORM_NAME), channels);
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.CHANNELS_PAD_UNIFORM_NAME), channelsPad);
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.POOL_ELEMENTS_UNIFORM_NAME), poolElements);
+    gl.uniform1i(gl.getUniformLocation(this.program, WebGLPooling2D.POOL_ELEMENTS_PAD_UNIFORM_NAME), poolElementsPad);
   }
 
   /**
@@ -103,11 +64,7 @@ export default class WebGLPooling2D extends WebGLLayer {
     const outputLength = poolIndexMapping.shape[0];
     const channels = input.shape[1];
     const outputCols = this.webgl.getPad(channels);
-    this.webgl.bindOutputTexture(
-      outputLength,
-      (channels + outputCols) / 4,
-      tOut.texture
-    );
+    this.webgl.bindOutputTexture(outputLength, (channels + outputCols) / 4, tOut.texture);
   }
 
   /**

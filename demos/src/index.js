@@ -6,9 +6,7 @@ import { MnistCnn } from './mnist-cnn/mnist-cnn';
 import { MnistVae } from './mnist-vae/mnist-vae';
 import { ResNet50 } from './resnet50/resnet50';
 import { InceptionV3 } from './inception-v3/inception-v3';
-import {
-  ImdbBidirectionalLstm
-} from './imdb-bidirectional-lstm/imdb-bidirectional-lstm';
+import { ImdbBidirectionalLstm } from './imdb-bidirectional-lstm/imdb-bidirectional-lstm';
 
 Vue.component('menu', Menu);
 Vue.component('home', Home);
@@ -27,8 +25,7 @@ const app = new Vue({
   },
   created: function() {
     const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') ||
-      canvas.getContext('experimental-webgl');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     // Report the result.
     if (gl && gl instanceof WebGLRenderingContext) {
       this.hasWebgl = true;
@@ -40,13 +37,7 @@ const app = new Vue({
 
 // Simple routing
 function matchRoute() {
-  const routes = [
-    'mnist-cnn',
-    'mnist-vae',
-    'resnet50',
-    'inception-v3',
-    'imdb-bidirectional-lstm'
-  ];
+  const routes = [ 'mnist-cnn', 'mnist-vae', 'resnet50', 'inception-v3', 'imdb-bidirectional-lstm' ];
 
   const { hash } = window.location;
   const route = hash.substr(2);

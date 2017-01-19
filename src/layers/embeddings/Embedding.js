@@ -13,13 +13,7 @@ export default class Embedding extends Layer {
     super(attrs);
     this.layerClass = 'Embedding';
 
-    const {
-      inputDim = 1,
-      outputDim = 1,
-      inputLength = 0,
-      maskZero = false,
-      dropout = 0
-    } = attrs;
+    const { inputDim = 1, outputDim = 1, inputLength = 0, maskZero = false, dropout = 0 } = attrs;
 
     this.inputDim = inputDim;
     this.outputDim = outputDim;
@@ -41,16 +35,10 @@ export default class Embedding extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    let y = new Tensor([], [
-      x.tensor.shape[0],
-      this.weights.W.tensor.shape[1]
-    ]);
+    let y = new Tensor([], [ x.tensor.shape[0], this.weights.W.tensor.shape[1] ]);
 
     for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
-      ops.assign(
-        y.tensor.pick(i, null),
-        this.weights.W.tensor.pick(x.tensor.get(i), null)
-      );
+      ops.assign(y.tensor.pick(i, null), this.weights.W.tensor.pick(x.tensor.get(i), null));
     }
 
     x.tensor = y.tensor;

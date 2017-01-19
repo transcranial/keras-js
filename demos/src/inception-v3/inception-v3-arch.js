@@ -8,13 +8,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 0,
     col: 0
   },
-  {
-    name: 'batchnormalization_1',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 1,
-    col: 0
-  },
+  { name: 'batchnormalization_1', className: 'BatchNormalization', details: 'channel axis features', row: 1, col: 0 },
   {
     name: 'convolution2d_2',
     className: 'Convolution2D',
@@ -22,13 +16,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 2,
     col: 0
   },
-  {
-    name: 'batchnormalization_2',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 3,
-    col: 0
-  },
+  { name: 'batchnormalization_2', className: 'BatchNormalization', details: 'channel axis features', row: 3, col: 0 },
   {
     name: 'convolution2d_3',
     className: 'Convolution2D',
@@ -36,13 +24,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 4,
     col: 0
   },
-  {
-    name: 'batchnormalization_3',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 5,
-    col: 0
-  },
+  { name: 'batchnormalization_3', className: 'BatchNormalization', details: 'channel axis features', row: 5, col: 0 },
   {
     name: 'maxpooling2d_1',
     className: 'MaxPooling2D',
@@ -57,13 +39,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 7,
     col: 0
   },
-  {
-    name: 'batchnormalization_4',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 8,
-    col: 0
-  },
+  { name: 'batchnormalization_4', className: 'BatchNormalization', details: 'channel axis features', row: 8, col: 0 },
   {
     name: 'convolution2d_5',
     className: 'Convolution2D',
@@ -71,13 +47,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 9,
     col: 0
   },
-  {
-    name: 'batchnormalization_5',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 10,
-    col: 0
-  },
+  { name: 'batchnormalization_5', className: 'BatchNormalization', details: 'channel axis features', row: 10, col: 0 },
   {
     name: 'maxpooling2d_2',
     className: 'MaxPooling2D',
@@ -94,13 +64,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 12,
     col: 0
   },
-  {
-    name: 'batchnormalization_9',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 13,
-    col: 0
-  },
+  { name: 'batchnormalization_9', className: 'BatchNormalization', details: 'channel axis features', row: 13, col: 0 },
   {
     name: 'convolution2d_7',
     className: 'Convolution2D',
@@ -115,20 +79,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 14,
     col: 2
   },
-  {
-    name: 'batchnormalization_7',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 13,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_10',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 15,
-    col: 2
-  },
+  { name: 'batchnormalization_7', className: 'BatchNormalization', details: 'channel axis features', row: 13, col: 1 },
+  { name: 'batchnormalization_10', className: 'BatchNormalization', details: 'channel axis features', row: 15, col: 2 },
   {
     name: 'averagepooling2d_1',
     className: 'AveragePooling2D',
@@ -164,41 +116,11 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 13,
     col: 3
   },
-  {
-    name: 'batchnormalization_6',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 13,
-    col: 2
-  },
-  {
-    name: 'batchnormalization_8',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 15,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_11',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 17,
-    col: 2
-  },
-  {
-    name: 'batchnormalization_12',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 14,
-    col: 3
-  },
-  {
-    name: 'mixed0',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 18,
-    col: 3
-  },
+  { name: 'batchnormalization_6', className: 'BatchNormalization', details: 'channel axis features', row: 13, col: 2 },
+  { name: 'batchnormalization_8', className: 'BatchNormalization', details: 'channel axis features', row: 15, col: 1 },
+  { name: 'batchnormalization_11', className: 'BatchNormalization', details: 'channel axis features', row: 17, col: 2 },
+  { name: 'batchnormalization_12', className: 'BatchNormalization', details: 'channel axis features', row: 14, col: 3 },
+  { name: 'mixed0', className: 'Merge', details: 'concat by channel axes', row: 18, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 1: 35 x 35 x 256
   {
@@ -208,13 +130,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 19,
     col: 0
   },
-  {
-    name: 'batchnormalization_16',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 20,
-    col: 0
-  },
+  { name: 'batchnormalization_16', className: 'BatchNormalization', details: 'channel axis features', row: 20, col: 0 },
   {
     name: 'convolution2d_14',
     className: 'Convolution2D',
@@ -229,20 +145,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 21,
     col: 2
   },
-  {
-    name: 'batchnormalization_14',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 20,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_17',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 22,
-    col: 2
-  },
+  { name: 'batchnormalization_14', className: 'BatchNormalization', details: 'channel axis features', row: 20, col: 1 },
+  { name: 'batchnormalization_17', className: 'BatchNormalization', details: 'channel axis features', row: 22, col: 2 },
   {
     name: 'averagepooling2d_2',
     className: 'AveragePooling2D',
@@ -278,41 +182,11 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 20,
     col: 3
   },
-  {
-    name: 'batchnormalization_13',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 20,
-    col: 2
-  },
-  {
-    name: 'batchnormalization_15',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 22,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_18',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 24,
-    col: 2
-  },
-  {
-    name: 'batchnormalization_19',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 21,
-    col: 3
-  },
-  {
-    name: 'mixed1',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 25,
-    col: 3
-  },
+  { name: 'batchnormalization_13', className: 'BatchNormalization', details: 'channel axis features', row: 20, col: 2 },
+  { name: 'batchnormalization_15', className: 'BatchNormalization', details: 'channel axis features', row: 22, col: 1 },
+  { name: 'batchnormalization_18', className: 'BatchNormalization', details: 'channel axis features', row: 24, col: 2 },
+  { name: 'batchnormalization_19', className: 'BatchNormalization', details: 'channel axis features', row: 21, col: 3 },
+  { name: 'mixed1', className: 'Merge', details: 'concat by channel axes', row: 25, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 2: 35 x 35 x 256
   {
@@ -322,13 +196,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 26,
     col: 0
   },
-  {
-    name: 'batchnormalization_23',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 27,
-    col: 0
-  },
+  { name: 'batchnormalization_23', className: 'BatchNormalization', details: 'channel axis features', row: 27, col: 0 },
   {
     name: 'convolution2d_21',
     className: 'Convolution2D',
@@ -343,20 +211,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 28,
     col: 2
   },
-  {
-    name: 'batchnormalization_21',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 27,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_24',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 29,
-    col: 2
-  },
+  { name: 'batchnormalization_21', className: 'BatchNormalization', details: 'channel axis features', row: 27, col: 1 },
+  { name: 'batchnormalization_24', className: 'BatchNormalization', details: 'channel axis features', row: 29, col: 2 },
   {
     name: 'averagepooling2d_3',
     className: 'AveragePooling2D',
@@ -392,41 +248,11 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 27,
     col: 3
   },
-  {
-    name: 'batchnormalization_20',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 27,
-    col: 2
-  },
-  {
-    name: 'batchnormalization_22',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 29,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_25',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 31,
-    col: 2
-  },
-  {
-    name: 'batchnormalization_26',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 28,
-    col: 3
-  },
-  {
-    name: 'mixed2',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 32,
-    col: 3
-  },
+  { name: 'batchnormalization_20', className: 'BatchNormalization', details: 'channel axis features', row: 27, col: 2 },
+  { name: 'batchnormalization_22', className: 'BatchNormalization', details: 'channel axis features', row: 29, col: 1 },
+  { name: 'batchnormalization_25', className: 'BatchNormalization', details: 'channel axis features', row: 31, col: 2 },
+  { name: 'batchnormalization_26', className: 'BatchNormalization', details: 'channel axis features', row: 28, col: 3 },
+  { name: 'mixed2', className: 'Merge', details: 'concat by channel axes', row: 32, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 3: 17 x 17 x 768
   {
@@ -436,13 +262,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 33,
     col: 1
   },
-  {
-    name: 'batchnormalization_28',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 34,
-    col: 1
-  },
+  { name: 'batchnormalization_28', className: 'BatchNormalization', details: 'channel axis features', row: 34, col: 1 },
   {
     name: 'convolution2d_29',
     className: 'Convolution2D',
@@ -450,13 +270,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 35,
     col: 1
   },
-  {
-    name: 'batchnormalization_29',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 36,
-    col: 1
-  },
+  { name: 'batchnormalization_29', className: 'BatchNormalization', details: 'channel axis features', row: 36, col: 1 },
   {
     name: 'convolution2d_27',
     className: 'Convolution2D',
@@ -471,20 +285,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 37,
     col: 1
   },
-  {
-    name: 'batchnormalization_27',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 34,
-    col: 0
-  },
-  {
-    name: 'batchnormalization_30',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 38,
-    col: 1
-  },
+  { name: 'batchnormalization_27', className: 'BatchNormalization', details: 'channel axis features', row: 34, col: 0 },
+  { name: 'batchnormalization_30', className: 'BatchNormalization', details: 'channel axis features', row: 38, col: 1 },
   {
     name: 'maxpooling2d_3',
     className: 'MaxPooling2D',
@@ -492,13 +294,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 33,
     col: 2
   },
-  {
-    name: 'mixed3',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 39,
-    col: 3
-  },
+  { name: 'mixed3', className: 'Merge', details: 'concat by channel axes', row: 39, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 4: 17 x 17 x 768
   {
@@ -508,13 +304,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 40,
     col: 2
   },
-  {
-    name: 'batchnormalization_35',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 41,
-    col: 2
-  },
+  { name: 'batchnormalization_35', className: 'BatchNormalization', details: 'channel axis features', row: 41, col: 2 },
   {
     name: 'convolution2d_36',
     className: 'Convolution2D',
@@ -522,13 +312,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 42,
     col: 2
   },
-  {
-    name: 'batchnormalization_36',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 43,
-    col: 2
-  },
+  { name: 'batchnormalization_36', className: 'BatchNormalization', details: 'channel axis features', row: 43, col: 2 },
   {
     name: 'convolution2d_32',
     className: 'Convolution2D',
@@ -543,20 +327,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 44,
     col: 2
   },
-  {
-    name: 'batchnormalization_32',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 41,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_37',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 45,
-    col: 2
-  },
+  { name: 'batchnormalization_32', className: 'BatchNormalization', details: 'channel axis features', row: 41, col: 1 },
+  { name: 'batchnormalization_37', className: 'BatchNormalization', details: 'channel axis features', row: 45, col: 2 },
   {
     name: 'convolution2d_33',
     className: 'Convolution2D',
@@ -571,20 +343,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 46,
     col: 2
   },
-  {
-    name: 'batchnormalization_33',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 43,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_38',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 47,
-    col: 2
-  },
+  { name: 'batchnormalization_33', className: 'BatchNormalization', details: 'channel axis features', row: 43, col: 1 },
+  { name: 'batchnormalization_38', className: 'BatchNormalization', details: 'channel axis features', row: 47, col: 2 },
   {
     name: 'averagepooling2d_4',
     className: 'AveragePooling2D',
@@ -620,41 +380,11 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 41,
     col: 3
   },
-  {
-    name: 'batchnormalization_31',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 41,
-    col: 0
-  },
-  {
-    name: 'batchnormalization_34',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 45,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_39',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 49,
-    col: 2
-  },
-  {
-    name: 'batchnormalization_40',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 42,
-    col: 3
-  },
-  {
-    name: 'mixed4',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 50,
-    col: 3
-  },
+  { name: 'batchnormalization_31', className: 'BatchNormalization', details: 'channel axis features', row: 41, col: 0 },
+  { name: 'batchnormalization_34', className: 'BatchNormalization', details: 'channel axis features', row: 45, col: 1 },
+  { name: 'batchnormalization_39', className: 'BatchNormalization', details: 'channel axis features', row: 49, col: 2 },
+  { name: 'batchnormalization_40', className: 'BatchNormalization', details: 'channel axis features', row: 42, col: 3 },
+  { name: 'mixed4', className: 'Merge', details: 'concat by channel axes', row: 50, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 5: 17 x 17 x 768
   {
@@ -664,13 +394,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 51,
     col: 2
   },
-  {
-    name: 'batchnormalization_45',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 52,
-    col: 2
-  },
+  { name: 'batchnormalization_45', className: 'BatchNormalization', details: 'channel axis features', row: 52, col: 2 },
   {
     name: 'convolution2d_46',
     className: 'Convolution2D',
@@ -678,13 +402,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 53,
     col: 2
   },
-  {
-    name: 'batchnormalization_46',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 54,
-    col: 2
-  },
+  { name: 'batchnormalization_46', className: 'BatchNormalization', details: 'channel axis features', row: 54, col: 2 },
   {
     name: 'convolution2d_42',
     className: 'Convolution2D',
@@ -699,20 +417,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 55,
     col: 2
   },
-  {
-    name: 'batchnormalization_42',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 52,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_47',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 56,
-    col: 2
-  },
+  { name: 'batchnormalization_42', className: 'BatchNormalization', details: 'channel axis features', row: 52, col: 1 },
+  { name: 'batchnormalization_47', className: 'BatchNormalization', details: 'channel axis features', row: 56, col: 2 },
   {
     name: 'convolution2d_43',
     className: 'Convolution2D',
@@ -727,20 +433,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 57,
     col: 2
   },
-  {
-    name: 'batchnormalization_43',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 54,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_48',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 58,
-    col: 2
-  },
+  { name: 'batchnormalization_43', className: 'BatchNormalization', details: 'channel axis features', row: 54, col: 1 },
+  { name: 'batchnormalization_48', className: 'BatchNormalization', details: 'channel axis features', row: 58, col: 2 },
   {
     name: 'averagepooling2d_5',
     className: 'AveragePooling2D',
@@ -776,41 +470,11 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 52,
     col: 3
   },
-  {
-    name: 'batchnormalization_41',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 52,
-    col: 0
-  },
-  {
-    name: 'batchnormalization_44',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 56,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_49',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 60,
-    col: 2
-  },
-  {
-    name: 'batchnormalization_50',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 53,
-    col: 3
-  },
-  {
-    name: 'mixed5',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 61,
-    col: 3
-  },
+  { name: 'batchnormalization_41', className: 'BatchNormalization', details: 'channel axis features', row: 52, col: 0 },
+  { name: 'batchnormalization_44', className: 'BatchNormalization', details: 'channel axis features', row: 56, col: 1 },
+  { name: 'batchnormalization_49', className: 'BatchNormalization', details: 'channel axis features', row: 60, col: 2 },
+  { name: 'batchnormalization_50', className: 'BatchNormalization', details: 'channel axis features', row: 53, col: 3 },
+  { name: 'mixed5', className: 'Merge', details: 'concat by channel axes', row: 61, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 6: 17 x 17 x 768
   {
@@ -820,13 +484,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 62,
     col: 2
   },
-  {
-    name: 'batchnormalization_55',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 63,
-    col: 2
-  },
+  { name: 'batchnormalization_55', className: 'BatchNormalization', details: 'channel axis features', row: 63, col: 2 },
   {
     name: 'convolution2d_56',
     className: 'Convolution2D',
@@ -834,13 +492,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 64,
     col: 2
   },
-  {
-    name: 'batchnormalization_56',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 65,
-    col: 2
-  },
+  { name: 'batchnormalization_56', className: 'BatchNormalization', details: 'channel axis features', row: 65, col: 2 },
   {
     name: 'convolution2d_52',
     className: 'Convolution2D',
@@ -855,20 +507,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 66,
     col: 2
   },
-  {
-    name: 'batchnormalization_52',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 63,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_57',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 67,
-    col: 2
-  },
+  { name: 'batchnormalization_52', className: 'BatchNormalization', details: 'channel axis features', row: 63, col: 1 },
+  { name: 'batchnormalization_57', className: 'BatchNormalization', details: 'channel axis features', row: 67, col: 2 },
   {
     name: 'convolution2d_53',
     className: 'Convolution2D',
@@ -883,20 +523,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 68,
     col: 2
   },
-  {
-    name: 'batchnormalization_53',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 65,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_58',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 69,
-    col: 2
-  },
+  { name: 'batchnormalization_53', className: 'BatchNormalization', details: 'channel axis features', row: 65, col: 1 },
+  { name: 'batchnormalization_58', className: 'BatchNormalization', details: 'channel axis features', row: 69, col: 2 },
   {
     name: 'averagepooling2d_6',
     className: 'AveragePooling2D',
@@ -932,41 +560,11 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 63,
     col: 3
   },
-  {
-    name: 'batchnormalization_51',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 63,
-    col: 0
-  },
-  {
-    name: 'batchnormalization_54',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 67,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_59',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 71,
-    col: 2
-  },
-  {
-    name: 'batchnormalization_60',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 64,
-    col: 3
-  },
-  {
-    name: 'mixed6',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 72,
-    col: 3
-  },
+  { name: 'batchnormalization_51', className: 'BatchNormalization', details: 'channel axis features', row: 63, col: 0 },
+  { name: 'batchnormalization_54', className: 'BatchNormalization', details: 'channel axis features', row: 67, col: 1 },
+  { name: 'batchnormalization_59', className: 'BatchNormalization', details: 'channel axis features', row: 71, col: 2 },
+  { name: 'batchnormalization_60', className: 'BatchNormalization', details: 'channel axis features', row: 64, col: 3 },
+  { name: 'mixed6', className: 'Merge', details: 'concat by channel axes', row: 72, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 7: 17 x 17 x 768
   {
@@ -976,13 +574,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 73,
     col: 2
   },
-  {
-    name: 'batchnormalization_65',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 74,
-    col: 2
-  },
+  { name: 'batchnormalization_65', className: 'BatchNormalization', details: 'channel axis features', row: 74, col: 2 },
   {
     name: 'convolution2d_66',
     className: 'Convolution2D',
@@ -990,13 +582,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 75,
     col: 2
   },
-  {
-    name: 'batchnormalization_66',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 76,
-    col: 2
-  },
+  { name: 'batchnormalization_66', className: 'BatchNormalization', details: 'channel axis features', row: 76, col: 2 },
   {
     name: 'convolution2d_62',
     className: 'Convolution2D',
@@ -1011,20 +597,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 77,
     col: 2
   },
-  {
-    name: 'batchnormalization_62',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 74,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_67',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 78,
-    col: 2
-  },
+  { name: 'batchnormalization_62', className: 'BatchNormalization', details: 'channel axis features', row: 74, col: 1 },
+  { name: 'batchnormalization_67', className: 'BatchNormalization', details: 'channel axis features', row: 78, col: 2 },
   {
     name: 'convolution2d_63',
     className: 'Convolution2D',
@@ -1039,20 +613,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 79,
     col: 2
   },
-  {
-    name: 'batchnormalization_63',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 76,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_68',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 80,
-    col: 2
-  },
+  { name: 'batchnormalization_63', className: 'BatchNormalization', details: 'channel axis features', row: 76, col: 1 },
+  { name: 'batchnormalization_68', className: 'BatchNormalization', details: 'channel axis features', row: 80, col: 2 },
   {
     name: 'averagepooling2d_7',
     className: 'AveragePooling2D',
@@ -1088,41 +650,11 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 74,
     col: 3
   },
-  {
-    name: 'batchnormalization_61',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 74,
-    col: 0
-  },
-  {
-    name: 'batchnormalization_64',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 78,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_69',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 82,
-    col: 2
-  },
-  {
-    name: 'batchnormalization_70',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 75,
-    col: 3
-  },
-  {
-    name: 'mixed7',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 83,
-    col: 3
-  },
+  { name: 'batchnormalization_61', className: 'BatchNormalization', details: 'channel axis features', row: 74, col: 0 },
+  { name: 'batchnormalization_64', className: 'BatchNormalization', details: 'channel axis features', row: 78, col: 1 },
+  { name: 'batchnormalization_69', className: 'BatchNormalization', details: 'channel axis features', row: 82, col: 2 },
+  { name: 'batchnormalization_70', className: 'BatchNormalization', details: 'channel axis features', row: 75, col: 3 },
+  { name: 'mixed7', className: 'Merge', details: 'concat by channel axes', row: 83, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 8: 8 x 8 x 1280
   {
@@ -1132,13 +664,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 84,
     col: 1
   },
-  {
-    name: 'batchnormalization_73',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 85,
-    col: 1
-  },
+  { name: 'batchnormalization_73', className: 'BatchNormalization', details: 'channel axis features', row: 85, col: 1 },
   {
     name: 'convolution2d_74',
     className: 'Convolution2D',
@@ -1146,13 +672,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 86,
     col: 1
   },
-  {
-    name: 'batchnormalization_74',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 87,
-    col: 1
-  },
+  { name: 'batchnormalization_74', className: 'BatchNormalization', details: 'channel axis features', row: 87, col: 1 },
   {
     name: 'convolution2d_71',
     className: 'Convolution2D',
@@ -1167,20 +687,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 88,
     col: 1
   },
-  {
-    name: 'batchnormalization_71',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 85,
-    col: 0
-  },
-  {
-    name: 'batchnormalization_75',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 89,
-    col: 1
-  },
+  { name: 'batchnormalization_71', className: 'BatchNormalization', details: 'channel axis features', row: 85, col: 0 },
+  { name: 'batchnormalization_75', className: 'BatchNormalization', details: 'channel axis features', row: 89, col: 1 },
   {
     name: 'convolution2d_72',
     className: 'Convolution2D',
@@ -1195,20 +703,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 90,
     col: 1
   },
-  {
-    name: 'batchnormalization_72',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 87,
-    col: 0
-  },
-  {
-    name: 'batchnormalization_76',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 91,
-    col: 1
-  },
+  { name: 'batchnormalization_72', className: 'BatchNormalization', details: 'channel axis features', row: 87, col: 0 },
+  { name: 'batchnormalization_76', className: 'BatchNormalization', details: 'channel axis features', row: 91, col: 1 },
   {
     name: 'averagepooling2d_8',
     className: 'AveragePooling2D',
@@ -1216,13 +712,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 84,
     col: 2
   },
-  {
-    name: 'mixed8',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 92,
-    col: 3
-  },
+  { name: 'mixed8', className: 'Merge', details: 'concat by channel axes', row: 92, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 9: 8 x 8 x 2048
   {
@@ -1232,13 +722,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 93,
     col: 2
   },
-  {
-    name: 'batchnormalization_81',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 94,
-    col: 2
-  },
+  { name: 'batchnormalization_81', className: 'BatchNormalization', details: 'channel axis features', row: 94, col: 2 },
   {
     name: 'convolution2d_78',
     className: 'Convolution2D',
@@ -1253,20 +737,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 95,
     col: 2
   },
-  {
-    name: 'batchnormalization_78',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 94,
-    col: 1
-  },
-  {
-    name: 'batchnormalization_82',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 96,
-    col: 2
-  },
+  { name: 'batchnormalization_78', className: 'BatchNormalization', details: 'channel axis features', row: 94, col: 1 },
+  { name: 'batchnormalization_82', className: 'BatchNormalization', details: 'channel axis features', row: 96, col: 2 },
   {
     name: 'convolution2d_79',
     className: 'Convolution2D',
@@ -1352,41 +824,11 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 94,
     col: 3
   },
-  {
-    name: 'batchnormalization_77',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 94,
-    col: 0
-  },
-  {
-    name: 'mixed9_0',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 97,
-    col: 1
-  },
-  {
-    name: 'merge_1',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 99,
-    col: 2
-  },
-  {
-    name: 'batchnormalization_85',
-    className: 'BatchNormalization',
-    details: 'channel axis features',
-    row: 95,
-    col: 3
-  },
-  {
-    name: 'mixed9',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 100,
-    col: 3
-  },
+  { name: 'batchnormalization_77', className: 'BatchNormalization', details: 'channel axis features', row: 94, col: 0 },
+  { name: 'mixed9_0', className: 'Merge', details: 'concat by channel axes', row: 97, col: 1 },
+  { name: 'merge_1', className: 'Merge', details: 'concat by channel axes', row: 99, col: 2 },
+  { name: 'batchnormalization_85', className: 'BatchNormalization', details: 'channel axis features', row: 95, col: 3 },
+  { name: 'mixed9', className: 'Merge', details: 'concat by channel axes', row: 100, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 10: 8 x 8 x 2048
   {
@@ -1523,20 +965,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 102,
     col: 0
   },
-  {
-    name: 'mixed9_1',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 105,
-    col: 1
-  },
-  {
-    name: 'merge_2',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 107,
-    col: 2
-  },
+  { name: 'mixed9_1', className: 'Merge', details: 'concat by channel axes', row: 105, col: 1 },
+  { name: 'merge_2', className: 'Merge', details: 'concat by channel axes', row: 107, col: 2 },
   {
     name: 'batchnormalization_94',
     className: 'BatchNormalization',
@@ -1544,13 +974,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 103,
     col: 3
   },
-  {
-    name: 'mixed10',
-    className: 'Merge',
-    details: 'concat by channel axes',
-    row: 108,
-    col: 3
-  },
+  { name: 'mixed10', className: 'Merge', details: 'concat by channel axes', row: 108, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // final
   {
@@ -1561,13 +985,7 @@ export const ARCHITECTURE_DIAGRAM = [
     col: 3
   },
   { name: 'flatten', className: 'Flatten', details: '', row: 110, col: 3 },
-  {
-    name: 'predictions',
-    className: 'Dense',
-    details: 'output dimensions 1000, softmax activation',
-    row: 111,
-    col: 3
-  }
+  { name: 'predictions', className: 'Dense', details: 'output dimensions 1000, softmax activation', row: 111, col: 3 }
 ];
 
 export const ARCHITECTURE_CONNECTIONS = [

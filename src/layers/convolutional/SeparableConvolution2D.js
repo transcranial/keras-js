@@ -34,20 +34,9 @@ class _DepthwiseConvolution2D extends Convolution2D {
     let patch = new Tensor([], [ nbRow, nbCol, 1 ]);
     let offset = 0;
     for (let c = 0; c < inputChannels; c++) {
-      for (
-        let i = 0, limit = inputRows - nbRow;
-        i <= limit;
-        i += this.subsample[0]
-      ) {
-        for (
-          let j = 0, limit = inputCols - nbCol;
-          j <= limit;
-          j += this.subsample[1]
-        ) {
-          ops.assign(
-            patch.tensor,
-            x.tensor.hi(i + nbRow, j + nbCol, c + 1).lo(i, j, c)
-          );
+      for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.subsample[0]) {
+        for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.subsample[1]) {
+          ops.assign(patch.tensor, x.tensor.hi(i + nbRow, j + nbCol, c + 1).lo(i, j, c));
           this._imColsMat.tensor.data.set(patch.tensor.data, offset);
           offset += patchLen;
         }
@@ -101,50 +90,29 @@ class _DepthwiseConvolution2D extends Convolution2D {
     const outputRows = this.outputShape[0];
     const outputCols = this.outputShape[1];
     const nbPatches = outputRows * outputCols;
-    const matMul = new Tensor([], [
-      nbPatches * x.tensor.shape[2],
-      nbFilter * x.tensor.shape[2]
-    ]);
+    const matMul = new Tensor([], [ nbPatches * x.tensor.shape[2], nbFilter * x.tensor.shape[2] ]);
 
-    if (
-      this._useWeblas &&
-        !(this._imColsMat._gpuMaxSizeExceeded ||
-          this._wRowsMat._gpuMaxSizeExceeded)
-    ) {
+    if (this._useWeblas && !(this._imColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
       // GPU
       matMul.tensor.data = weblas.pipeline
-        .sgemm(
-          1,
-          this._imColsMat.weblasTensor,
-          this._wRowsMat.weblasTensor,
-          1,
-          this._zerosVec.weblasTensor
-        )
+        .sgemm(1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor, 1, this._zerosVec.weblasTensor)
         .transfer();
     } else {
       // CPU
       gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1);
     }
 
-    let output = new Tensor([], [
-      outputRows,
-      outputCols,
-      x.tensor.shape[2] * nbFilter
-    ]);
-    const outputDataLength = outputRows * outputCols * x.tensor.shape[2] *
-      nbFilter;
+    let output = new Tensor([], [ outputRows, outputCols, x.tensor.shape[2] * nbFilter ]);
+    const outputDataLength = outputRows * outputCols * x.tensor.shape[2] * nbFilter;
     let dataFiltered = new Float32Array(outputDataLength);
     for (let c = 0; c < x.tensor.shape[2]; c++) {
       for (
-        let i = 0,
-          n = c * outputDataLength + c * nbFilter,
-          len = (c + 1) * outputDataLength;
+        let i = 0, n = c * outputDataLength + c * nbFilter, len = (c + 1) * outputDataLength;
         n < len;
         i++, n += nbFilter * x.tensor.shape[2]
       ) {
         for (let m = 0; m < nbFilter; m++) {
-          dataFiltered[n + m - c * outputDataLength] = matMul.tensor.data[n +
-            m];
+          dataFiltered[n + m - c * outputDataLength] = matMul.tensor.data[n + m];
         }
       }
     }
@@ -189,9 +157,7 @@ export default class SeparableConvolution2D extends Layer {
     if (borderMode === 'valid' || borderMode === 'same') {
       this.borderMode = borderMode;
     } else {
-      throw new Error(
-        `${this.name} [SeparableConvolution2D layer] Invalid borderMode.`
-      );
+      throw new Error(`${this.name} [SeparableConvolution2D layer] Invalid borderMode.`);
     }
 
     this.subsample = subsample;
@@ -200,9 +166,7 @@ export default class SeparableConvolution2D extends Layer {
     if (dimOrdering === 'tf' || dimOrdering === 'th') {
       this.dimOrdering = dimOrdering;
     } else {
-      throw new Error(
-        `${this.name} [SeparableConvolution2D layer] Only tf and th dim ordering are allowed.`
-      );
+      throw new Error(`${this.name} [SeparableConvolution2D layer] Only tf and th dim ordering are allowed.`);
     }
 
     this.bias = bias;

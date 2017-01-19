@@ -13,12 +13,7 @@ export default class _Pooling3D extends Layer {
     super(attrs);
     this.layerClass = '_Pooling3D';
 
-    const {
-      poolSize = [ 2, 2, 2 ],
-      strides = null,
-      borderMode = 'valid',
-      dimOrdering = 'tf'
-    } = attrs;
+    const { poolSize = [ 2, 2, 2 ], strides = null, borderMode = 'valid', dimOrdering = 'tf' } = attrs;
 
     this.poolSize = poolSize;
     this.strides = strides === null ? poolSize : strides;
@@ -52,22 +47,13 @@ export default class _Pooling3D extends Layer {
       : Math.floor((inputDim3 - poolDim3 + this.strides[2]) / this.strides[2]);
 
     const paddingDim1 = this.borderMode === 'same'
-      ? Math.max(
-        0,
-        Math.floor((outputDim1 - 1) * this.strides[0] + poolDim1 - inputDim1)
-      )
+      ? Math.max(0, Math.floor((outputDim1 - 1) * this.strides[0] + poolDim1 - inputDim1))
       : 0;
     const paddingDim2 = this.borderMode === 'same'
-      ? Math.max(
-        0,
-        Math.floor((outputDim2 - 1) * this.strides[1] + poolDim2 - inputDim2)
-      )
+      ? Math.max(0, Math.floor((outputDim2 - 1) * this.strides[1] + poolDim2 - inputDim2))
       : 0;
     const paddingDim3 = this.borderMode === 'same'
-      ? Math.max(
-        0,
-        Math.floor((outputDim3 - 1) * this.strides[2] + poolDim3 - inputDim3)
-      )
+      ? Math.max(0, Math.floor((outputDim3 - 1) * this.strides[2] + poolDim3 - inputDim3))
       : 0;
     const paddingDim1Before = Math.floor(paddingDim1 / 2);
     const paddingDim1After = paddingDim1 - paddingDim1Before;
@@ -138,9 +124,7 @@ export default class _Pooling3D extends Layer {
    */
   call(x) {
     if (this.poolingFunc !== 'max' && this.poolingFunc !== 'average') {
-      throw new Error(
-        `[pooling._Pooling3D] pooling function must be max or average.`
-      );
+      throw new Error(`[pooling._Pooling3D] pooling function must be max or average.`);
     }
 
     // convert to tf ordering
@@ -167,11 +151,7 @@ export default class _Pooling3D extends Layer {
       paddingDim3After
     ] = this.inputPadding;
 
-    for (
-      let i = 0, _i = 0;
-      i <= inputDim1 - poolDim1;
-      i += this.strides[0], _i++
-    ) {
+    for (let i = 0, _i = 0; i <= inputDim1 - poolDim1; i += this.strides[0], _i++) {
       let dim1InPadding = 0;
       if (i < paddingDim1Before) {
         dim1InPadding = paddingDim1Before - i;
@@ -179,11 +159,7 @@ export default class _Pooling3D extends Layer {
         dim1InPadding = i + poolDim1 - (inputDim1 - paddingDim1After);
       }
 
-      for (
-        let j = 0, _j = 0;
-        j <= inputDim2 - poolDim2;
-        j += this.strides[1], _j++
-      ) {
+      for (let j = 0, _j = 0; j <= inputDim2 - poolDim2; j += this.strides[1], _j++) {
         let dim2InPadding = 0;
         if (j < paddingDim2Before) {
           dim2InPadding = paddingDim2Before - j;
@@ -191,11 +167,7 @@ export default class _Pooling3D extends Layer {
           dim2InPadding = j + poolDim2 - (inputDim2 - paddingDim2After);
         }
 
-        for (
-          let k = 0, _k = 0;
-          k <= inputDim3 - poolDim3;
-          k += this.strides[2], _k++
-        ) {
+        for (let k = 0, _k = 0; k <= inputDim3 - poolDim3; k += this.strides[2], _k++) {
           let dim3InPadding = 0;
           if (k < paddingDim3Before) {
             dim3InPadding = paddingDim3Before - k;
@@ -203,33 +175,15 @@ export default class _Pooling3D extends Layer {
             dim3InPadding = k + poolDim3 - (inputDim3 - paddingDim3After);
           }
 
-          ops.assign(
-            patch.tensor,
-            x.tensor
-              .hi(i + poolDim1, j + poolDim2, k + poolDim3, inputChannels)
-              .lo(i, j, k, 0)
-          );
+          ops.assign(patch.tensor, x.tensor.hi(i + poolDim1, j + poolDim2, k + poolDim3, inputChannels).lo(i, j, k, 0));
           for (let c = 0; c < inputChannels; c++) {
             if (this.poolingFunc === 'max') {
-              y.tensor.set(
-                _i,
-                _j,
-                _k,
-                c,
-                ops.sup(patch.tensor.pick(null, null, null, c))
-              );
+              y.tensor.set(_i, _j, _k, c, ops.sup(patch.tensor.pick(null, null, null, c)));
             } else if (this.poolingFunc === 'average') {
               let nbCellsEffective = (poolDim1 - dim1InPadding) *
                 (poolDim2 - dim2InPadding) *
                 (poolDim3 - dim3InPadding);
-              y.tensor.set(
-                _i,
-                _j,
-                _k,
-                c,
-                ops.sum(patch.tensor.pick(null, null, null, c)) /
-                  nbCellsEffective
-              );
+              y.tensor.set(_i, _j, _k, c, ops.sum(patch.tensor.pick(null, null, null, c)) / nbCellsEffective);
             }
           }
         }
