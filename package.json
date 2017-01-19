@@ -63,7 +63,7 @@
     "precss": "^1.4.0",
     "raw-loader": "^0.5.1",
     "style-loader": "^0.13.1",
-    "webpack": "2.2.0-rc.4"
+    "webpack": "^2.2.0"
   },
   "babel": {
     "presets": [
