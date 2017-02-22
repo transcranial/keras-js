@@ -38,10 +38,10 @@ export default class Model {
     // HTTP(S) headers used during data fetching
     this.headers = headers;
 
-    // flag to enable GPU where possible
-    this.gpu = gpu;
+    // flag to enable GPU where possible (disable in node environment)
+    this.gpu = typeof window !== 'undefined' ? gpu : false;
     // flag to enable GPU pipeline mode where possible
-    this.pipeline = pipeline;
+    this.pipeline = this.gpu ? pipeline : false;
     // flag to enable 0 ms pauses after layer computation calls
     this.layerCallPauses = layerCallPauses;
 
