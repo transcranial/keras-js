@@ -1,0 +1,24 @@
+{
+  "env": {
+    "node": {
+      "presets": [
+        ["env", { "targets": { "node": 4 } }]
+      ],
+      "plugins": [
+        "transform-class-properties",
+        "transform-object-rest-spread",
+        ["transform-async-to-module-method", { "module": "bluebird", "method": "coroutine" }]
+      ]
+    },
+    "browser": {
+      "presets": [
+        ["env", { "targets": { "browsers": [">0.5%"] } }]
+      ],
+      "plugins": [
+        "transform-class-properties",
+        "transform-object-rest-spread",
+        ["transform-async-to-module-method", { "module": "bluebird", "method": "coroutine" }]
+      ]
+    }
+  }
+}

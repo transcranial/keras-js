@@ -6,6 +6,7 @@ src
 test
 .gitattributes
 .gitignore
+.npmignore
 index.html
 webpack.config.js
 yarn.lock

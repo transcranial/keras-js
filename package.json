@@ -2,6 +2,7 @@
   "name": "keras-js",
   "version": "0.1.0",
   "description": "Run Keras models (tensorflow backend) in the browser, with GPU support",
+  "main": "dist/index.js",
   "scripts": {
     "watch": "NODE_ENV=development BABEL_ENV=browser webpack --watch --config webpack.config.js",
     "build:browser": "rm -rf lib; NODE_ENV=production BABEL_ENV=browser webpack --config webpack.config.js",
@@ -52,13 +53,14 @@
   "devDependencies": {
     "autoprefixer": "^6.7.5",
     "axios": "^0.15.3",
+    "babel-cli": "^6.23.0",
     "babel-core": "^6.23.1",
     "babel-loader": "^6.3.2",
     "babel-plugin-transform-async-to-module-method": "^6.22.0",
     "babel-plugin-transform-class-properties": "^6.23.0",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-polyfill": "^6.23.0",
-    "babel-preset-latest": "^6.22.0",
+    "babel-preset-env": "^1.1.8",
     "css-loader": "^0.26.1",
     "glslify-loader": "^1.0.2",
     "http-server": "^0.9.0",
@@ -67,21 +69,5 @@
     "raw-loader": "^0.5.1",
     "style-loader": "^0.13.1",
     "webpack": "^2.2.1"
-  },
-  "babel": {
-    "presets": [
-      "latest"
-    ],
-    "plugins": [
-      "transform-class-properties",
-      "transform-object-rest-spread",
-      [
-        "transform-async-to-module-method",
-        {
-          "module": "bluebird",
-          "method": "coroutine"
-        }
-      ]
-    ]
   }
 }

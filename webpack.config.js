@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 const config = {
-  entry: ['babel-polyfill', path.join(__dirname, 'src/index')],
+  entry: path.join(__dirname, 'src/index'),
   output: { path: path.join(__dirname, 'lib'), filename: 'keras.js', library: 'KerasJS', libraryTarget: 'umd' },
   devtool: 'eval',
   module: {
