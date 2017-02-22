@@ -3,7 +3,7 @@ const webpack = require('webpack');
 
 const config = {
   entry: path.join(__dirname, 'src/index'),
-  output: { path: path.join(__dirname, 'lib'), filename: 'keras.js', library: 'KerasJS', libraryTarget: 'umd' },
+  output: { path: path.join(__dirname, 'dist'), filename: 'keras.js', library: 'KerasJS', libraryTarget: 'umd' },
   devtool: 'eval',
   module: {
     rules: [

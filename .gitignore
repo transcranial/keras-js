@@ -11,4 +11,4 @@ demos/notebooks/.ipynb_checkpoints/
 .DS_Store
 
 # babel compiled dir
-dist/
+lib/

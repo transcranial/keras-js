@@ -81,7 +81,7 @@ See `demos/src/` for source code of real examples written in VueJS.
 4. Include Keras.js:
 
   ```html
-  <script src="lib/keras.js"></script>
+  <script src="dist/keras.js"></script>
   ```
 
 5. Create new model
@@ -203,9 +203,9 @@ For development, run:
 $ npm run watch
 ```
 
-Editing of any file in `src/` will trigger webpack to update `lib/keras.js`.
+Editing of any file in `src/` will trigger webpack to update `dist/keras.js`.
 
-To create a production UMD webpack build, output to `lib/keras.js`:
+To create a production UMD webpack build, output to `dist/keras.js`:
 
 ```sh
 $ npm run build:browser
