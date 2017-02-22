@@ -95,7 +95,7 @@ export default class Model {
    * Cancels any existing XHR requests
    */
   _interrupt() {
-    const dataTypes = [ 'model', 'weights', 'metdata' ];
+    const dataTypes = ['model', 'weights', 'metdata'];
     dataTypes.forEach(type => {
       if (this.xhrs[type]) {
         this.xhrs[type].abort();
@@ -109,9 +109,8 @@ export default class Model {
    * @returns {Promise}
    */
   _initialize() {
-    const dataTypes = [ 'model', 'weights', 'metadata' ];
-    return Promise
-      .all(dataTypes.map(type => this._dataRequest(type, this.headers)))
+    const dataTypes = ['model', 'weights', 'metadata'];
+    return Promise.all(dataTypes.map(type => this._dataRequest(type, this.headers)))
       .then(() => {
         this._createLayers();
         return Promise.resolve();
@@ -134,7 +133,7 @@ export default class Model {
       let xhr = new XMLHttpRequest();
       xhr.open('GET', this.filepaths[type], true);
       xhr.responseType = this.filetypes[type];
-      for (const [ h, v ] of toPairs(headers)) {
+      for (const [h, v] of toPairs(headers)) {
         xhr.setRequestHeader(h, v);
       }
       xhr.onload = e => {
@@ -406,7 +405,6 @@ export default class Model {
       // an output node will have 0 outbound nodes.
       return true;
     } else if (nodes.length === 1) {
-      // let start = performance.now();
       // Where computational logic lives for a given layer node
       // - Makes sure results are available from inbound layer nodes
       // - Keeps generator going until results are available from inbound layer nodes
@@ -438,8 +436,6 @@ export default class Model {
         currentLayer.hasResult = true;
         currentLayer.visited = true;
         this.layersWithResults.push(currentLayer.name);
-        // let end = performance.now();
-        // console.log(layerClass, currentLayer._pipelineEnabled, (end - start).toFixed(2));
         if (this.layerCallPauses) {
           // temporarily pause 0 ms
           // useful for allowing DOM operations and other simultaneously running functions on the main thread
@@ -448,7 +444,7 @@ export default class Model {
       }
       await this._traverseDAG(outbound);
     } else {
-      await Promise.all(nodes.map(node => this._traverseDAG([ node ])));
+      await Promise.all(nodes.map(node => this._traverseDAG([node])));
     }
   }
 

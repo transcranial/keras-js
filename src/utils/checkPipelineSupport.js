@@ -1,7 +1,13 @@
 export default function checkPipelineSupport(layerClass, attrs) {
   switch (layerClass) {
+    case 'Activation':
+      if (['linear', 'relu'].indexOf(attrs.activation) > -1) {
+        return true;
+      }
+      return false;
+
     case 'Convolution2D':
-      if ([ 'linear', 'relu' ].indexOf(attrs.activation) > -1) {
+      if (['linear', 'relu'].indexOf(attrs.activation) > -1) {
         return true;
       }
       return false;
@@ -17,7 +23,7 @@ export default function checkPipelineSupport(layerClass, attrs) {
       return true;
 
     case 'Merge':
-      if ([ 'concat', 'sum', 'mul', 'ave', 'max' ].indexOf(attrs.mode) > -1) {
+      if (['concat', 'sum', 'mul', 'ave', 'max'].indexOf(attrs.mode) > -1) {
         return true;
       }
       return false;
