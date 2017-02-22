@@ -25,14 +25,14 @@ const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_
  *
  */
 export const InceptionV3 = Vue.extend({
-  props: [ 'hasWebgl' ],
+  props: ['hasWebgl'],
   template: require('raw-loader!./inception-v3.template.html'),
   data: function() {
     return {
       showInfoPanel: true,
       useGpu: this.hasWebgl,
       model: new KerasJS.Model(
-        Object.assign({ gpu: this.hasWebgl, pipeline: true, layerCallPauses: true }, MODEL_CONFIG)
+        Object.assign({ gpu: this.hasWebgl, pipeline: false, layerCallPauses: true }, MODEL_CONFIG)
       ),
       modelLoading: true,
       modelRunning: false,
@@ -178,8 +178,8 @@ export const InceptionV3 = Vue.extend({
       // data processing
       // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
       // and https://github.com/fchollet/keras/blob/master/keras/applications/inception_v3.py
-      let dataTensor = ndarray(new Float32Array(data), [ width, height, 4 ]);
-      let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [ width, height, 3 ]);
+      let dataTensor = ndarray(new Float32Array(data), [width, height, 4]);
+      let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3]);
       ops.divseq(dataTensor, 255);
       ops.subseq(dataTensor, 0.5);
       ops.mulseq(dataTensor, 2);
@@ -188,10 +188,7 @@ export const InceptionV3 = Vue.extend({
       ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 2));
 
       const inputData = { input_1: dataProcessedTensor.data };
-      // var start = performance.now();
       this.model.predict(inputData).then(outputData => {
-        // var end = performance.now();
-        // console.log((end - start).toFixed(2));
         this.output = outputData['predictions'];
         this.modelRunning = false;
       });

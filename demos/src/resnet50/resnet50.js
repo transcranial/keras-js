@@ -25,14 +25,14 @@ const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_
  *
  */
 export const ResNet50 = Vue.extend({
-  props: [ 'hasWebgl' ],
+  props: ['hasWebgl'],
   template: require('raw-loader!./resnet50.template.html'),
   data: function() {
     return {
       showInfoPanel: true,
       useGpu: this.hasWebgl,
       model: new KerasJS.Model(
-        Object.assign({ gpu: this.hasWebgl, pipeline: true, layerCallPauses: true }, MODEL_CONFIG)
+        Object.assign({ gpu: this.hasWebgl, pipeline: false, layerCallPauses: true }, MODEL_CONFIG)
       ),
       modelLoading: true,
       modelRunning: false,
@@ -174,8 +174,8 @@ export const ResNet50 = Vue.extend({
 
       // data processing
       // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
-      let dataTensor = ndarray(new Float32Array(data), [ width, height, 4 ]);
-      let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [ width, height, 3 ]);
+      let dataTensor = ndarray(new Float32Array(data), [width, height, 4]);
+      let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3]);
       ops.subseq(dataTensor.pick(null, null, 2), 103.939);
       ops.subseq(dataTensor.pick(null, null, 1), 116.779);
       ops.subseq(dataTensor.pick(null, null, 0), 123.68);
@@ -184,10 +184,7 @@ export const ResNet50 = Vue.extend({
       ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 0));
 
       const inputData = { input_1: dataProcessedTensor.data };
-      // var start = performance.now();
       this.model.predict(inputData).then(outputData => {
-        // var end = performance.now();
-        // console.log((end - start).toFixed(2));
         this.output = outputData['fc1000'];
         this.modelRunning = false;
       });
