@@ -37,7 +37,7 @@ const LAYER_DISPLAY_CONFIG = {
  *
  */
 export const MnistCnn = Vue.extend({
-  props: [ 'hasWebgl' ],
+  props: ['hasWebgl'],
   template: require('raw-loader!./mnist-cnn.template.html'),
   data: function() {
     return {
@@ -132,43 +132,47 @@ export const MnistCnn = Vue.extend({
         ctx.stroke();
       }
     },
-    deactivateDrawAndPredict: debounce(function() {
-      if (!this.drawing) return;
-      this.drawing = false;
+    deactivateDrawAndPredict: debounce(
+      function() {
+        if (!this.drawing) return;
+        this.drawing = false;
 
-      const ctx = document.getElementById('input-canvas').getContext('2d');
+        const ctx = document.getElementById('input-canvas').getContext('2d');
 
-      // center crop
-      const imageDataCenterCrop = utils.centerCrop(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height));
-      const ctxCenterCrop = document.getElementById('input-canvas-centercrop').getContext('2d');
-      ctxCenterCrop.canvas.width = imageDataCenterCrop.width;
-      ctxCenterCrop.canvas.height = imageDataCenterCrop.height;
-      ctxCenterCrop.putImageData(imageDataCenterCrop, 0, 0);
+        // center crop
+        const imageDataCenterCrop = utils.centerCrop(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height));
+        const ctxCenterCrop = document.getElementById('input-canvas-centercrop').getContext('2d');
+        ctxCenterCrop.canvas.width = imageDataCenterCrop.width;
+        ctxCenterCrop.canvas.height = imageDataCenterCrop.height;
+        ctxCenterCrop.putImageData(imageDataCenterCrop, 0, 0);
 
-      // scaled to 28 x 28
-      const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d');
-      ctxScaled.save();
-      ctxScaled.scale(28 / ctxCenterCrop.canvas.width, 28 / ctxCenterCrop.canvas.height);
-      ctxScaled.clearRect(0, 0, ctxCenterCrop.canvas.width, ctxCenterCrop.canvas.height);
-      ctxScaled.drawImage(document.getElementById('input-canvas-centercrop'), 0, 0);
-      const imageDataScaled = ctxScaled.getImageData(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height);
-      ctxScaled.restore();
+        // scaled to 28 x 28
+        const ctxScaled = document.getElementById('input-canvas-scaled').getContext('2d');
+        ctxScaled.save();
+        ctxScaled.scale(28 / ctxCenterCrop.canvas.width, 28 / ctxCenterCrop.canvas.height);
+        ctxScaled.clearRect(0, 0, ctxCenterCrop.canvas.width, ctxCenterCrop.canvas.height);
+        ctxScaled.drawImage(document.getElementById('input-canvas-centercrop'), 0, 0);
+        const imageDataScaled = ctxScaled.getImageData(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height);
+        ctxScaled.restore();
 
-      // process image data for model input
-      const { data } = imageDataScaled;
-      this.input = new Float32Array(784);
-      for (let i = 0, len = data.length; i < len; i += 4) {
-        this.input[i / 4] = data[i + 3] / 255;
-      }
+        // process image data for model input
+        const { data } = imageDataScaled;
+        this.input = new Float32Array(784);
+        for (let i = 0, len = data.length; i < len; i += 4) {
+          this.input[i / 4] = data[i + 3] / 255;
+        }
 
-      this.model.predict({ input: this.input }).then(outputData => {
-        this.output = outputData.output;
-        this.getIntermediateResults();
-      });
-    }, 200, { leading: true, trailing: true }),
+        this.model.predict({ input: this.input }).then(outputData => {
+          this.output = outputData.output;
+          this.getIntermediateResults();
+        });
+      },
+      200,
+      { leading: true, trailing: true }
+    ),
     getIntermediateResults: function() {
       let results = [];
-      for (let [ name, layer ] of this.model.modelLayersMap.entries()) {
+      for (let [name, layer] of this.model.modelLayersMap.entries()) {
         if (name === 'input') continue;
 
         const layerClass = layer.layerClass || '';
@@ -177,9 +181,9 @@ export const MnistCnn = Vue.extend({
         if (layer.result && layer.result.tensor.shape.length === 3) {
           images = utils.unroll3Dtensor(layer.result.tensor);
         } else if (layer.result && layer.result.tensor.shape.length === 2) {
-          images = [ utils.image2Dtensor(layer.result.tensor) ];
+          images = [utils.image2Dtensor(layer.result.tensor)];
         } else if (layer.result && layer.result.tensor.shape.length === 1) {
-          images = [ utils.image1Dtensor(layer.result.tensor) ];
+          images = [utils.image1Dtensor(layer.result.tensor)];
         }
         results.push({ name, layerClass, images });
       }

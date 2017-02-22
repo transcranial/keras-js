@@ -8,56 +8,56 @@ describe('pooling layer: AveragePooling3D', function() {
 
   const testParams = [
     {
-      inputShape: [ 4, 4, 4, 2 ],
-      attrs: { poolSize: [ 2, 2, 2 ], strides: null, borderMode: 'valid', dimOrdering: 'tf' }
+      inputShape: [4, 4, 4, 2],
+      attrs: { poolSize: [2, 2, 2], strides: null, borderMode: 'valid', dimOrdering: 'tf' }
     },
     {
-      inputShape: [ 4, 4, 4, 2 ],
-      attrs: { poolSize: [ 2, 2, 2 ], strides: [ 1, 1, 1 ], borderMode: 'valid', dimOrdering: 'tf' }
+      inputShape: [4, 4, 4, 2],
+      attrs: { poolSize: [2, 2, 2], strides: [1, 1, 1], borderMode: 'valid', dimOrdering: 'tf' }
     },
     {
-      inputShape: [ 4, 5, 2, 3 ],
-      attrs: { poolSize: [ 2, 2, 2 ], strides: [ 2, 1, 1 ], borderMode: 'valid', dimOrdering: 'tf' }
+      inputShape: [4, 5, 2, 3],
+      attrs: { poolSize: [2, 2, 2], strides: [2, 1, 1], borderMode: 'valid', dimOrdering: 'tf' }
     },
     {
-      inputShape: [ 4, 4, 4, 2 ],
-      attrs: { poolSize: [ 3, 3, 3 ], strides: null, borderMode: 'valid', dimOrdering: 'tf' }
+      inputShape: [4, 4, 4, 2],
+      attrs: { poolSize: [3, 3, 3], strides: null, borderMode: 'valid', dimOrdering: 'tf' }
     },
     {
-      inputShape: [ 4, 4, 4, 2 ],
-      attrs: { poolSize: [ 3, 3, 3 ], strides: [ 3, 3, 3 ], borderMode: 'valid', dimOrdering: 'tf' }
+      inputShape: [4, 4, 4, 2],
+      attrs: { poolSize: [3, 3, 3], strides: [3, 3, 3], borderMode: 'valid', dimOrdering: 'tf' }
     },
     {
-      inputShape: [ 4, 4, 4, 2 ],
-      attrs: { poolSize: [ 2, 2, 2 ], strides: null, borderMode: 'same', dimOrdering: 'tf' }
+      inputShape: [4, 4, 4, 2],
+      attrs: { poolSize: [2, 2, 2], strides: null, borderMode: 'same', dimOrdering: 'tf' }
     },
     {
-      inputShape: [ 4, 4, 4, 2 ],
-      attrs: { poolSize: [ 2, 2, 2 ], strides: [ 1, 1, 1 ], borderMode: 'same', dimOrdering: 'tf' }
+      inputShape: [4, 4, 4, 2],
+      attrs: { poolSize: [2, 2, 2], strides: [1, 1, 1], borderMode: 'same', dimOrdering: 'tf' }
     },
     {
-      inputShape: [ 4, 5, 4, 2 ],
-      attrs: { poolSize: [ 2, 2, 2 ], strides: [ 1, 2, 1 ], borderMode: 'same', dimOrdering: 'tf' }
+      inputShape: [4, 5, 4, 2],
+      attrs: { poolSize: [2, 2, 2], strides: [1, 2, 1], borderMode: 'same', dimOrdering: 'tf' }
     },
     {
-      inputShape: [ 4, 4, 4, 2 ],
-      attrs: { poolSize: [ 3, 3, 3 ], strides: null, borderMode: 'same', dimOrdering: 'tf' }
+      inputShape: [4, 4, 4, 2],
+      attrs: { poolSize: [3, 3, 3], strides: null, borderMode: 'same', dimOrdering: 'tf' }
     },
     {
-      inputShape: [ 4, 4, 4, 2 ],
-      attrs: { poolSize: [ 3, 3, 3 ], strides: [ 3, 3, 3 ], borderMode: 'same', dimOrdering: 'tf' }
+      inputShape: [4, 4, 4, 2],
+      attrs: { poolSize: [3, 3, 3], strides: [3, 3, 3], borderMode: 'same', dimOrdering: 'tf' }
     },
     {
-      inputShape: [ 2, 3, 3, 4 ],
-      attrs: { poolSize: [ 3, 3, 3 ], strides: [ 2, 2, 2 ], borderMode: 'valid', dimOrdering: 'th' }
+      inputShape: [2, 3, 3, 4],
+      attrs: { poolSize: [3, 3, 3], strides: [2, 2, 2], borderMode: 'valid', dimOrdering: 'th' }
     },
     {
-      inputShape: [ 2, 3, 3, 4 ],
-      attrs: { poolSize: [ 3, 3, 3 ], strides: [ 1, 1, 1 ], borderMode: 'same', dimOrdering: 'th' }
+      inputShape: [2, 3, 3, 4],
+      attrs: { poolSize: [3, 3, 3], strides: [1, 1, 1], borderMode: 'same', dimOrdering: 'th' }
     },
     {
-      inputShape: [ 3, 4, 4, 3 ],
-      attrs: { poolSize: [ 2, 2, 2 ], strides: null, borderMode: 'valid', dimOrdering: 'th' }
+      inputShape: [3, 4, 4, 3],
+      attrs: { poolSize: [2, 2, 2], strides: null, borderMode: 'valid', dimOrdering: 'th' }
     }
   ];
 
@@ -67,7 +67,7 @@ describe('pooling layer: AveragePooling3D', function() {
 
   testParams.forEach(({ inputShape, attrs }, i) => {
     const key = `pooling.AveragePooling3D.${i}`;
-    const [ inputDim1, inputDim2, inputDim3, inputChannels ] = inputShape;
+    const [inputDim1, inputDim2, inputDim3, inputChannels] = inputShape;
     const title = `[${key}] test: ${inputDim1}x${inputDim2}x${inputDim3}x${inputChannels} input, poolSize='${attrs.poolSize}', strides=${attrs.strides}, borderMode=${attrs.borderMode}, dimOrdering=${attrs.dimOrdering}`;
 
     it(title, function() {

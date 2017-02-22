@@ -14,11 +14,11 @@ export default class ParametricSoftplus extends Layer {
     this.layerClass = 'ParametricSoftplus';
 
     // Layer weights specification
-    this.params = [ 'alphas', 'betas' ];
+    this.params = ['alphas', 'betas'];
   }
 
   _compute = cwise({
-    args: [ 'array', 'array', 'array' ],
+    args: ['array', 'array', 'array'],
     body: function(_x, alpha, beta) {
       _x = alpha * Math.log(1 + Math.exp(beta * _x));
     }

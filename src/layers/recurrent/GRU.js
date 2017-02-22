@@ -45,18 +45,18 @@ export default class GRU extends Layer {
     this.stateful = stateful;
 
     // Layer weights specification
-    this.params = [ 'W_z', 'U_z', 'b_z', 'W_r', 'U_r', 'b_r', 'W_h', 'U_h', 'b_h' ];
+    this.params = ['W_z', 'U_z', 'b_z', 'W_r', 'U_r', 'b_r', 'W_h', 'U_h', 'b_h'];
   }
 
   _combine = cwise({
-    args: [ 'array', 'array', 'array', 'array' ],
+    args: ['array', 'array', 'array', 'array'],
     body: function(_y, _x1, _x2, _b) {
       _y = _x1 + _x2 + _b;
     }
   });
 
   _update = cwise({
-    args: [ 'array', 'array', 'array' ],
+    args: ['array', 'array', 'array'],
     body: function(_h, _htm1, _z) {
       _h = _h * (1 - _z) + _htm1 * _z;
     }
@@ -68,31 +68,31 @@ export default class GRU extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    let currentX = new Tensor([], [ x.tensor.shape[1] ]);
+    let currentX = new Tensor([], [x.tensor.shape[1]]);
 
     const dimUpdateGate = this.weights['b_z'].tensor.shape[0];
     const dimResetGate = this.weights['b_r'].tensor.shape[0];
     const dimHiddenState = this.weights['b_h'].tensor.shape[0];
 
-    let currentUpdateGateState = new Tensor([], [ dimUpdateGate ]);
-    let tempXZ = new Tensor([], [ dimUpdateGate ]);
-    let tempHZ = new Tensor([], [ dimUpdateGate ]);
+    let currentUpdateGateState = new Tensor([], [dimUpdateGate]);
+    let tempXZ = new Tensor([], [dimUpdateGate]);
+    let tempHZ = new Tensor([], [dimUpdateGate]);
 
-    let currentResetGateState = new Tensor([], [ dimResetGate ]);
-    let tempXR = new Tensor([], [ dimResetGate ]);
-    let tempHR = new Tensor([], [ dimResetGate ]);
+    let currentResetGateState = new Tensor([], [dimResetGate]);
+    let tempXR = new Tensor([], [dimResetGate]);
+    let tempHR = new Tensor([], [dimResetGate]);
 
     let currentHiddenState = this.stateful && this.currentHiddenState
       ? this.currentHiddenState
-      : new Tensor([], [ dimHiddenState ]);
-    let tempXH = new Tensor([], [ dimHiddenState ]);
-    let tempHH = new Tensor([], [ dimHiddenState ]);
-    let previousHiddenState = new Tensor([], [ dimHiddenState ]);
+      : new Tensor([], [dimHiddenState]);
+    let tempXH = new Tensor([], [dimHiddenState]);
+    let tempHH = new Tensor([], [dimHiddenState]);
+    let previousHiddenState = new Tensor([], [dimHiddenState]);
 
-    this.hiddenStateSequence = new Tensor([], [ x.tensor.shape[0], dimHiddenState ]);
+    this.hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimHiddenState]);
 
     const _clearTemp = () => {
-      const tempTensors = [ tempXZ, tempHZ, tempXR, tempHR, tempXH, tempHH ];
+      const tempTensors = [tempXZ, tempHZ, tempXR, tempHR, tempXH, tempHH];
       tempTensors.forEach(temp => ops.assigns(temp.tensor, 0));
     };
 

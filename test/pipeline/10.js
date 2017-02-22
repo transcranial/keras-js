@@ -7,7 +7,7 @@ describe('pipeline_10', function() {
   const layers = KerasJS.layers;
 
   const testParams = {
-    inputShape: [ 24, 24, 2 ],
+    inputShape: [24, 24, 2],
     layers: [
       {
         layerClass: 'Convolution2D',
@@ -17,7 +17,7 @@ describe('pipeline_10', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'valid',
-          subsample: [ 2, 2 ],
+          subsample: [2, 2],
           dimOrdering: 'tf',
           bias: true
         }
@@ -31,7 +31,7 @@ describe('pipeline_10', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'same',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -45,7 +45,7 @@ describe('pipeline_10', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'same',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -53,7 +53,7 @@ describe('pipeline_10', function() {
       { layerClass: 'BatchNormalization', attrs: { mode: 0, axis: -1, epsilon: 0.001 } },
       {
         layerClass: 'AveragePooling2D',
-        attrs: { poolSize: [ 2, 2 ], strides: null, borderMode: 'valid', dim_ordering: 'tf' }
+        attrs: { poolSize: [2, 2], strides: null, borderMode: 'valid', dim_ordering: 'tf' }
       },
       {
         layerClass: 'Convolution2D',
@@ -63,7 +63,7 @@ describe('pipeline_10', function() {
           nbCol: 3,
           activation: 'linear',
           borderMode: 'valid',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -77,7 +77,7 @@ describe('pipeline_10', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'same',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -85,7 +85,7 @@ describe('pipeline_10', function() {
       { layerClass: 'BatchNormalization', attrs: { mode: 0, axis: -1, epsilon: 0.001 } },
       {
         layerClass: 'AveragePooling2D',
-        attrs: { poolSize: [ 2, 2 ], strides: null, borderMode: 'valid', dim_ordering: 'tf' }
+        attrs: { poolSize: [2, 2], strides: null, borderMode: 'valid', dim_ordering: 'tf' }
       }
     ]
   };

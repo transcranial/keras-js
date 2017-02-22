@@ -29,7 +29,7 @@ export function softmax(x) {
 }
 
 const _softplus = cwise({
-  args: [ 'array' ],
+  args: ['array'],
   body: function(_x) {
     _x = Math.log(Math.exp(_x) + 1);
   }
@@ -46,7 +46,7 @@ export function softplus(x) {
 }
 
 const _softsign = cwise({
-  args: [ 'array' ],
+  args: ['array'],
   body: function(_x) {
     _x /= 1 + Math.abs(_x);
   }
@@ -88,7 +88,7 @@ export function relu(x, opts = {}) {
 }
 
 const _tanh = cwise({
-  args: [ 'array' ],
+  args: ['array'],
   body: function(_x) {
     _x = Math.tanh(_x);
   }
@@ -105,7 +105,7 @@ export function tanh(x) {
 }
 
 const _sigmoid = cwise({
-  args: [ 'array' ],
+  args: ['array'],
   body: function(_x) {
     _x = 1 / (1 + Math.exp(-_x));
   }
@@ -124,7 +124,7 @@ export function sigmoid(x) {
 // Reference hard sigmoid with slope and shift values from theano, see
 // https://github.com/Theano/Theano/blob/master/theano/tensor/nnet/sigm.py
 const _hardSigmoid = cwise({
-  args: [ 'array' ],
+  args: ['array'],
   body: function(_x) {
     _x = _x * 0.2 + 0.5;
     if (_x <= 0) {

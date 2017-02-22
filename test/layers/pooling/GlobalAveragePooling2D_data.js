@@ -116,9 +116,9 @@
           -0.005027,
           0.268902
         ],
-        shape: [ 6, 6, 3 ]
+        shape: [6, 6, 3]
       },
-      expected: { data: [ -0.187999, -0.083497, -0.011324 ], shape: [ 3 ] }
+      expected: { data: [-0.187999, -0.083497, -0.011324], shape: [3] }
     },
     'pooling.GlobalAveragePooling2D.1': {
       input: {
@@ -232,9 +232,9 @@
           -0.979736,
           0.698471
         ],
-        shape: [ 3, 6, 6 ]
+        shape: [3, 6, 6]
       },
-      expected: { data: [ 0.071353, 0.051611, -0.070248 ], shape: [ 3 ] }
+      expected: { data: [0.071353, 0.051611, -0.070248], shape: [3] }
     },
     'pooling.GlobalAveragePooling2D.2': {
       input: {
@@ -270,9 +270,9 @@
           -0.896798,
           -0.850198
         ],
-        shape: [ 5, 3, 2 ]
+        shape: [5, 3, 2]
       },
-      expected: { data: [ 0.203236, -0.233729 ], shape: [ 2 ] }
+      expected: { data: [0.203236, -0.233729], shape: [2] }
     }
   };
 

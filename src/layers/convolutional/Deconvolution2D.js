@@ -28,12 +28,12 @@ export default class Deconvolution2D extends Layer {
       outputShape = [],
       activation = 'linear',
       borderMode = 'valid',
-      subsample = [ 1, 1 ],
+      subsample = [1, 1],
       dimOrdering = 'tf',
       bias = true
     } = attrs;
 
-    this.kernelShape = [ nbFilter, nbRow, nbCol ];
+    this.kernelShape = [nbFilter, nbRow, nbCol];
 
     if (outputShape[0] == null) {
       this.outputShape = outputShape.slice(1);
@@ -61,7 +61,7 @@ export default class Deconvolution2D extends Layer {
     this.bias = bias;
 
     // Layer weights specification
-    this.params = this.bias ? [ 'W', 'b' ] : [ 'W' ];
+    this.params = this.bias ? ['W', 'b'] : ['W'];
 
     // Enable layer gpu +/- pipeline mode if supported
     if (this.gpu && weblas) {
@@ -129,7 +129,7 @@ export default class Deconvolution2D extends Layer {
     const paddingColBefore = Math.floor(paddingCol / 2);
     const paddingColAfter = paddingCol - paddingColBefore;
 
-    this.outputPadding = [ paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter ];
+    this.outputPadding = [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter];
   }
 
   /**
@@ -139,11 +139,11 @@ export default class Deconvolution2D extends Layer {
    * @returns {Tensor} x
    */
   _im2col(x) {
-    const [ inputRows, inputCols, inputChannels ] = x.tensor.shape;
+    const [inputRows, inputCols, inputChannels] = x.tensor.shape;
 
-    const imColsMat = new Tensor([], [ inputRows * inputCols, inputChannels ]);
-    let channelRaveled = new Tensor([], [ inputRows * inputCols ]);
-    let channel = new Tensor([], [ inputRows, inputCols ]);
+    const imColsMat = new Tensor([], [inputRows * inputCols, inputChannels]);
+    let channelRaveled = new Tensor([], [inputRows * inputCols]);
+    let channel = new Tensor([], [inputRows, inputCols]);
     for (let c = 0; c < inputChannels; c++) {
       ops.assign(channel.tensor, x.tensor.pick(null, null, c));
       channelRaveled.replaceTensorData(channel.tensor.data);
@@ -158,12 +158,12 @@ export default class Deconvolution2D extends Layer {
    * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
    */
   _w2row() {
-    const [ nbRow, nbCol, inputChannels, nbFilter ] = this.weights.W.tensor.shape;
+    const [nbRow, nbCol, inputChannels, nbFilter] = this.weights.W.tensor.shape;
 
-    const wRowsMat = new Tensor([], [ inputChannels, nbRow * nbCol * nbFilter ]);
+    const wRowsMat = new Tensor([], [inputChannels, nbRow * nbCol * nbFilter]);
 
-    let channelRaveled = new Tensor([], [ nbRow * nbCol * nbFilter ]);
-    let channel = new Tensor([], [ nbRow, nbCol, nbFilter ]);
+    let channelRaveled = new Tensor([], [nbRow * nbCol * nbFilter]);
+    let channel = new Tensor([], [nbRow, nbCol, nbFilter]);
     for (let c = 0; c < inputChannels; c++) {
       ops.assign(channel.tensor, this.weights.W.tensor.pick(null, null, c, null));
       channelRaveled.replaceTensorData(channel.tensor.data);
@@ -191,11 +191,11 @@ export default class Deconvolution2D extends Layer {
 
     const inputRows = x.tensor.shape[0];
     const inputCols = x.tensor.shape[1];
-    const [ nbFilter, nbRow, nbCol ] = this.kernelShape;
-    const matMul = new Tensor([], [ inputRows * inputCols, nbRow * nbCol * nbFilter ]);
+    const [nbFilter, nbRow, nbCol] = this.kernelShape;
+    const matMul = new Tensor([], [inputRows * inputCols, nbRow * nbCol * nbFilter]);
 
     if (this._useWeblas && !(imColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
-      let _zerosVec = new Tensor([], [ this.weights.W.tensor.shape[3] ]);
+      let _zerosVec = new Tensor([], [this.weights.W.tensor.shape[3]]);
       _zerosVec.createWeblasTensor();
       matMul.tensor.data = weblas.pipeline
         .sgemm(1, imColsMat.weblasTensor, this._wRowsMat.weblasTensor, 0, _zerosVec)
@@ -209,7 +209,7 @@ export default class Deconvolution2D extends Layer {
     this._calcOutputPadding(x);
 
     // add padding which we will take away later
-    const [ paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter ] = this.outputPadding;
+    const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.outputPadding;
     let output = new Tensor([], this.outputShape);
     let outputPadded = new Tensor([], [
       this.outputShape[0] + paddingRowBefore + paddingRowAfter,
@@ -224,9 +224,9 @@ export default class Deconvolution2D extends Layer {
       }
     }
 
-    const patchShape = [ nbRow, nbCol, nbFilter ];
+    const patchShape = [nbRow, nbCol, nbFilter];
     let patch = new Tensor([], patchShape);
-    let patchRaveled = new Tensor([], [ nbRow * nbCol * nbFilter ]);
+    let patchRaveled = new Tensor([], [nbRow * nbCol * nbFilter]);
     let index = 0;
     for (let i = 0; i < inputRows; i++) {
       for (let j = 0; j < inputCols; j++) {

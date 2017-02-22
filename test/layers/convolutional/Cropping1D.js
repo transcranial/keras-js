@@ -13,7 +13,7 @@ describe('convolutional layer: Cropping1D', function() {
   it(`[convolutional.Cropping1D.0] cropping (1,1) on 6x4 input`, function() {
     const key = `convolutional.Cropping1D.0`;
     console.log(`\n%c[${key}] cropping (1,1) on 6x4 input`, styles.h3);
-    let testLayer = new layers.Cropping1D({ cropping: [ 1, 1 ] });
+    let testLayer = new layers.Cropping1D({ cropping: [1, 1] });
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();
@@ -30,7 +30,7 @@ describe('convolutional layer: Cropping1D', function() {
   it(`[convolutional.Cropping1D.1] cropping (2,3) on 6x4 input`, function() {
     const key = `convolutional.Cropping1D.1`;
     console.log(`\n%c[${key}] cropping (2,3) on 6x4 input`, styles.h3);
-    let testLayer = new layers.Cropping1D({ cropping: [ 2, 3 ] });
+    let testLayer = new layers.Cropping1D({ cropping: [2, 3] });
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();

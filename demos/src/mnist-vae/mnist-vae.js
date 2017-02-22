@@ -30,7 +30,7 @@ const LAYER_DISPLAY_CONFIG = {
  *
  */
 export const MnistVae = Vue.extend({
-  props: [ 'hasWebgl' ],
+  props: ['hasWebgl'],
   template: require('raw-loader!./mnist-vae.template.html'),
   data: function() {
     return {
@@ -40,8 +40,8 @@ export const MnistVae = Vue.extend({
       modelLoading: true,
       output: new Float32Array(27 * 27),
       crosshairsActivated: false,
-      inputCoordinates: [ -0.6, -1.2 ],
-      position: [ 60, 20 ],
+      inputCoordinates: [-0.6, -1.2],
+      position: [60, 20],
       layerResultImages: [],
       layerDisplayConfig: LAYER_DISPLAY_CONFIG
     };
@@ -76,7 +76,7 @@ export const MnistVae = Vue.extend({
       this.draw(e);
     },
     draw: function(e) {
-      const [ x, y ] = this.getEventCanvasCoordinates(e);
+      const [x, y] = this.getEventCanvasCoordinates(e);
       const ctx = document.getElementById('input-canvas').getContext('2d');
       ctx.clearRect(0, 0, 200, 200);
 
@@ -113,14 +113,14 @@ export const MnistVae = Vue.extend({
 
       const canvas = document.getElementById('input-canvas');
       const { left, top } = canvas.getBoundingClientRect();
-      const [ x, y ] = [ clientX - left, clientY - top ];
-      return [ x, y ];
+      const [x, y] = [clientX - left, clientY - top];
+      return [x, y];
     },
     selectCoordinates: function(e) {
-      const [ x, y ] = this.getEventCanvasCoordinates(e);
+      const [x, y] = this.getEventCanvasCoordinates(e);
       if (!this.model.isRunning) {
-        this.position = [ x, y ];
-        this.inputCoordinates = [ x * 3 / 200 - 1.5, y * 3 / 200 - 1.5 ];
+        this.position = [x, y];
+        this.inputCoordinates = [x * 3 / 200 - 1.5, y * 3 / 200 - 1.5];
         this.draw(e);
         this.runModel();
       }
@@ -135,7 +135,7 @@ export const MnistVae = Vue.extend({
     },
     drawOutput: function() {
       const ctx = document.getElementById('output-canvas').getContext('2d');
-      const image = utils.image2Darray(this.output, 27, 27, [ 27, 188, 155 ]);
+      const image = utils.image2Darray(this.output, 27, 27, [27, 188, 155]);
       ctx.putImageData(image, 0, 0);
 
       // scale up
@@ -148,7 +148,7 @@ export const MnistVae = Vue.extend({
     },
     getIntermediateResults: function() {
       let results = [];
-      for (let [ name, layer ] of this.model.modelLayersMap.entries()) {
+      for (let [name, layer] of this.model.modelLayersMap.entries()) {
         const layerClass = layer.layerClass || '';
         if (layerClass === 'InputLayer') continue;
 
@@ -156,9 +156,9 @@ export const MnistVae = Vue.extend({
         if (layer.result && layer.result.tensor.shape.length === 3) {
           images = utils.unroll3Dtensor(layer.result.tensor);
         } else if (layer.result && layer.result.tensor.shape.length === 2) {
-          images = [ utils.image2Dtensor(layer.result.tensor) ];
+          images = [utils.image2Dtensor(layer.result.tensor)];
         } else if (layer.result && layer.result.tensor.shape.length === 1) {
-          images = [ utils.image1Dtensor(layer.result.tensor) ];
+          images = [utils.image1Dtensor(layer.result.tensor)];
         }
         results.push({ name, layerClass, images });
       }

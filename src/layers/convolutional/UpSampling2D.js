@@ -14,7 +14,7 @@ export default class UpSampling2D extends Layer {
     super(attrs);
     this.layerClass = 'UpSampling2D';
 
-    const { size = [ 2, 2 ], dimOrdering = 'tf' } = attrs;
+    const { size = [2, 2], dimOrdering = 'tf' } = attrs;
 
     this.size = size;
     this.dimOrdering = dimOrdering;
@@ -32,7 +32,7 @@ export default class UpSampling2D extends Layer {
     }
 
     const inputShape = x.tensor.shape;
-    const outputShape = [ inputShape[0] * this.size[0], inputShape[1] * this.size[1], inputShape[2] ];
+    const outputShape = [inputShape[0] * this.size[0], inputShape[1] * this.size[1], inputShape[2]];
     let y = new Tensor([], outputShape);
     for (let i = 0; i < this.size[0]; i++) {
       for (let j = 0; j < this.size[1]; j++) {

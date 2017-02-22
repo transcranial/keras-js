@@ -7,7 +7,7 @@ describe('pipeline_05', function() {
   const layers = KerasJS.layers;
 
   const testParams = {
-    inputShape: [ 8, 8, 2 ],
+    inputShape: [8, 8, 2],
     layers: [
       {
         layerClass: 'Convolution2D',
@@ -17,14 +17,14 @@ describe('pipeline_05', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'valid',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
       },
       {
         layerClass: 'MaxPooling2D',
-        attrs: { poolSize: [ 2, 2 ], strides: null, borderMode: 'valid', dim_ordering: 'tf' }
+        attrs: { poolSize: [2, 2], strides: null, borderMode: 'valid', dim_ordering: 'tf' }
       }
     ]
   };

@@ -190,7 +190,7 @@ export default class WebGLConv2D extends WebGLLayer {
     const nbFilter = weights.shape[0];
 
     // create an empty output Tensor
-    const tOut = new weblas.pipeline.Tensor([ nbPatches, nbFilter ], null);
+    const tOut = new weblas.pipeline.Tensor([nbPatches, nbFilter], null);
 
     this._bindInputTexturesMain(input, weights, bias);
     this._bindUniformsMain(input, weights, activation);

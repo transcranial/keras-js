@@ -13,7 +13,7 @@ export default class _Pooling3D extends Layer {
     super(attrs);
     this.layerClass = '_Pooling3D';
 
-    const { poolSize = [ 2, 2, 2 ], strides = null, borderMode = 'valid', dimOrdering = 'tf' } = attrs;
+    const { poolSize = [2, 2, 2], strides = null, borderMode = 'valid', dimOrdering = 'tf' } = attrs;
 
     this.poolSize = poolSize;
     this.strides = strides === null ? poolSize : strides;
@@ -33,8 +33,8 @@ export default class _Pooling3D extends Layer {
    * @param {Tensor} x
    */
   _calcOutputShape(x) {
-    const [ inputDim1, inputDim2, inputDim3, inputChannels ] = x.tensor.shape;
-    const [ poolDim1, poolDim2, poolDim3 ] = this.poolSize;
+    const [inputDim1, inputDim2, inputDim3, inputChannels] = x.tensor.shape;
+    const [poolDim1, poolDim2, poolDim3] = this.poolSize;
 
     const outputDim1 = this.borderMode === 'same'
       ? Math.floor((inputDim1 + this.strides[0] - 1) / this.strides[0])
@@ -62,7 +62,7 @@ export default class _Pooling3D extends Layer {
     const paddingDim3Before = Math.floor(paddingDim3 / 2);
     const paddingDim3After = paddingDim3 - paddingDim3Before;
 
-    this.outputShape = [ outputDim1, outputDim2, outputDim3, inputChannels ];
+    this.outputShape = [outputDim1, outputDim2, outputDim3, inputChannels];
     this.inputPadding = [
       paddingDim1Before,
       paddingDim1After,
@@ -83,7 +83,7 @@ export default class _Pooling3D extends Layer {
    */
   _padInput(x) {
     if (this.borderMode === 'same') {
-      const [ inputDim1, inputDim2, inputDim3, inputChannels ] = x.tensor.shape;
+      const [inputDim1, inputDim2, inputDim3, inputChannels] = x.tensor.shape;
       const [
         paddingDim1Before,
         paddingDim1After,
@@ -96,7 +96,7 @@ export default class _Pooling3D extends Layer {
       const newDim2 = inputDim2 + paddingDim2Before + paddingDim2After;
       const newDim3 = inputDim3 + paddingDim3Before + paddingDim3After;
 
-      let _x = new Tensor([], [ newDim1, newDim2, newDim3, inputChannels ]);
+      let _x = new Tensor([], [newDim1, newDim2, newDim3, inputChannels]);
       if (this.poolingFunc === 'max') {
         ops.assigns(_x.tensor, Number.NEGATIVE_INFINITY);
       }
@@ -135,10 +135,10 @@ export default class _Pooling3D extends Layer {
     this._calcOutputShape(x);
     this._padInput(x);
 
-    const [ inputDim1, inputDim2, inputDim3, inputChannels ] = x.tensor.shape;
-    const [ poolDim1, poolDim2, poolDim3 ] = this.poolSize;
+    const [inputDim1, inputDim2, inputDim3, inputChannels] = x.tensor.shape;
+    const [poolDim1, poolDim2, poolDim3] = this.poolSize;
     let y = new Tensor([], this.outputShape);
-    let patch = new Tensor([], [ poolDim1, poolDim2, poolDim3, inputChannels ]);
+    let patch = new Tensor([], [poolDim1, poolDim2, poolDim3, inputChannels]);
 
     // keep track of padding since these values are not included in pooling
     // for max, we can ignore since padding values are set to -infinity

@@ -14,7 +14,7 @@ export default class ZeroPadding3D extends Layer {
     super(attrs);
     this.layerClass = 'ZeroPadding3D';
 
-    const { padding = [ 1, 1, 1 ], dimOrdering = 'tf' } = attrs;
+    const { padding = [1, 1, 1], dimOrdering = 'tf' } = attrs;
 
     this.padding = padding;
     this.dimOrdering = dimOrdering;

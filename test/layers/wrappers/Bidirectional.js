@@ -9,43 +9,43 @@ describe('wrappers layer: Bidirectional', function() {
   const testParams = [
     {
       wrappedLayer: 'SimpleRNN',
-      inputShape: [ 3, 6 ],
+      inputShape: [3, 6],
       attrs: { mergeMode: 'sum' },
       wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: false }
     },
     {
       wrappedLayer: 'SimpleRNN',
-      inputShape: [ 3, 6 ],
+      inputShape: [3, 6],
       attrs: { mergeMode: 'mul' },
       wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: false }
     },
     {
       wrappedLayer: 'SimpleRNN',
-      inputShape: [ 3, 6 ],
+      inputShape: [3, 6],
       attrs: { mergeMode: 'concat' },
       wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: false }
     },
     {
       wrappedLayer: 'SimpleRNN',
-      inputShape: [ 3, 6 ],
+      inputShape: [3, 6],
       attrs: { mergeMode: 'ave' },
       wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: false }
     },
     {
       wrappedLayer: 'SimpleRNN',
-      inputShape: [ 3, 6 ],
+      inputShape: [3, 6],
       attrs: { mergeMode: 'concat' },
       wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: true }
     },
     {
       wrappedLayer: 'GRU',
-      inputShape: [ 3, 6 ],
+      inputShape: [3, 6],
       attrs: { mergeMode: 'concat' },
       wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', innerActivation: 'hardSigmoid', returnSequences: true }
     },
     {
       wrappedLayer: 'LSTM',
-      inputShape: [ 3, 6 ],
+      inputShape: [3, 6],
       attrs: { mergeMode: 'concat' },
       wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', innerActivation: 'hardSigmoid', returnSequences: true }
     }
@@ -65,7 +65,9 @@ describe('wrappers layer: Bidirectional', function() {
 
     testParams.forEach(({ wrappedLayer, inputShape, attrs, wrappedLayerAttrs }, i) => {
       const key = `wrappers.Bidirectional.${i}`;
-      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
+      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[
+        1
+      ]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
         wrappedLayerAttrs
       )}`;
 
@@ -100,7 +102,9 @@ describe('wrappers layer: Bidirectional', function() {
 
     testParams.forEach(({ wrappedLayer, inputShape, attrs, wrappedLayerAttrs }, i) => {
       const key = `wrappers.Bidirectional.${i}`;
-      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
+      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[
+        1
+      ]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
         wrappedLayerAttrs
       )}`;
 

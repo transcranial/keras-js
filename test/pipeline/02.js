@@ -7,7 +7,7 @@ describe('pipeline_02', function() {
   const layers = KerasJS.layers;
 
   const testParams = {
-    inputShape: [ 16, 16, 2 ],
+    inputShape: [16, 16, 2],
     layers: [
       {
         layerClass: 'Convolution2D',
@@ -17,7 +17,7 @@ describe('pipeline_02', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'same',
-          subsample: [ 2, 2 ],
+          subsample: [2, 2],
           dimOrdering: 'tf',
           bias: true
         }
@@ -30,7 +30,7 @@ describe('pipeline_02', function() {
           nbCol: 3,
           activation: 'linear',
           borderMode: 'valid',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -43,7 +43,7 @@ describe('pipeline_02', function() {
           nbCol: 1,
           activation: 'relu',
           borderMode: 'valid',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -56,7 +56,7 @@ describe('pipeline_02', function() {
           nbCol: 5,
           activation: 'relu',
           borderMode: 'same',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -69,7 +69,7 @@ describe('pipeline_02', function() {
           nbCol: 3,
           activation: 'linear',
           borderMode: 'same',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -82,7 +82,7 @@ describe('pipeline_02', function() {
           nbCol: 1,
           activation: 'relu',
           borderMode: 'valid',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -95,7 +95,7 @@ describe('pipeline_02', function() {
           nbCol: 3,
           activation: 'linear',
           borderMode: 'valid',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }

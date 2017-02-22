@@ -28,8 +28,8 @@ export default class GlobalAveragePooling2D extends Layer {
       x.tensor = x.tensor.transpose(1, 2, 0);
     }
 
-    const [ rows, cols, channels ] = x.tensor.shape;
-    let y = new Tensor([], [ channels ]);
+    const [rows, cols, channels] = x.tensor.shape;
+    let y = new Tensor([], [channels]);
     for (let i = 0, len = channels; i < len; i++) {
       y.tensor.set(i, ops.sum(x.tensor.pick(null, null, i)) / (rows * cols));
     }

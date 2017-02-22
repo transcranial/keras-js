@@ -24,7 +24,7 @@ export default class Merge extends Layer {
 
     const { mode = 'sum', concatAxis = -1, dotAxes = -1, outputShape = null, outputMask = null } = attrs;
 
-    const availableModes = [ 'sum', 'mul', 'concat', 'ave', 'cos', 'dot', 'max' ];
+    const availableModes = ['sum', 'mul', 'concat', 'ave', 'cos', 'dot', 'max'];
     if (availableModes.indexOf(mode) > -1) {
       this.mode = mode;
     } else {
@@ -34,9 +34,9 @@ export default class Merge extends Layer {
     // no mini-batch axis here, so we subtract 1 if given axis > 0
     this.concatAxis = concatAxis <= 0 ? concatAxis : concatAxis - 1;
     if (Array.isArray(dotAxes)) {
-      this.dotAxes = [ dotAxes[0] <= 0 ? dotAxes[0] : dotAxes[0] - 1, dotAxes[1] <= 0 ? dotAxes[1] : dotAxes[1] - 1 ];
+      this.dotAxes = [dotAxes[0] <= 0 ? dotAxes[0] : dotAxes[0] - 1, dotAxes[1] <= 0 ? dotAxes[1] : dotAxes[1] - 1];
     } else {
-      this.dotAxes = [ dotAxes <= 0 ? dotAxes : dotAxes - 1, dotAxes <= 0 ? dotAxes : dotAxes - 1 ];
+      this.dotAxes = [dotAxes <= 0 ? dotAxes : dotAxes - 1, dotAxes <= 0 ? dotAxes : dotAxes - 1];
     }
 
     this.outputShape = outputShape;
@@ -64,12 +64,12 @@ export default class Merge extends Layer {
    */
   _validateInputs(inputs) {
     const shapes = inputs.map(x => x.tensor.shape.slice());
-    if ([ 'sum', 'mul', 'ave', 'cos', 'max' ].indexOf(this.mode) > -1) {
+    if (['sum', 'mul', 'ave', 'cos', 'max'].indexOf(this.mode) > -1) {
       if (!shapes.every(shape => isEqual(shape, shapes[0]))) {
         throw new Error(`${this.name} [Merge layer] All input shapes must be the same for mode ${this.mode}.`);
       }
     }
-    if ([ 'cos', 'dot' ].indexOf(this.mode) > -1) {
+    if (['cos', 'dot'].indexOf(this.mode) > -1) {
       if (inputs.length !== 2) {
         throw new Error(`${this.name} [Merge layer] Exactly 2 inputs required for mode ${this.mode}.`);
       }
@@ -118,10 +118,7 @@ export default class Merge extends Layer {
     output._fromPipeline = true;
     output._actualShape = inputs[0]._actualShape;
     if (this.mode === 'concat') {
-      output._actualShape = [
-        ...inputs[0]._actualShape.slice(0, -1),
-        sum(inputs.map(x => x._actualShape.slice(-1)[0]))
-      ];
+      output._actualShape = [...inputs[0]._actualShape.slice(0, -1), sum(inputs.map(x => x._actualShape.slice(-1)[0]))];
     }
 
     return output;
@@ -140,7 +137,7 @@ export default class Merge extends Layer {
 
     let output;
     let outputShape;
-    if ([ 'sum', 'mul', 'ave', 'max' ].indexOf(this.mode) > -1) {
+    if (['sum', 'mul', 'ave', 'max'].indexOf(this.mode) > -1) {
       outputShape = inputs[0].tensor.shape.slice();
       output = new Tensor([], outputShape);
     } else if (this.mode === 'concat') {
@@ -152,7 +149,7 @@ export default class Merge extends Layer {
         outputShape[_concatAxis] += d;
       });
       output = new Tensor([], outputShape);
-    } else if ([ 'cos', 'dot' ].indexOf(this.mode) > -1) {
+    } else if (['cos', 'dot'].indexOf(this.mode) > -1) {
       let shape1 = inputs[0].tensor.shape.slice();
       let shape2 = inputs[1].tensor.shape.slice();
       shape1.splice(this.dotAxes[0], 1);
@@ -189,7 +186,7 @@ export default class Merge extends Layer {
       if (_concatAxis === 0) {
         concatFirstAxis(output.tensor, inputs.map(x => x.tensor));
       } else {
-        let dimsAxisSwap = [ _concatAxis ];
+        let dimsAxisSwap = [_concatAxis];
         for (let i = 0; i < inputs[0].tensor.shape.length; i++) {
           if (i !== _concatAxis) dimsAxisSwap.push(i);
         }

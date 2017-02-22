@@ -7,7 +7,7 @@ describe('pipeline_17', function() {
   const layers = KerasJS.layers;
 
   const testParams = {
-    inputShape: [ 8, 8, 2 ],
+    inputShape: [8, 8, 2],
     layers: [
       {
         branch: 0,
@@ -18,7 +18,7 @@ describe('pipeline_17', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'valid',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -32,12 +32,12 @@ describe('pipeline_17', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'valid',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
       },
-      { branches: [ 0, 1 ], layerClass: 'Merge', attrs: { mode: 'concat' } }
+      { branches: [0, 1], layerClass: 'Merge', attrs: { mode: 'concat' } }
     ]
   };
 
@@ -93,7 +93,7 @@ describe('pipeline_17', function() {
     for (let i = 0; i < branch_1.length; i++) {
       t_1 = branch_1[i].call(t_1);
     }
-    let t = mergeLayer.call([ t_0, t_1 ]);
+    let t = mergeLayer.call([t_0, t_1]);
     t = mergeLayer.transferFromPipeline(t);
     const endTime = performance.now();
     console.log('%cout', styles.h4, stringifyCondensed(t.tensor));

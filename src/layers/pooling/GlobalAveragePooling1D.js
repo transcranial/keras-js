@@ -20,8 +20,8 @@ export default class GlobalAveragePooling1D extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    const [ steps, features ] = x.tensor.shape;
-    let y = new Tensor([], [ features ]);
+    const [steps, features] = x.tensor.shape;
+    let y = new Tensor([], [features]);
     for (let i = 0, len = features; i < len; i++) {
       y.tensor.set(i, ops.sum(x.tensor.pick(null, i)) / steps);
     }

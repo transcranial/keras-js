@@ -41,11 +41,11 @@ export default class SimpleRNN extends Layer {
     this.stateful = stateful;
 
     // Layer weights specification
-    this.params = [ 'W', 'U', 'b' ];
+    this.params = ['W', 'U', 'b'];
   }
 
   _combine = cwise({
-    args: [ 'array', 'array', 'array', 'array' ],
+    args: ['array', 'array', 'array', 'array'],
     body: function(_y, _x1, _x2, _b) {
       _y = _x1 + _x2 + _b;
     }
@@ -57,20 +57,20 @@ export default class SimpleRNN extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    let currentX = new Tensor([], [ x.tensor.shape[1] ]);
+    let currentX = new Tensor([], [x.tensor.shape[1]]);
 
     const dimHiddenState = this.weights['b'].tensor.shape[0];
     let currentHiddenState = this.stateful && this.currentHiddenState
       ? this.currentHiddenState
-      : new Tensor([], [ dimHiddenState ]);
-    let tempXH = new Tensor([], [ dimHiddenState ]);
-    let tempHH = new Tensor([], [ dimHiddenState ]);
-    let previousHiddenState = new Tensor([], [ dimHiddenState ]);
+      : new Tensor([], [dimHiddenState]);
+    let tempXH = new Tensor([], [dimHiddenState]);
+    let tempHH = new Tensor([], [dimHiddenState]);
+    let previousHiddenState = new Tensor([], [dimHiddenState]);
 
-    this.hiddenStateSequence = new Tensor([], [ x.tensor.shape[0], dimHiddenState ]);
+    this.hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimHiddenState]);
 
     const _clearTemp = () => {
-      const tempTensors = [ tempXH, tempHH ];
+      const tempTensors = [tempXH, tempHH];
       tempTensors.forEach(temp => ops.assigns(temp.tensor, 0));
     };
 

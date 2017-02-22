@@ -7,15 +7,15 @@ describe('pooling layer: MaxPooling1D', function() {
   const layers = KerasJS.layers;
 
   const testParams = [
-    { inputShape: [ 6, 6 ], attrs: { poolLength: 2, stride: null, borderMode: 'valid' } },
-    { inputShape: [ 6, 6 ], attrs: { poolLength: 2, stride: 1, borderMode: 'valid' } },
-    { inputShape: [ 6, 6 ], attrs: { poolLength: 2, stride: 3, borderMode: 'valid' } },
-    { inputShape: [ 6, 6 ], attrs: { poolLength: 2, stride: null, borderMode: 'same' } },
-    { inputShape: [ 6, 6 ], attrs: { poolLength: 2, stride: 1, borderMode: 'same' } },
-    { inputShape: [ 6, 6 ], attrs: { poolLength: 2, stride: 3, borderMode: 'same' } },
-    { inputShape: [ 6, 6 ], attrs: { poolLength: 3, stride: null, borderMode: 'valid' } },
-    { inputShape: [ 7, 7 ], attrs: { poolLength: 3, stride: 1, borderMode: 'same' } },
-    { inputShape: [ 7, 7 ], attrs: { poolLength: 3, stride: 3, borderMode: 'same' } }
+    { inputShape: [6, 6], attrs: { poolLength: 2, stride: null, borderMode: 'valid' } },
+    { inputShape: [6, 6], attrs: { poolLength: 2, stride: 1, borderMode: 'valid' } },
+    { inputShape: [6, 6], attrs: { poolLength: 2, stride: 3, borderMode: 'valid' } },
+    { inputShape: [6, 6], attrs: { poolLength: 2, stride: null, borderMode: 'same' } },
+    { inputShape: [6, 6], attrs: { poolLength: 2, stride: 1, borderMode: 'same' } },
+    { inputShape: [6, 6], attrs: { poolLength: 2, stride: 3, borderMode: 'same' } },
+    { inputShape: [6, 6], attrs: { poolLength: 3, stride: null, borderMode: 'valid' } },
+    { inputShape: [7, 7], attrs: { poolLength: 3, stride: 1, borderMode: 'same' } },
+    { inputShape: [7, 7], attrs: { poolLength: 3, stride: 3, borderMode: 'same' } }
   ];
 
   before(function() {
@@ -24,7 +24,7 @@ describe('pooling layer: MaxPooling1D', function() {
 
   testParams.forEach(({ inputShape, attrs }, i) => {
     const key = `pooling.MaxPooling1D.${i}`;
-    const [ inputLength, inputFeatures ] = inputShape;
+    const [inputLength, inputFeatures] = inputShape;
     const title = `[${key}] test: ${inputLength}x${inputFeatures} input, poolLength='${attrs.poolLength}', stride=${attrs.stride}, borderMode=${attrs.borderMode}`;
 
     it(title, function() {

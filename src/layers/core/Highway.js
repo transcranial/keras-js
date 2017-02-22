@@ -31,11 +31,11 @@ export default class Highway extends Layer {
     /**
      * Layer weights specification
      */
-    this.params = this.bias ? [ 'W', 'b', 'W_carry', 'b_carry' ] : [ 'W', 'W_carry' ];
+    this.params = this.bias ? ['W', 'b', 'W_carry', 'b_carry'] : ['W', 'W_carry'];
   }
 
   _computeOutput = cwise({
-    args: [ 'array', 'array', 'array' ],
+    args: ['array', 'array', 'array'],
     body: function(_x, _y, _transform) {
       _x = _y * _transform + (1 - _transform) * _x;
     }
@@ -47,14 +47,14 @@ export default class Highway extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    let y = new Tensor([], [ this.weights.W.tensor.shape[1] ]);
+    let y = new Tensor([], [this.weights.W.tensor.shape[1]]);
     if (this.bias) {
       ops.assign(y.tensor, this.weights.b.tensor);
     }
     gemv(1, this.weights.W.tensor.transpose(1, 0), x.tensor, 1, y.tensor);
     this.activationFunc(y);
 
-    let transform = new Tensor([], [ this.weights.W_carry.tensor.shape[1] ]);
+    let transform = new Tensor([], [this.weights.W_carry.tensor.shape[1]]);
     if (this.bias) {
       ops.assign(transform.tensor, this.weights.b_carry.tensor);
     }

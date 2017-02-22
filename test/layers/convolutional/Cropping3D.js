@@ -13,7 +13,7 @@ describe('convolutional layer: Cropping3D', function() {
   it(`[convolutional.Cropping3D.0] cropping ((1,1), (1,1), (1,1)) on 3x5x3x3 input, dim_ordering=tf`, function() {
     const key = `convolutional.Cropping3D.0`;
     console.log(`\n%c[${key}] cropping ((1,1), (1,1), (1,1)) on 3x5x3x3 input, dim_ordering=tf`, styles.h3);
-    let testLayer = new layers.Cropping3D({ cropping: [ [ 1, 1 ], [ 1, 1 ], [ 1, 1 ] ], dimOrdering: 'tf' });
+    let testLayer = new layers.Cropping3D({ cropping: [[1, 1], [1, 1], [1, 1]], dimOrdering: 'tf' });
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();
@@ -30,7 +30,7 @@ describe('convolutional layer: Cropping3D', function() {
   it(`[convolutional.Cropping3D.0] cropping ((1,1), (1,1), (1,1)) on 3x5x3x3 input, dim_ordering=th`, function() {
     const key = `convolutional.Cropping3D.1`;
     console.log(`\n%c[${key}] cropping ((1,1), (1,1), (1,1)) on 3x5x3x3 input, dim_ordering=th`, styles.h3);
-    let testLayer = new layers.Cropping3D({ cropping: [ [ 1, 1 ], [ 1, 1 ], [ 1, 1 ] ], dimOrdering: 'th' });
+    let testLayer = new layers.Cropping3D({ cropping: [[1, 1], [1, 1], [1, 1]], dimOrdering: 'th' });
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();
@@ -47,7 +47,7 @@ describe('convolutional layer: Cropping3D', function() {
   it(`[convolutional.Cropping3D.2] cropping (3,2), (2,1), (2,3)) on 7x6x6x6 input, dim_ordering=tf`, function() {
     const key = `convolutional.Cropping3D.2`;
     console.log(`\n%c[${key}] cropping (3,2), (2,1), (2,3)) on 7x6x6x6 input, dim_ordering=tf`, styles.h3);
-    let testLayer = new layers.Cropping3D({ cropping: [ [ 3, 2 ], [ 2, 1 ], [ 2, 3 ] ], dimOrdering: 'tf' });
+    let testLayer = new layers.Cropping3D({ cropping: [[3, 2], [2, 1], [2, 3]], dimOrdering: 'tf' });
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();
@@ -64,7 +64,7 @@ describe('convolutional layer: Cropping3D', function() {
   it(`[convolutional.Cropping3D.2] cropping (3,2), (2,1), (2,3)) on 7x6x6x6 input, dim_ordering=th`, function() {
     const key = `convolutional.Cropping3D.3`;
     console.log(`\n%c[${key}] cropping (3,2), (2,1), (2,3)) on 7x6x6x6 input, dim_ordering=th`, styles.h3);
-    let testLayer = new layers.Cropping3D({ cropping: [ [ 3, 2 ], [ 2, 1 ], [ 2, 3 ] ], dimOrdering: 'th' });
+    let testLayer = new layers.Cropping3D({ cropping: [[3, 2], [2, 1], [2, 3]], dimOrdering: 'th' });
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();

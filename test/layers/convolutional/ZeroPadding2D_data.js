@@ -38,7 +38,7 @@
           -0.139788,
           -0.710674
         ],
-        shape: [ 3, 5, 2 ]
+        shape: [3, 5, 2]
       },
       expected: {
         data: [
@@ -113,7 +113,7 @@
           0,
           0
         ],
-        shape: [ 5, 7, 2 ]
+        shape: [5, 7, 2]
       }
     },
     'convolutional.ZeroPadding2D.1': {
@@ -150,7 +150,7 @@
           -0.139788,
           -0.710674
         ],
-        shape: [ 3, 5, 2 ]
+        shape: [3, 5, 2]
       },
       expected: {
         data: [
@@ -239,7 +239,7 @@
           0,
           0
         ],
-        shape: [ 3, 7, 4 ]
+        shape: [3, 7, 4]
       }
     },
     'convolutional.ZeroPadding2D.2': {
@@ -294,7 +294,7 @@
           0.606737,
           -0.593306
         ],
-        shape: [ 2, 6, 4 ]
+        shape: [2, 6, 4]
       },
       expected: {
         data: [
@@ -619,7 +619,7 @@
           0,
           0
         ],
-        shape: [ 8, 10, 4 ]
+        shape: [8, 10, 4]
       }
     },
     'convolutional.ZeroPadding2D.3': {
@@ -674,7 +674,7 @@
           0.606737,
           -0.593306
         ],
-        shape: [ 2, 6, 4 ]
+        shape: [2, 6, 4]
       },
       expected: {
         data: [
@@ -871,7 +871,7 @@
           0,
           0
         ],
-        shape: [ 2, 12, 8 ]
+        shape: [2, 12, 8]
       }
     }
   };

@@ -9,7 +9,7 @@ export default class WebGLMerge extends WebGLLayer {
     super();
     if (mode === 'concat') {
       this.program = this.webgl.createProgram(require('./merge_concat.glsl'));
-    } else if ([ 'sum', 'mul', 'ave', 'max' ].indexOf(mode) > -1) {
+    } else if (['sum', 'mul', 'ave', 'max'].indexOf(mode) > -1) {
       this.program = this.webgl.createProgram(require('./merge.glsl'));
     } else {
       throw new Error(`${mode} mode currently not supported in WebGLMerge layer.`);
@@ -76,7 +76,7 @@ export default class WebGLMerge extends WebGLLayer {
             arr.push(dim);
             return arr;
           },
-          [ 0 ]
+          [0]
         )
         .slice(0, -1);
 
@@ -126,7 +126,7 @@ export default class WebGLMerge extends WebGLLayer {
       // for fragment shader ease-of-operation, we first transpose weblas tensors
       // into shape with channels as rows
       const inputsTransposed = inputs.map(x => x.transpose());
-      const newShape = [ sum(inputsTransposed.map(x => x.shape[0])), inputsTransposed[0].shape[1] ];
+      const newShape = [sum(inputsTransposed.map(x => x.shape[0])), inputsTransposed[0].shape[1]];
       tOut = new weblas.pipeline.Tensor(newShape, null);
 
       // must select WebGL program again since differen program was loaded during transpose

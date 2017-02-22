@@ -14,7 +14,7 @@ export default class SReLU extends Layer {
     this.layerClass = 'SReLU';
 
     // Layer weights specification
-    this.params = [ 't_left', 'a_left', 't_right', 'a_right' ];
+    this.params = ['t_left', 'a_left', 't_right', 'a_right'];
   }
 
   // t_right_actual = t_left + abs(t_right)
@@ -22,7 +22,7 @@ export default class SReLU extends Layer {
   // Y_right = K.relu(x - t_right_actual) * a_right
   // return Y_left_and_center + Y_right
   _compute = cwise({
-    args: [ 'array', 'array', 'array', 'array', 'array' ],
+    args: ['array', 'array', 'array', 'array', 'array'],
     body: function(_x, tL, aL, tR, aR) {
       _x = tL +
         Math.min(Math.max(_x - tL, 0), Math.abs(tR)) +

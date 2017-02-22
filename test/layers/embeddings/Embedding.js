@@ -7,9 +7,9 @@ describe('embeddings layer: Embedding', function() {
   const layers = KerasJS.layers;
 
   const testParams = [
-    { inputShape: [ 7 ], attrs: { inputDim: 5, outputDim: 3, inputLength: 7, maskZero: false, dropout: 0 } },
-    { inputShape: [ 10 ], attrs: { inputDim: 20, outputDim: 5, inputLength: 10, maskZero: true, dropout: 0 } },
-    { inputShape: [ 5 ], attrs: { inputDim: 33, outputDim: 2, inputLength: 5, maskZero: false, dropout: 0.5 } }
+    { inputShape: [7], attrs: { inputDim: 5, outputDim: 3, inputLength: 7, maskZero: false, dropout: 0 } },
+    { inputShape: [10], attrs: { inputDim: 20, outputDim: 5, inputLength: 10, maskZero: true, dropout: 0 } },
+    { inputShape: [5], attrs: { inputDim: 33, outputDim: 2, inputLength: 5, maskZero: false, dropout: 0.5 } }
   ];
 
   before(function() {

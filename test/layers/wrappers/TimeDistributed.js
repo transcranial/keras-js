@@ -9,19 +9,19 @@ describe('wrappers layer: TimeDistributed', function() {
   const testParams = [
     {
       wrappedLayer: 'Dense',
-      inputShape: [ 3, 6 ],
+      inputShape: [3, 6],
       wrappedLayerAttrs: { outputDim: 4, activation: 'linear', inputDim: null, bias: true }
     },
     {
       wrappedLayer: 'Convolution2D',
-      inputShape: [ 5, 4, 4, 2 ],
+      inputShape: [5, 4, 4, 2],
       wrappedLayerAttrs: {
         nbFilter: 6,
         nbRow: 3,
         nbCol: 3,
         activation: 'linear',
         borderMode: 'valid',
-        subsample: [ 1, 1 ],
+        subsample: [1, 1],
         dimOrdering: 'tf',
         bias: true
       }
@@ -42,9 +42,9 @@ describe('wrappers layer: TimeDistributed', function() {
 
     testParams.forEach(({ wrappedLayer, inputShape, wrappedLayerAttrs }, i) => {
       const key = `wrappers.TimeDistributed.${i}`;
-      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
-        wrappedLayerAttrs
-      )}`;
+      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[
+        1
+      ]} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`;
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3);
@@ -75,9 +75,9 @@ describe('wrappers layer: TimeDistributed', function() {
 
     testParams.forEach(({ wrappedLayer, inputShape, wrappedLayerAttrs }, i) => {
       const key = `wrappers.TimeDistributed.${i}`;
-      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
-        wrappedLayerAttrs
-      )}`;
+      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[
+        1
+      ]} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`;
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3);

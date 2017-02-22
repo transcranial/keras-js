@@ -14,7 +14,7 @@ export default class ZeroPadding2D extends Layer {
     super(attrs);
     this.layerClass = 'ZeroPadding2D';
 
-    const { padding = [ 1, 1 ], dimOrdering = 'tf' } = attrs;
+    const { padding = [1, 1], dimOrdering = 'tf' } = attrs;
 
     this.padding = padding;
     this.dimOrdering = dimOrdering;
@@ -32,7 +32,7 @@ export default class ZeroPadding2D extends Layer {
     }
 
     const inputShape = x.tensor.shape;
-    const outputShape = [ inputShape[0] + this.padding[0] * 2, inputShape[1] + this.padding[1] * 2, inputShape[2] ];
+    const outputShape = [inputShape[0] + this.padding[0] * 2, inputShape[1] + this.padding[1] * 2, inputShape[2]];
     let y = new Tensor([], outputShape);
     ops.assign(
       y.tensor

@@ -44,7 +44,7 @@
           -0.040684,
           0.522292
         ],
-        shape: [ 6, 6 ]
+        shape: [6, 6]
       },
       expected: {
         data: [
@@ -67,7 +67,7 @@
           -0.090236,
           -0.094191
         ],
-        shape: [ 3, 6 ]
+        shape: [3, 6]
       }
     },
     'pooling.AveragePooling1D.1': {
@@ -110,7 +110,7 @@
           0.628159,
           0.445074
         ],
-        shape: [ 6, 6 ]
+        shape: [6, 6]
       },
       expected: {
         data: [
@@ -145,7 +145,7 @@
           -0.053856,
           0.610979
         ],
-        shape: [ 5, 6 ]
+        shape: [5, 6]
       }
     },
     'pooling.AveragePooling1D.2': {
@@ -188,7 +188,7 @@
           0.879529,
           -0.466772
         ],
-        shape: [ 6, 6 ]
+        shape: [6, 6]
       },
       expected: {
         data: [
@@ -205,7 +205,7 @@
           -0.107429,
           -0.029636
         ],
-        shape: [ 2, 6 ]
+        shape: [2, 6]
       }
     },
     'pooling.AveragePooling1D.3': {
@@ -248,7 +248,7 @@
           0.793729,
           -0.354472
         ],
-        shape: [ 6, 6 ]
+        shape: [6, 6]
       },
       expected: {
         data: [
@@ -271,7 +271,7 @@
           0.12776,
           -0.46768
         ],
-        shape: [ 3, 6 ]
+        shape: [3, 6]
       }
     },
     'pooling.AveragePooling1D.4': {
@@ -314,7 +314,7 @@
           0.076544,
           0.63549
         ],
-        shape: [ 6, 6 ]
+        shape: [6, 6]
       },
       expected: {
         data: [
@@ -355,7 +355,7 @@
           0.076544,
           0.63549
         ],
-        shape: [ 6, 6 ]
+        shape: [6, 6]
       }
     },
     'pooling.AveragePooling1D.5': {
@@ -398,7 +398,7 @@
           0.573973,
           -0.151309
         ],
-        shape: [ 6, 6 ]
+        shape: [6, 6]
       },
       expected: {
         data: [
@@ -415,7 +415,7 @@
           -0.022065,
           -0.519997
         ],
-        shape: [ 2, 6 ]
+        shape: [2, 6]
       }
     },
     'pooling.AveragePooling1D.6': {
@@ -458,7 +458,7 @@
           0.180207,
           -0.181716
         ],
-        shape: [ 6, 6 ]
+        shape: [6, 6]
       },
       expected: {
         data: [
@@ -475,7 +475,7 @@
           0.139981,
           -0.232747
         ],
-        shape: [ 2, 6 ]
+        shape: [2, 6]
       }
     },
     'pooling.AveragePooling1D.7': {
@@ -531,7 +531,7 @@
           0.022988,
           0.36335
         ],
-        shape: [ 7, 7 ]
+        shape: [7, 7]
       },
       expected: {
         data: [
@@ -585,7 +585,7 @@
           0.173241,
           0.149999
         ],
-        shape: [ 7, 7 ]
+        shape: [7, 7]
       }
     },
     'pooling.AveragePooling1D.8': {
@@ -641,7 +641,7 @@
           -0.583405,
           -0.018424
         ],
-        shape: [ 7, 7 ]
+        shape: [7, 7]
       },
       expected: {
         data: [
@@ -667,7 +667,7 @@
           -0.683189,
           -0.343174
         ],
-        shape: [ 3, 7 ]
+        shape: [3, 7]
       }
     }
   };

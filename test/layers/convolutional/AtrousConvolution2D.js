@@ -8,61 +8,61 @@ describe('convolutional layer: AtrousConvolution2D', function() {
 
   const testParams = [
     {
-      inputShape: [ 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3 ],
+      inputShape: [5, 5, 2],
+      kernelShape: [4, 3, 3],
       attrs: {
         activation: 'linear',
         borderMode: 'valid',
-        subsample: [ 1, 1 ],
-        atrousRate: [ 2, 2 ],
+        subsample: [1, 1],
+        atrousRate: [2, 2],
         dimOrdering: 'tf',
         bias: true
       }
     },
     {
-      inputShape: [ 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3 ],
+      inputShape: [5, 5, 2],
+      kernelShape: [4, 3, 3],
       attrs: {
         activation: 'linear',
         borderMode: 'valid',
-        subsample: [ 1, 1 ],
-        atrousRate: [ 2, 2 ],
+        subsample: [1, 1],
+        atrousRate: [2, 2],
         dimOrdering: 'tf',
         bias: false
       }
     },
     {
-      inputShape: [ 7, 7, 2 ],
-      kernelShape: [ 4, 3, 3 ],
+      inputShape: [7, 7, 2],
+      kernelShape: [4, 3, 3],
       attrs: {
         activation: 'relu',
         borderMode: 'valid',
-        subsample: [ 1, 1 ],
-        atrousRate: [ 3, 3 ],
+        subsample: [1, 1],
+        atrousRate: [3, 3],
         dimOrdering: 'tf',
         bias: true
       }
     },
     {
-      inputShape: [ 4, 8, 3 ],
-      kernelShape: [ 3, 4, 4 ],
+      inputShape: [4, 8, 3],
+      kernelShape: [3, 4, 4],
       attrs: {
         activation: 'relu',
         borderMode: 'same',
-        subsample: [ 1, 1 ],
-        atrousRate: [ 2, 2 ],
+        subsample: [1, 1],
+        atrousRate: [2, 2],
         dimOrdering: 'tf',
         bias: true
       }
     },
     {
-      inputShape: [ 8, 8, 2 ],
-      kernelShape: [ 4, 3, 3 ],
+      inputShape: [8, 8, 2],
+      kernelShape: [4, 3, 3],
       attrs: {
         activation: 'relu',
         borderMode: 'same',
-        subsample: [ 1, 1 ],
-        atrousRate: [ 4, 4 ],
+        subsample: [1, 1],
+        atrousRate: [4, 4],
         dimOrdering: 'tf',
         bias: true
       }
@@ -83,8 +83,8 @@ describe('convolutional layer: AtrousConvolution2D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
       const key = `convolutional.AtrousConvolution2D.${i}`;
-      const [ inputRows, inputCols, inputChannels ] = inputShape;
-      const [ nbFilter, nbRow, nbCol ] = kernelShape;
+      const [inputRows, inputCols, inputChannels] = inputShape;
+      const [nbFilter, nbRow, nbCol] = kernelShape;
       const title = `[${key}] [CPU] test: ${nbFilter} ${nbRow}x${nbCol} filters on ${inputRows}x${inputCols}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, atrousRate=${attrs.atrousRate}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`;
 
       it(title, function() {
@@ -116,8 +116,8 @@ describe('convolutional layer: AtrousConvolution2D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
       const key = `convolutional.AtrousConvolution2D.${i}`;
-      const [ inputRows, inputCols, inputChannels ] = inputShape;
-      const [ nbFilter, nbRow, nbCol ] = kernelShape;
+      const [inputRows, inputCols, inputChannels] = inputShape;
+      const [nbFilter, nbRow, nbCol] = kernelShape;
       const title = `[${key}] [GPU] test: ${nbFilter} ${nbRow}x${nbCol} filters on ${inputRows}x${inputCols}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, atrousRate=${attrs.atrousRate}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`;
 
       it(title, function() {

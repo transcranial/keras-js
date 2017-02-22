@@ -21,7 +21,7 @@ export default class GlobalMaxPooling1D extends Layer {
    */
   call(x) {
     const features = x.tensor.shape[1];
-    let y = new Tensor([], [ features ]);
+    let y = new Tensor([], [features]);
     for (let i = 0, len = features; i < len; i++) {
       y.tensor.set(i, ops.sup(x.tensor.pick(null, i)));
     }

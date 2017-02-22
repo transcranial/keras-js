@@ -45,18 +45,18 @@ export default class LSTM extends Layer {
     this.stateful = stateful;
 
     // Layer weights specification
-    this.params = [ 'W_i', 'U_i', 'b_i', 'W_c', 'U_c', 'b_c', 'W_f', 'U_f', 'b_f', 'W_o', 'U_o', 'b_o' ];
+    this.params = ['W_i', 'U_i', 'b_i', 'W_c', 'U_c', 'b_c', 'W_f', 'U_f', 'b_f', 'W_o', 'U_o', 'b_o'];
   }
 
   _combine = cwise({
-    args: [ 'array', 'array', 'array', 'array' ],
+    args: ['array', 'array', 'array', 'array'],
     body: function(_y, _x1, _x2, _b) {
       _y = _x1 + _x2 + _b;
     }
   });
 
   _update = cwise({
-    args: [ 'array', 'array', 'array', 'array' ],
+    args: ['array', 'array', 'array', 'array'],
     body: function(_c, _ctm1, _i, _f) {
       _c = _c * _i + _ctm1 * _f;
     }
@@ -68,41 +68,41 @@ export default class LSTM extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    let currentX = new Tensor([], [ x.tensor.shape[1] ]);
+    let currentX = new Tensor([], [x.tensor.shape[1]]);
 
     const dimInputGate = this.weights['b_i'].tensor.shape[0];
     const dimCandidate = this.weights['b_c'].tensor.shape[0];
     const dimForgetGate = this.weights['b_f'].tensor.shape[0];
     const dimOutputGate = this.weights['b_o'].tensor.shape[0];
 
-    let currentInputGateState = new Tensor([], [ dimInputGate ]);
-    let tempXI = new Tensor([], [ dimInputGate ]);
-    let tempHI = new Tensor([], [ dimInputGate ]);
+    let currentInputGateState = new Tensor([], [dimInputGate]);
+    let tempXI = new Tensor([], [dimInputGate]);
+    let tempHI = new Tensor([], [dimInputGate]);
 
-    let currentForgetGateState = new Tensor([], [ dimForgetGate ]);
-    let tempXF = new Tensor([], [ dimForgetGate ]);
-    let tempHF = new Tensor([], [ dimForgetGate ]);
+    let currentForgetGateState = new Tensor([], [dimForgetGate]);
+    let tempXF = new Tensor([], [dimForgetGate]);
+    let tempHF = new Tensor([], [dimForgetGate]);
 
-    let currentOutputGateState = new Tensor([], [ dimOutputGate ]);
-    let tempXO = new Tensor([], [ dimOutputGate ]);
-    let tempHO = new Tensor([], [ dimOutputGate ]);
+    let currentOutputGateState = new Tensor([], [dimOutputGate]);
+    let tempXO = new Tensor([], [dimOutputGate]);
+    let tempHO = new Tensor([], [dimOutputGate]);
 
-    let currentCandidate = new Tensor([], [ dimCandidate ]);
-    let tempXC = new Tensor([], [ dimCandidate ]);
-    let tempHC = new Tensor([], [ dimCandidate ]);
+    let currentCandidate = new Tensor([], [dimCandidate]);
+    let tempXC = new Tensor([], [dimCandidate]);
+    let tempHC = new Tensor([], [dimCandidate]);
     let previousCandidate = this.stateful && this.previousCandidate
       ? this.previousCandidate
-      : new Tensor([], [ dimCandidate ]);
+      : new Tensor([], [dimCandidate]);
 
     let currentHiddenState = this.stateful && this.currentHiddenState
       ? this.currentHiddenState
-      : new Tensor([], [ dimCandidate ]);
-    let previousHiddenState = new Tensor([], [ dimCandidate ]);
+      : new Tensor([], [dimCandidate]);
+    let previousHiddenState = new Tensor([], [dimCandidate]);
 
-    this.hiddenStateSequence = new Tensor([], [ x.tensor.shape[0], dimCandidate ]);
+    this.hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimCandidate]);
 
     const _clearTemp = () => {
-      const tempTensors = [ tempXI, tempHI, tempXF, tempHF, tempXO, tempHO, tempXC, tempHC ];
+      const tempTensors = [tempXI, tempHI, tempXF, tempHF, tempXO, tempHO, tempXC, tempHC];
       tempTensors.forEach(temp => ops.assigns(temp.tensor, 0));
     };
 

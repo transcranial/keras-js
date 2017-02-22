@@ -19,7 +19,7 @@ export default class ELU extends Layer {
   }
 
   _compute = cwise({
-    args: [ 'array', 'scalar' ],
+    args: ['array', 'scalar'],
     body: function(_x, alpha) {
       _x = Math.max(_x, 0) + alpha * (Math.exp(Math.min(_x, 0)) - 1);
     }

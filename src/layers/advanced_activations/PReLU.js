@@ -19,11 +19,11 @@ export default class PReLU extends Layer {
     this.layerClass = 'PReLU';
 
     // Layer weights specification
-    this.params = [ 'alphas' ];
+    this.params = ['alphas'];
   }
 
   _compute = cwise({
-    args: [ 'array', 'array' ],
+    args: ['array', 'array'],
     body: function(_x, alpha) {
       _x = Math.max(_x, 0) + alpha * Math.min(_x, 0);
     }

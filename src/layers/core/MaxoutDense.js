@@ -26,7 +26,7 @@ export default class MaxoutDense extends Layer {
     this.bias = bias;
 
     // Layer weights specification
-    this.params = this.bias ? [ 'W', 'b' ] : [ 'W' ];
+    this.params = this.bias ? ['W', 'b'] : ['W'];
   }
 
   /**
@@ -37,9 +37,9 @@ export default class MaxoutDense extends Layer {
   call(x) {
     const nbFeature = this.weights.W.tensor.shape[0];
 
-    let featMax = new Tensor([], [ this.outputDim ]);
+    let featMax = new Tensor([], [this.outputDim]);
     for (let i = 0; i < nbFeature; i++) {
-      let y = new Tensor([], [ this.outputDim ]);
+      let y = new Tensor([], [this.outputDim]);
       if (this.bias) {
         ops.assign(y.tensor, this.weights.b.tensor.pick(i, null));
       }

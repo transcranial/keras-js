@@ -33,7 +33,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(t1a.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(t1b.tensor));
       const startTime = performance.now();
-      let t2 = testLayer2.call([ t1a, t1b ]);
+      let t2 = testLayer2.call([t1a, t1b]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t2.tensor));
       logTime(startTime, endTime);
@@ -67,7 +67,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(t1a.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(t1b.tensor));
       const startTime = performance.now();
-      let t2 = testLayer2.call([ t1a, t1b ]);
+      let t2 = testLayer2.call([t1a, t1b]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t2.tensor));
       logTime(startTime, endTime);
@@ -101,7 +101,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(t1a.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(t1b.tensor));
       const startTime = performance.now();
-      let t2 = testLayer2.call([ t1a, t1b ]);
+      let t2 = testLayer2.call([t1a, t1b]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t2.tensor));
       logTime(startTime, endTime);
@@ -135,7 +135,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(t1a.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(t1b.tensor));
       const startTime = performance.now();
-      let t2 = testLayer2.call([ t1a, t1b ]);
+      let t2 = testLayer2.call([t1a, t1b]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t2.tensor));
       logTime(startTime, endTime);
@@ -169,7 +169,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(ta.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(tb.tensor));
       const startTime = performance.now();
-      let t = testLayer2.call([ ta, tb ]);
+      let t = testLayer2.call([ta, tb]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
       logTime(startTime, endTime);
@@ -198,7 +198,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(ta.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(tb.tensor));
       const startTime = performance.now();
-      let t = testLayer3.call([ ta, tb ]);
+      let t = testLayer3.call([ta, tb]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
       logTime(startTime, endTime);
@@ -227,7 +227,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(ta.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(tb.tensor));
       const startTime = performance.now();
-      let t = testLayer3.call([ ta, tb ]);
+      let t = testLayer3.call([ta, tb]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
       logTime(startTime, endTime);
@@ -256,7 +256,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(ta.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(tb.tensor));
       const startTime = performance.now();
-      let t = testLayer3.call([ ta, tb ]);
+      let t = testLayer3.call([ta, tb]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
       logTime(startTime, endTime);
@@ -285,7 +285,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(ta.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(tb.tensor));
       const startTime = performance.now();
-      let t = testLayer3.call([ ta, tb ]);
+      let t = testLayer3.call([ta, tb]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
       logTime(startTime, endTime);
@@ -323,7 +323,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(ta.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(tb.tensor));
       const startTime = performance.now();
-      let t = testLayer3.call([ ta, tb ]);
+      let t = testLayer3.call([ta, tb]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
       logTime(startTime, endTime);
@@ -352,7 +352,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(ta.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(tb.tensor));
       const startTime = performance.now();
-      let t = testLayer3.call([ ta, tb ]);
+      let t = testLayer3.call([ta, tb]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
       logTime(startTime, endTime);
@@ -390,7 +390,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(ta.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(tb.tensor));
       const startTime = performance.now();
-      let t = testLayer3.call([ ta, tb ]);
+      let t = testLayer3.call([ta, tb]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
       logTime(startTime, endTime);
@@ -419,7 +419,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(ta.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(tb.tensor));
       const startTime = performance.now();
-      let t = testLayer3.call([ ta, tb ]);
+      let t = testLayer3.call([ta, tb]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
       logTime(startTime, endTime);
@@ -436,7 +436,7 @@ describe('core layer: Merge', function() {
       let testLayer2a = new layers.RepeatVector({ n: 3 });
       let testLayer1b = new layers.Dense({ outputDim: 2 });
       let testLayer2b = new layers.RepeatVector({ n: 3 });
-      let testLayer3 = new layers.Merge({ mode: 'cos', dotAxes: [ 2, 2 ] });
+      let testLayer3 = new layers.Merge({ mode: 'cos', dotAxes: [2, 2] });
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)));
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)));
       let ta = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
@@ -448,7 +448,7 @@ describe('core layer: Merge', function() {
       console.log('%cin', styles.h4, stringifyCondensed(ta.tensor));
       console.log('%cin', styles.h4, stringifyCondensed(tb.tensor));
       const startTime = performance.now();
-      let t = testLayer3.call([ ta, tb ]);
+      let t = testLayer3.call([ta, tb]);
       const endTime = performance.now();
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor));
       logTime(startTime, endTime);

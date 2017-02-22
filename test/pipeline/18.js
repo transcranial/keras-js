@@ -8,7 +8,7 @@ describe('pipeline_18', function() {
 
   // layers ordered in same way as keras model config (see corresponding notebook)
   const testParams = {
-    inputShape: [ 8, 8, 2 ],
+    inputShape: [8, 8, 2],
     layers: [
       {
         name: 'conv_1-0',
@@ -20,7 +20,7 @@ describe('pipeline_18', function() {
           nbCol: 1,
           activation: 'relu',
           borderMode: 'valid',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -35,7 +35,7 @@ describe('pipeline_18', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'same',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -50,7 +50,7 @@ describe('pipeline_18', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'same',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -65,7 +65,7 @@ describe('pipeline_18', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'same',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -80,7 +80,7 @@ describe('pipeline_18', function() {
           nbCol: 1,
           activation: 'relu',
           borderMode: 'valid',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -95,12 +95,12 @@ describe('pipeline_18', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'same',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
       },
-      { branches: [ 0, 1, 2 ], layerClass: 'Merge', attrs: { mode: 'concat' } }
+      { branches: [0, 1, 2], layerClass: 'Merge', attrs: { mode: 'concat' } }
     ]
   };
 
@@ -168,7 +168,7 @@ describe('pipeline_18', function() {
     for (let i = 0; i < branch_2.length; i++) {
       t_2 = branch_2[i].call(t_2);
     }
-    let t = mergeLayer.call([ t_0, t_1, t_2 ]);
+    let t = mergeLayer.call([t_0, t_1, t_2]);
     t = mergeLayer.transferFromPipeline(t);
     const endTime = performance.now();
     console.log('%cout', styles.h4, stringifyCondensed(t.tensor));

@@ -37,7 +37,7 @@ const app = new Vue({
 
 // Simple routing
 function matchRoute() {
-  const routes = [ 'mnist-cnn', 'mnist-vae', 'resnet50', 'inception-v3', 'imdb-bidirectional-lstm' ];
+  const routes = ['mnist-cnn', 'mnist-vae', 'resnet50', 'inception-v3', 'imdb-bidirectional-lstm'];
 
   const { hash } = window.location;
   const route = hash.substr(2);

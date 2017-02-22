@@ -23,7 +23,7 @@
           0.676991,
           0.471487
         ],
-        shape: [ 3, 5 ]
+        shape: [3, 5]
       },
       expected: {
         data: [
@@ -53,7 +53,7 @@
           0,
           0
         ],
-        shape: [ 5, 5 ]
+        shape: [5, 5]
       }
     },
     'convolutional.ZeroPadding1D.1': {
@@ -76,7 +76,7 @@
           0.603978,
           0.204066
         ],
-        shape: [ 4, 4 ]
+        shape: [4, 4]
       },
       expected: {
         data: [
@@ -121,7 +121,7 @@
           0,
           0
         ],
-        shape: [ 10, 4 ]
+        shape: [10, 4]
       }
     }
   };

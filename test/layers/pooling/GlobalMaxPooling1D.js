@@ -6,7 +6,7 @@ describe('pooling layer: GlobalMaxPooling1D', function() {
   const approxEquals = KerasJS.testUtils.approxEquals;
   const layers = KerasJS.layers;
 
-  const testParams = [ { inputShape: [ 6, 6 ] }, { inputShape: [ 3, 7 ] }, { inputShape: [ 8, 4 ] } ];
+  const testParams = [{ inputShape: [6, 6] }, { inputShape: [3, 7] }, { inputShape: [8, 4] }];
 
   before(function() {
     console.log('\n%cpooling layer: GlobalMaxPooling1D', styles.h1);
@@ -14,7 +14,7 @@ describe('pooling layer: GlobalMaxPooling1D', function() {
 
   testParams.forEach(({ inputShape }, i) => {
     const key = `pooling.GlobalMaxPooling1D.${i}`;
-    const [ inputLength, inputFeatures ] = inputShape;
+    const [inputLength, inputFeatures] = inputShape;
     const title = `[${key}] test: ${inputLength}x${inputFeatures} input`;
 
     it(title, function() {

@@ -20,7 +20,7 @@ export default class AtrousConvolution2D extends Convolution2D {
     super(attrs);
     this.layerClass = 'AtrousConvolution2D';
 
-    const { atrousRate = [ 1, 1 ] } = attrs;
+    const { atrousRate = [1, 1] } = attrs;
     this.atrousRate = atrousRate;
   }
 
@@ -34,7 +34,7 @@ export default class AtrousConvolution2D extends Convolution2D {
   _calcOutputShape(inputShape) {
     const inputRows = inputShape[0];
     const inputCols = inputShape[1];
-    const [ nbFilter, nbRow, nbCol ] = this.kernelShape;
+    const [nbFilter, nbRow, nbCol] = this.kernelShape;
 
     // effective shape after filter dilation
     const nbRowDilated = nbRow + (nbRow - 1) * (this.atrousRate[0] - 1);
@@ -59,8 +59,8 @@ export default class AtrousConvolution2D extends Convolution2D {
     const paddingColBefore = Math.floor(paddingCol / 2);
     const paddingColAfter = paddingCol - paddingColBefore;
 
-    this.outputShape = [ outputRows, outputCols, outputChannels ];
-    this.inputPadding = [ paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter ];
+    this.outputShape = [outputRows, outputCols, outputChannels];
+    this.inputPadding = [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter];
   }
 
   /**
@@ -69,7 +69,7 @@ export default class AtrousConvolution2D extends Convolution2D {
    * @returns {Tensor} x
    */
   _im2col(x) {
-    const [ inputRows, inputCols, inputChannels ] = x.tensor.shape;
+    const [inputRows, inputCols, inputChannels] = x.tensor.shape;
     const nbRow = this.kernelShape[1];
     const nbCol = this.kernelShape[2];
     const outputRows = this.outputShape[0];
@@ -82,10 +82,10 @@ export default class AtrousConvolution2D extends Convolution2D {
     const nbColDilated = nbCol + (nbCol - 1) * (this.atrousRate[1] - 1);
 
     if (!this._imColsMat) {
-      this._imColsMat = new Tensor([], [ nbPatches, patchLen ]);
+      this._imColsMat = new Tensor([], [nbPatches, patchLen]);
     }
 
-    let patch = new Tensor([], [ nbRow, nbCol, inputChannels ]);
+    let patch = new Tensor([], [nbRow, nbCol, inputChannels]);
     let offset = 0;
     for (let i = 0, limit = inputRows - nbRowDilated; i <= limit; i += this.subsample[0]) {
       for (let j = 0, limit = inputCols - nbColDilated; j <= limit; j += this.subsample[1]) {

@@ -26,11 +26,11 @@ export default class Dense extends Layer {
     this.bias = bias;
 
     // Layer weights specification
-    this.params = this.bias ? [ 'W', 'b' ] : [ 'W' ];
+    this.params = this.bias ? ['W', 'b'] : ['W'];
 
     // Input shape specification
     if (this.inputDim) {
-      this.inputShape = [ this.inputDim ];
+      this.inputShape = [this.inputDim];
     }
 
     // Enable layer gpu +/- pipeline mode if supported
@@ -55,7 +55,7 @@ export default class Dense extends Layer {
       if (this.bias) {
         this.weights.b.createWeblasTensor();
       } else {
-        this._zerosVec = new Tensor([], [ this.weights.W.tensor.shape[1] ]);
+        this._zerosVec = new Tensor([], [this.weights.W.tensor.shape[1]]);
         this._zerosVec.createWeblasTensor();
       }
     }
@@ -77,7 +77,7 @@ export default class Dense extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    let y = new Tensor([], [ this.outputDim ]);
+    let y = new Tensor([], [this.outputDim]);
 
     if (this._useWeblas) {
       x.createWeblasTensor();

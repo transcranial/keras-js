@@ -5,7 +5,7 @@
 (function() {
   var DATA = {
     'core.GaussianDropout.0': {
-      input: { data: [ 0, 0.2, 0.5, -0.1, 1, 2 ], shape: [ 6 ] },
+      input: { data: [0, 0.2, 0.5, -0.1, 1, 2], shape: [6] },
       weights: [
         {
           data: [
@@ -22,14 +22,14 @@
             -1.03947462,
             0.01474715
           ],
-          shape: [ 6, 2 ]
+          shape: [6, 2]
         },
-        { data: [ 0.95711006, -1.10933608 ], shape: [ 2 ] }
+        { data: [0.95711006, -1.10933608], shape: [2] }
       ],
-      expected: { data: [ 0.621673, 0.233976 ], shape: [ 2 ] }
+      expected: { data: [0.621673, 0.233976], shape: [2] }
     },
     'core.GaussianNoise.0': {
-      input: { data: [ 0, 0.2, 0.5, -0.1, 1, 2 ], shape: [ 6 ] },
+      input: { data: [0, 0.2, 0.5, -0.1, 1, 2], shape: [6] },
       weights: [
         {
           data: [
@@ -46,11 +46,11 @@
             -1.03947462,
             0.01474715
           ],
-          shape: [ 6, 2 ]
+          shape: [6, 2]
         },
-        { data: [ 0.95711006, -1.10933608 ], shape: [ 2 ] }
+        { data: [0.95711006, -1.10933608], shape: [2] }
       ],
-      expected: { data: [ 0.621673, 0.233976 ], shape: [ 2 ] }
+      expected: { data: [0.621673, 0.233976], shape: [2] }
     }
   };
 

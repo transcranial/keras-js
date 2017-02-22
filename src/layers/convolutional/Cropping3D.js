@@ -14,7 +14,7 @@ export default class Cropping3D extends Layer {
     super(attrs);
     this.layerClass = 'Cropping3D';
 
-    const { cropping = [ [ 0, 0 ], [ 0, 0 ], [ 0, 0 ] ], dimOrdering = 'tf' } = attrs;
+    const { cropping = [[0, 0], [0, 0], [0, 0]], dimOrdering = 'tf' } = attrs;
 
     this.cropping = cropping;
     this.dimOrdering = dimOrdering;

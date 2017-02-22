@@ -81,7 +81,7 @@ export default class WebGLPooling2D extends WebGLLayer {
     // create an empty output Tensor
     const outputLength = poolIndexMapping.shape[0];
     const channels = input.shape[1];
-    const tOut = new weblas.pipeline.Tensor([ outputLength, channels ], null);
+    const tOut = new weblas.pipeline.Tensor([outputLength, channels], null);
 
     this._bindInputTextures(input, poolIndexMapping);
     this._bindUniforms(input, poolIndexMapping);

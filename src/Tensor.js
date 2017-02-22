@@ -64,7 +64,7 @@ export default class Tensor {
       if (len > MAX_TEXTURE_SIZE) {
         this._gpuMaxSizeExceeded = true;
       } else {
-        const shape = [ 1, len ];
+        const shape = [1, len];
         this.weblasTensor = new weblas.pipeline.Tensor(shape, this.tensor.data);
       }
     } else if (this.tensor.shape.length === 2) {
@@ -107,7 +107,7 @@ export default class Tensor {
     // texture dimensions, with padding if necessary
     // bind to output texture
     // see https://github.com/waylonflinn/weblas/blob/master/lib/webgl.js#L478
-    const [ h, w ] = this.weblasTensor.shape;
+    const [h, w] = this.weblasTensor.shape;
     const pad = webgl.getPad(w);
     webgl.bindOutputTexture(h, (w + pad) / 4, this.weblasTensor.texture);
 

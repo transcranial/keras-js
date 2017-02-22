@@ -7,9 +7,9 @@ describe('pooling layer: GlobalMaxPooling2D', function() {
   const layers = KerasJS.layers;
 
   const testParams = [
-    { inputShape: [ 6, 6, 3 ], attrs: { dimOrdering: 'tf' } },
-    { inputShape: [ 3, 6, 6 ], attrs: { dimOrdering: 'th' } },
-    { inputShape: [ 5, 3, 2 ], attrs: { dimOrdering: 'tf' } }
+    { inputShape: [6, 6, 3], attrs: { dimOrdering: 'tf' } },
+    { inputShape: [3, 6, 6], attrs: { dimOrdering: 'th' } },
+    { inputShape: [5, 3, 2], attrs: { dimOrdering: 'tf' } }
   ];
 
   before(function() {
@@ -18,7 +18,7 @@ describe('pooling layer: GlobalMaxPooling2D', function() {
 
   testParams.forEach(({ inputShape, attrs }, i) => {
     const key = `pooling.GlobalMaxPooling2D.${i}`;
-    const [ inputRows, inputCols, inputChannels ] = inputShape;
+    const [inputRows, inputCols, inputChannels] = inputShape;
     const title = `[${key}] test: ${inputRows}x${inputCols}x${inputChannels} input, dimOrdering=${attrs.dimOrdering}`;
 
     it(title, function() {

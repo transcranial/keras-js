@@ -7,7 +7,7 @@ describe('pipeline_04', function() {
   const layers = KerasJS.layers;
 
   const testParams = {
-    inputShape: [ 9, 9, 2 ],
+    inputShape: [9, 9, 2],
     layers: [
       {
         layerClass: 'Convolution2D',
@@ -17,7 +17,7 @@ describe('pipeline_04', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'same',
-          subsample: [ 2, 2 ],
+          subsample: [2, 2],
           dimOrdering: 'tf',
           bias: true
         }
@@ -31,7 +31,7 @@ describe('pipeline_04', function() {
           nbCol: 1,
           activation: 'linear',
           borderMode: 'valid',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -45,7 +45,7 @@ describe('pipeline_04', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'same',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }
@@ -59,7 +59,7 @@ describe('pipeline_04', function() {
           nbCol: 3,
           activation: 'relu',
           borderMode: 'valid',
-          subsample: [ 1, 1 ],
+          subsample: [1, 1],
           dimOrdering: 'tf',
           bias: true
         }

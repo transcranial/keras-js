@@ -88,7 +88,7 @@ export default class Layer {
     tiled.tensor.data = x.weblasTensor.transfer();
 
     let output = new Tensor([], x._actualShape);
-    let outputChannelRaveled = new Tensor([], [ nbPatches ]);
+    let outputChannelRaveled = new Tensor([], [nbPatches]);
     let outputChannel = new Tensor([], x._actualShape.slice(0, -1));
     for (let n = 0; n < channels; n++) {
       ops.assign(outputChannelRaveled.tensor, tiled.tensor.pick(null, n));

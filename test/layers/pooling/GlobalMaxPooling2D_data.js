@@ -116,9 +116,9 @@
           -0.005027,
           0.268902
         ],
-        shape: [ 6, 6, 3 ]
+        shape: [6, 6, 3]
       },
-      expected: { data: [ 0.938555, 0.924136, 0.987815 ], shape: [ 3 ] }
+      expected: { data: [0.938555, 0.924136, 0.987815], shape: [3] }
     },
     'pooling.GlobalMaxPooling2D.1': {
       input: {
@@ -232,9 +232,9 @@
           -0.979736,
           0.698471
         ],
-        shape: [ 3, 6, 6 ]
+        shape: [3, 6, 6]
       },
-      expected: { data: [ 0.987411, 0.78529, 0.90223 ], shape: [ 3 ] }
+      expected: { data: [0.987411, 0.78529, 0.90223], shape: [3] }
     },
     'pooling.GlobalMaxPooling2D.2': {
       input: {
@@ -270,9 +270,9 @@
           -0.896798,
           -0.850198
         ],
-        shape: [ 5, 3, 2 ]
+        shape: [5, 3, 2]
       },
-      expected: { data: [ 0.942285, 0.757141 ], shape: [ 2 ] }
+      expected: { data: [0.942285, 0.757141], shape: [2] }
     }
   };
 

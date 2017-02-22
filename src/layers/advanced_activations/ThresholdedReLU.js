@@ -19,7 +19,7 @@ export default class ThresholdedReLU extends Layer {
   }
 
   _compute = cwise({
-    args: [ 'array', 'scalar' ],
+    args: ['array', 'scalar'],
     body: function(_x, theta) {
       _x = _x * Number(_x > theta);
     }

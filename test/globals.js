@@ -15,7 +15,7 @@
   function stringifyCondensed(obj) {
     var newObj = Object.assign({}, obj);
     if (newObj.data.length > 10) {
-      newObj.data = Array.from(newObj.data.subarray(0, 10)).concat([ '...' ]);
+      newObj.data = Array.from(newObj.data.subarray(0, 10)).concat(['...']);
     } else {
       newObj.data = Array.from(newObj.data);
     }

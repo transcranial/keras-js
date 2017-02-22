@@ -38,8 +38,8 @@ export default class _Pooling1D extends Layer {
       ? Math.floor((x.tensor.shape[0] - this.poolLength + this.stride) / this.stride)
       : Math.floor((x.tensor.shape[0] + this.stride - 1) / this.stride);
 
-    let y = new Tensor([], [ stepsNew, x.tensor.shape[1] ]);
-    let yStep = new Tensor([], [ x.tensor.shape[1] ]);
+    let y = new Tensor([], [stepsNew, x.tensor.shape[1]]);
+    let yStep = new Tensor([], [x.tensor.shape[1]]);
 
     // in borderMode same, start negative from beyond step 0
     let step = this.borderMode === 'valid'

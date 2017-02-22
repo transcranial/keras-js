@@ -26,7 +26,7 @@ export default class Embedding extends Layer {
     this.dropout = dropout;
 
     // Layer weights specification
-    this.params = [ 'W' ];
+    this.params = ['W'];
   }
 
   /**
@@ -35,7 +35,7 @@ export default class Embedding extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    let y = new Tensor([], [ x.tensor.shape[0], this.weights.W.tensor.shape[1] ]);
+    let y = new Tensor([], [x.tensor.shape[0], this.weights.W.tensor.shape[1]]);
 
     for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
       ops.assign(y.tensor.pick(i, null), this.weights.W.tensor.pick(x.tensor.get(i), null));

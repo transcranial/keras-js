@@ -33,7 +33,7 @@ export default class Convolution1D extends Layer {
     this.bias = bias;
 
     // Layer weights specification
-    this.params = this.bias ? [ 'W', 'b' ] : [ 'W' ];
+    this.params = this.bias ? ['W', 'b'] : ['W'];
 
     // Bootstrap Convolution2D layer:
     // Convolution1D is actually a shim on top of Convolution2D, where
@@ -45,7 +45,7 @@ export default class Convolution1D extends Layer {
       nbCol: 1,
       activation,
       borderMode,
-      subsample: [ subsampleLength, 1 ],
+      subsample: [subsampleLength, 1],
       dimOrdering: 'th',
       bias
     };

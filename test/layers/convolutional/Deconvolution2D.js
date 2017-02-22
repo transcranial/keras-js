@@ -8,40 +8,40 @@ describe('convolutional layer: Deconvolution2D', function() {
 
   const testParams = [
     {
-      inputShape: [ 4, 4, 2 ],
-      kernelShape: [ 4, 3, 3 ],
-      outputShape: [ 6, 6, 4 ],
-      attrs: { activation: 'linear', borderMode: 'valid', subsample: [ 1, 1 ], dimOrdering: 'tf', bias: false }
+      inputShape: [4, 4, 2],
+      kernelShape: [4, 3, 3],
+      outputShape: [6, 6, 4],
+      attrs: { activation: 'linear', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: false }
     },
     {
-      inputShape: [ 4, 4, 2 ],
-      kernelShape: [ 4, 3, 3 ],
-      outputShape: [ 6, 6, 4 ],
-      attrs: { activation: 'linear', borderMode: 'valid', subsample: [ 1, 1 ], dimOrdering: 'tf', bias: true }
+      inputShape: [4, 4, 2],
+      kernelShape: [4, 3, 3],
+      outputShape: [6, 6, 4],
+      attrs: { activation: 'linear', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [ 4, 4, 2 ],
-      kernelShape: [ 4, 3, 3 ],
-      outputShape: [ 9, 9, 4 ],
-      attrs: { activation: 'relu', borderMode: 'valid', subsample: [ 2, 2 ], dimOrdering: 'tf', bias: true }
+      inputShape: [4, 4, 2],
+      kernelShape: [4, 3, 3],
+      outputShape: [9, 9, 4],
+      attrs: { activation: 'relu', borderMode: 'valid', subsample: [2, 2], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [ 4, 4, 2 ],
-      kernelShape: [ 4, 3, 3 ],
-      outputShape: [ 4, 4, 4 ],
-      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 1, 1 ], dimOrdering: 'tf', bias: true }
+      inputShape: [4, 4, 2],
+      kernelShape: [4, 3, 3],
+      outputShape: [4, 4, 4],
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [1, 1], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [ 4, 4, 2 ],
-      kernelShape: [ 5, 3, 3 ],
-      outputShape: [ 8, 8, 5 ],
-      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 2, 2 ], dimOrdering: 'tf', bias: true }
+      inputShape: [4, 4, 2],
+      kernelShape: [5, 3, 3],
+      outputShape: [8, 8, 5],
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [2, 2], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [ 4, 4, 2 ],
-      kernelShape: [ 5, 3, 3 ],
-      outputShape: [ 7, 7, 5 ],
-      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 2, 2 ], dimOrdering: 'tf', bias: true }
+      inputShape: [4, 4, 2],
+      kernelShape: [5, 3, 3],
+      outputShape: [7, 7, 5],
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [2, 2], dimOrdering: 'tf', bias: true }
     }
   ];
 
@@ -59,9 +59,9 @@ describe('convolutional layer: Deconvolution2D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, outputShape, attrs }, i) => {
       const key = `convolutional.Deconvolution2D.${i}`;
-      const [ inputRows, inputCols, inputChannels ] = inputShape;
-      const [ nbFilter, nbRow, nbCol ] = kernelShape;
-      const [ outputRows, outputCols, outputChannels ] = outputShape;
+      const [inputRows, inputCols, inputChannels] = inputShape;
+      const [nbFilter, nbRow, nbCol] = kernelShape;
+      const [outputRows, outputCols, outputChannels] = outputShape;
       const title = `[${key}] [CPU] test: ${nbFilter} ${nbRow}x${nbCol} filters on ${inputRows}x${inputCols}x${inputChannels} input, ${outputRows}x${outputCols}x${outputChannels} output, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`;
 
       it(title, function() {
@@ -93,9 +93,9 @@ describe('convolutional layer: Deconvolution2D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, outputShape, attrs }, i) => {
       const key = `convolutional.Deconvolution2D.${i}`;
-      const [ inputRows, inputCols, inputChannels ] = inputShape;
-      const [ nbFilter, nbRow, nbCol ] = kernelShape;
-      const [ outputRows, outputCols, outputChannels ] = outputShape;
+      const [inputRows, inputCols, inputChannels] = inputShape;
+      const [nbFilter, nbRow, nbCol] = kernelShape;
+      const [outputRows, outputCols, outputChannels] = outputShape;
       const title = `[${key}] [GPU] test: ${nbFilter} ${nbRow}x${nbCol} filters on ${inputRows}x${inputCols}x${inputChannels} input, ${outputRows}x${outputCols}x${outputChannels} output, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`;
 
       it(title, function() {

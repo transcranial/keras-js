@@ -8,39 +8,39 @@ describe('convolutional layer: Convolution2D', function() {
 
   const testParams = [
     {
-      inputShape: [ 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3 ],
-      attrs: { activation: 'linear', borderMode: 'valid', subsample: [ 1, 1 ], dimOrdering: 'tf', bias: true }
+      inputShape: [5, 5, 2],
+      kernelShape: [4, 3, 3],
+      attrs: { activation: 'linear', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [ 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3 ],
-      attrs: { activation: 'linear', borderMode: 'valid', subsample: [ 1, 1 ], dimOrdering: 'tf', bias: false }
+      inputShape: [5, 5, 2],
+      kernelShape: [4, 3, 3],
+      attrs: { activation: 'linear', borderMode: 'valid', subsample: [1, 1], dimOrdering: 'tf', bias: false }
     },
     {
-      inputShape: [ 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3 ],
-      attrs: { activation: 'relu', borderMode: 'valid', subsample: [ 2, 2 ], dimOrdering: 'tf', bias: true }
+      inputShape: [5, 5, 2],
+      kernelShape: [4, 3, 3],
+      attrs: { activation: 'relu', borderMode: 'valid', subsample: [2, 2], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [ 7, 7, 3 ],
-      kernelShape: [ 5, 4, 4 ],
-      attrs: { activation: 'relu', borderMode: 'valid', subsample: [ 2, 1 ], dimOrdering: 'tf', bias: true }
+      inputShape: [7, 7, 3],
+      kernelShape: [5, 4, 4],
+      attrs: { activation: 'relu', borderMode: 'valid', subsample: [2, 1], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [ 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3 ],
-      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 1, 1 ], dimOrdering: 'tf', bias: true }
+      inputShape: [5, 5, 2],
+      kernelShape: [4, 3, 3],
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [1, 1], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [ 4, 4, 2 ],
-      kernelShape: [ 4, 3, 3 ],
-      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 2, 2 ], dimOrdering: 'tf', bias: true }
+      inputShape: [4, 4, 2],
+      kernelShape: [4, 3, 3],
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [2, 2], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [ 6, 3, 1 ],
-      kernelShape: [ 4, 3, 3 ],
-      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 3, 2 ], dimOrdering: 'tf', bias: true }
+      inputShape: [6, 3, 1],
+      kernelShape: [4, 3, 3],
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [3, 2], dimOrdering: 'tf', bias: true }
     }
   ];
 
@@ -58,8 +58,8 @@ describe('convolutional layer: Convolution2D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
       const key = `convolutional.Convolution2D.${i}`;
-      const [ inputRows, inputCols, inputChannels ] = inputShape;
-      const [ nbFilter, nbRow, nbCol ] = kernelShape;
+      const [inputRows, inputCols, inputChannels] = inputShape;
+      const [nbFilter, nbRow, nbCol] = kernelShape;
       const title = `[${key}] [CPU] test: ${nbFilter} ${nbRow}x${nbCol} filters on ${inputRows}x${inputCols}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`;
 
       it(title, function() {
@@ -91,8 +91,8 @@ describe('convolutional layer: Convolution2D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
       const key = `convolutional.Convolution2D.${i}`;
-      const [ inputRows, inputCols, inputChannels ] = inputShape;
-      const [ nbFilter, nbRow, nbCol ] = kernelShape;
+      const [inputRows, inputCols, inputChannels] = inputShape;
+      const [nbFilter, nbRow, nbCol] = kernelShape;
       const title = `[${key}] [GPU] test: ${nbFilter} ${nbRow}x${nbCol} filters on ${inputRows}x${inputCols}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`;
 
       it(title, function() {

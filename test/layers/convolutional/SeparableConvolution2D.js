@@ -8,84 +8,84 @@ describe('convolutional layer: SeparableConvolution2D', function() {
 
   const testParams = [
     {
-      inputShape: [ 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3 ],
+      inputShape: [5, 5, 2],
+      kernelShape: [4, 3, 3],
       attrs: {
         activation: 'linear',
         borderMode: 'valid',
-        subsample: [ 1, 1 ],
+        subsample: [1, 1],
         depthMultiplier: 1,
         dimOrdering: 'tf',
         bias: true
       }
     },
     {
-      inputShape: [ 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3 ],
+      inputShape: [5, 5, 2],
+      kernelShape: [4, 3, 3],
       attrs: {
         activation: 'relu',
         borderMode: 'valid',
-        subsample: [ 1, 1 ],
+        subsample: [1, 1],
         depthMultiplier: 2,
         dimOrdering: 'tf',
         bias: true
       }
     },
     {
-      inputShape: [ 5, 5, 4 ],
-      kernelShape: [ 16, 3, 3 ],
+      inputShape: [5, 5, 4],
+      kernelShape: [16, 3, 3],
       attrs: {
         activation: 'relu',
         borderMode: 'valid',
-        subsample: [ 1, 1 ],
+        subsample: [1, 1],
         depthMultiplier: 3,
         dimOrdering: 'tf',
         bias: true
       }
     },
     {
-      inputShape: [ 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3 ],
+      inputShape: [5, 5, 2],
+      kernelShape: [4, 3, 3],
       attrs: {
         activation: 'relu',
         borderMode: 'valid',
-        subsample: [ 2, 2 ],
+        subsample: [2, 2],
         depthMultiplier: 1,
         dimOrdering: 'tf',
         bias: true
       }
     },
     {
-      inputShape: [ 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3 ],
+      inputShape: [5, 5, 2],
+      kernelShape: [4, 3, 3],
       attrs: {
         activation: 'relu',
         borderMode: 'same',
-        subsample: [ 1, 1 ],
+        subsample: [1, 1],
         depthMultiplier: 1,
         dimOrdering: 'tf',
         bias: true
       }
     },
     {
-      inputShape: [ 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3 ],
+      inputShape: [5, 5, 2],
+      kernelShape: [4, 3, 3],
       attrs: {
         activation: 'relu',
         borderMode: 'same',
-        subsample: [ 1, 1 ],
+        subsample: [1, 1],
         depthMultiplier: 2,
         dimOrdering: 'tf',
         bias: false
       }
     },
     {
-      inputShape: [ 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3 ],
+      inputShape: [5, 5, 2],
+      kernelShape: [4, 3, 3],
       attrs: {
         activation: 'relu',
         borderMode: 'same',
-        subsample: [ 2, 2 ],
+        subsample: [2, 2],
         depthMultiplier: 2,
         dimOrdering: 'tf',
         bias: true
@@ -107,8 +107,8 @@ describe('convolutional layer: SeparableConvolution2D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
       const key = `convolutional.SeparableConvolution2D.${i}`;
-      const [ inputRows, inputCols, inputChannels ] = inputShape;
-      const [ nbFilter, nbRow, nbCol ] = kernelShape;
+      const [inputRows, inputCols, inputChannels] = inputShape;
+      const [nbFilter, nbRow, nbCol] = kernelShape;
       const title = `[${key}] [CPU] test: ${nbFilter} ${nbRow}x${nbCol} filters on ${inputRows}x${inputCols}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, depthMultiplier=${attrs.depthMultiplier}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`;
 
       it(title, function() {
@@ -140,8 +140,8 @@ describe('convolutional layer: SeparableConvolution2D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
       const key = `convolutional.SeparableConvolution2D.${i}`;
-      const [ inputRows, inputCols, inputChannels ] = inputShape;
-      const [ nbFilter, nbRow, nbCol ] = kernelShape;
+      const [inputRows, inputCols, inputChannels] = inputShape;
+      const [nbFilter, nbRow, nbCol] = kernelShape;
       const title = `[${key}] [GPU] test: ${nbFilter} ${nbRow}x${nbCol} filters on ${inputRows}x${inputCols}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, depthMultiplier=${attrs.depthMultiplier}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`;
 
       it(title, function() {

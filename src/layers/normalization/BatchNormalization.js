@@ -30,7 +30,7 @@ export default class BatchNormalization extends Layer {
 
     // Layer weights specification
     // running mean and std are non_trainable_weights in mode 0
-    this.params = this.mode === 0 ? [ 'gamma', 'beta', 'running_mean', 'running_std' ] : [ 'gamma', 'beta' ];
+    this.params = this.mode === 0 ? ['gamma', 'beta', 'running_mean', 'running_std'] : ['gamma', 'beta'];
 
     // Enable layer gpu +/- pipeline mode if supported
     if (this.gpu && weblas) {
@@ -164,9 +164,7 @@ export default class BatchNormalization extends Layer {
         broadcast[this.axis] = i;
         let reduction = flattenDeep(unpack(x.tensor.pick(...broadcast)));
         let axisMean = reduction.reduce((a, b) => a + b, 0) / reduction.length;
-        let axisStd = reduction
-          .map(x => (x - axisMean) * (x - axisMean))
-          .reduce((a, b) => a + b, 0) / reduction.length;
+        let axisStd = reduction.map(x => (x - axisMean) * (x - axisMean)).reduce((a, b) => a + b, 0) / reduction.length;
         ops.assigns(_mean.tensor.pick(...broadcast), axisMean);
         ops.assigns(_std.tensor.pick(...broadcast), axisStd + this.epsilon);
       }

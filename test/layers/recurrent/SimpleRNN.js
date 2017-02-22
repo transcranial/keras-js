@@ -8,39 +8,39 @@ describe('recurrent layer: SimpleRNN', function() {
 
   const testParams = [
     {
-      inputShape: [ 3, 6 ],
+      inputShape: [3, 6],
       attrs: { outputDim: 4, activation: 'tanh', returnSequences: false, goBackwards: false, stateful: false }
     },
     {
-      inputShape: [ 8, 5 ],
+      inputShape: [8, 5],
       attrs: { outputDim: 5, activation: 'sigmoid', returnSequences: false, goBackwards: false, stateful: false }
     },
     {
-      inputShape: [ 7, 6 ],
+      inputShape: [7, 6],
       attrs: { outputDim: 4, activation: 'tanh', returnSequences: true, goBackwards: false, stateful: false }
     },
     {
-      inputShape: [ 7, 6 ],
+      inputShape: [7, 6],
       attrs: { outputDim: 4, activation: 'tanh', returnSequences: false, goBackwards: true, stateful: false }
     },
     {
-      inputShape: [ 7, 6 ],
+      inputShape: [7, 6],
       attrs: { outputDim: 4, activation: 'tanh', returnSequences: true, goBackwards: true, stateful: false }
     },
     {
-      inputShape: [ 7, 6 ],
+      inputShape: [7, 6],
       attrs: { outputDim: 4, activation: 'tanh', returnSequences: false, goBackwards: false, stateful: true }
     },
     {
-      inputShape: [ 7, 6 ],
+      inputShape: [7, 6],
       attrs: { outputDim: 4, activation: 'tanh', returnSequences: true, goBackwards: false, stateful: true }
     },
     {
-      inputShape: [ 7, 6 ],
+      inputShape: [7, 6],
       attrs: { outputDim: 4, activation: 'tanh', returnSequences: false, goBackwards: true, stateful: true }
     },
     {
-      inputShape: [ 7, 6 ],
+      inputShape: [7, 6],
       attrs: { outputDim: 4, activation: 'tanh', returnSequences: true, goBackwards: true, stateful: true }
     }
   ];
@@ -59,7 +59,9 @@ describe('recurrent layer: SimpleRNN', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `recurrent.SimpleRNN.${i}`;
-      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, activation='${attrs.activation}', returnSequences=${attrs.returnSequences}, goBackwards=${attrs.goBackwards}, stateful=${attrs.stateful}`;
+      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[
+        1
+      ]} input, activation='${attrs.activation}', returnSequences=${attrs.returnSequences}, goBackwards=${attrs.goBackwards}, stateful=${attrs.stateful}`;
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3);
@@ -97,7 +99,9 @@ describe('recurrent layer: SimpleRNN', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `recurrent.SimpleRNN.${i}`;
-      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, activation='${attrs.activation}', returnSequences=${attrs.returnSequences}, goBackwards=${attrs.goBackwards}, stateful=${attrs.stateful}`;
+      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[
+        1
+      ]} input, activation='${attrs.activation}', returnSequences=${attrs.returnSequences}, goBackwards=${attrs.goBackwards}, stateful=${attrs.stateful}`;
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3);

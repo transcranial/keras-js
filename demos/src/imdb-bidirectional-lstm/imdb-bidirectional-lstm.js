@@ -59,7 +59,7 @@ const ARCHITECTURE_DIAGRAM_LAYERS = [
  *
  */
 export const ImdbBidirectionalLstm = Vue.extend({
-  props: [ 'hasWebgl' ],
+  props: ['hasWebgl'],
   template: require('raw-loader!./imdb-bidirectional-lstm.template.html'),
   data: function() {
     return {
@@ -124,7 +124,7 @@ export const ImdbBidirectionalLstm = Vue.extend({
     },
     loadAdditionalData: function() {
       this.modelLoading = true;
-      const reqs = [ 'wordIndex', 'wordDict', 'testSamples' ].map(key => {
+      const reqs = ['wordIndex', 'wordDict', 'testSamples'].map(key => {
         return axios.get(ADDITIONAL_DATA_FILEPATHS[key]);
       });
       axios.all(reqs).then(
@@ -185,7 +185,7 @@ export const ImdbBidirectionalLstm = Vue.extend({
           const index = this.wordIndex[word];
           return !index ? OOV_WORD_INDEX : index + INDEX_FROM;
         });
-        indices = [ START_WORD_INDEX ].concat(indices);
+        indices = [START_WORD_INDEX].concat(indices);
         indices = indices.slice(-MAXLEN);
         // padding and truncation (both pre sequence)
         const start = Math.max(0, MAXLEN - indices.length);
@@ -213,7 +213,7 @@ export const ImdbBidirectionalLstm = Vue.extend({
 
       let stepwiseOutput = [];
       for (let i = start; i < MAXLEN; i++) {
-        let tempTensor = new Tensor([], [ forwardDim + backwardDim ]);
+        let tempTensor = new Tensor([], [forwardDim + backwardDim]);
         ops.assign(tempTensor.tensor.hi(forwardDim).lo(0), forwardHiddenStates.tensor.pick(i, null));
         ops.assign(
           tempTensor.tensor.hi(forwardDim + backwardDim).lo(forwardDim),

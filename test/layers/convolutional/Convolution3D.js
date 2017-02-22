@@ -8,29 +8,29 @@ describe('convolutional layer: Convolution3D', function() {
 
   const testParams = [
     {
-      inputShape: [ 5, 5, 5, 2 ],
-      kernelShape: [ 4, 3, 3, 3 ],
-      attrs: { activation: 'linear', borderMode: 'valid', subsample: [ 1, 1, 1 ], dimOrdering: 'tf', bias: true }
+      inputShape: [5, 5, 5, 2],
+      kernelShape: [4, 3, 3, 3],
+      attrs: { activation: 'linear', borderMode: 'valid', subsample: [1, 1, 1], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [ 4, 4, 4, 2 ],
-      kernelShape: [ 2, 3, 3, 3 ],
-      attrs: { activation: 'sigmoid', borderMode: 'valid', subsample: [ 1, 1, 1 ], dimOrdering: 'tf', bias: false }
+      inputShape: [4, 4, 4, 2],
+      kernelShape: [2, 3, 3, 3],
+      attrs: { activation: 'sigmoid', borderMode: 'valid', subsample: [1, 1, 1], dimOrdering: 'tf', bias: false }
     },
     {
-      inputShape: [ 4, 4, 3, 2 ],
-      kernelShape: [ 2, 3, 3, 3 ],
-      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 1, 1, 1 ], dimOrdering: 'tf', bias: true }
+      inputShape: [4, 4, 3, 2],
+      kernelShape: [2, 3, 3, 3],
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [1, 1, 1], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [ 4, 4, 3, 2 ],
-      kernelShape: [ 2, 3, 3, 2 ],
-      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 2, 1, 1 ], dimOrdering: 'tf', bias: true }
+      inputShape: [4, 4, 3, 2],
+      kernelShape: [2, 3, 3, 2],
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [2, 1, 1], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [ 6, 6, 4, 2 ],
-      kernelShape: [ 2, 3, 3, 3 ],
-      attrs: { activation: 'relu', borderMode: 'same', subsample: [ 3, 3, 2 ], dimOrdering: 'tf', bias: true }
+      inputShape: [6, 6, 4, 2],
+      kernelShape: [2, 3, 3, 3],
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [3, 3, 2], dimOrdering: 'tf', bias: true }
     }
   ];
 
@@ -48,8 +48,8 @@ describe('convolutional layer: Convolution3D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
       const key = `convolutional.Convolution3D.${i}`;
-      const [ inputDim1, inputDim2, inputDim3, inputChannels ] = inputShape;
-      const [ nbFilter, kernelDim1, kernelDim2, kernelDim3 ] = kernelShape;
+      const [inputDim1, inputDim2, inputDim3, inputChannels] = inputShape;
+      const [nbFilter, kernelDim1, kernelDim2, kernelDim3] = kernelShape;
       const title = `[${key}] [CPU] test: ${nbFilter} ${kernelDim1}x${kernelDim2}x${kernelDim3} filters on ${inputDim1}x${inputDim2}x${inputDim3}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`;
 
       it(title, function() {
@@ -83,8 +83,8 @@ describe('convolutional layer: Convolution3D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
       const key = `convolutional.Convolution3D.${i}`;
-      const [ inputDim1, inputDim2, inputDim3, inputChannels ] = inputShape;
-      const [ nbFilter, kernelDim1, kernelDim2, kernelDim3 ] = kernelShape;
+      const [inputDim1, inputDim2, inputDim3, inputChannels] = inputShape;
+      const [nbFilter, kernelDim1, kernelDim2, kernelDim3] = kernelShape;
       const title = `[${key}] [GPU] test: ${nbFilter} ${kernelDim1}x${kernelDim2}x${kernelDim3} filters on ${inputDim1}x${inputDim2}x${inputDim3}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`;
 
       it(title, function() {

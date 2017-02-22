@@ -13,7 +13,7 @@ describe('convolutional layer: UpSampling3D', function() {
   it(`[convolutional.UpSampling3D.0] size 2x2x2 upsampling on 2x2x2x3 input, dimOrdering=tf`, function() {
     const key = `convolutional.UpSampling3D.0`;
     console.log(`\n%c[${key}] size 2x2x2 upsampling on 2x2x2x3 input, dimOrdering=tf`, styles.h3);
-    let testLayer = new layers.UpSampling3D({ size: [ 2, 2, 2 ], dimOrdering: 'tf' });
+    let testLayer = new layers.UpSampling3D({ size: [2, 2, 2], dimOrdering: 'tf' });
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();
@@ -30,7 +30,7 @@ describe('convolutional layer: UpSampling3D', function() {
   it(`[convolutional.UpSampling3D.1] size 2x2x2 upsampling on 2x2x2x3 input, dimOrdering=th`, function() {
     const key = `convolutional.UpSampling3D.1`;
     console.log(`\n%c[${key}] size 2x2x2 upsampling on 2x2x2x3 input, dimOrdering=th`, styles.h3);
-    let testLayer = new layers.UpSampling3D({ size: [ 2, 2, 2 ], dimOrdering: 'th' });
+    let testLayer = new layers.UpSampling3D({ size: [2, 2, 2], dimOrdering: 'th' });
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();
@@ -47,7 +47,7 @@ describe('convolutional layer: UpSampling3D', function() {
   it(`[convolutional.UpSampling3D.2] size 1x3x2 upsampling on 2x1x3x2 input, dimOrdering=tf`, function() {
     const key = `convolutional.UpSampling3D.2`;
     console.log(`\n%c[${key}] size 1x3x2 upsampling on 2x1x3x2 input, dimOrdering=tf`, styles.h3);
-    let testLayer = new layers.UpSampling3D({ size: [ 1, 3, 2 ], dimOrdering: 'tf' });
+    let testLayer = new layers.UpSampling3D({ size: [1, 3, 2], dimOrdering: 'tf' });
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();
@@ -64,7 +64,7 @@ describe('convolutional layer: UpSampling3D', function() {
   it(`[convolutional.UpSampling3D.3] 2x1x2 upsampling on 2x1x3x3 input, dimOrdering=th`, function() {
     const key = `convolutional.UpSampling3D.3`;
     console.log(`\n%c[${key}] 2x1x2 upsampling on 2x1x3x3 input, dimOrdering=th`, styles.h3);
-    let testLayer = new layers.UpSampling3D({ size: [ 2, 1, 2 ], dimOrdering: 'th' });
+    let testLayer = new layers.UpSampling3D({ size: [2, 1, 2], dimOrdering: 'th' });
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape);
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor));
     const startTime = performance.now();

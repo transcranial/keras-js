@@ -8,23 +8,23 @@ describe('convolutional layer: Convolution1D', function() {
 
   const testParams = [
     {
-      inputShape: [ 5, 2 ],
-      kernelShape: [ 4, 3 ],
+      inputShape: [5, 2],
+      kernelShape: [4, 3],
       attrs: { activation: 'linear', borderMode: 'valid', subsampleLength: 1, bias: true }
     },
     {
-      inputShape: [ 6, 3 ],
-      kernelShape: [ 4, 3 ],
+      inputShape: [6, 3],
+      kernelShape: [4, 3],
       attrs: { activation: 'linear', borderMode: 'valid', subsampleLength: 1, bias: false }
     },
     {
-      inputShape: [ 4, 6 ],
-      kernelShape: [ 2, 3 ],
+      inputShape: [4, 6],
+      kernelShape: [2, 3],
       attrs: { activation: 'sigmoid', borderMode: 'same', subsampleLength: 2, bias: true }
     },
     {
-      inputShape: [ 8, 3 ],
-      kernelShape: [ 2, 7 ],
+      inputShape: [8, 3],
+      kernelShape: [2, 7],
       attrs: { activation: 'tanh', borderMode: 'same', subsampleLength: 1, bias: true }
     }
   ];
@@ -43,8 +43,8 @@ describe('convolutional layer: Convolution1D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
       const key = `convolutional.Convolution1D.${i}.legacy`;
-      const [ inputLength, inputFeatures ] = inputShape;
-      const [ nbFilter, filterLength ] = kernelShape;
+      const [inputLength, inputFeatures] = inputShape;
+      const [nbFilter, filterLength] = kernelShape;
       const title = `[${key}] [CPU] test: ${nbFilter} length ${filterLength} filters on ${inputLength}x${inputFeatures} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsampleLength=${attrs.subsampleLength}, bias=${attrs.bias}`;
 
       it(title, function() {
@@ -67,8 +67,8 @@ describe('convolutional layer: Convolution1D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
       const key = `convolutional.Convolution1D.${i}`;
-      const [ inputLength, inputFeatures ] = inputShape;
-      const [ nbFilter, filterLength ] = kernelShape;
+      const [inputLength, inputFeatures] = inputShape;
+      const [nbFilter, filterLength] = kernelShape;
       const title = `[${key}] [CPU] test: ${nbFilter} length ${filterLength} filters on ${inputLength}x${inputFeatures} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsampleLength=${attrs.subsampleLength}, bias=${attrs.bias}`;
 
       it(title, function() {
@@ -100,8 +100,8 @@ describe('convolutional layer: Convolution1D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
       const key = `convolutional.Convolution1D.${i}.legacy`;
-      const [ inputLength, inputFeatures ] = inputShape;
-      const [ nbFilter, filterLength ] = kernelShape;
+      const [inputLength, inputFeatures] = inputShape;
+      const [nbFilter, filterLength] = kernelShape;
       const title = `[${key}] [GPU] test: ${nbFilter} length ${filterLength} filters on ${inputLength}x${inputFeatures} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsampleLength=${attrs.subsampleLength}, bias=${attrs.bias}`;
 
       it(title, function() {
@@ -124,8 +124,8 @@ describe('convolutional layer: Convolution1D', function() {
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
       const key = `convolutional.Convolution1D.${i}`;
-      const [ inputLength, inputFeatures ] = inputShape;
-      const [ nbFilter, filterLength ] = kernelShape;
+      const [inputLength, inputFeatures] = inputShape;
+      const [nbFilter, filterLength] = kernelShape;
       const title = `[${key}] [GPU] test: ${nbFilter} length ${filterLength} filters on ${inputLength}x${inputFeatures} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsampleLength=${attrs.subsampleLength}, bias=${attrs.bias}`;
 
       it(title, function() {
