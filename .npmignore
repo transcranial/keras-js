@@ -1,0 +1,11 @@
+.git
+demos
+node_modules
+notebooks
+src
+test
+.gitattributes
+.gitignore
+index.html
+webpack.config.js
+yarn.lock

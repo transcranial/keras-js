@@ -1,6 +1,6 @@
 # [Keras.js](https://transcranial.github.io/keras-js)
 
-Run [Keras](https://github.com/fchollet/keras) models (trained using Tensorflow backend) in your browser, with GPU support. Models are created directly from the Keras JSON-format configuration file, using weights serialized directly from the corresponding HDF5 file.
+Run [Keras](https://github.com/fchollet/keras) models (trained using Tensorflow backend) in your browser, with GPU support. Models are created directly from the Keras JSON-format configuration file, using weights serialized directly from the corresponding HDF5 file. Also works in node, but only in CPU mode.
 
 Inspiration is drawn from a number of deep learning / neural network libraries for JavaScript and the browser, including [Tensorflow Playground](http://playground.tensorflow.org/), [ConvNetJS](https://github.com/karpathy/convnetjs), [synaptic](https://github.com/cazala/synaptic), [brain](https://github.com/harthur/brain), [CaffeJS](https://github.com/chaosmail/caffejs), [MXNetJS](https://github.com/dmlc/mxnet.js). However, the focus of this library is on inference only.
 
@@ -81,7 +81,7 @@ See `demos/src/` for source code of real examples written in VueJS.
 4. Include Keras.js:
 
   ```html
-  <script src="dist/keras.js"></script>
+  <script src="lib/keras.js"></script>
   ```
 
 5. Create new model
@@ -203,12 +203,12 @@ For development, run:
 $ npm run watch
 ```
 
-Editing of any file in `src/` will trigger webpack to update `dist/keras.js`.
+Editing of any file in `src/` will trigger webpack to update `lib/keras.js`.
 
-To create a production UMD webpack build, output to `dist/keras.js`, run:
+To create a production UMD webpack build, output to `lib/keras.js`:
 
 ```sh
-$ npm run build
+$ npm run build:browser
 ```
 
 Data files for the demos are located at `demos/data/`. All binary `*.buf` files uses [Git LFS](https://git-lfs.github.com/) (see `.gitattributes`).

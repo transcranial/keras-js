@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "description": "Run Keras models (tensorflow backend) in the browser, with GPU support",
   "scripts": {
-    "watch": "webpack --watch --config webpack.dev.config.js",
-    "build": "webpack --config webpack.prod.config.js",
-    "watch:demos": "cd demos && webpack --watch --config webpack.dev.config.js",
-    "build:demos": "cd demos && webpack --config webpack.prod.config.js",
+    "watch": "NODE_ENV=development BABEL_ENV=browser webpack --watch --config webpack.config.js",
+    "build:browser": "rm -rf lib; NODE_ENV=production BABEL_ENV=browser webpack --config webpack.config.js",
+    "build:node": "rm -rf dist; NODE_ENV=production BABEL_ENV=node babel src --out-dir dist",
+    "build": "npm run build:browser && npm run build:node",
+    "prepublish": "npm run build",
+    "watch:demos": "cd demos && NODE_ENV=development BABEL_ENV=browser webpack --watch --config webpack.config.js",
+    "build:demos": "cd demos && NODE_ENV=production BABEL_ENV=browser webpack --config webpack.config.js",
     "server": "http-server . -c-1 -p 3000"
   },
   "repository": {
