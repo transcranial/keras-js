@@ -4,6 +4,7 @@ node_modules
 notebooks
 src
 test
+.babelrc
 .gitattributes
 .gitignore
 .npmignore
