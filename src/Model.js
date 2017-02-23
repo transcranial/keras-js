@@ -1,4 +1,5 @@
 import Promise from 'bluebird';
+import axios from 'axios';
 import toPairs from 'lodash/toPairs';
 import mapKeys from 'lodash/mapKeys';
 import camelCase from 'lodash/camelCase';
@@ -10,6 +11,8 @@ import isEqual from 'lodash/isEqual';
 import every from 'lodash/every';
 import * as layers from './layers';
 import Tensor from './Tensor';
+
+const axiosSource = axios.CancelToken.source();
 
 /**
  * Model class
@@ -58,11 +61,8 @@ export default class Model {
       metadata: []
     };
 
-    // keep track of XHR requests
-    this.xhrs = { model: null, weights: null, metadata: null };
-
-    // XHR progress
-    this.xhrProgress = { model: 0, weights: 0, metadata: 0 };
+    // data request progress
+    this.dataRequestProgress = { model: 0, weights: 0, metadata: 0 };
 
     // map of model layers
     this.modelLayersMap = new Map();
@@ -92,16 +92,10 @@ export default class Model {
   }
 
   /**
-   * Cancels any existing XHR requests
+   * Cancels any existing data requests
    */
   _interrupt() {
-    const dataTypes = ['model', 'weights', 'metdata'];
-    dataTypes.forEach(type => {
-      if (this.xhrs[type]) {
-        this.xhrs[type].abort();
-        this.xhrs[type] = null;
-      }
-    });
+    axiosSource.cancel();
   }
 
   /**
@@ -122,44 +116,44 @@ export default class Model {
   }
 
   /**
-   * Makes XHR request
+   * Makes data request
    * @async
    * @param {string} type - type of requested data, one of `model`, `weights`, or `metadata`.
-   * @param {Object} [headers] - any XHR headers to be passed along with request
+   * @param {Object} [headers] - any headers to be passed along with request
    * @returns {Promise}
    */
   _dataRequest(type, headers = {}) {
-    return new Promise((resolve, reject) => {
-      let xhr = new XMLHttpRequest();
-      xhr.open('GET', this.filepaths[type], true);
-      xhr.responseType = this.filetypes[type];
-      for (const [h, v] of toPairs(headers)) {
-        xhr.setRequestHeader(h, v);
-      }
-      xhr.onload = e => {
-        this.data[type] = xhr.response;
-        this.xhrs[type] = null;
-        this.xhrProgress[type] = 100;
-        resolve();
-      };
-      xhr.onprogress = e => {
-        if (e.lengthComputable) {
-          const percentComplete = Math.round(100 * e.loaded / e.total);
-          this.xhrProgress[type] = percentComplete;
+    return axios
+      .get(this.filepaths[type], {
+        responseType: this.filetypes[type],
+        headers,
+        onDownloadProgress: e => {
+          if (e.lengthComputable) {
+            const percentComplete = Math.round(100 * e.loaded / e.total);
+            this.dataRequestProgress[type] = percentComplete;
+          }
+        },
+        cancelToken: axiosSource.token
+      })
+      .then(res => {
+        this.data[type] = res.data;
+        this.dataRequestProgress[type] = 100;
+      })
+      .catch(err => {
+        if (axios.isCancel(err)) {
+          console.log('Data request canceled', err.message);
+        } else {
+          throw err;
         }
-      };
-      xhr.onerror = e => reject(e);
-      xhr.send(null);
-      this.xhrs[type] = xhr;
-    });
+      });
   }
 
   /**
-   * Loading progress calculated from all the XHRs combined.
+   * Loading progress calculated from all the data requests combined.
    * @returns {number} progress
    */
   getLoadingProgress() {
-    const progressValues = values(this.xhrProgress);
+    const progressValues = values(this.dataRequestProgress);
     return Math.round(sum(progressValues) / progressValues.length);
   }
 
