@@ -30,7 +30,14 @@ export default class Model {
    * @param {boolean} [config.layerCallPauses] - force next tick after each layer call
    */
   constructor(config = {}) {
-    const { filepaths = {}, headers = {}, gpu = false, pipeline = false, layerCallPauses = false } = config;
+    const {
+      filepaths = {},
+      headers = {},
+      filesystem = false,
+      gpu = false,
+      pipeline = false,
+      layerCallPauses = false
+    } = config;
 
     if (!filepaths.model || !filepaths.weights || !filepaths.metadata) {
       throw new Error('File paths must be declared for model, weights, and metadata.');
@@ -40,6 +47,10 @@ export default class Model {
 
     // HTTP(S) headers used during data fetching
     this.headers = headers;
+
+    // specifies that data files are from local file system
+    // only in node
+    this.filesystem = typeof window !== 'undefined' ? false : filesystem;
 
     // flag to enable GPU where possible (disable in node environment)
     this.gpu = typeof window !== 'undefined' ? gpu : false;
@@ -104,7 +115,12 @@ export default class Model {
    */
   _initialize() {
     const dataTypes = ['model', 'weights', 'metadata'];
-    return Promise.all(dataTypes.map(type => this._dataRequest(type, this.headers)))
+    return Promise
+      .all(
+        dataTypes.map(type => {
+          return this.filesystem ? this._dataRequestFS(type) : this._dataRequestHTTP(type, this.headers);
+        })
+      )
       .then(() => {
         this._createLayers();
         return Promise.resolve();
@@ -116,13 +132,39 @@ export default class Model {
   }
 
   /**
-   * Makes data request
+   * Makes data FS request (node only)
+   * @async
+   * @param {string} type - type of requested data, one of `model`, `weights`, or `metadata`.
+   * @returns {Promise}
+   */
+  _dataRequestFS(type) {
+    const readFile = Promise.promisify(require('fs').readFile);
+    const filetype = this.filetypes[type];
+    const encoding = filetype === 'json' ? 'utf8' : undefined;
+    return readFile(this.filepaths[type], encoding)
+      .then(data => {
+        if (filetype === 'json') {
+          this.data[type] = JSON.parse(data);
+        } else if (filetype === 'arraybuffer') {
+          this.data[type] = data.buffer;
+        } else {
+          throw new Error(`Invalid file type: ${filetype}`);
+        }
+        this.dataRequestProgress[type] = 100;
+      })
+      .catch(err => {
+        throw err;
+      });
+  }
+
+  /**
+   * Makes data HTTP request (browser or node)
    * @async
    * @param {string} type - type of requested data, one of `model`, `weights`, or `metadata`.
    * @param {Object} [headers] - any headers to be passed along with request
    * @returns {Promise}
    */
-  _dataRequest(type, headers = {}) {
+  _dataRequestHTTP(type, headers = {}) {
     return axios
       .get(this.filepaths[type], {
         responseType: this.filetypes[type],

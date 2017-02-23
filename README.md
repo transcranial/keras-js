@@ -84,11 +84,26 @@ See `demos/src/` for source code of real examples written in VueJS.
   <script src="dist/keras.js"></script>
   ```
 
+  or in node (4+ required):
+
+  ```js
+  // namespaced  
+  const KerasJS = require('keras-js')
+  // or
+  import * as KerasJS from 'keras-js'
+
+  // not namespaced
+  const Model = require('keras-js').Model
+  // or
+  import { Model } from 'keras-js'
+  ```
+
 5. Create new model
 
   On instantiation, data is loaded using XHR (same-domain or CORS required), and layers are initialized as a directed acyclic graph:
 
   ```js
+  // in browser, URLs can be relative or absolute
   const model = new KerasJS.Model({
     filepaths: {
       model: 'url/path/to/model.json',
@@ -96,6 +111,18 @@ See `demos/src/` for source code of real examples written in VueJS.
       metadata: 'url/path/to/model_metadata.json'
     },
     gpu: true
+  })
+
+  // in node, gpu flag will always be off
+  // paths can be filesystem paths or absolute URLs
+  // if filesystem path, this must be specified:
+  const model = new KerasJS.Model({
+    filepaths: {
+      model: 'path/to/model.json',
+      weights: 'path/to/model_weights.buf',
+      metadata: 'path/to/model_metadata.json'
+    },
+    filesystem: true
   })
   ```
 
