@@ -86,6 +86,12 @@ See `demos/src/` for source code of real examples written in VueJS.
 
   or in node (4+ required):
 
+  ```sh
+  $ npm install keras-js --save
+  # or
+  $ yarn add keras-js
+  ```
+
   ```js
   // namespaced  
   const KerasJS = require('keras-js')
