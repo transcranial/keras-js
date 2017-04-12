@@ -2,7 +2,7 @@
   "name": "keras-js",
   "version": "0.1.0",
   "description": "Run Keras models (tensorflow backend) in the browser, with GPU support",
-  "main": "lib/index.js",
+  "main": "dist/keras.js",
   "scripts": {
     "watch": "NODE_ENV=development BABEL_ENV=browser webpack --watch --config webpack.config.js",
     "build:browser": "rm -rf dist; NODE_ENV=production BABEL_ENV=browser webpack --config webpack.config.js",
