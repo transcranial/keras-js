@@ -93,7 +93,7 @@ See `demos/src/` for source code of real examples written in VueJS.
   ```
 
   ```js
-  // namespaced  
+  // namespaced
   const KerasJS = require('keras-js')
   // or
   import * as KerasJS from 'keras-js'
@@ -221,6 +221,11 @@ In GPU mode, tensor objects are encoded as WebGL textures prior to computations.
 Firefox on certain platforms (macOS in particular, possibly others) still has texture size limits hard-coded. Even on modern GPUs, this limit may be too low. This is a [known issue](https://bugzilla.mozilla.org/show_bug.cgi?id=986871). While Keras.js will gracefully downgrade to use the CPU in this case, computational performance will be degraded. One way to get around this is to go to `about:config` and change `gfx.work-around-driver-bugs` to `false`, and restart the browser. This should increase the max texture size back to normal.
 
 ### Development / Testing
+
+This repo has large assets and will [max out Github's data quota](https://github.com/transcranial/keras-js/issues/54). You can either purchase data packs, or ignore the larger files. To ignore those larger files, use this command to clone the repo:
+```sh
+GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/transcranial/keras-js.git
+```
 
 There are extensive tests for each implemented layer. See `notebooks/` for jupyter notebooks generating the data for all these tests.
 
