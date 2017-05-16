@@ -1,3 +1,3 @@
 module.exports = {
-  plugins: [require('postcss-nested')(), require('postcss-import')(), require('postcss-cssnext')()]
+  plugins: [require('postcss-import')(), require('postcss-cssnext')()]
 }

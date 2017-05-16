@@ -8,9 +8,6 @@
     "build:browser": "rm -rf dist; NODE_ENV=production BABEL_ENV=browser webpack --config webpack.config.js",
     "build:node": "rm -rf lib; NODE_ENV=production BABEL_ENV=node babel src --out-dir lib",
     "build": "npm run build:browser && npm run build:node",
-    "prepublish": "npm run build",
-    "watch:demos": "cd demos && NODE_ENV=development BABEL_ENV=browser webpack --watch --config webpack.config.js",
-    "build:demos": "cd demos && NODE_ENV=production BABEL_ENV=browser webpack --config webpack.config.js",
     "server": "http-server . -c-1 -p 3000"
   },
   "repository": {
@@ -36,6 +33,7 @@
   },
   "homepage": "https://github.com/transcranial/keras-js#readme",
   "dependencies": {
+    "axios": "^0.16.1",
     "bluebird": "^3.5.0",
     "cwise": "^1.0.10",
     "lodash": "^4.17.4",
@@ -51,24 +49,19 @@
     "weblas": "^0.9.1"
   },
   "devDependencies": {
-    "axios": "^0.16.1",
     "babel-cli": "^6.24.1",
     "babel-core": "^6.24.1",
+    "babel-eslint": "^7.2.3",
     "babel-loader": "^7.0.0",
     "babel-plugin-transform-async-to-module-method": "^6.24.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.4.0",
-    "css-loader": "^0.28.1",
+    "eslint": "^3.19.0",
     "glslify-loader": "^1.0.2",
     "http-server": "^0.10.0",
-    "postcss-cssnext": "^2.11.0",
-    "postcss-import": "^10.0.0",
-    "postcss-loader": "^2.0.5",
-    "postcss-nested": "^2.0.2",
     "raw-loader": "^0.5.1",
-    "style-loader": "^0.17.0",
     "webpack": "^2.5.1"
   }
 }

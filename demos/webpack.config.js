@@ -2,14 +2,15 @@ const path = require('path')
 const webpack = require('webpack')
 
 const config = {
-  entry: [path.join(__dirname, 'src/index')],
-  output: { path: path.join(__dirname, 'dist'), filename: 'bundle.js' },
+  entry: [path.resolve(__dirname, 'src/index')],
+  output: { path: path.resolve(__dirname, 'dist'), filename: 'bundle.js' },
   devtool: 'eval',
   module: {
     rules: [
-      { test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
-      { test: /\.css$/, use: ['style-loader', 'css-loader', 'postcss-loader'] },
-      { test: /\.(glsl|frag|vert)$/, use: ['raw-loader', 'glslify-loader'], exclude: /node_modules/ }
+      { enforce: 'pre', test: /\.vue$/, use: ['eslint-loader'], exclude: /node_modules/ },
+      { enforce: 'pre', test: /\.js$/, use: ['eslint-loader'], exclude: /node_modules/ },
+      { test: /\.vue$/, use: ['vue-loader'], exclude: /node_modules/ },
+      { test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ }
     ]
   }
 }

@@ -1,9 +1,9 @@
-const path = require('path');
-const webpack = require('webpack');
+const path = require('path')
+const webpack = require('webpack')
 
 const config = {
-  entry: path.join(__dirname, 'src/index'),
-  output: { path: path.join(__dirname, 'dist'), filename: 'keras.js', library: 'KerasJS', libraryTarget: 'umd' },
+  entry: path.resolve(__dirname, 'src/index'),
+  output: { path: path.resolve(__dirname, 'dist'), filename: 'keras.js', library: 'KerasJS', libraryTarget: 'umd' },
   devtool: 'eval',
   module: {
     rules: [
@@ -15,11 +15,11 @@ const config = {
     fs: 'empty'
   },
   plugins: []
-};
+}
 
 // NODE_ENV defaults to 'development'
 if (process.env.NODE_ENV === 'production') {
-  config.devtool = 'cheap-module-source-map';
+  config.devtool = 'cheap-module-source-map'
   config.plugins = config.plugins.concat([
     new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') }),
     new webpack.optimize.UglifyJsPlugin({
@@ -28,11 +28,11 @@ if (process.env.NODE_ENV === 'production') {
       mangle: { screw_ie8: true },
       output: { comments: false, screw_ie8: true }
     })
-  ]);
+  ])
 } else {
   config.plugins = config.plugins.concat([
     new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('development') })
-  ]);
+  ])
 }
 
-module.exports = config;
+module.exports = config
