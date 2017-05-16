@@ -3,6 +3,9 @@ const webpack = require('webpack')
 
 const config = {
   entry: [path.resolve(__dirname, 'src/index')],
+  resolve: {
+    extensions: ['.js', '.vue']
+  },
   output: { path: path.resolve(__dirname, 'dist'), filename: 'bundle.js' },
   devtool: 'eval',
   module: {
