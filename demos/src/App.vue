@@ -144,9 +144,10 @@ body {
 
 .mdl-textfield {
   & .mdl-textfield__input {
+    color: var(--color-3);
     border-bottom-color: var(--color-1-light);
-    font-family: var(--font-2);
-    font-size: 14px;;
+    font-family: var(--font-1);
+    font-size: 14px;
   }
 
   & .mdl-textfield__label {
