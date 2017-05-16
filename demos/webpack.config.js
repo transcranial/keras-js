@@ -13,7 +13,8 @@ const config = {
       { enforce: 'pre', test: /\.vue$/, use: ['eslint-loader'], exclude: /node_modules/ },
       { enforce: 'pre', test: /\.js$/, use: ['eslint-loader'], exclude: /node_modules/ },
       { test: /\.vue$/, use: ['vue-loader'], exclude: /node_modules/ },
-      { test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ }
+      { test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
+      { test: /\.(glsl|frag|vert)$/, use: ['raw-loader', 'glslify-loader'], exclude: /node_modules/ }
     ]
   }
 }

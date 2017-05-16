@@ -8,7 +8,9 @@
     "build:browser": "rm -rf dist; NODE_ENV=production BABEL_ENV=browser webpack --config webpack.config.js",
     "build:node": "rm -rf lib; NODE_ENV=production BABEL_ENV=node babel src --out-dir lib",
     "build": "npm run build:browser && npm run build:node",
-    "server": "http-server . -c-1 -p 3000"
+    "server": "http-server . -c-1 -p 3000",
+    "demos:watch": "cd demos && NODE_ENV=development webpack --watch --config webpack.config.js",
+    "demos:build": "cd demos && NODE_ENV=production webpack --config webpack.config.js"
   },
   "repository": {
     "type": "git",
@@ -58,10 +60,22 @@
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.4.0",
+    "blueimp-load-image": "^2.12.2",
+    "css-loader": "^0.28.1",
     "eslint": "^3.19.0",
+    "eslint-loader": "^1.7.1",
+    "eslint-plugin-html": "^2.0.3",
     "glslify-loader": "^1.0.2",
     "http-server": "^0.10.0",
+    "postcss-cssnext": "^2.11.0",
+    "postcss-import": "^10.0.0",
+    "postcss-loader": "^2.0.5",
     "raw-loader": "^0.5.1",
+    "vue": "^2.3.3",
+    "vue-loader": "^12.0.4",
+    "vue-mdl": "^1.1.1",
+    "vue-router": "^2.5.3",
+    "vue-template-compiler": "^2.3.3",
     "webpack": "^2.5.1"
   }
 }
