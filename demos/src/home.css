@@ -17,11 +17,11 @@
   overflow: hidden;
 
   &:hover {
-    border-color: $color-1;
+    border-color: var(--color-1);
     cursor: pointer;
 
     .demo-card-heading {
-      color: $color-1;
+      color: var(--color-1);
     }
   }
 
@@ -29,8 +29,8 @@
     flex: 1;
     padding: 20px;
     text-align: center;
-    color: $color-2;
-    font-family: $font-1;
+    color: var(--color-2);
+    font-family: var(--font-1);
     font-size: 20px;
     transition: color 0.2s ease-in;
   }

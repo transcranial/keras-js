@@ -6,9 +6,9 @@
 
 body {
   background: linear-gradient(0deg, #CCCCCC, #F0F0F0);
-  color: $color-3;
+  color: var(--color-3);
   min-height: 100vh;
-  font-family: $font-1;
+  font-family: var(--font-1);
 }
 
 .title {
@@ -18,13 +18,13 @@ body {
   align-items: center;
 
   span {
-    color: $color-1;
+    color: var(--color-1);
     margin-right: 20px;
   }
 }
 
 .subtitle {
-  color: $color-3;
+  color: var(--color-3);
 }
 
 .demo {
@@ -35,9 +35,9 @@ body {
     top: 0;
     right: 0;
     padding: 30px;
-    color: $color-1;
+    color: var(--color-1);
     font-size: 18px;
-    font-family: $font-2;
+    font-family: var(--font-2);
     padding: 20px 50px;
     margin: 30px;
     background: rgba(255, 255, 255, 0.5);
@@ -49,7 +49,7 @@ body {
     max-width: 1200px;
     border-radius: 5px;
     background: white;
-    color: $color-3;
+    color: var(--color-3);
     padding: 20px 20px 5px 20px;
     margin: 20px auto;
     box-shadow: 5px 5px #CCCCCC;
@@ -60,11 +60,11 @@ body {
       font-size: 12px;
 
       a {
-        color: $color-1;
+        color: var(--color-1);
         transition: color 0.2s ease-in;
 
         &:hover {
-          color: $color-1-light;
+          color: var(--color-1-light);
         }
       }
     }
@@ -77,11 +77,11 @@ body {
       .info-panel-close-btn {
         display: flex;
         align-items: center;
-        color: $color-2;
+        color: var(--color-2);
         transition: color 0.2s ease-in;
 
         &:hover {
-          color: $color-1-lighter;
+          color: var(--color-1-lighter);
           cursor: pointer;
         }
       }
@@ -98,57 +98,57 @@ body {
 
   .mdl-switch.is-checked {
     .mdl-switch__thumb {
-      background: $color-1-light;
+      background: var(--color-1-light);
 
     }
     .mdl-switch__track {
-      background: $color-1-lighter;
+      background: var(--color-1-lighter);
     }
   }
 
   .mdl-textfield {
     .mdl-textfield__input {
-      border-bottom-color: $color-1-light;
-      font-family: $font-2;
+      border-bottom-color: var(--color-1-light);
+      font-family: var(--font-2);
       font-size: 14px;;
     }
 
     .mdl-textfield__label {
-      font-family: $font-2;
-      color: $color-1-light;
+      font-family: var(--font-2);
+      color: var(--color-1-light);
     }
 
     .mdl-icon-toggle__label {
-      color: $color-1-light;
+      color: var(--color-1-light);
     }
   }
 
   .mdl-textfield.is-focused {
     .mdl-textfield__input {
-      border-color: $color-1;
+      border-color: var(--color-1);
     }
 
     .mdl-textfield__label {
-      color: $color-1;
+      color: var(--color-1);
 
       &::after {
-        background-color: $color-1;
+        background-color: var(--color-1);
       }
     }
 
     .mdl-icon-toggle__label {
-      color: $color-1;
+      color: var(--color-1);
     }
   }
 
   .mdl-menu {
     .mdl-menu__item {
-      font-family: $font-2;
+      font-family: var(--font-2);
       font-size: 14px;
-      color: $color-2;
+      color: var(--color-2);
 
       &:hover {
-        background-color: $color-1-light;
+        background-color: var(--color-1-light);
         color: white;
       }
     }

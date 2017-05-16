@@ -8,9 +8,9 @@
 
     .input-container {
       .input-label {
-        font-family: $font-3;
+        font-family: var(--font-3);
         font-size: 16px;
-        color: $color-2;
+        color: var(--color-2);
         text-align: left;
         user-select: none;
         cursor: default;
@@ -25,9 +25,9 @@
 
         span {
           margin: 0 10px;
-          font-family: $font-3;
+          font-family: var(--font-3);
           font-size: 16px;
-          color: $color-2;
+          color: var(--color-2);
         }
       }
     }
@@ -77,9 +77,9 @@
         }
 
         .error {
-          color: $color-err;
+          color: var(--color-err);
           font-size: 14px;
-          font-family: $font-1;
+          font-family: var(--font-1);
           margin: 20px;
         }
       }
@@ -116,11 +116,11 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-family: $font-2;
+            font-family: var(--font-2);
             font-size: 18px;
-            color: $color-2;
+            color: var(--color-2);
             padding: 0 6px;
-            border-right: 2px solid $color-1-lighter;
+            border-right: 2px solid var(--color-1-lighter);
           }
 
           .output-bar {
@@ -131,20 +131,20 @@
           .output-value {
             text-align: left;
             margin-left: 5px;
-            font-family: $font-2;
+            font-family: var(--font-2);
             font-size: 14px;
-            color: $color-2;
+            color: var(--color-2);
           }
         }
 
         .output-class.predicted {
           .output-label {
-            color: $color-1;
-            border-left-color: $color-1;
+            color: var(--color-1);
+            border-left-color: var(--color-1);
           }
 
           .output-value {
-            color: $color-1;
+            color: var(--color-1);
           }
         }
       }
@@ -182,7 +182,7 @@
           margin: 3px;
 
           .layer-class-name {
-            color: $color-1;
+            color: var(--color-1);
             font-size: 14px;
             font-weight: bold;
           }
@@ -195,7 +195,7 @@
         }
 
         .layer.has-result {
-          border-color: $color-1;
+          border-color: var(--color-1);
         }
       }
     }

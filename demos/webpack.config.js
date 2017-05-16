@@ -1,7 +1,5 @@
-const path = require('path');
-const webpack = require('webpack');
-const precss = require('precss');
-const autoprefixer = require('autoprefixer');
+const path = require('path')
+const webpack = require('webpack')
 
 const config = {
   entry: [path.join(__dirname, 'src/index')],
@@ -13,14 +11,13 @@ const config = {
       { test: /\.css$/, use: ['style-loader', 'css-loader', 'postcss-loader'] },
       { test: /\.(glsl|frag|vert)$/, use: ['raw-loader', 'glslify-loader'], exclude: /node_modules/ }
     ]
-  },
-  plugins: [new webpack.LoaderOptionsPlugin({ options: { context: __dirname, postcss: [precss, autoprefixer] } })]
-};
+  }
+}
 
 // NODE_ENV defaults to 'development'
 if (process.env.NODE_ENV === 'production') {
-  config.devtool = 'cheap-module-source-map';
-  config.plugins = config.plugins.concat([
+  config.devtool = 'cheap-module-source-map'
+  config.plugins = [
     new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') }),
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: true,
@@ -28,11 +25,9 @@ if (process.env.NODE_ENV === 'production') {
       mangle: { screw_ie8: true },
       output: { comments: false, screw_ie8: true }
     })
-  ]);
+  ]
 } else {
-  config.plugins = config.plugins.concat([
-    new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('development') })
-  ]);
+  config.plugins = [new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('development') })]
 }
 
-module.exports = config;
+module.exports = config

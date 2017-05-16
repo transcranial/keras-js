@@ -17,9 +17,9 @@
       user-select: none;
 
       .input-label {
-        font-family: $font-3;
+        font-family: var(--font-3);
         font-size: 18px;
-        color: $color-2;
+        color: var(--color-2);
         text-align: right;
 
         span.arrow {
@@ -36,11 +36,11 @@
         display: inline-flex;
         justify-content: flex-end;
         margin: 10px 0;
-        border: 15px solid $color-1-lighter;
+        border: 15px solid var(--color-1-lighter);
         transition: border-color 0.2s ease-in;
 
         &:hover {
-          border-color: $color-1-light;
+          border-color: var(--color-1-light);
         }
 
         canvas {
@@ -58,9 +58,9 @@
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-family: $font-2;
+          font-family: var(--font-2);
           font-size: 14px;
-          color: $color-1;
+          color: var(--color-1);
         }
 
         .axis.x-axis {
@@ -89,9 +89,9 @@
     .coordinates {
       margin-left: 5px;
       margin-top: 45px;
-      font-family: $font-2;
+      font-family: var(--font-2);
       font-size: 20px;
-      color: $color-2;
+      color: var(--color-2);
     }
   }
 
@@ -139,7 +139,7 @@
         font-size: 12px;
 
         span.layer-class {
-          color: $color-1;
+          color: var(--color-1);
           font-size: 14px;
           font-weight: bold;
         }
