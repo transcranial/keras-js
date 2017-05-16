@@ -2,7 +2,7 @@
   <div id="app">
     <div class="columns">
       <div class="column is-3" style="min-width: 350px; max-width: 450px;">
-        <main-menu :current-view="currentView"></main-menu>
+        <main-menu></main-menu>
       </div>
       <div class="column is-9">
         <router-view :has-webgl="hasWebgl"></router-view>
@@ -17,7 +17,7 @@ import MainMenu from './components/MainMenu'
 export default {
   components: { MainMenu },
   data: function() {
-    return { currentView: 'home', hasWebgl: true }
+    return { hasWebgl: true }
   },
   created: function() {
     const canvas = document.createElement('canvas')

@@ -3,34 +3,34 @@
     <h1>Keras.js Demos</h1>
     <p class="menu-label">Demos</p>
     <ul class="menu-list">
-      <li :class="{ 'active': currentView === 'home' }">
+      <li :class="{ active: currentView === 'home' }">
         <a href="#/">Home</a>
       </li>
-      <li :class="{ 'active': currentView === 'mnist-cnn' }">
+      <li :class="{ active: currentView === 'mnist-cnn' }">
         <a href="#/mnist-cnn">
           <span class="menu-item-heading">Basic Convnet</span>
           <span class="menu-item-subheading">MNIST</span>
         </a>
       </li>
-      <li :class="{ 'active': currentView === 'mnist-vae' }">
+      <li :class="{ active: currentView === 'mnist-vae' }">
         <a href="#/mnist-vae">
           <span class="menu-item-heading">Convolutional VAE</span>
           <span class="menu-item-subheading">MNIST</span>
         </a>
       </li>
-      <li :class="{ 'active': currentView === 'resnet50' }">
+      <li :class="{ active: currentView === 'resnet50' }">
         <a href="#/resnet50">
           <span class="menu-item-heading">Residual Network (50-layer)</span>
           <span class="menu-item-subheading">ImageNet</span>
         </a>
       </li>
-      <li :class="{ 'active': currentView === 'inception-v3' }">
+      <li :class="{ active: currentView === 'inception-v3' }">
         <a href="#/inception-v3">
           <span class="menu-item-heading">Inception V3</span>
           <span class="menu-item-subheading">ImageNet</span>
         </a>
       </li>
-      <li :class="{ 'active': currentView === 'imdb-bidirectional-lstm' }">
+      <li :class="{ active: currentView === 'imdb-bidirectional-lstm' }">
         <a href="#/imdb-bidirectional-lstm">
           <span class="menu-item-heading">Bidirectional LSTM</span>
           <span class="menu-item-subheading">IMDB</span>
@@ -58,7 +58,12 @@
 
 <script>
 export default {
-  props: ['currentView']
+  computed: {
+    currentView: function() {
+      const path = this.$route.path
+      return path.replace(/^\//, '') || 'home'
+    }
+  }
 }
 </script>
 

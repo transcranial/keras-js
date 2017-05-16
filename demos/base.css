@@ -1,10 +1,8 @@
-html {
-  background: none !important;
-}
-
 body {
   background: #F0F0F0;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 #github-corner-link {
