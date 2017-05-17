@@ -12,3 +12,6 @@ demos/notebooks/.ipynb_checkpoints/
 
 # babel compiled dir
 lib/
+
+# demos data
+demos/data/
