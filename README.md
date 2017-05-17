@@ -2,7 +2,7 @@
 
 Run [Keras](https://github.com/fchollet/keras) models (trained using Tensorflow backend) in your browser, with GPU support. Models are created directly from the Keras JSON-format configuration file, using weights serialized directly from the corresponding HDF5 file. Also works in node, but only in CPU mode.
 
-Inspiration is drawn from a number of deep learning / neural network libraries for JavaScript and the browser, including [Tensorflow Playground](http://playground.tensorflow.org/), [ConvNetJS](https://github.com/karpathy/convnetjs), [synaptic](https://github.com/cazala/synaptic), [brain](https://github.com/harthur/brain), [CaffeJS](https://github.com/chaosmail/caffejs), [MXNetJS](https://github.com/dmlc/mxnet.js). However, the focus of this library is on inference only.
+Currently the focus of this library is on forward-pass inference only.
 
 Tensor operations are extended on top of the [ndarray](https://github.com/scijs/ndarray) library. GPU support is powered by WebGL through [weblas](https://github.com/waylonflinn/weblas).
 
@@ -178,11 +178,11 @@ See `demos/src/` for source code of real examples written in VueJS.
 
 ### Available layers
 
-  - *advanced activations*: LeakyReLU, PReLU, ELU, ParametricSoftplus, ThresholdedReLU, SReLU
+  - *advanced activations*: LeakyReLU, PReLU, ELU, ThresholdedReLU
 
-  - *convolutional*: Conv1D, Conv2D, AtrousConv2D, SeparableConv2D, Conv2DTranspose, Conv3D, UpSampling1D, UpSampling2D, UpSampling3D, ZeroPadding1D, ZeroPadding2D, ZeroPadding3D, Cropping1D, Cropping2D, Cropping3D
+  - *convolutional*: Conv1D, Conv2D, SeparableConv2D, Conv2DTranspose, Conv3D, Cropping1D, Cropping2D, Cropping3D, UpSampling1D, UpSampling2D, UpSampling3D, ZeroPadding1D, ZeroPadding2D, ZeroPadding3D
 
-  - *core*: Dense, Activation, Dropout, SpatialDropout2D, SpatialDropout3D, Flatten, Reshape, Permute, RepeatVector, Merge, Highway, MaxoutDense
+  - *core*: Dense, Activation, Dropout, SpatialDropout1D, SpatialDropout2D, SpatialDropout3D, Flatten, Reshape, Permute, RepeatVector, Merge
 
   - *embeddings*: Embedding
 
@@ -202,8 +202,6 @@ See `demos/src/` for source code of real examples written in VueJS.
 
   - *core*: Lambda
 
-  - *convolutional*: AtrousConv1D
-
   - *locally-connected*: LocallyConnected1D, LocallyConnected2D
 
   - *pooling*: GlobalMaxPooling3D, GlobalAveragePooling3D
@@ -222,15 +220,14 @@ Firefox on certain platforms (macOS in particular, possibly others) still has te
 
 ### Development / Testing
 
-This repo has large assets and will [max out Github's data quota](https://github.com/transcranial/keras-js/issues/54). You can either purchase data packs, or ignore the larger files. To ignore those larger files, use this command to clone the repo:
-```sh
-GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/transcranial/keras-js.git
-```
-
 There are extensive tests for each implemented layer. See `notebooks/` for jupyter notebooks generating the data for all these tests.
 
 ```sh
 $ npm install
+```
+or
+```sh
+$ yarn
 ```
 
 To run all tests run `npm run server` and simply go to [http://localhost:3000/test/](http://localhost:3000/test/). All tests will automatically run. Open up your browser devtools for additional test data info.
@@ -249,7 +246,7 @@ To create a production UMD webpack build, output to `dist/keras.js`:
 $ npm run build:browser
 ```
 
-Data files for the demos are located at `demos/data/`. All binary `*.buf` files uses [Git LFS](https://git-lfs.github.com/) (see `.gitattributes`).
+Data files for the demos are located at `demos/data/`. Due to its large size, this folder is ignored by git. Clone the [keras-js-demos-data](https://github.com/transcranial/keras-js-demos-data) repo and copy the contents to `demos/data/`.
 
 ### License
 
