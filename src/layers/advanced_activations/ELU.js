@@ -13,7 +13,7 @@ export default class ELU extends Layer {
     super(attrs)
     this.layerClass = 'ELU'
 
-    const { alpha = 1 } = attrs
+    const { alpha = 1.0 } = attrs
 
     this.alpha = alpha
   }

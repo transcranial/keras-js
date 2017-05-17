@@ -28,6 +28,25 @@ export function softmax(x) {
   return this
 }
 
+const _elu = cwise({
+  args: ['array', 'scalar'],
+  body: function(_x, alpha) {
+    _x = Math.max(_x, 0) + alpha * (Math.exp(Math.min(_x, 0)) - 1)
+  }
+})
+
+/**
+ * ELU activation function. In-place operation.
+ * @param {Tensor} x
+ * @param {Number} opts.alpha
+ * @returns {Tensor} `this`
+ */
+export function elu(x, opts = {}) {
+  const { alpha = 1.0 } = opts
+  _elu(x.tensor, alpha)
+  return this
+}
+
 const _softplus = cwise({
   args: ['array'],
   body: function(_x) {
@@ -65,8 +84,8 @@ export function softsign(x) {
 /**
  * ReLU activation function. In-place operation.
  * @param {Tensor} x
- * @param {Number} alpha
- * @param {Number} maxValue
+ * @param {Number} opts.alpha
+ * @param {Number} opts.maxValue
  * @returns {Tensor} `this`
  */
 export function relu(x, opts = {}) {

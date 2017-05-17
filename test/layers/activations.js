@@ -68,6 +68,79 @@ describe('activations', function() {
   })
 
   /*********************************************************
+   * elu
+   *********************************************************/
+  describe('elu', function() {
+    before(function() {
+      console.log('\n%celu', styles.h2)
+    })
+
+    it('[activations.elu.0] should work for 1D tensor', function() {
+      const key = 'activations.elu.0'
+      console.log(`\n%c[${key}] 1D`, styles.h3)
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+      const startTime = performance.now()
+      activations.elu(t)
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
+      const shapeExpected = TEST_DATA[key].expected.shape
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+
+    it('[activations.elu.1] should work for 2D tensor', function() {
+      const key = 'activations.elu.1'
+      console.log(`\n%c[${key}] 2D`, styles.h3)
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+      const startTime = performance.now()
+      activations.elu(t)
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
+      const shapeExpected = TEST_DATA[key].expected.shape
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+
+    it('[activations.elu.2] should work for 3D tensor', function() {
+      const key = 'activations.elu.2'
+      console.log(`\n%c[${key}] 3D`, styles.h3)
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+      const startTime = performance.now()
+      activations.elu(t)
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
+      const shapeExpected = TEST_DATA[key].expected.shape
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+
+    it('[activations.elu.3] should work for 3D tensor, with alpha value', function() {
+      const key = 'activations.elu.3'
+      console.log(`\n%c[${key}] 3D, alpha=0.5`, styles.h3)
+      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+      const startTime = performance.now()
+      activations.elu(t, { alpha: 0.5 })
+      const endTime = performance.now()
+      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+      logTime(startTime, endTime)
+      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
+      const shapeExpected = TEST_DATA[key].expected.shape
+      assert.deepEqual(t.tensor.shape, shapeExpected)
+      assert.isTrue(approxEquals(t.tensor, dataExpected))
+    })
+  })
+
+  /*********************************************************
    * softplus
    *********************************************************/
   describe('softplus', function() {
