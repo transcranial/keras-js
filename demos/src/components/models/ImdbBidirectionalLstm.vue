@@ -22,6 +22,7 @@
             spellcheck="false"
             textarea
             rows="10"
+            @input.native="inputChanged"
           ></mdl-textfield>
           <div class="input-buttons">
             <div class="input-load-button" v-on:click="randomSample"><i class="material-icons">add_circle</i>LOAD SAMPLE TEXT</div>
@@ -135,12 +136,6 @@ export default {
       isSampleText: false,
       sampleTextLabel: null,
       architectureDiagramLayers: ARCHITECTURE_DIAGRAM_LAYERS
-    }
-  },
-
-  watch: {
-    inputText: function() {
-      this.inputChanged()
     }
   },
 
