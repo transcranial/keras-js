@@ -7,17 +7,23 @@ import ops from 'ndarray-ops'
  */
 export default class UpSampling3D extends Layer {
   /**
-   * Creates a UpSampling3D activation layer
-   * @param {number} attrs.size - upsampling factor
+   * Creates a UpSampling3D layer
+   * @param {Number|Array<Number>} attrs.size - upsampling factor, int or tuple of int (length 3)
+   * @param {String} attrs.data_format - either 'channels_last' or 'channels_first'
    */
   constructor(attrs = {}) {
     super(attrs)
     this.layerClass = 'UpSampling3D'
 
-    const { size = [2, 2, 2], dimOrdering = 'tf' } = attrs
+    const { size = [2, 2, 2], data_format = 'channels_last' } = attrs
 
-    this.size = size
-    this.dimOrdering = dimOrdering
+    if (Array.isArray(size)) {
+      this.size = size
+    } else {
+      this.size = [size, size, size]
+    }
+
+    this.dataFormat = data_format
   }
 
   /**
@@ -26,8 +32,8 @@ export default class UpSampling3D extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    // convert to tf ordering
-    if (this.dimOrdering === 'th') {
+    // convert to channels_last ordering
+    if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(1, 2, 3, 0)
     }
 
@@ -48,8 +54,8 @@ export default class UpSampling3D extends Layer {
     }
     x.tensor = y.tensor
 
-    // convert back to th ordering if necessary
-    if (this.dimOrdering === 'th') {
+    // convert back to channels_first ordering if necessary
+    if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(3, 0, 1, 2)
     }
 
