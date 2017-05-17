@@ -9,8 +9,8 @@ import unsqueeze from 'ndarray-unsqueeze'
 export default class Conv1D extends Layer {
   /**
    * Creates a Conv1D layer
-   * @param {number} attrs.nbFilter - Number of convolution filters to use.
-   * @param {number} attrs.filterLength - Length of 1D convolution kernel.
+   * @param {number} attrs.filters - Number of convolution filters to use.
+   * @param {number} attrs.kernel_size - Length of 1D convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
@@ -18,36 +18,43 @@ export default class Conv1D extends Layer {
     this.layerClass = 'Conv1D'
 
     const {
-      nbFilter = 1,
-      filterLength = 1,
+      filters = 1,
+      kernel_size = 1,
+      strides = 1,
+      padding = 'valid',
+      dilation_rate = 1,
       activation = 'linear',
-      borderMode = 'valid',
-      subsampleLength = 1,
-      bias = true
+      use_bias = true
     } = attrs
 
-    if (borderMode !== 'valid' && borderMode !== 'same') {
-      throw new Error(`${this.name} [Conv1D layer] Invalid borderMode.`)
+    if (padding !== 'valid' && padding !== 'same') {
+      throw new Error(`${this.name} [Conv1D layer] Invalid padding.`)
     }
 
-    this.bias = bias
+    if (dilation_rate !== 1 && strides !== 1) {
+      // Currently, specifying any dilation_rate value != 1 is incompatible with specifying any stride value != 1
+      // https://keras.io/layers/convolutional/#conv1d
+      throw new Error(`${this.name} [Conv1D layer] Incompatible combination of dilation_rate with strides.`)
+    }
+
+    this.use_bias = use_bias
 
     // Layer weights specification
-    this.params = this.bias ? ['W', 'b'] : ['W']
+    this.params = this.use_bias ? ['W', 'b'] : ['W']
 
     // Bootstrap Conv2D layer:
     // Conv1D is actually a shim on top of Conv2D, where
     // all of the computational action is performed
-    // Note that Keras uses `th` dim ordering here.
+    // Note that we use `channels_first` dim ordering here.
     const conv2dAttrs = {
-      nbFilter,
-      nbRow: filterLength,
-      nbCol: 1,
+      filters,
+      kernel_size: [kernel_size, 1],
+      strides: [strides, 1],
+      padding,
+      data_format: 'channels_first',
+      dilation_rate,
       activation,
-      borderMode,
-      subsample: [subsampleLength, 1],
-      dimOrdering: 'th',
-      bias
+      use_bias
     }
     this._conv2dAttrs = conv2dAttrs
     this._conv2d = new Conv2D(Object.assign(conv2dAttrs, { gpu: attrs.gpu }))
@@ -59,21 +66,7 @@ export default class Conv1D extends Layer {
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights(weightsArr) {
-    const { nbFilter, nbRow, nbCol } = this._conv2dAttrs
-    let shape = weightsArr[0].tensor.shape
-
-    // check for legacy shape of weights
-    // Keras:    (nb_filter, input_dim, filter_length, 1)
-    // Keras.js: (nbFilter, inputChannels, nbRow, nbCol)
-    if (!(shape[0] === nbRow && shape[1] === nbCol) || shape[3] !== nbFilter) {
-      console.warn('Using legacy shape of weights')
-
-      if (!((shape[0] === nbFilter) & ((shape[2] === nbRow) & (shape[3] === nbCol)))) {
-        throw new Error('Unsupported shape of weights')
-      }
-    } else {
-      weightsArr[0].tensor = weightsArr[0].tensor.transpose(3, 2, 0, 1)
-    }
+    weightsArr[0].tensor = unsqueeze(weightsArr[0].tensor).transpose(2, 1, 0, 3)
     this._conv2d.setWeights(weightsArr)
   }
 
