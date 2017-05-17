@@ -2,7 +2,7 @@
 // Keyed by mocha test ID
 // Python code for generating test data can be found in the matching jupyter notebook in folder `notebooks/`.
 
-(function() {
+;(function() {
   var DATA = {
     'wrappers.TimeDistributed.0': {
       input: {
@@ -486,7 +486,7 @@
         shape: [5, 2, 2, 6]
       }
     }
-  };
+  }
 
-  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA);
-})();
+  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA)
+})()

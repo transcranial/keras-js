@@ -2,7 +2,7 @@
 // Keyed by mocha test ID
 // Python code for generating test data can be found in the matching jupyter notebook in folder `notebooks/`.
 
-(function() {
+;(function() {
   var DATA = {
     pipeline_09: {
       weights: [
@@ -260,7 +260,7 @@
         ]
       }
     }
-  };
+  }
 
-  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA);
-})();
+  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA)
+})()

@@ -2,7 +2,7 @@
 // Keyed by mocha test ID
 // Python code for generating test data can be found in the matching jupyter notebook in folder `notebooks/`.
 
-(function() {
+;(function() {
   var DATA = {
     'wrappers.Bidirectional.0': {
       input: {
@@ -1511,7 +1511,7 @@
         shape: [3, 8]
       }
     }
-  };
+  }
 
-  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA);
-})();
+  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA)
+})()

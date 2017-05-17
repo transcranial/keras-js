@@ -1,3 +1,3 @@
-import BatchNormalization from './BatchNormalization';
+import BatchNormalization from './BatchNormalization'
 
-export { BatchNormalization };
+export { BatchNormalization }

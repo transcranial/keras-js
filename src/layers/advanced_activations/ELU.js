@@ -1,5 +1,5 @@
-import Layer from '../../Layer';
-import cwise from 'cwise';
+import Layer from '../../Layer'
+import cwise from 'cwise'
 
 /**
  * ELU advanced activation layer class
@@ -10,20 +10,20 @@ export default class ELU extends Layer {
    * @param {number} attrs.alpha - scale for the negative factor
    */
   constructor(attrs = {}) {
-    super(attrs);
-    this.layerClass = 'ELU';
+    super(attrs)
+    this.layerClass = 'ELU'
 
-    const { alpha = 1 } = attrs;
+    const { alpha = 1 } = attrs
 
-    this.alpha = alpha;
+    this.alpha = alpha
   }
 
   _compute = cwise({
     args: ['array', 'scalar'],
     body: function(_x, alpha) {
-      _x = Math.max(_x, 0) + alpha * (Math.exp(Math.min(_x, 0)) - 1);
+      _x = Math.max(_x, 0) + alpha * (Math.exp(Math.min(_x, 0)) - 1)
     }
-  });
+  })
 
   /**
    * Method for layer computational logic
@@ -31,7 +31,7 @@ export default class ELU extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    this._compute(x.tensor, this.alpha);
-    return x;
+    this._compute(x.tensor, this.alpha)
+    return x
   }
 }

@@ -1,16 +1,16 @@
-import * as activations from '../../activations';
-import Tensor from '../../Tensor';
-import Layer from '../../Layer';
-import Convolution2D from './Convolution2D';
-import ops from 'ndarray-ops';
-import gemm from 'ndarray-gemm';
+import * as activations from '../../activations'
+import Tensor from '../../Tensor'
+import Layer from '../../Layer'
+import Convolution2D from './Convolution2D'
+import ops from 'ndarray-ops'
+import gemm from 'ndarray-gemm'
 
 /**
  * _DepthwiseConvolution2D layer class
  */
 class _DepthwiseConvolution2D extends Convolution2D {
   constructor(attrs = {}) {
-    super(attrs);
+    super(attrs)
   }
 
   /**
@@ -19,34 +19,34 @@ class _DepthwiseConvolution2D extends Convolution2D {
    * @returns {Tensor} x
    */
   _im2col(x) {
-    const [inputRows, inputCols, inputChannels] = x.tensor.shape;
-    const nbRow = this.kernelShape[1];
-    const nbCol = this.kernelShape[2];
-    const outputRows = this.outputShape[0];
-    const outputCols = this.outputShape[1];
-    const nbPatches = outputRows * outputCols;
-    const patchLen = nbRow * nbCol;
+    const [inputRows, inputCols, inputChannels] = x.tensor.shape
+    const nbRow = this.kernelShape[1]
+    const nbCol = this.kernelShape[2]
+    const outputRows = this.outputShape[0]
+    const outputCols = this.outputShape[1]
+    const nbPatches = outputRows * outputCols
+    const patchLen = nbRow * nbCol
 
     if (!this._imColsMat) {
-      this._imColsMat = new Tensor([], [nbPatches * inputChannels, patchLen]);
+      this._imColsMat = new Tensor([], [nbPatches * inputChannels, patchLen])
     }
 
-    let patch = new Tensor([], [nbRow, nbCol, 1]);
-    let offset = 0;
+    let patch = new Tensor([], [nbRow, nbCol, 1])
+    let offset = 0
     for (let c = 0; c < inputChannels; c++) {
       for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.subsample[0]) {
         for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.subsample[1]) {
-          ops.assign(patch.tensor, x.tensor.hi(i + nbRow, j + nbCol, c + 1).lo(i, j, c));
-          this._imColsMat.tensor.data.set(patch.tensor.data, offset);
-          offset += patchLen;
+          ops.assign(patch.tensor, x.tensor.hi(i + nbRow, j + nbCol, c + 1).lo(i, j, c))
+          this._imColsMat.tensor.data.set(patch.tensor.data, offset)
+          offset += patchLen
         }
       }
     }
 
     if (this._useWeblas) {
-      this._imColsMat.createWeblasTensor();
+      this._imColsMat.createWeblasTensor()
     }
-    return this._imColsMat;
+    return this._imColsMat
   }
 
   /**
@@ -54,25 +54,25 @@ class _DepthwiseConvolution2D extends Convolution2D {
    * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
    */
   _w2row() {
-    const inputChannels = this.weights.W.tensor.shape[2];
-    const [nbFilter, nbRow, nbCol] = this.kernelShape;
-    const patchLen = nbRow * nbCol;
+    const inputChannels = this.weights.W.tensor.shape[2]
+    const [nbFilter, nbRow, nbCol] = this.kernelShape
+    const patchLen = nbRow * nbCol
 
-    this._wRowsMat = new Tensor([], [patchLen, nbFilter * inputChannels]);
+    this._wRowsMat = new Tensor([], [patchLen, nbFilter * inputChannels])
 
-    let patch = new Tensor([], [nbRow, nbCol]);
-    let patchRaveled = new Tensor([], [patchLen]);
-    let p = 0;
+    let patch = new Tensor([], [nbRow, nbCol])
+    let patchRaveled = new Tensor([], [patchLen])
+    let p = 0
     for (let c = 0; c < inputChannels; c++) {
       for (let n = 0; n < nbFilter; n++) {
-        ops.assign(patch.tensor, this.weights.W.tensor.pick(null, null, c, n));
-        patchRaveled.replaceTensorData(patch.tensor.data);
-        ops.assign(this._wRowsMat.tensor.pick(null, p), patchRaveled.tensor);
-        p += 1;
+        ops.assign(patch.tensor, this.weights.W.tensor.pick(null, null, c, n))
+        patchRaveled.replaceTensorData(patch.tensor.data)
+        ops.assign(this._wRowsMat.tensor.pick(null, p), patchRaveled.tensor)
+        p += 1
       }
     }
 
-    return this._wRowsMat;
+    return this._wRowsMat
   }
 
   /**
@@ -81,46 +81,46 @@ class _DepthwiseConvolution2D extends Convolution2D {
    * @returns {Tensor} x
    */
   call(x) {
-    this._calcOutputShape(x.tensor.shape);
-    this._padInput(x);
+    this._calcOutputShape(x.tensor.shape)
+    this._padInput(x)
 
-    this._im2col(x);
+    this._im2col(x)
 
-    const nbFilter = this.kernelShape[0];
-    const outputRows = this.outputShape[0];
-    const outputCols = this.outputShape[1];
-    const nbPatches = outputRows * outputCols;
-    const matMul = new Tensor([], [nbPatches * x.tensor.shape[2], nbFilter * x.tensor.shape[2]]);
+    const nbFilter = this.kernelShape[0]
+    const outputRows = this.outputShape[0]
+    const outputCols = this.outputShape[1]
+    const nbPatches = outputRows * outputCols
+    const matMul = new Tensor([], [nbPatches * x.tensor.shape[2], nbFilter * x.tensor.shape[2]])
 
     if (this._useWeblas && !(this._imColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
       // GPU
       matMul.tensor.data = weblas.pipeline
         .sgemm(1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor, 1, this._zerosVec.weblasTensor)
-        .transfer();
+        .transfer()
     } else {
       // CPU
-      gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1);
+      gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
     }
 
-    let output = new Tensor([], [outputRows, outputCols, x.tensor.shape[2] * nbFilter]);
-    const outputDataLength = outputRows * outputCols * x.tensor.shape[2] * nbFilter;
-    let dataFiltered = new Float32Array(outputDataLength);
+    let output = new Tensor([], [outputRows, outputCols, x.tensor.shape[2] * nbFilter])
+    const outputDataLength = outputRows * outputCols * x.tensor.shape[2] * nbFilter
+    let dataFiltered = new Float32Array(outputDataLength)
     for (let c = 0; c < x.tensor.shape[2]; c++) {
       for (
         let i = 0, n = c * outputDataLength + c * nbFilter, len = (c + 1) * outputDataLength;
         n < len;
-        i++, n += nbFilter * x.tensor.shape[2]
+        i++, (n += nbFilter * x.tensor.shape[2])
       ) {
         for (let m = 0; m < nbFilter; m++) {
-          dataFiltered[n + m - c * outputDataLength] = matMul.tensor.data[n + m];
+          dataFiltered[n + m - c * outputDataLength] = matMul.tensor.data[n + m]
         }
       }
     }
-    output.replaceTensorData(dataFiltered);
+    output.replaceTensorData(dataFiltered)
 
-    x.tensor = output.tensor;
+    x.tensor = output.tensor
 
-    return x;
+    return x
   }
 }
 
@@ -136,8 +136,8 @@ export default class SeparableConvolution2D extends Layer {
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
-    super(attrs);
-    this.layerClass = 'SeparableConvolution2D';
+    super(attrs)
+    this.layerClass = 'SeparableConvolution2D'
 
     const {
       nbFilter = 1,
@@ -149,30 +149,30 @@ export default class SeparableConvolution2D extends Layer {
       depthMultiplier = 1,
       dimOrdering = 'tf',
       bias = true
-    } = attrs;
+    } = attrs
 
-    this.activation = activation;
-    this.activationFunc = activations[activation];
+    this.activation = activation
+    this.activationFunc = activations[activation]
 
     if (borderMode === 'valid' || borderMode === 'same') {
-      this.borderMode = borderMode;
+      this.borderMode = borderMode
     } else {
-      throw new Error(`${this.name} [SeparableConvolution2D layer] Invalid borderMode.`);
+      throw new Error(`${this.name} [SeparableConvolution2D layer] Invalid borderMode.`)
     }
 
-    this.subsample = subsample;
-    this.depthMultiplier = depthMultiplier;
+    this.subsample = subsample
+    this.depthMultiplier = depthMultiplier
 
     if (dimOrdering === 'tf' || dimOrdering === 'th') {
-      this.dimOrdering = dimOrdering;
+      this.dimOrdering = dimOrdering
     } else {
-      throw new Error(`${this.name} [SeparableConvolution2D layer] Only tf and th dim ordering are allowed.`);
+      throw new Error(`${this.name} [SeparableConvolution2D layer] Only tf and th dim ordering are allowed.`)
     }
 
-    this.bias = bias;
+    this.bias = bias
 
     // Layer weights specification
-    this.params = this.bias ? ['depthwise_kernel', 'pointwise_kernel', 'b'] : ['depthwise_kernel', 'pointwise_kernel'];
+    this.params = this.bias ? ['depthwise_kernel', 'pointwise_kernel', 'b'] : ['depthwise_kernel', 'pointwise_kernel']
 
     // SeparableConvolution2D has two components: depthwise, and pointwise.
     // Activation function and bias is applied at the end.
@@ -187,7 +187,7 @@ export default class SeparableConvolution2D extends Layer {
       dimOrdering,
       bias: false,
       gpu: attrs.gpu
-    };
+    }
     this.pointwiseConvAttrs = {
       nbFilter,
       nbRow: 1,
@@ -198,7 +198,7 @@ export default class SeparableConvolution2D extends Layer {
       dimOrdering,
       bias: this.bias,
       gpu: attrs.gpu
-    };
+    }
   }
 
   /**
@@ -207,10 +207,10 @@ export default class SeparableConvolution2D extends Layer {
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights(weightsArr) {
-    this._depthwiseConv = new _DepthwiseConvolution2D(this.depthwiseConvAttrs);
-    this._depthwiseConv.setWeights(weightsArr.slice(0, 1));
-    this._pointwiseConv = new Convolution2D(this.pointwiseConvAttrs);
-    this._pointwiseConv.setWeights(weightsArr.slice(1, 3));
+    this._depthwiseConv = new _DepthwiseConvolution2D(this.depthwiseConvAttrs)
+    this._depthwiseConv.setWeights(weightsArr.slice(0, 1))
+    this._pointwiseConv = new Convolution2D(this.pointwiseConvAttrs)
+    this._pointwiseConv.setWeights(weightsArr.slice(1, 3))
   }
 
   /**
@@ -220,16 +220,16 @@ export default class SeparableConvolution2D extends Layer {
    */
   call(x) {
     // Perform depthwise ops
-    const depthwiseOutput = this._depthwiseConv.call(x);
+    const depthwiseOutput = this._depthwiseConv.call(x)
 
     // Perform depthwise ops
-    const pointwiseOutput = this._pointwiseConv.call(depthwiseOutput);
+    const pointwiseOutput = this._pointwiseConv.call(depthwiseOutput)
 
-    x.tensor = pointwiseOutput.tensor;
+    x.tensor = pointwiseOutput.tensor
 
     // activation
-    this.activationFunc(x);
+    this.activationFunc(x)
 
-    return x;
+    return x
   }
 }

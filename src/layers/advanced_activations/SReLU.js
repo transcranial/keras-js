@@ -1,5 +1,5 @@
-import Layer from '../../Layer';
-import cwise from 'cwise';
+import Layer from '../../Layer'
+import cwise from 'cwise'
 
 /**
  * SReLU advanced activation layer class
@@ -10,11 +10,11 @@ export default class SReLU extends Layer {
    * Creates a SReLU activation layer
    */
   constructor(attrs = {}) {
-    super(attrs);
-    this.layerClass = 'SReLU';
+    super(attrs)
+    this.layerClass = 'SReLU'
 
     // Layer weights specification
-    this.params = ['t_left', 'a_left', 't_right', 'a_right'];
+    this.params = ['t_left', 'a_left', 't_right', 'a_right']
   }
 
   // t_right_actual = t_left + abs(t_right)
@@ -24,12 +24,13 @@ export default class SReLU extends Layer {
   _compute = cwise({
     args: ['array', 'array', 'array', 'array', 'array'],
     body: function(_x, tL, aL, tR, aR) {
-      _x = tL +
+      _x =
+        tL +
         Math.min(Math.max(_x - tL, 0), Math.abs(tR)) +
         aL * Math.min(_x - tL, 0) +
-        Math.max(_x - (tL + Math.abs(tR)), 0) * aR;
+        Math.max(_x - (tL + Math.abs(tR)), 0) * aR
     }
-  });
+  })
 
   /**
    * Method for layer computational logic
@@ -43,7 +44,7 @@ export default class SReLU extends Layer {
       this.weights.a_left.tensor,
       this.weights.t_right.tensor,
       this.weights.a_right.tensor
-    );
-    return x;
+    )
+    return x
   }
 }

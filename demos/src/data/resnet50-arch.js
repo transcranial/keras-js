@@ -541,7 +541,7 @@ export const ARCHITECTURE_DIAGRAM = [
   },
   { name: 'flatten_1', className: 'Flatten', details: '', row: 166, col: 1 },
   { name: 'fc1000', className: 'Dense', details: 'output dimensions 1000, softmax activation', row: 167, col: 1 }
-];
+]
 
 export const ARCHITECTURE_CONNECTIONS = [
   // main
@@ -612,4 +612,4 @@ export const ARCHITECTURE_CONNECTIONS = [
   { from: 'bn5a_branch2c', to: 'merge_14', corner: 'bottom-left' },
   { from: 'bn5b_branch2c', to: 'merge_15', corner: 'bottom-left' },
   { from: 'bn5c_branch2c', to: 'merge_16', corner: 'bottom-left' }
-];
+]

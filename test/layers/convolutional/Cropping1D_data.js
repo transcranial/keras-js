@@ -2,7 +2,7 @@
 // Keyed by mocha test ID
 // Python code for generating test data can be found in the matching jupyter notebook in folder `notebooks/`.
 
-(function() {
+;(function() {
   var DATA = {
     'convolutional.Cropping1D.0': {
       input: {
@@ -88,7 +88,7 @@
       },
       expected: { data: [-0.484373, -0.506163, 0.353904, 0.513668], shape: [1, 4] }
     }
-  };
+  }
 
-  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA);
-})();
+  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA)
+})()

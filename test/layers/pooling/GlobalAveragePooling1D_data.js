@@ -2,7 +2,7 @@
 // Keyed by mocha test ID
 // Python code for generating test data can be found in the matching jupyter notebook in folder `notebooks/`.
 
-(function() {
+;(function() {
   var DATA = {
     'pooling.GlobalAveragePooling1D.0': {
       input: {
@@ -117,7 +117,7 @@
       },
       expected: { data: [0.227348, -0.112345, -0.244185, -0.027351], shape: [4] }
     }
-  };
+  }
 
-  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA);
-})();
+  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA)
+})()

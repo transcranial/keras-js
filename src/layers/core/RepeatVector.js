@@ -1,6 +1,6 @@
-import Layer from '../../Layer';
-import unsqueeze from 'ndarray-unsqueeze';
-import tile from 'ndarray-tile';
+import Layer from '../../Layer'
+import unsqueeze from 'ndarray-unsqueeze'
+import tile from 'ndarray-tile'
 
 /**
  * RepeatVector layer class
@@ -13,11 +13,11 @@ export default class RepeatVector extends Layer {
    * @param {number} attrs.n
    */
   constructor(attrs = {}) {
-    super(attrs);
-    this.layerClass = 'RepeatVector';
+    super(attrs)
+    this.layerClass = 'RepeatVector'
 
-    const { n = 1 } = attrs;
-    this.n = n;
+    const { n = 1 } = attrs
+    this.n = n
   }
 
   /**
@@ -27,9 +27,9 @@ export default class RepeatVector extends Layer {
    */
   call(x) {
     if (x.tensor.shape.length !== 1) {
-      throw new Error(`${this.name} [RepeatVector layer] Only 1D tensor inputs allowed.`);
+      throw new Error(`${this.name} [RepeatVector layer] Only 1D tensor inputs allowed.`)
     }
-    x.tensor = tile(unsqueeze(x.tensor, 0), [this.n, 1]);
-    return x;
+    x.tensor = tile(unsqueeze(x.tensor, 0), [this.n, 1])
+    return x
   }
 }

@@ -2,7 +2,7 @@
 // Keyed by mocha test ID
 // Python code for generating test data can be found in the matching jupyter notebook in folder `notebooks/`.
 
-(function() {
+;(function() {
   var DATA = {
     'core.Permute.0': {
       input: { data: [0, 0.2, 0.5, -0.1, 1, 2], shape: [3, 2] },
@@ -18,7 +18,7 @@
         shape: [4, 3, 2]
       }
     }
-  };
+  }
 
-  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA);
-})();
+  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA)
+})()

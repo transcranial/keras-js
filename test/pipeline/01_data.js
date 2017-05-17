@@ -2,7 +2,7 @@
 // Keyed by mocha test ID
 // Python code for generating test data can be found in the matching jupyter notebook in folder `notebooks/`.
 
-(function() {
+;(function() {
   var DATA = {
     pipeline_01: {
       expected: { data: [-46.36700821, -87.19824219], shape: [1, 1, 2] },
@@ -1168,7 +1168,7 @@
         { data: [-0.87954832, 0.74069877], shape: [2] }
       ]
     }
-  };
+  }
 
-  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA);
-})();
+  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA)
+})()

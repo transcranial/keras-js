@@ -1,10 +1,10 @@
 export default class WebGLLayer {
   constructor() {
-    this.webgl = weblas.gpu.gl;
-    this.numTextures = 8;
+    this.webgl = weblas.gpu.gl
+    this.numTextures = 8
   }
 
-  MAX_NUM_TEXTURES = 8;
+  MAX_NUM_TEXTURES = 8
 
   /**
    * Bind WebGL input texture.
@@ -15,30 +15,30 @@ export default class WebGLLayer {
    * @param {string} name - uniform name in shader program
    */
   _bindInputTexture(program, texture, textureUnit, name) {
-    const gl = this.webgl.context;
+    const gl = this.webgl.context
 
-    gl.activeTexture(textureUnit);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.activeTexture(textureUnit)
+    gl.bindTexture(gl.TEXTURE_2D, texture)
 
-    const sampler = gl.getUniformLocation(program, name);
-    gl.uniform1i(sampler, textureUnit - gl.TEXTURE0);
+    const sampler = gl.getUniformLocation(program, name)
+    gl.uniform1i(sampler, textureUnit - gl.TEXTURE0)
   }
 
   /**
    * Runs WebGL fragment shader program to perform computation.
    */
   _compute() {
-    const gl = this.webgl.context;
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+    const gl = this.webgl.context
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
   }
 
   /**
    * Clean-up: unbind WebGL input textures.
    */
   _unbindInputTextures() {
-    const gl = this.webgl.context;
+    const gl = this.webgl.context
     for (let i = 0; i < this.numTextures; i++) {
-      this.webgl.unbindInputTexture(gl.TEXTURE0 + i);
+      this.webgl.unbindInputTexture(gl.TEXTURE0 + i)
     }
   }
 }

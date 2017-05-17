@@ -1,5 +1,5 @@
-import Layer from '../../Layer';
-import { relu } from '../../activations';
+import Layer from '../../Layer'
+import { relu } from '../../activations'
 
 /**
  * LeakyReLU advanced activation layer class
@@ -10,12 +10,12 @@ export default class LeakyReLU extends Layer {
    * @param {number} attrs.alpha - negative slope coefficient
    */
   constructor(attrs = {}) {
-    super(attrs);
-    this.layerClass = 'LeakyReLU';
+    super(attrs)
+    this.layerClass = 'LeakyReLU'
 
-    const { alpha = 0.3 } = attrs;
+    const { alpha = 0.3 } = attrs
 
-    this.alpha = alpha;
+    this.alpha = alpha
   }
 
   /**
@@ -24,7 +24,7 @@ export default class LeakyReLU extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    relu(x, { alpha: this.alpha });
-    return x;
+    relu(x, { alpha: this.alpha })
+    return x
   }
 }

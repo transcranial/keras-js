@@ -14,4 +14,4 @@ export const IMAGE_URLS = [
   { name: 'flower', value: 'https://farm5.staticflickr.com/4037/4682037903_88cf1cfc47_z_d.jpg' },
   { name: 'coffee', value: 'https://farm4.staticflickr.com/3752/9684880330_9b4698f7cb_z_d.jpg' },
   { name: 'wine', value: 'https://farm4.staticflickr.com/3827/11349066413_99c32dee4a_z_d.jpg' }
-];
+]

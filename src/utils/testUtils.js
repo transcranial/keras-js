@@ -1,6 +1,6 @@
-import unpack from 'ndarray-unpack';
-import flattenDeep from 'lodash/flattenDeep';
-import isFinite from 'lodash/isFinite';
+import unpack from 'ndarray-unpack'
+import flattenDeep from 'lodash/flattenDeep'
+import isFinite from 'lodash/isFinite'
 
 /**
  * Compares an ndarray's data element-wise to dataExpected,
@@ -9,18 +9,18 @@ import isFinite from 'lodash/isFinite';
  * element-wise directly.
  */
 export function approxEquals(ndarrayOut, dataExpected, tol = 0.0001) {
-  const a = flattenDeep(unpack(ndarrayOut));
-  const b = dataExpected;
+  const a = flattenDeep(unpack(ndarrayOut))
+  const b = dataExpected
   if (a.length !== b.length) {
-    return false;
+    return false
   }
   for (let i = 0; i < a.length; i++) {
     if (!isFinite(a[i])) {
-      return false;
+      return false
     }
     if (a[i] < b[i] - tol || a[i] > b[i] + tol) {
-      return false;
+      return false
     }
   }
-  return true;
+  return true
 }

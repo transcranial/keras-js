@@ -4,7 +4,6 @@ const webpack = require('webpack')
 const config = {
   entry: path.resolve(__dirname, 'src/index'),
   output: { path: path.resolve(__dirname, 'dist'), filename: 'keras.js', library: 'KerasJS', libraryTarget: 'umd' },
-  devtool: 'eval',
   module: {
     rules: [
       { test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
@@ -13,26 +12,19 @@ const config = {
   },
   node: {
     fs: 'empty'
-  },
-  plugins: []
+  }
 }
 
-// NODE_ENV defaults to 'development'
 if (process.env.NODE_ENV === 'production') {
   config.devtool = 'cheap-module-source-map'
-  config.plugins = config.plugins.concat([
+  config.plugins = [
     new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') }),
-    new webpack.optimize.UglifyJsPlugin({
-      sourceMap: true,
-      compress: { screw_ie8: true, warnings: false },
-      mangle: { screw_ie8: true },
-      output: { comments: false, screw_ie8: true }
-    })
-  ])
+    //NOTE: possible bug in uglify-js: unused needs to be set to false or else library will not work properly
+    new webpack.optimize.UglifyJsPlugin({ compress: { warnings: false, unused: false } })
+  ]
 } else {
-  config.plugins = config.plugins.concat([
-    new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('development') })
-  ])
+  config.devtool = 'eval'
+  config.plugins = [new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('development') })]
 }
 
 module.exports = config

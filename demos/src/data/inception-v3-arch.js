@@ -986,7 +986,7 @@ export const ARCHITECTURE_DIAGRAM = [
   },
   { name: 'flatten', className: 'Flatten', details: '', row: 110, col: 3 },
   { name: 'predictions', className: 'Dense', details: 'output dimensions 1000, softmax activation', row: 111, col: 3 }
-];
+]
 
 export const ARCHITECTURE_CONNECTIONS = [
   // main
@@ -1102,4 +1102,4 @@ export const ARCHITECTURE_CONNECTIONS = [
   { from: 'batchnormalization_92', to: 'merge_2' },
   { from: 'batchnormalization_93', to: 'merge_2' },
   { from: 'merge_2', to: 'mixed10', corner: 'bottom-left' }
-];
+]

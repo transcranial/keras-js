@@ -2,7 +2,7 @@
 // Keyed by mocha test ID
 // Python code for generating test data can be found in the matching jupyter notebook in folder `notebooks/`.
 
-(function() {
+;(function() {
   var DATA = {
     'core.MaxoutDense.0': {
       input: { data: [-0.992103, 0.024385, 0.625242, 0.225052, 0.443511, -0.416248], shape: [6] },
@@ -241,7 +241,7 @@
       ],
       expected: { data: [1.043451, 2.068543, 0.396771], shape: [3] }
     }
-  };
+  }
 
-  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA);
-})();
+  window.TEST_DATA = Object.assign({}, window.TEST_DATA, DATA)
+})()

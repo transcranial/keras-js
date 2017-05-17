@@ -1,4 +1,3 @@
-/* global weblas */
 import ndarray from 'ndarray'
 import { MAX_TEXTURE_SIZE } from './constants'
 

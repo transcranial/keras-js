@@ -1,5 +1,5 @@
-import Layer from '../../Layer';
-import cwise from 'cwise';
+import Layer from '../../Layer'
+import cwise from 'cwise'
 
 /**
  * ThresholdedReLU advanced activation layer class
@@ -10,20 +10,20 @@ export default class ThresholdedReLU extends Layer {
    * @param {number} attrs.theta - float >= 0. Threshold location of activation.
    */
   constructor(attrs = {}) {
-    super(attrs);
-    this.layerClass = 'ThresholdedReLU';
+    super(attrs)
+    this.layerClass = 'ThresholdedReLU'
 
-    const { theta = 1 } = attrs;
+    const { theta = 1 } = attrs
 
-    this.theta = theta;
+    this.theta = theta
   }
 
   _compute = cwise({
     args: ['array', 'scalar'],
     body: function(_x, theta) {
-      _x = _x * Number(_x > theta);
+      _x = _x * Number(_x > theta)
     }
-  });
+  })
 
   /**
    * Method for layer computational logic
@@ -31,7 +31,7 @@ export default class ThresholdedReLU extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    this._compute(x.tensor, this.theta);
-    return x;
+    this._compute(x.tensor, this.theta)
+    return x
   }
 }

@@ -1,4 +1,4 @@
-import Layer from '../../Layer';
+import Layer from '../../Layer'
 
 /**
  * SpatialDropout2D layer class
@@ -12,13 +12,13 @@ export default class SpatialDropout2D extends Layer {
    * @param {number} [attrs.dimOrdering] - `tf` or `th`
    */
   constructor(attrs = {}) {
-    super(attrs);
-    this.layerClass = 'SpatialDropout2D';
+    super(attrs)
+    this.layerClass = 'SpatialDropout2D'
 
-    const { p = 0.5, dimOrdering = 'tf' } = attrs;
+    const { p = 0.5, dimOrdering = 'tf' } = attrs
 
-    this.p = Math.min(Math.max(0, p), 1);
-    this.dimOrdering = dimOrdering;
+    this.p = Math.min(Math.max(0, p), 1)
+    this.dimOrdering = dimOrdering
   }
 
   /**
@@ -27,6 +27,6 @@ export default class SpatialDropout2D extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    return x;
+    return x
   }
 }

@@ -1,4 +1,4 @@
-import Layer from '../../Layer';
+import Layer from '../../Layer'
 
 /**
  * Permute layer class
@@ -11,11 +11,11 @@ export default class Permute extends Layer {
    * @param {number[]} attrs.dims
    */
   constructor(attrs = {}) {
-    super(attrs);
-    this.layerClass = 'Permute';
+    super(attrs)
+    this.layerClass = 'Permute'
 
-    const { dims = [] } = attrs;
-    this.dims = dims.map(dim => dim - 1);
+    const { dims = [] } = attrs
+    this.dims = dims.map(dim => dim - 1)
   }
 
   /**
@@ -27,9 +27,9 @@ export default class Permute extends Layer {
     if (this.dims.length !== x.tensor.shape.length) {
       throw new Error(
         `${this.name} [Permute layer] The specified dims permutation must match the number of dimensions.`
-      );
+      )
     }
-    x.tensor = x.tensor.transpose(...this.dims);
-    return x;
+    x.tensor = x.tensor.transpose(...this.dims)
+    return x
   }
 }

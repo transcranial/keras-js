@@ -1,7 +1,7 @@
-import Layer from '../../Layer';
-import Convolution2D from './Convolution2D';
-import squeeze from 'ndarray-squeeze';
-import unsqueeze from 'ndarray-unsqueeze';
+import Layer from '../../Layer'
+import Convolution2D from './Convolution2D'
+import squeeze from 'ndarray-squeeze'
+import unsqueeze from 'ndarray-unsqueeze'
 
 /**
  * Convolution1D layer class
@@ -14,8 +14,8 @@ export default class Convolution1D extends Layer {
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
-    super(attrs);
-    this.layerClass = 'Convolution1D';
+    super(attrs)
+    this.layerClass = 'Convolution1D'
 
     const {
       nbFilter = 1,
@@ -24,16 +24,16 @@ export default class Convolution1D extends Layer {
       borderMode = 'valid',
       subsampleLength = 1,
       bias = true
-    } = attrs;
+    } = attrs
 
     if (borderMode !== 'valid' && borderMode !== 'same') {
-      throw new Error(`${this.name} [Convolution1D layer] Invalid borderMode.`);
+      throw new Error(`${this.name} [Convolution1D layer] Invalid borderMode.`)
     }
 
-    this.bias = bias;
+    this.bias = bias
 
     // Layer weights specification
-    this.params = this.bias ? ['W', 'b'] : ['W'];
+    this.params = this.bias ? ['W', 'b'] : ['W']
 
     // Bootstrap Convolution2D layer:
     // Convolution1D is actually a shim on top of Convolution2D, where
@@ -48,9 +48,9 @@ export default class Convolution1D extends Layer {
       subsample: [subsampleLength, 1],
       dimOrdering: 'th',
       bias
-    };
-    this._conv2dAttrs = conv2dAttrs;
-    this._conv2d = new Convolution2D(Object.assign(conv2dAttrs, { gpu: attrs.gpu }));
+    }
+    this._conv2dAttrs = conv2dAttrs
+    this._conv2d = new Convolution2D(Object.assign(conv2dAttrs, { gpu: attrs.gpu }))
   }
 
   /**
@@ -59,22 +59,22 @@ export default class Convolution1D extends Layer {
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights(weightsArr) {
-    const { nbFilter, nbRow, nbCol } = this._conv2dAttrs;
-    let shape = weightsArr[0].tensor.shape;
+    const { nbFilter, nbRow, nbCol } = this._conv2dAttrs
+    let shape = weightsArr[0].tensor.shape
 
     // check for legacy shape of weights
     // Keras:    (nb_filter, input_dim, filter_length, 1)
     // Keras.js: (nbFilter, inputChannels, nbRow, nbCol)
     if (!(shape[0] === nbRow && shape[1] === nbCol) || shape[3] !== nbFilter) {
-      console.warn('Using legacy shape of weights');
+      console.warn('Using legacy shape of weights')
 
-      if (!(shape[0] === nbFilter & (shape[2] === nbRow & shape[3] === nbCol))) {
-        throw new Error('Unsupported shape of weights');
+      if (!((shape[0] === nbFilter) & ((shape[2] === nbRow) & (shape[3] === nbCol)))) {
+        throw new Error('Unsupported shape of weights')
       }
     } else {
-      weightsArr[0].tensor = weightsArr[0].tensor.transpose(3, 2, 0, 1);
+      weightsArr[0].tensor = weightsArr[0].tensor.transpose(3, 2, 0, 1)
     }
-    this._conv2d.setWeights(weightsArr);
+    this._conv2d.setWeights(weightsArr)
   }
 
   /**
@@ -83,9 +83,9 @@ export default class Convolution1D extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    x.tensor = unsqueeze(x.tensor).transpose(0, 2, 1);
-    const conv2dOutput = this._conv2d.call(x);
-    x.tensor = squeeze(conv2dOutput.tensor).transpose(1, 0, 2);
-    return x;
+    x.tensor = unsqueeze(x.tensor).transpose(0, 2, 1)
+    const conv2dOutput = this._conv2d.call(x)
+    x.tensor = squeeze(conv2dOutput.tensor).transpose(1, 0, 2)
+    return x
   }
 }
