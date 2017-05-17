@@ -1,6 +1,5 @@
 import Conv1D from './Conv1D'
 import Conv2D from './Conv2D'
-import AtrousConv2D from './AtrousConv2D'
 import SeparableConv2D from './SeparableConv2D'
 import Conv2DTranspose from './Conv2DTranspose'
 import Conv3D from './Conv3D'
@@ -17,7 +16,6 @@ import Cropping3D from './Cropping3D'
 export {
   Conv1D,
   Conv2D,
-  AtrousConv2D,
   SeparableConv2D,
   Conv2DTranspose,
   Conv3D,

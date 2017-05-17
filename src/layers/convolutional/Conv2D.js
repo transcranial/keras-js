@@ -12,9 +12,8 @@ import WebGLConv2D from '../../ext/convolutional/WebGLConv2D'
 export default class Conv2D extends Layer {
   /**
    * Creates a Conv2D layer
-   * @param {number} attrs.nbFilter - Number of convolution filters to use.
-   * @param {number} attrs.nbRow - Number of rows in the convolution kernel.
-   * @param {number} attrs.nbCol - Number of columns in the convolution kernel.
+   * @param {number} attrs.filters - Number of convolution filters to use.
+   * @param {number} attrs.kernel_size - Number of [rows, cols] in the convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
@@ -22,39 +21,61 @@ export default class Conv2D extends Layer {
     this.layerClass = 'Conv2D'
 
     const {
-      nbFilter = 1,
-      nbRow = 3,
-      nbCol = 3,
+      filters = 1,
+      kernel_size = [3, 3],
+      strides = [1, 1],
+      padding = 'valid',
+      data_format = 'channels_last',
+      dilation_rate = [1, 1],
       activation = 'linear',
-      borderMode = 'valid',
-      subsample = [1, 1],
-      dimOrdering = 'tf',
-      bias = true
+      use_bias = true
     } = attrs
 
-    this.kernelShape = [nbFilter, nbRow, nbCol]
+    if (Array.isArray(kernel_size)) {
+      this.kernelShape = [filters, ...kernel_size]
+    } else {
+      this.kernelShape = [filters, kernel_size, kernel_size]
+    }
+
+    if (Array.isArray(strides)) {
+      this.strides = strides
+    } else {
+      this.strides = [strides, strides]
+    }
+
+    if (padding === 'valid' || padding === 'same') {
+      this.padding = padding
+    } else {
+      throw new Error(`${this.name} [Conv2D layer] Invalid padding.`)
+    }
+
+    if (data_format === 'channels_last' || data_format === 'channels_first') {
+      this.dataFormat = data_format
+    } else {
+      throw new Error(`${this.name} [Conv2D layer] Only channels_last and channels_first data formats are allowed.`)
+    }
+
+    if (Array.isArray(dilation_rate)) {
+      this.dilationRate = dilation_rate
+    } else {
+      this.dilationRate = [dilation_rate, dilation_rate]
+    }
+    if (
+      (this.dilationRate[0] !== 1 || this.dilationRate[1] !== 1) &&
+      (this.strides[0] !== 1 || this.strides[1] !== 1)
+    ) {
+      // Currently, specifying any dilation_rate value != 1 is incompatible with specifying any stride value != 1
+      // https://keras.io/layers/convolutional/#conv2d
+      throw new Error(`${this.name} [Conv2D layer] Incompatible combination of dilation_rate with strides.`)
+    }
 
     this.activation = activation
     this.activationFunc = activations[activation]
 
-    if (borderMode === 'valid' || borderMode === 'same') {
-      this.borderMode = borderMode
-    } else {
-      throw new Error(`${this.name} [Conv2D layer] Invalid borderMode.`)
-    }
-
-    this.subsample = subsample
-
-    if (dimOrdering === 'tf' || dimOrdering === 'th') {
-      this.dimOrdering = dimOrdering
-    } else {
-      throw new Error(`${this.name} [Conv2D layer] Only tf and th dim ordering are allowed.`)
-    }
-
-    this.bias = bias
+    this.use_bias = use_bias
 
     // Layer weights specification
-    this.params = this.bias ? ['W', 'b'] : ['W']
+    this.params = this.use_bias ? ['W', 'b'] : ['W']
 
     // Enable layer gpu +/- pipeline mode if supported
     if (this.gpu && weblas) {
@@ -73,13 +94,13 @@ export default class Conv2D extends Layer {
 
   /**
    * Method for setting layer weights. Extends `super` method.
-   * W weight tensor is converted to `tf` mode if in `th` mode.
-   * In `tf` mode, W weight tensor has shape [nbRow, nbCol, inputChannels, nbFilter]
-   * In `th` mode, W weight tensor has shape [nbFilter, inputChannels, nbRow, nbCol]
+   * W weight tensor is converted to `channels_last` mode if in `channels_first` mode.
+   * In `channels_last` mode, W weight tensor has shape [nbRow, nbCol, inputChannels, nbFilter]
+   * In `channels_first` mode, W weight tensor has shape [nbFilter, inputChannels, nbRow, nbCol]
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights(weightsArr) {
-    if (this.dimOrdering === 'th') {
+    if (this.dataFormat === 'channels_first') {
       weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 1, 0)
     }
     super.setWeights(weightsArr)
@@ -90,7 +111,7 @@ export default class Conv2D extends Layer {
       if (!this._wRowsMat._gpuMaxSizeExceeded) {
         this._wRowsMat.weblasTensor = this._wRowsMat.weblasTensor.transpose()
       }
-      if (this.bias) {
+      if (this.use_bias) {
         this.weights.b.createWeblasTensor()
       } else {
         this._zerosVec = new Tensor([], [this.weights.W.tensor.shape[3]])
@@ -111,19 +132,23 @@ export default class Conv2D extends Layer {
     const inputCols = inputShape[1]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
 
-    const outputRows = this.borderMode === 'same'
-      ? Math.floor((inputRows + this.subsample[0] - 1) / this.subsample[0])
-      : Math.floor((inputRows - nbRow + this.subsample[0]) / this.subsample[0])
-    const outputCols = this.borderMode === 'same'
-      ? Math.floor((inputCols + this.subsample[1] - 1) / this.subsample[1])
-      : Math.floor((inputCols - nbCol + this.subsample[1]) / this.subsample[1])
+    // effective shape after filter dilation
+    const nbRowDilated = nbRow + (nbRow - 1) * (this.dilationRate[0] - 1)
+    const nbColDilated = nbCol + (nbCol - 1) * (this.dilationRate[1] - 1)
+
+    const outputRows = this.padding === 'same'
+      ? Math.floor((inputRows + this.strides[0] - 1) / this.strides[0])
+      : Math.floor((inputRows - nbRowDilated + this.strides[0]) / this.strides[0])
+    const outputCols = this.padding === 'same'
+      ? Math.floor((inputCols + this.strides[1] - 1) / this.strides[1])
+      : Math.floor((inputCols - nbColDilated + this.strides[1]) / this.strides[1])
     const outputChannels = nbFilter
 
-    const paddingRow = this.borderMode === 'same'
-      ? Math.max(0, Math.floor((outputRows - 1) * this.subsample[0] + nbRow - inputRows))
+    const paddingRow = this.padding === 'same'
+      ? Math.max(0, Math.floor((outputRows - 1) * this.strides[0] + nbRowDilated - inputRows))
       : 0
-    const paddingCol = this.borderMode === 'same'
-      ? Math.max(0, Math.floor((outputCols - 1) * this.subsample[1] + nbCol - inputCols))
+    const paddingCol = this.padding === 'same'
+      ? Math.max(0, Math.floor((outputCols - 1) * this.strides[1] + nbColDilated - inputCols))
       : 0
     const paddingRowBefore = Math.floor(paddingRow / 2)
     const paddingRowAfter = paddingRow - paddingRowBefore
@@ -135,14 +160,14 @@ export default class Conv2D extends Layer {
   }
 
   /**
-   * Pad input tensor if necessary, for borderMode='same'.
+   * Pad input tensor if necessary, for padding='same'.
    * See above for notes on calculating padding.
    * @param {Tensor} x
    * @param {number} [padValue]
    * @returns {Tensor} x
    */
   _padInput(x, padValue = 0) {
-    if (this.borderMode === 'same') {
+    if (this.padding === 'same') {
       const [inputRows, inputCols, inputChannels] = x.tensor.shape
       const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.inputPadding
       const newRows = inputRows + paddingRowBefore + paddingRowAfter
@@ -176,11 +201,15 @@ export default class Conv2D extends Layer {
     const nbPatches = outputRows * outputCols
     const patchLen = nbRow * nbCol * inputChannels
 
+    // effective shape after filter dilation
+    const nbRowDilated = nbRow + (nbRow - 1) * (this.dilationRate[0] - 1)
+    const nbColDilated = nbCol + (nbCol - 1) * (this.dilationRate[1] - 1)
+
     if (!this._imColsMat) {
       this._imColsMat = new Tensor([], [nbPatches, patchLen])
     }
 
-    if (nbRow === 1 && nbCol === 1 && this.subsample[0] === 1 && this.subsample[1] === 1) {
+    if (nbRowDilated === 1 && nbColDilated === 1 && this.strides[0] === 1 && this.strides[1] === 1) {
       this._imColsMat.replaceTensorData(x.tensor.data)
       if (this._useWeblas) {
         this._imColsMat.createWeblasTensor()
@@ -190,9 +219,15 @@ export default class Conv2D extends Layer {
 
     let patch = new Tensor([], [nbRow, nbCol, inputChannels])
     let offset = 0
-    for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.subsample[0]) {
-      for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.subsample[1]) {
-        ops.assign(patch.tensor, x.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0))
+    for (let i = 0, limit = inputRows - nbRowDilated; i <= limit; i += this.strides[0]) {
+      for (let j = 0, limit = inputCols - nbColDilated; j <= limit; j += this.strides[1]) {
+        ops.assign(
+          patch.tensor,
+          x.tensor
+            .hi(i + nbRowDilated, j + nbColDilated, inputChannels)
+            .lo(i, j, 0)
+            .step(this.dilationRate[0], this.dilationRate[1], 1)
+        )
         this._imColsMat.tensor.data.set(patch.tensor.data, offset)
         offset += patchLen
       }
@@ -251,7 +286,7 @@ export default class Conv2D extends Layer {
     }
 
     // padding for border mode 'same'
-    if (this.borderMode === 'same') {
+    if (this.padding === 'same') {
       const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.inputPadding
       inputRows = inputRows + paddingRowBefore + paddingRowAfter
       inputCols = inputCols + paddingColBefore + paddingColAfter
@@ -273,8 +308,8 @@ export default class Conv2D extends Layer {
     let patchRow = new Tensor([], [nbRow, nbCol, inputChannels])
     let patchCol = new Tensor([], [nbRow, nbCol, inputChannels])
     let offset = 0
-    for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.subsample[0]) {
-      for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.subsample[1]) {
+    for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.strides[0]) {
+      for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.strides[1]) {
         ops.assign(patchRow.tensor, indicesRow.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0))
         ops.assign(patchCol.tensor, indicesCol.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0))
         this._tiledIndexMappingRow.tensor.data.set(patchRow.tensor.data, offset)
@@ -298,7 +333,7 @@ export default class Conv2D extends Layer {
 
     this._tiledIndexMapping(this.inputShape)
 
-    const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
+    const bias = this.use_bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
     x.weblasTensor = this.webglConv2D.call(
       x.weblasTensor,
       this._wRowsMat.weblasTensor,
@@ -324,8 +359,8 @@ export default class Conv2D extends Layer {
       throw new Error('Variable passed in does not contain tensor.')
     }
 
-    // convert to tf ordering
-    if (this.dimOrdering === 'th') {
+    // convert to channels_last ordering
+    if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
 
@@ -337,13 +372,13 @@ export default class Conv2D extends Layer {
 
     if (this._useWeblas && !(this._imColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
       // GPU
-      const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
+      const bias = this.use_bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
       matMul.tensor.data = weblas.pipeline
         .sgemm(1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor, 1, bias)
         .transfer()
     } else {
       // CPU
-      if (this.bias) {
+      if (this.use_bias) {
         for (let n = 0; n < nbFilter; n++) {
           ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
         }
@@ -363,8 +398,8 @@ export default class Conv2D extends Layer {
 
     this.activationFunc(x)
 
-    // convert back to th ordering if necessary
-    if (this.dimOrdering === 'th') {
+    // convert back to channels_first ordering if necessary
+    if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(2, 0, 1)
     }
 
