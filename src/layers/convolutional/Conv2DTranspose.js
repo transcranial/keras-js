@@ -10,11 +10,8 @@ import gemm from 'ndarray-gemm'
 export default class Conv2DTranspose extends Layer {
   /**
    * Creates a Conv2DTranspose layer
-   * @param {number} attrs.nbFilter - Number of convolution filters to use.
-   * @param {number} attrs.nbRow - Number of rows in the convolution kernel.
-   * @param {number} attrs.nbCol - Number of columns in the convolution kernel.
-   * @param {number[]} attrs.outputShape - Output shape of the transposed convolution operation.
-   *   Array of integers [nbFilter, outputRows, outputCols]
+   * @param {Number} attrs.filters - Number of convolution filters to use.
+   * @param {Array<Number>|Number} attrs.kernel_size - Size of the convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
@@ -22,46 +19,48 @@ export default class Conv2DTranspose extends Layer {
     this.layerClass = 'Conv2DTranspose'
 
     const {
-      nbFilter = 1,
-      nbRow = 1,
-      nbCol = 1,
-      outputShape = [],
+      filters = 1,
+      kernel_size = [3, 3],
+      strides = [1, 1],
+      padding = 'valid',
+      data_format = 'channels_last',
       activation = 'linear',
-      borderMode = 'valid',
-      subsample = [1, 1],
-      dimOrdering = 'tf',
-      bias = true
+      use_bias = true
     } = attrs
 
-    this.kernelShape = [nbFilter, nbRow, nbCol]
-
-    if (outputShape[0] == null) {
-      this.outputShape = outputShape.slice(1)
+    if (Array.isArray(kernel_size)) {
+      this.kernelShape = [filters, ...kernel_size]
     } else {
-      this.outputShape = outputShape
+      this.kernelShape = [filters, kernel_size, kernel_size]
+    }
+
+    if (Array.isArray(strides)) {
+      this.strides = strides
+    } else {
+      this.strides = [strides, strides]
+    }
+
+    if (padding === 'valid' || padding === 'same') {
+      this.padding = padding
+    } else {
+      throw new Error(`${this.name} [Conv2DTranspose layer] Invalid padding.`)
+    }
+
+    if (data_format === 'channels_last' || data_format === 'channels_first') {
+      this.dataFormat = data_format
+    } else {
+      throw new Error(
+        `${this.name} [Conv2DTranspose layer] Only channels_last and channels_first data formats are allowed.`
+      )
     }
 
     this.activation = activation
     this.activationFunc = activations[activation]
 
-    if (borderMode === 'valid' || borderMode === 'same') {
-      this.borderMode = borderMode
-    } else {
-      throw new Error(`${this.name} [Conv2DTranspose layer] Invalid borderMode.`)
-    }
-
-    this.subsample = subsample
-
-    if (dimOrdering === 'tf' || dimOrdering === 'th') {
-      this.dimOrdering = dimOrdering
-    } else {
-      throw new Error(`${this.name} [Conv2DTranspose layer] Only tf and th dim ordering are allowed.`)
-    }
-
-    this.bias = bias
+    this.use_bias = use_bias
 
     // Layer weights specification
-    this.params = this.bias ? ['W', 'b'] : ['W']
+    this.params = this.use_bias ? ['W', 'b'] : ['W']
 
     // Enable layer gpu +/- pipeline mode if supported
     if (this.gpu && weblas) {
@@ -72,13 +71,13 @@ export default class Conv2DTranspose extends Layer {
 
   /**
    * Method for setting layer weights. Extends `super` method.
-   * W weight tensor is converted to `tf` mode if in `th` mode.
-   * In `tf` mode, W weight tensor has shape [nbRow, nbCol, inputChannels, nbFilter]
-   * In `th` mode, W weight tensor has shape [nbFilter, inputChannels, nbRow, nbCol]
+   * W weight tensor is converted to `channels_last` mode if in `channels_first` mode.
+   * In `channels_last` mode, W weight tensor has shape [nbRow, nbCol, inputChannels, nbFilter]
+   * In `channels_first` mode, W weight tensor has shape [nbFilter, inputChannels, nbRow, nbCol]
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights(weightsArr) {
-    if (this.dimOrdering === 'th') {
+    if (this.dataFormat === 'channels_first') {
       // W
       weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 1, 0)
     }
@@ -102,33 +101,33 @@ export default class Conv2DTranspose extends Layer {
    * to the input.
    * For more details on calculating output shapes and padding for transposed convolutions
    * (deconvolution here), see: https://arxiv.org/pdf/1603.07285v1.pdf
-   * @param {Tensor} x
+   * @param {number[]} inputShape
    */
-  _calcOutputPadding(x) {
-    const inputRows = x.tensor.shape[0]
-    const inputCols = x.tensor.shape[1]
-    const nbRow = this.kernelShape[1]
-    const nbCol = this.kernelShape[2]
+  _calcOutputShape(inputShape) {
+    const inputRows = inputShape[0]
+    const inputCols = inputShape[1]
+    const [nbFilter, nbRow, nbCol] = this.kernelShape
 
-    // In contrast to Conv2D, where we calculate the output shape,
-    // the output shape is taken from the construtor variable, since
-    // there is some level of ambiguity: input of shape [4, 4, inputChannels]
-    // can have an output shape of either [7, 7, nbFilter] or [8, 8, nbFilter]
-    // with borderMode `same` and subsample (stride) [2, 2].
-    const outputRows = this.outputShape[0]
-    const outputCols = this.outputShape[1]
+    const outputRows = this.padding === 'same'
+      ? inputRows * this.strides[0]
+      : inputRows * this.strides[0] + Math.max(nbRow - this.strides[0], 0)
+    const outputCols = this.padding === 'same'
+      ? inputCols * this.strides[1]
+      : inputCols * this.strides[1] + Math.max(nbCol - this.strides[1], 0)
+    const outputChannels = nbFilter
 
-    const paddingRow = this.borderMode === 'same'
-      ? Math.max(0, Math.floor((inputRows - 1) * this.subsample[0] + nbRow - outputRows))
+    const paddingRow = this.padding === 'same'
+      ? Math.max(0, Math.floor((inputRows - 1) * this.strides[0] + nbRow - outputRows))
       : 0
-    const paddingCol = this.borderMode === 'same'
-      ? Math.max(0, Math.floor((inputCols - 1) * this.subsample[1] + nbCol - outputCols))
+    const paddingCol = this.padding === 'same'
+      ? Math.max(0, Math.floor((inputCols - 1) * this.strides[1] + nbCol - outputCols))
       : 0
     const paddingRowBefore = Math.floor(paddingRow / 2)
     const paddingRowAfter = paddingRow - paddingRowBefore
     const paddingColBefore = Math.floor(paddingCol / 2)
     const paddingColAfter = paddingCol - paddingColBefore
 
+    this.outputShape = [outputRows, outputCols, outputChannels]
     this.outputPadding = [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter]
   }
 
@@ -154,18 +153,18 @@ export default class Conv2DTranspose extends Layer {
 
   /**
    * Convert filter weights to row matrix, along channels axis
-   * shape: [nbRow, nbCol, inputChannels, nbFilter] -> [inputChannels, nbRow * nbCol * nbFilter]
+   * shape: [nbRow, nbCol, nbFilter, inputChannels] -> [inputChannels, nbRow * nbCol * nbFilter]
    * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
    */
   _w2row() {
-    const [nbRow, nbCol, inputChannels, nbFilter] = this.weights.W.tensor.shape
+    const [nbRow, nbCol, nbFilter, inputChannels] = this.weights.W.tensor.shape
 
     const wRowsMat = new Tensor([], [inputChannels, nbRow * nbCol * nbFilter])
 
     let channelRaveled = new Tensor([], [nbRow * nbCol * nbFilter])
     let channel = new Tensor([], [nbRow, nbCol, nbFilter])
     for (let c = 0; c < inputChannels; c++) {
-      ops.assign(channel.tensor, this.weights.W.tensor.pick(null, null, c, null))
+      ops.assign(channel.tensor, this.weights.W.tensor.pick(null, null, null, c))
       channelRaveled.replaceTensorData(channel.tensor.data)
       ops.assign(wRowsMat.tensor.pick(c, null), channelRaveled.tensor)
     }
@@ -179,8 +178,8 @@ export default class Conv2DTranspose extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    // convert to tf ordering
-    if (this.dimOrdering === 'th') {
+    // convert to channels_last ordering
+    if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
 
@@ -193,7 +192,6 @@ export default class Conv2DTranspose extends Layer {
     const inputCols = x.tensor.shape[1]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const matMul = new Tensor([], [inputRows * inputCols, nbRow * nbCol * nbFilter])
-
     if (this._useWeblas && !(imColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
       let _zerosVec = new Tensor([], [this.weights.W.tensor.shape[3]])
       _zerosVec.createWeblasTensor()
@@ -206,7 +204,7 @@ export default class Conv2DTranspose extends Layer {
       gemm(matMul.tensor, imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
     }
 
-    this._calcOutputPadding(x)
+    this._calcOutputShape(x.tensor.shape)
 
     // add padding which we will take away later
     const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.outputPadding
@@ -221,7 +219,7 @@ export default class Conv2DTranspose extends Layer {
     )
 
     // bias
-    if (this.bias) {
+    if (this.use_bias) {
       for (let n = 0; n < nbFilter; n++) {
         ops.assigns(outputPadded.tensor.pick(null, null, n), this.weights.b.tensor.get(n))
       }
@@ -235,8 +233,8 @@ export default class Conv2DTranspose extends Layer {
       for (let j = 0; j < inputCols; j++) {
         ops.assign(patchRaveled.tensor, matMul.tensor.pick(index, null))
         patch.replaceTensorData(patchRaveled.tensor.data)
-        const iOutPos = i * this.subsample[0]
-        const jOutPos = j * this.subsample[1]
+        const iOutPos = i * this.strides[0]
+        const jOutPos = j * this.strides[1]
         ops.addeq(
           outputPadded.tensor.hi(iOutPos + nbRow, jOutPos + nbCol, this.outputShape[2]).lo(iOutPos, jOutPos, 0),
           patch.tensor
@@ -256,8 +254,8 @@ export default class Conv2DTranspose extends Layer {
     x.tensor = output.tensor
     this.activationFunc(x)
 
-    // convert back to th ordering if necessary
-    if (this.dimOrdering === 'th') {
+    // convert back to channels_first ordering if necessary
+    if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(2, 0, 1)
     }
 
