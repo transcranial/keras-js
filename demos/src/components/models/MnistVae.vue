@@ -9,7 +9,7 @@
     </div>
     <div class="info-panel" v-if="showInfoPanel">
       <div class="info-panel-text">
-        Modified from the MNIST convolution/deconvolution variational autoencoder example <a target="_blank" href="https://github.com/fchollet/keras/blob/master/examples/variational_autoencoder_deconv.py">here</a>. The network demonstrated here is the generative decoder portion (see <a target="_blank" href="https://github.com/transcranial/keras-js/blob/master/demos/notebooks/mnist_vae.ipynb">Jupyter notebook</a>). The network generates an image through a series of Deconvolution2D layers from coordinates in the 2D latent space. All computation performed entirely in your browser. Toggling GPU on/off shouldn't reveal any significant speed differences, as this is a fairly small network. In the architecture diagram below, intermediate outputs at each layer are also visualized.
+        Modified from the MNIST convolution/deconvolution variational autoencoder example <a target="_blank" href="https://github.com/fchollet/keras/blob/master/examples/variational_autoencoder_deconv.py">here</a>. The network demonstrated here is the generative decoder portion (see <a target="_blank" href="https://github.com/transcranial/keras-js/blob/master/demos/notebooks/mnist_vae.ipynb">Jupyter notebook</a>). The network generates an image through a series of Conv2DTranspose layers from coordinates in the 2D latent space. All computation performed entirely in your browser. Toggling GPU on/off shouldn't reveal any significant speed differences, as this is a fairly small network. In the architecture diagram below, intermediate outputs at each layer are also visualized.
       </div>
       <div class="info-panel-close">
         <div class="info-panel-close-btn" @click="closeInfoPanel"><i class="material-icons">close</i>CLOSE</div>
@@ -105,10 +105,10 @@ const LAYER_DISPLAY_CONFIG = {
   dense_10: { heading: 'input dimensions = 2, output dimensions = 128, ReLU activation', scalingFactor: 2 },
   dense_11: { heading: 'ReLU activation, output dimensions = 25088 (64 x 14 x 14)', scalingFactor: 2 },
   reshape_4: { heading: '', scalingFactor: 2 },
-  deconvolution2d_10: { heading: '64 3x3 filters, border mode same, 1x1 strides, ReLU activation', scalingFactor: 2 },
-  deconvolution2d_11: { heading: '64 3x3 filters, border mode same, 1x1 strides, ReLU activation', scalingFactor: 2 },
-  deconvolution2d_12: { heading: '64 2x2 filters, border mode valid, 2x2 strides, ReLU activation', scalingFactor: 2 },
-  convolution2d_8: { heading: '1 2x2 filters, border mode valid, 1x1 strides, sigmoid activation', scalingFactor: 2 }
+  Conv2DTranspose_10: { heading: '64 3x3 filters, border mode same, 1x1 strides, ReLU activation', scalingFactor: 2 },
+  Conv2DTranspose_11: { heading: '64 3x3 filters, border mode same, 1x1 strides, ReLU activation', scalingFactor: 2 },
+  Conv2DTranspose_12: { heading: '64 2x2 filters, border mode valid, 2x2 strides, ReLU activation', scalingFactor: 2 },
+  Conv2D_8: { heading: '1 2x2 filters, border mode valid, 1x1 strides, sigmoid activation', scalingFactor: 2 }
 }
 
 export default {
@@ -216,7 +216,7 @@ export default {
     runModel: function() {
       const inputData = { input_4: new Float32Array(this.inputCoordinates) }
       this.model.predict(inputData).then(outputData => {
-        this.output = outputData['convolution2d_8']
+        this.output = outputData['Conv2D_8']
         this.drawOutput()
         this.getIntermediateResults()
       })

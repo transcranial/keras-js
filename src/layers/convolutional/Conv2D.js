@@ -7,11 +7,11 @@ import checkPipelineSupport from '../../utils/checkPipelineSupport'
 import WebGLConv2D from '../../ext/convolutional/WebGLConv2D'
 
 /**
- * Convolution2D layer class
+ * Conv2D layer class
  */
-export default class Convolution2D extends Layer {
+export default class Conv2D extends Layer {
   /**
-   * Creates a Convolution2D layer
+   * Creates a Conv2D layer
    * @param {number} attrs.nbFilter - Number of convolution filters to use.
    * @param {number} attrs.nbRow - Number of rows in the convolution kernel.
    * @param {number} attrs.nbCol - Number of columns in the convolution kernel.
@@ -19,7 +19,7 @@ export default class Convolution2D extends Layer {
    */
   constructor(attrs = {}) {
     super(attrs)
-    this.layerClass = 'Convolution2D'
+    this.layerClass = 'Conv2D'
 
     const {
       nbFilter = 1,
@@ -40,7 +40,7 @@ export default class Convolution2D extends Layer {
     if (borderMode === 'valid' || borderMode === 'same') {
       this.borderMode = borderMode
     } else {
-      throw new Error(`${this.name} [Convolution2D layer] Invalid borderMode.`)
+      throw new Error(`${this.name} [Conv2D layer] Invalid borderMode.`)
     }
 
     this.subsample = subsample
@@ -48,7 +48,7 @@ export default class Convolution2D extends Layer {
     if (dimOrdering === 'tf' || dimOrdering === 'th') {
       this.dimOrdering = dimOrdering
     } else {
-      throw new Error(`${this.name} [Convolution2D layer] Only tf and th dim ordering are allowed.`)
+      throw new Error(`${this.name} [Conv2D layer] Only tf and th dim ordering are allowed.`)
     }
 
     this.bias = bias

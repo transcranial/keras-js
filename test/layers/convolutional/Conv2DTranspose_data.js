@@ -4,7 +4,7 @@
 
 ;(function() {
   var DATA = {
-    'convolutional.Deconvolution2D.0': {
+    'convolutional.Conv2DTranspose.0': {
       input: {
         data: [
           -0.929961,
@@ -271,7 +271,7 @@
         shape: [6, 6, 4]
       }
     },
-    'convolutional.Deconvolution2D.1': {
+    'convolutional.Conv2DTranspose.1': {
       input: {
         data: [
           0.148989,
@@ -539,7 +539,7 @@
         shape: [6, 6, 4]
       }
     },
-    'convolutional.Deconvolution2D.2': {
+    'convolutional.Conv2DTranspose.2': {
       input: {
         data: [
           -0.358135,
@@ -987,7 +987,7 @@
         shape: [9, 9, 4]
       }
     },
-    'convolutional.Deconvolution2D.3': {
+    'convolutional.Conv2DTranspose.3': {
       input: {
         data: [
           -0.007435,
@@ -1175,7 +1175,7 @@
         shape: [4, 4, 4]
       }
     },
-    'convolutional.Deconvolution2D.4': {
+    'convolutional.Conv2DTranspose.4': {
       input: {
         data: [
           0.656737,
@@ -1637,7 +1637,7 @@
         shape: [8, 8, 5]
       }
     },
-    'convolutional.Deconvolution2D.5': {
+    'convolutional.Conv2DTranspose.5': {
       input: {
         data: [
           -0.629124,

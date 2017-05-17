@@ -1,16 +1,16 @@
 import Tensor from '../../Tensor'
-import Convolution2D from './Convolution2D'
+import Conv2D from './Conv2D'
 import ops from 'ndarray-ops'
 
 /**
- * AtrousConvolution2D layer class
- * This class extends the Convolution2D layer class, and overrides the methods
+ * AtrousConv2D layer class
+ * This class extends the Conv2D layer class, and overrides the methods
  * `_calcOutputShape` and `_im2col` by creating filter dilations based on the
  * specified `atrousRate`.
  */
-export default class AtrousConvolution2D extends Convolution2D {
+export default class AtrousConv2D extends Conv2D {
   /**
-   * Creates a AtrousConvolution2D layer
+   * Creates a AtrousConv2D layer
    * @param {number} attrs.nbFilter - Number of convolution filters to use.
    * @param {number} attrs.nbRow - Number of rows in the convolution kernel.
    * @param {number} attrs.nbCol - Number of columns in the convolution kernel.
@@ -18,7 +18,7 @@ export default class AtrousConvolution2D extends Convolution2D {
    */
   constructor(attrs = {}) {
     super(attrs)
-    this.layerClass = 'AtrousConvolution2D'
+    this.layerClass = 'AtrousConv2D'
 
     const { atrousRate = [1, 1] } = attrs
     this.atrousRate = atrousRate

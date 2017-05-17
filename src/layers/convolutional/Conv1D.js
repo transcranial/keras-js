@@ -1,21 +1,21 @@
 import Layer from '../../Layer'
-import Convolution2D from './Convolution2D'
+import Conv2D from './Conv2D'
 import squeeze from 'ndarray-squeeze'
 import unsqueeze from 'ndarray-unsqueeze'
 
 /**
- * Convolution1D layer class
+ * Conv1D layer class
  */
-export default class Convolution1D extends Layer {
+export default class Conv1D extends Layer {
   /**
-   * Creates a Convolution1D layer
+   * Creates a Conv1D layer
    * @param {number} attrs.nbFilter - Number of convolution filters to use.
    * @param {number} attrs.filterLength - Length of 1D convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
     super(attrs)
-    this.layerClass = 'Convolution1D'
+    this.layerClass = 'Conv1D'
 
     const {
       nbFilter = 1,
@@ -27,7 +27,7 @@ export default class Convolution1D extends Layer {
     } = attrs
 
     if (borderMode !== 'valid' && borderMode !== 'same') {
-      throw new Error(`${this.name} [Convolution1D layer] Invalid borderMode.`)
+      throw new Error(`${this.name} [Conv1D layer] Invalid borderMode.`)
     }
 
     this.bias = bias
@@ -35,8 +35,8 @@ export default class Convolution1D extends Layer {
     // Layer weights specification
     this.params = this.bias ? ['W', 'b'] : ['W']
 
-    // Bootstrap Convolution2D layer:
-    // Convolution1D is actually a shim on top of Convolution2D, where
+    // Bootstrap Conv2D layer:
+    // Conv1D is actually a shim on top of Conv2D, where
     // all of the computational action is performed
     // Note that Keras uses `th` dim ordering here.
     const conv2dAttrs = {
@@ -50,7 +50,7 @@ export default class Convolution1D extends Layer {
       bias
     }
     this._conv2dAttrs = conv2dAttrs
-    this._conv2d = new Convolution2D(Object.assign(conv2dAttrs, { gpu: attrs.gpu }))
+    this._conv2d = new Conv2D(Object.assign(conv2dAttrs, { gpu: attrs.gpu }))
   }
 
   /**

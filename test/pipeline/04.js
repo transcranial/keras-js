@@ -10,7 +10,7 @@ describe('pipeline_04', function() {
     inputShape: [9, 9, 2],
     layers: [
       {
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 5,
           nbRow: 3,
@@ -24,7 +24,7 @@ describe('pipeline_04', function() {
       },
       { layerClass: 'BatchNormalization', attrs: { mode: 0, axis: -1, epsilon: 0.001 } },
       {
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 4,
           nbRow: 1,
@@ -38,7 +38,7 @@ describe('pipeline_04', function() {
       },
       { layerClass: 'BatchNormalization', attrs: { mode: 0, axis: -1, epsilon: 0.001 } },
       {
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 3,
           nbRow: 3,
@@ -52,7 +52,7 @@ describe('pipeline_04', function() {
       },
       { layerClass: 'BatchNormalization', attrs: { mode: 0, axis: -1, epsilon: 0.001 } },
       {
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 2,
           nbRow: 3,

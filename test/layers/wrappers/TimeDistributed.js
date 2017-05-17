@@ -13,7 +13,7 @@ describe('wrappers layer: TimeDistributed', function() {
       wrappedLayerAttrs: { outputDim: 4, activation: 'linear', inputDim: null, bias: true }
     },
     {
-      wrappedLayer: 'Convolution2D',
+      wrappedLayer: 'Conv2D',
       inputShape: [5, 4, 4, 2],
       wrappedLayerAttrs: {
         nbFilter: 6,

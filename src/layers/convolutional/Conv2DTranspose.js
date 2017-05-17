@@ -5,11 +5,11 @@ import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 
 /**
- * Deconvolution2D layer class
+ * Conv2DTranspose layer class
  */
-export default class Deconvolution2D extends Layer {
+export default class Conv2DTranspose extends Layer {
   /**
-   * Creates a Deconvolution2D layer
+   * Creates a Conv2DTranspose layer
    * @param {number} attrs.nbFilter - Number of convolution filters to use.
    * @param {number} attrs.nbRow - Number of rows in the convolution kernel.
    * @param {number} attrs.nbCol - Number of columns in the convolution kernel.
@@ -19,7 +19,7 @@ export default class Deconvolution2D extends Layer {
    */
   constructor(attrs = {}) {
     super(attrs)
-    this.layerClass = 'Deconvolution2D'
+    this.layerClass = 'Conv2DTranspose'
 
     const {
       nbFilter = 1,
@@ -47,7 +47,7 @@ export default class Deconvolution2D extends Layer {
     if (borderMode === 'valid' || borderMode === 'same') {
       this.borderMode = borderMode
     } else {
-      throw new Error(`${this.name} [Deconvolution2D layer] Invalid borderMode.`)
+      throw new Error(`${this.name} [Conv2DTranspose layer] Invalid borderMode.`)
     }
 
     this.subsample = subsample
@@ -55,7 +55,7 @@ export default class Deconvolution2D extends Layer {
     if (dimOrdering === 'tf' || dimOrdering === 'th') {
       this.dimOrdering = dimOrdering
     } else {
-      throw new Error(`${this.name} [Deconvolution2D layer] Only tf and th dim ordering are allowed.`)
+      throw new Error(`${this.name} [Conv2DTranspose layer] Only tf and th dim ordering are allowed.`)
     }
 
     this.bias = bias
@@ -110,7 +110,7 @@ export default class Deconvolution2D extends Layer {
     const nbRow = this.kernelShape[1]
     const nbCol = this.kernelShape[2]
 
-    // In contrast to Convolution2D, where we calculate the output shape,
+    // In contrast to Conv2D, where we calculate the output shape,
     // the output shape is taken from the construtor variable, since
     // there is some level of ambiguity: input of shape [4, 4, inputChannels]
     // can have an output shape of either [7, 7, nbFilter] or [8, 8, nbFilter]

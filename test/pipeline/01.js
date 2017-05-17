@@ -10,7 +10,7 @@ describe('pipeline_01', function() {
     inputShape: [17, 17, 2],
     layers: [
       {
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 5,
           nbRow: 3,
@@ -23,7 +23,7 @@ describe('pipeline_01', function() {
         }
       },
       {
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 4,
           nbRow: 3,
@@ -36,7 +36,7 @@ describe('pipeline_01', function() {
         }
       },
       {
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 2,
           nbRow: 3,
@@ -49,7 +49,7 @@ describe('pipeline_01', function() {
         }
       },
       {
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 3,
           nbRow: 5,
@@ -62,7 +62,7 @@ describe('pipeline_01', function() {
         }
       },
       {
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 2,
           nbRow: 3,

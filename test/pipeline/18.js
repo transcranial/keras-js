@@ -13,7 +13,7 @@ describe('pipeline_18', function() {
       {
         name: 'conv_1-0',
         branch: 1,
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 2,
           nbRow: 1,
@@ -28,7 +28,7 @@ describe('pipeline_18', function() {
       {
         name: 'conv_1-1',
         branch: 1,
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 4,
           nbRow: 3,
@@ -43,7 +43,7 @@ describe('pipeline_18', function() {
       {
         name: 'conv_2-0',
         branch: 2,
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 5,
           nbRow: 3,
@@ -58,7 +58,7 @@ describe('pipeline_18', function() {
       {
         name: 'conv_0-0',
         branch: 0,
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 4,
           nbRow: 3,
@@ -73,7 +73,7 @@ describe('pipeline_18', function() {
       {
         name: 'conv_1-2',
         branch: 1,
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 2,
           nbRow: 1,
@@ -88,7 +88,7 @@ describe('pipeline_18', function() {
       {
         name: 'conv_2-1',
         branch: 2,
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 3,
           nbRow: 3,

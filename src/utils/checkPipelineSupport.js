@@ -6,7 +6,7 @@ export default function checkPipelineSupport(layerClass, attrs) {
       }
       return false
 
-    case 'Convolution2D':
+    case 'Conv2D':
       if (['linear', 'relu'].indexOf(attrs.activation) > -1) {
         return true
       }

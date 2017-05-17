@@ -1,4 +1,4 @@
-describe('convolutional layer: Convolution1D', function() {
+describe('convolutional layer: Conv1D', function() {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -30,7 +30,7 @@ describe('convolutional layer: Convolution1D', function() {
   ]
 
   before(function() {
-    console.log('\n%cconvolutional layer: Convolution1D', styles.h1)
+    console.log('\n%cconvolutional layer: Conv1D', styles.h1)
   })
 
   /*********************************************************
@@ -42,14 +42,14 @@ describe('convolutional layer: Convolution1D', function() {
     })
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
-      const key = `convolutional.Convolution1D.${i}.legacy`
+      const key = `convolutional.Conv1D.${i}.legacy`
       const [inputLength, inputFeatures] = inputShape
       const [nbFilter, filterLength] = kernelShape
       const title = `[${key}] [CPU] test: ${nbFilter} length ${filterLength} filters on ${inputLength}x${inputFeatures} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsampleLength=${attrs.subsampleLength}, bias=${attrs.bias}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.Convolution1D(Object.assign({ nbFilter, filterLength }, attrs))
+        let testLayer = new layers.Conv1D(Object.assign({ nbFilter, filterLength }, attrs))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -66,14 +66,14 @@ describe('convolutional layer: Convolution1D', function() {
     })
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
-      const key = `convolutional.Convolution1D.${i}`
+      const key = `convolutional.Conv1D.${i}`
       const [inputLength, inputFeatures] = inputShape
       const [nbFilter, filterLength] = kernelShape
       const title = `[${key}] [CPU] test: ${nbFilter} length ${filterLength} filters on ${inputLength}x${inputFeatures} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsampleLength=${attrs.subsampleLength}, bias=${attrs.bias}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.Convolution1D(Object.assign({ nbFilter, filterLength }, attrs))
+        let testLayer = new layers.Conv1D(Object.assign({ nbFilter, filterLength }, attrs))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -99,14 +99,14 @@ describe('convolutional layer: Convolution1D', function() {
     })
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
-      const key = `convolutional.Convolution1D.${i}.legacy`
+      const key = `convolutional.Conv1D.${i}.legacy`
       const [inputLength, inputFeatures] = inputShape
       const [nbFilter, filterLength] = kernelShape
       const title = `[${key}] [GPU] test: ${nbFilter} length ${filterLength} filters on ${inputLength}x${inputFeatures} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsampleLength=${attrs.subsampleLength}, bias=${attrs.bias}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.Convolution1D(Object.assign({ nbFilter, filterLength }, attrs, { gpu: true }))
+        let testLayer = new layers.Conv1D(Object.assign({ nbFilter, filterLength }, attrs, { gpu: true }))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -123,14 +123,14 @@ describe('convolutional layer: Convolution1D', function() {
     })
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
-      const key = `convolutional.Convolution1D.${i}`
+      const key = `convolutional.Conv1D.${i}`
       const [inputLength, inputFeatures] = inputShape
       const [nbFilter, filterLength] = kernelShape
       const title = `[${key}] [GPU] test: ${nbFilter} length ${filterLength} filters on ${inputLength}x${inputFeatures} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsampleLength=${attrs.subsampleLength}, bias=${attrs.bias}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.Convolution1D(Object.assign({ nbFilter, filterLength }, attrs, { gpu: true }))
+        let testLayer = new layers.Conv1D(Object.assign({ nbFilter, filterLength }, attrs, { gpu: true }))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))

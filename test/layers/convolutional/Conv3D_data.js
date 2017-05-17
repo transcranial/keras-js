@@ -4,7 +4,7 @@
 
 ;(function() {
   var DATA = {
-    'convolutional.Convolution3D.0': {
+    'convolutional.Conv3D.0': {
       input: {
         data: [
           -0.012235,
@@ -598,7 +598,7 @@
         shape: [3, 3, 3, 4]
       }
     },
-    'convolutional.Convolution3D.1': {
+    'convolutional.Conv3D.1': {
       input: {
         data: [
           0.54298,
@@ -869,7 +869,7 @@
         shape: [2, 2, 2, 2]
       }
     },
-    'convolutional.Convolution3D.2': {
+    'convolutional.Conv3D.2': {
       input: {
         data: [
           0.657275,
@@ -1189,7 +1189,7 @@
         shape: [4, 4, 3, 2]
       }
     },
-    'convolutional.Convolution3D.3': {
+    'convolutional.Conv3D.3': {
       input: {
         data: [
           -0.780888,
@@ -1425,7 +1425,7 @@
         shape: [2, 4, 3, 2]
       }
     },
-    'convolutional.Convolution3D.4': {
+    'convolutional.Conv3D.4': {
       input: {
         data: [
           0.255491,

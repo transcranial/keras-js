@@ -1,14 +1,14 @@
 import * as activations from '../../activations'
 import Tensor from '../../Tensor'
 import Layer from '../../Layer'
-import Convolution2D from './Convolution2D'
+import Conv2D from './Conv2D'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 
 /**
- * _DepthwiseConvolution2D layer class
+ * _DepthwiseConv2D layer class
  */
-class _DepthwiseConvolution2D extends Convolution2D {
+class _DepthwiseConv2D extends Conv2D {
   constructor(attrs = {}) {
     super(attrs)
   }
@@ -125,11 +125,11 @@ class _DepthwiseConvolution2D extends Convolution2D {
 }
 
 /**
- * SeparableConvolution2D layer class
+ * SeparableConv2D layer class
  */
-export default class SeparableConvolution2D extends Layer {
+export default class SeparableConv2D extends Layer {
   /**
-   * Creates a SeparableConvolution2D layer
+   * Creates a SeparableConv2D layer
    * @param {number} attrs.nbFilter - Number of convolution filters to use.
    * @param {number} attrs.nbRow - Number of rows in the convolution kernel.
    * @param {number} attrs.nbCol - Number of columns in the convolution kernel.
@@ -137,7 +137,7 @@ export default class SeparableConvolution2D extends Layer {
    */
   constructor(attrs = {}) {
     super(attrs)
-    this.layerClass = 'SeparableConvolution2D'
+    this.layerClass = 'SeparableConv2D'
 
     const {
       nbFilter = 1,
@@ -157,7 +157,7 @@ export default class SeparableConvolution2D extends Layer {
     if (borderMode === 'valid' || borderMode === 'same') {
       this.borderMode = borderMode
     } else {
-      throw new Error(`${this.name} [SeparableConvolution2D layer] Invalid borderMode.`)
+      throw new Error(`${this.name} [SeparableConv2D layer] Invalid borderMode.`)
     }
 
     this.subsample = subsample
@@ -166,7 +166,7 @@ export default class SeparableConvolution2D extends Layer {
     if (dimOrdering === 'tf' || dimOrdering === 'th') {
       this.dimOrdering = dimOrdering
     } else {
-      throw new Error(`${this.name} [SeparableConvolution2D layer] Only tf and th dim ordering are allowed.`)
+      throw new Error(`${this.name} [SeparableConv2D layer] Only tf and th dim ordering are allowed.`)
     }
 
     this.bias = bias
@@ -174,7 +174,7 @@ export default class SeparableConvolution2D extends Layer {
     // Layer weights specification
     this.params = this.bias ? ['depthwise_kernel', 'pointwise_kernel', 'b'] : ['depthwise_kernel', 'pointwise_kernel']
 
-    // SeparableConvolution2D has two components: depthwise, and pointwise.
+    // SeparableConv2D has two components: depthwise, and pointwise.
     // Activation function and bias is applied at the end.
     // Subsampling (striding) only performed on depthwise part, not the pointwise part.
     this.depthwiseConvAttrs = {
@@ -203,13 +203,13 @@ export default class SeparableConvolution2D extends Layer {
 
   /**
    * Method for setting layer weights
-   * Override `super` method since weights must be set in component Convolution2D layers
+   * Override `super` method since weights must be set in component Conv2D layers
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights(weightsArr) {
-    this._depthwiseConv = new _DepthwiseConvolution2D(this.depthwiseConvAttrs)
+    this._depthwiseConv = new _DepthwiseConv2D(this.depthwiseConvAttrs)
     this._depthwiseConv.setWeights(weightsArr.slice(0, 1))
-    this._pointwiseConv = new Convolution2D(this.pointwiseConvAttrs)
+    this._pointwiseConv = new Conv2D(this.pointwiseConvAttrs)
     this._pointwiseConv.setWeights(weightsArr.slice(1, 3))
   }
 

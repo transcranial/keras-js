@@ -5,11 +5,11 @@ import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 
 /**
- * Convolution3D layer class
+ * Conv3D layer class
  */
-export default class Convolution3D extends Layer {
+export default class Conv3D extends Layer {
   /**
-   * Creates a Convolution3D layer
+   * Creates a Conv3D layer
    * @param {number} attrs.nbFilter - Number of convolution filters to use.
    * @param {number} attrs.kernelDim1 - Length of the first dimension in the convolution kernel.
    * @param {number} attrs.kernelDim2 - Length of the second dimension in the convolution kernel.
@@ -18,7 +18,7 @@ export default class Convolution3D extends Layer {
    */
   constructor(attrs = {}) {
     super(attrs)
-    this.layerClass = 'Convolution3D'
+    this.layerClass = 'Conv3D'
 
     const {
       nbFilter = 1,
@@ -40,7 +40,7 @@ export default class Convolution3D extends Layer {
     if (borderMode === 'valid' || borderMode === 'same') {
       this.borderMode = borderMode
     } else {
-      throw new Error(`${this.name} [Convolution3D layer] Invalid borderMode.`)
+      throw new Error(`${this.name} [Conv3D layer] Invalid borderMode.`)
     }
 
     this.subsample = subsample
@@ -48,7 +48,7 @@ export default class Convolution3D extends Layer {
     if (dimOrdering === 'tf' || dimOrdering === 'th') {
       this.dimOrdering = dimOrdering
     } else {
-      throw new Error(`${this.name} [Convolution3D layer] Only tf and th dim ordering are allowed.`)
+      throw new Error(`${this.name} [Conv3D layer] Only tf and th dim ordering are allowed.`)
     }
 
     this.bias = bias

@@ -11,7 +11,7 @@ describe('pipeline_14', function() {
     layers: [
       {
         branch: 0,
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 4,
           nbRow: 3,
@@ -25,7 +25,7 @@ describe('pipeline_14', function() {
       },
       {
         branch: 1,
-        layerClass: 'Convolution2D',
+        layerClass: 'Conv2D',
         attrs: {
           nbFilter: 4,
           nbRow: 3,

@@ -4,7 +4,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'zeropadding2d_1', className: 'ZeroPadding2D', details: '3x3 padding', row: 0, col: 0 },
   {
     name: 'conv1',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '64 7x7 filters, 2x2 strides, border mode valid',
     row: 1,
     col: 0
@@ -22,7 +22,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // conv block 2a
   {
     name: 'res2a_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '64 1x1 filters, 1x1 strides, border mode valid',
     row: 5,
     col: 0
@@ -31,7 +31,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_2', className: 'Activation', details: 'ReLU', row: 7, col: 0 },
   {
     name: 'res2a_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '64 3x3 filters, 1x1 strides, border mode same',
     row: 8,
     col: 0
@@ -40,14 +40,14 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_3', className: 'Activation', details: 'ReLU', row: 10, col: 0 },
   {
     name: 'res2a_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 1x1 filters, 1x1 strides, border mode valid',
     row: 11,
     col: 0
   },
   {
     name: 'res2a_branch1',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 1x1 filters, 1x1 strides, border mode valid',
     row: 5,
     col: 1
@@ -60,7 +60,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // identity block 2b
   {
     name: 'res2b_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '64 1x1 filters, 1x1 strides, border mode valid',
     row: 15,
     col: 0
@@ -69,7 +69,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_5', className: 'Activation', details: 'ReLU', row: 17, col: 0 },
   {
     name: 'res2b_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '64 3x3 filters, 1x1 strides, border mode same',
     row: 18,
     col: 0
@@ -78,7 +78,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_6', className: 'Activation', details: 'ReLU', row: 20, col: 0 },
   {
     name: 'res2b_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 1x1 filters, 1x1 strides, border mode valid',
     row: 21,
     col: 0
@@ -90,7 +90,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // identity block 2c
   {
     name: 'res2c_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '64 1x1 filters, 1x1 strides, border mode valid',
     row: 25,
     col: 0
@@ -99,7 +99,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_8', className: 'Activation', details: 'ReLU', row: 27, col: 0 },
   {
     name: 'res2c_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '64 3x3 filters, 1x1 strides, border mode same',
     row: 28,
     col: 0
@@ -108,7 +108,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_9', className: 'Activation', details: 'ReLU', row: 30, col: 0 },
   {
     name: 'res2c_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 1x1 filters, 1x1 strides, border mode valid',
     row: 31,
     col: 0
@@ -120,7 +120,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // conv block 3a
   {
     name: 'res3a_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '128 1x1 filters, 2x2 strides, border mode valid',
     row: 35,
     col: 0
@@ -129,7 +129,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_11', className: 'Activation', details: 'ReLU', row: 37, col: 0 },
   {
     name: 'res3a_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '128 3x3 filters, 1x1 strides, border mode same',
     row: 38,
     col: 0
@@ -138,14 +138,14 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_12', className: 'Activation', details: 'ReLU', row: 40, col: 0 },
   {
     name: 'res3a_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '512 1x1 filters, 1x1 strides, border mode valid',
     row: 41,
     col: 0
   },
   {
     name: 'res3a_branch1',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '512 1x1 filters, 1x1 strides, border mode valid',
     row: 35,
     col: 1
@@ -158,7 +158,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // identity block 3b
   {
     name: 'res3b_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '128 1x1 filters, 1x1 strides, border mode valid',
     row: 45,
     col: 0
@@ -167,7 +167,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_14', className: 'Activation', details: 'ReLU', row: 47, col: 0 },
   {
     name: 'res3b_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '128 3x3 filters, 1x1 strides, border mode same',
     row: 48,
     col: 0
@@ -176,7 +176,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_15', className: 'Activation', details: 'ReLU', row: 50, col: 0 },
   {
     name: 'res3b_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '512 1x1 filters, 1x1 strides, border mode valid',
     row: 51,
     col: 0
@@ -188,7 +188,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // identity block 3c
   {
     name: 'res3c_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '128 1x1 filters, 1x1 strides, border mode valid',
     row: 55,
     col: 0
@@ -197,7 +197,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_17', className: 'Activation', details: 'ReLU', row: 57, col: 0 },
   {
     name: 'res3c_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '128 3x3 filters, 1x1 strides, border mode same',
     row: 58,
     col: 0
@@ -206,7 +206,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_18', className: 'Activation', details: 'ReLU', row: 60, col: 0 },
   {
     name: 'res3c_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '512 1x1 filters, 1x1 strides, border mode valid',
     row: 61,
     col: 0
@@ -218,7 +218,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // identity block 3d
   {
     name: 'res3d_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '128 1x1 filters, 1x1 strides, border mode valid',
     row: 65,
     col: 0
@@ -227,7 +227,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_20', className: 'Activation', details: 'ReLU', row: 67, col: 0 },
   {
     name: 'res3d_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '128 3x3 filters, 1x1 strides, border mode same',
     row: 68,
     col: 0
@@ -236,7 +236,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_21', className: 'Activation', details: 'ReLU', row: 70, col: 0 },
   {
     name: 'res3d_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '512 1x1 filters, 1x1 strides, border mode valid',
     row: 71,
     col: 0
@@ -248,7 +248,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // conv block 4a
   {
     name: 'res4a_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 1x1 filters, 2x2 strides, border mode valid',
     row: 75,
     col: 0
@@ -257,7 +257,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_23', className: 'Activation', details: 'ReLU', row: 77, col: 0 },
   {
     name: 'res4a_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 3x3 filters, 1x1 strides, border mode same',
     row: 78,
     col: 0
@@ -266,14 +266,14 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_24', className: 'Activation', details: 'ReLU', row: 80, col: 0 },
   {
     name: 'res4a_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '1024 1x1 filters, 1x1 strides, border mode valid',
     row: 81,
     col: 0
   },
   {
     name: 'res4a_branch1',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '1024 1x1 filters, 2x2 strides, border mode valid',
     row: 75,
     col: 1
@@ -286,7 +286,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // identity block 4b
   {
     name: 'res4b_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 1x1 filters, 1x1 strides, border mode valid',
     row: 85,
     col: 0
@@ -295,7 +295,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_26', className: 'Activation', details: 'ReLU', row: 87, col: 0 },
   {
     name: 'res4b_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 3x3 filters, 1x1 strides, border mode same',
     row: 88,
     col: 0
@@ -304,7 +304,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_27', className: 'Activation', details: 'ReLU', row: 90, col: 0 },
   {
     name: 'res4b_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '1024 1x1 filters, 1x1 strides, border mode valid',
     row: 91,
     col: 0
@@ -316,7 +316,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // identity block 4c
   {
     name: 'res4c_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 1x1 filters, 1x1 strides, border mode valid',
     row: 95,
     col: 0
@@ -325,7 +325,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_29', className: 'Activation', details: 'ReLU', row: 97, col: 0 },
   {
     name: 'res4c_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 3x3 filters, 1x1 strides, border mode same',
     row: 98,
     col: 0
@@ -334,7 +334,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_30', className: 'Activation', details: 'ReLU', row: 100, col: 0 },
   {
     name: 'res4c_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '1024 1x1 filters, 1x1 strides, border mode valid',
     row: 101,
     col: 0
@@ -346,7 +346,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // identity block 4d
   {
     name: 'res4d_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 1x1 filters, 1x1 strides, border mode valid',
     row: 105,
     col: 0
@@ -355,7 +355,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_32', className: 'Activation', details: 'ReLU', row: 107, col: 0 },
   {
     name: 'res4d_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 3x3 filters, 1x1 strides, border mode same',
     row: 108,
     col: 0
@@ -364,7 +364,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_33', className: 'Activation', details: 'ReLU', row: 110, col: 0 },
   {
     name: 'res4d_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '1024 1x1 filters, 1x1 strides, border mode valid',
     row: 111,
     col: 0
@@ -376,7 +376,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // identity block 4e
   {
     name: 'res4e_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 1x1 filters, 1x1 strides, border mode valid',
     row: 115,
     col: 0
@@ -385,7 +385,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_35', className: 'Activation', details: 'ReLU', row: 117, col: 0 },
   {
     name: 'res4e_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 3x3 filters, 1x1 strides, border mode same',
     row: 118,
     col: 0
@@ -394,7 +394,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_36', className: 'Activation', details: 'ReLU', row: 120, col: 0 },
   {
     name: 'res4e_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '1024 1x1 filters, 1x1 strides, border mode valid',
     row: 121,
     col: 0
@@ -406,7 +406,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // identity block 4f
   {
     name: 'res4f_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 1x1 filters, 1x1 strides, border mode valid',
     row: 125,
     col: 0
@@ -415,7 +415,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_38', className: 'Activation', details: 'ReLU', row: 127, col: 0 },
   {
     name: 'res4f_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '256 3x3 filters, 1x1 strides, border mode same',
     row: 128,
     col: 0
@@ -424,7 +424,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_39', className: 'Activation', details: 'ReLU', row: 130, col: 0 },
   {
     name: 'res4f_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '1024 1x1 filters, 1x1 strides, border mode valid',
     row: 131,
     col: 0
@@ -436,7 +436,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // conv block 5a
   {
     name: 'res5a_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '512 1x1 filters, 2x2 strides, border mode valid',
     row: 135,
     col: 0
@@ -445,7 +445,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_41', className: 'Activation', details: 'ReLU', row: 137, col: 0 },
   {
     name: 'res5a_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '512 3x3 filters, 1x1 strides, border mode same',
     row: 138,
     col: 0
@@ -454,14 +454,14 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_42', className: 'Activation', details: 'ReLU', row: 140, col: 0 },
   {
     name: 'res5a_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '2048 1x1 filters, 1x1 strides, border mode valid',
     row: 141,
     col: 0
   },
   {
     name: 'res5a_branch1',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '2048 1x1 filters, 2x2 strides, border mode valid',
     row: 135,
     col: 1
@@ -474,7 +474,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // identity block 5b
   {
     name: 'res5b_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '512 1x1 filters, 1x1 strides, border mode valid',
     row: 145,
     col: 0
@@ -483,7 +483,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_44', className: 'Activation', details: 'ReLU', row: 147, col: 0 },
   {
     name: 'res5b_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '512 3x3 filters, 1x1 strides, border mode same',
     row: 148,
     col: 0
@@ -492,7 +492,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_45', className: 'Activation', details: 'ReLU', row: 150, col: 0 },
   {
     name: 'res5b_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '2048 1x1 filters, 1x1 strides, border mode valid',
     row: 151,
     col: 0
@@ -504,7 +504,7 @@ export const ARCHITECTURE_DIAGRAM = [
   // identity block 5c
   {
     name: 'res5c_branch2a',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '512 1x1 filters, 1x1 strides, border mode valid',
     row: 155,
     col: 0
@@ -513,7 +513,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_47', className: 'Activation', details: 'ReLU', row: 157, col: 0 },
   {
     name: 'res5c_branch2b',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '512 3x3 filters, 1x1 strides, border mode same',
     row: 158,
     col: 0
@@ -522,7 +522,7 @@ export const ARCHITECTURE_DIAGRAM = [
   { name: 'activation_48', className: 'Activation', details: 'ReLU', row: 160, col: 0 },
   {
     name: 'res5c_branch2c',
-    className: 'Convolution2D',
+    className: 'Conv2D',
     details: '2048 1x1 filters, 1x1 strides, border mode valid',
     row: 161,
     col: 0

@@ -105,9 +105,9 @@ const MODEL_FILEPATHS_PROD = {
 const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
 const LAYER_DISPLAY_CONFIG = {
-  convolution2d_1: { heading: '32 3x3 filters, border mode valid, 1x1 strides', scalingFactor: 2 },
+  Conv2D_1: { heading: '32 3x3 filters, border mode valid, 1x1 strides', scalingFactor: 2 },
   activation_1: { heading: 'ReLU', scalingFactor: 2 },
-  convolution2d_2: { heading: '32 3x3 filters, border mode valid, 1x1 strides', scalingFactor: 2 },
+  Conv2D_2: { heading: '32 3x3 filters, border mode valid, 1x1 strides', scalingFactor: 2 },
   activation_2: { heading: 'ReLU', scalingFactor: 2 },
   maxpooling2d_1: { heading: '2x2 pools, 1x1 strides', scalingFactor: 2 },
   dropout_1: { heading: 'p=0.25 (only active during training phase)', scalingFactor: 2 },

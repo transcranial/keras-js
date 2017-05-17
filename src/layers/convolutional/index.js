@@ -1,9 +1,9 @@
-import Convolution1D from './Convolution1D'
-import Convolution2D from './Convolution2D'
-import AtrousConvolution2D from './AtrousConvolution2D'
-import SeparableConvolution2D from './SeparableConvolution2D'
-import Deconvolution2D from './Deconvolution2D'
-import Convolution3D from './Convolution3D'
+import Conv1D from './Conv1D'
+import Conv2D from './Conv2D'
+import AtrousConv2D from './AtrousConv2D'
+import SeparableConv2D from './SeparableConv2D'
+import Conv2DTranspose from './Conv2DTranspose'
+import Conv3D from './Conv3D'
 import UpSampling1D from './UpSampling1D'
 import UpSampling2D from './UpSampling2D'
 import UpSampling3D from './UpSampling3D'
@@ -15,12 +15,12 @@ import Cropping2D from './Cropping2D'
 import Cropping3D from './Cropping3D'
 
 export {
-  Convolution1D,
-  Convolution2D,
-  AtrousConvolution2D,
-  SeparableConvolution2D,
-  Deconvolution2D,
-  Convolution3D,
+  Conv1D,
+  Conv2D,
+  AtrousConv2D,
+  SeparableConv2D,
+  Conv2DTranspose,
+  Conv3D,
   UpSampling1D,
   UpSampling2D,
   UpSampling3D,

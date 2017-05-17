@@ -4,7 +4,7 @@
 
 ;(function() {
   var DATA = {
-    'convolutional.SeparableConvolution2D.0': {
+    'convolutional.SeparableConv2D.0': {
       input: {
         data: [
           0.133215,
@@ -132,7 +132,7 @@
         shape: [3, 3, 4]
       }
     },
-    'convolutional.SeparableConvolution2D.1': {
+    'convolutional.SeparableConv2D.1': {
       input: {
         data: [
           -0.545921,
@@ -295,7 +295,7 @@
         shape: [3, 3, 4]
       }
     },
-    'convolutional.SeparableConvolution2D.2': {
+    'convolutional.SeparableConv2D.2': {
       input: {
         data: [
           -0.884929,
@@ -884,7 +884,7 @@
         shape: [3, 3, 16]
       }
     },
-    'convolutional.SeparableConvolution2D.3': {
+    'convolutional.SeparableConv2D.3': {
       input: {
         data: [
           0.620403,
@@ -975,7 +975,7 @@
         shape: [2, 2, 4]
       }
     },
-    'convolutional.SeparableConvolution2D.4': {
+    'convolutional.SeparableConv2D.4': {
       input: {
         data: [
           -0.027871,
@@ -1167,7 +1167,7 @@
         shape: [5, 5, 4]
       }
     },
-    'convolutional.SeparableConvolution2D.5': {
+    'convolutional.SeparableConv2D.5': {
       input: {
         data: [
           0.424309,
@@ -1393,7 +1393,7 @@
         shape: [5, 5, 4]
       }
     },
-    'convolutional.SeparableConvolution2D.6': {
+    'convolutional.SeparableConv2D.6': {
       input: {
         data: [
           0.570535,

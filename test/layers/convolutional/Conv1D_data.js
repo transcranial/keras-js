@@ -4,7 +4,7 @@
 
 ;(function() {
   var DATA = {
-    'convolutional.Convolution1D.0.legacy': {
+    'convolutional.Conv1D.0.legacy': {
       input: {
         data: [0.528281, -0.994279, -0.285153, 0.81939, -0.087838, 0.963605, 0.734714, 0.972055, 0.846533, -0.392613],
         shape: [5, 2]
@@ -59,7 +59,7 @@
         shape: [3, 4]
       }
     },
-    'convolutional.Convolution1D.1.legacy': {
+    'convolutional.Conv1D.1.legacy': {
       input: {
         data: [
           0.57107,
@@ -149,7 +149,7 @@
         shape: [4, 4]
       }
     },
-    'convolutional.Convolution1D.2.legacy': {
+    'convolutional.Conv1D.2.legacy': {
       input: {
         data: [
           0.18884,
@@ -225,7 +225,7 @@
       ],
       expected: { data: [0.444624, 0.773535, 0.564385, 0.133453], shape: [2, 2] }
     },
-    'convolutional.Convolution1D.3.legacy': {
+    'convolutional.Conv1D.3.legacy': {
       input: {
         data: [
           0.330694,
@@ -327,7 +327,7 @@
         shape: [8, 2]
       }
     },
-    'convolutional.Convolution1D.0': {
+    'convolutional.Conv1D.0': {
       input: {
         data: [0.528281, -0.994279, -0.285153, 0.81939, -0.087838, 0.963605, 0.734714, 0.972055, 0.846533, -0.392613],
         shape: [5, 2]
@@ -382,7 +382,7 @@
         shape: [3, 4]
       }
     },
-    'convolutional.Convolution1D.1': {
+    'convolutional.Conv1D.1': {
       input: {
         data: [
           0.57107,
@@ -472,7 +472,7 @@
         shape: [4, 4]
       }
     },
-    'convolutional.Convolution1D.2': {
+    'convolutional.Conv1D.2': {
       input: {
         data: [
           0.18884,
@@ -548,7 +548,7 @@
       ],
       expected: { data: [0.784865, 0.177109, 0.973917, 0.102052], shape: [2, 2] }
     },
-    'convolutional.Convolution1D.3': {
+    'convolutional.Conv1D.3': {
       input: {
         data: [
           0.330694,

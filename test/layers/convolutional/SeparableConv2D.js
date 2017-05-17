@@ -1,4 +1,4 @@
-describe('convolutional layer: SeparableConvolution2D', function() {
+describe('convolutional layer: SeparableConv2D', function() {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -94,7 +94,7 @@ describe('convolutional layer: SeparableConvolution2D', function() {
   ]
 
   before(function() {
-    console.log('\n%cconvolutional layer: SeparableConvolution2D', styles.h1)
+    console.log('\n%cconvolutional layer: SeparableConv2D', styles.h1)
   })
 
   /*********************************************************
@@ -106,14 +106,14 @@ describe('convolutional layer: SeparableConvolution2D', function() {
     })
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
-      const key = `convolutional.SeparableConvolution2D.${i}`
+      const key = `convolutional.SeparableConv2D.${i}`
       const [inputRows, inputCols, inputChannels] = inputShape
       const [nbFilter, nbRow, nbCol] = kernelShape
       const title = `[${key}] [CPU] test: ${nbFilter} ${nbRow}x${nbCol} filters on ${inputRows}x${inputCols}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, depthMultiplier=${attrs.depthMultiplier}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.SeparableConvolution2D(Object.assign({ nbFilter, nbRow, nbCol }, attrs))
+        let testLayer = new layers.SeparableConv2D(Object.assign({ nbFilter, nbRow, nbCol }, attrs))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -139,14 +139,14 @@ describe('convolutional layer: SeparableConvolution2D', function() {
     })
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
-      const key = `convolutional.SeparableConvolution2D.${i}`
+      const key = `convolutional.SeparableConv2D.${i}`
       const [inputRows, inputCols, inputChannels] = inputShape
       const [nbFilter, nbRow, nbCol] = kernelShape
       const title = `[${key}] [GPU] test: ${nbFilter} ${nbRow}x${nbCol} filters on ${inputRows}x${inputCols}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, depthMultiplier=${attrs.depthMultiplier}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.SeparableConvolution2D(
+        let testLayer = new layers.SeparableConv2D(
           Object.assign({ nbFilter, nbRow, nbCol }, attrs, { gpu: true })
         )
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))

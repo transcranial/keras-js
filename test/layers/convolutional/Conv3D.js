@@ -1,4 +1,4 @@
-describe('convolutional layer: AtrousConvolution2D', function() {
+describe('convolutional layer: Conv3D', function() {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -8,69 +8,34 @@ describe('convolutional layer: AtrousConvolution2D', function() {
 
   const testParams = [
     {
-      inputShape: [5, 5, 2],
-      kernelShape: [4, 3, 3],
-      attrs: {
-        activation: 'linear',
-        borderMode: 'valid',
-        subsample: [1, 1],
-        atrousRate: [2, 2],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      inputShape: [5, 5, 5, 2],
+      kernelShape: [4, 3, 3, 3],
+      attrs: { activation: 'linear', borderMode: 'valid', subsample: [1, 1, 1], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [5, 5, 2],
-      kernelShape: [4, 3, 3],
-      attrs: {
-        activation: 'linear',
-        borderMode: 'valid',
-        subsample: [1, 1],
-        atrousRate: [2, 2],
-        dimOrdering: 'tf',
-        bias: false
-      }
+      inputShape: [4, 4, 4, 2],
+      kernelShape: [2, 3, 3, 3],
+      attrs: { activation: 'sigmoid', borderMode: 'valid', subsample: [1, 1, 1], dimOrdering: 'tf', bias: false }
     },
     {
-      inputShape: [7, 7, 2],
-      kernelShape: [4, 3, 3],
-      attrs: {
-        activation: 'relu',
-        borderMode: 'valid',
-        subsample: [1, 1],
-        atrousRate: [3, 3],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      inputShape: [4, 4, 3, 2],
+      kernelShape: [2, 3, 3, 3],
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [1, 1, 1], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [4, 8, 3],
-      kernelShape: [3, 4, 4],
-      attrs: {
-        activation: 'relu',
-        borderMode: 'same',
-        subsample: [1, 1],
-        atrousRate: [2, 2],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      inputShape: [4, 4, 3, 2],
+      kernelShape: [2, 3, 3, 2],
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [2, 1, 1], dimOrdering: 'tf', bias: true }
     },
     {
-      inputShape: [8, 8, 2],
-      kernelShape: [4, 3, 3],
-      attrs: {
-        activation: 'relu',
-        borderMode: 'same',
-        subsample: [1, 1],
-        atrousRate: [4, 4],
-        dimOrdering: 'tf',
-        bias: true
-      }
+      inputShape: [6, 6, 4, 2],
+      kernelShape: [2, 3, 3, 3],
+      attrs: { activation: 'relu', borderMode: 'same', subsample: [3, 3, 2], dimOrdering: 'tf', bias: true }
     }
   ]
 
   before(function() {
-    console.log('\n%cconvolutional layer: AtrousConvolution2D', styles.h1)
+    console.log('\n%cconvolutional layer: Conv3D', styles.h1)
   })
 
   /*********************************************************
@@ -82,14 +47,14 @@ describe('convolutional layer: AtrousConvolution2D', function() {
     })
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
-      const key = `convolutional.AtrousConvolution2D.${i}`
-      const [inputRows, inputCols, inputChannels] = inputShape
-      const [nbFilter, nbRow, nbCol] = kernelShape
-      const title = `[${key}] [CPU] test: ${nbFilter} ${nbRow}x${nbCol} filters on ${inputRows}x${inputCols}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, atrousRate=${attrs.atrousRate}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`
+      const key = `convolutional.Conv3D.${i}`
+      const [inputDim1, inputDim2, inputDim3, inputChannels] = inputShape
+      const [nbFilter, kernelDim1, kernelDim2, kernelDim3] = kernelShape
+      const title = `[${key}] [CPU] test: ${nbFilter} ${kernelDim1}x${kernelDim2}x${kernelDim3} filters on ${inputDim1}x${inputDim2}x${inputDim3}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.AtrousConvolution2D(Object.assign({ nbFilter, nbRow, nbCol }, attrs))
+        let testLayer = new layers.Conv3D(Object.assign({ nbFilter, kernelDim1, kernelDim2, kernelDim3 }, attrs))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -115,14 +80,16 @@ describe('convolutional layer: AtrousConvolution2D', function() {
     })
 
     testParams.forEach(({ inputShape, kernelShape, attrs }, i) => {
-      const key = `convolutional.AtrousConvolution2D.${i}`
-      const [inputRows, inputCols, inputChannels] = inputShape
-      const [nbFilter, nbRow, nbCol] = kernelShape
-      const title = `[${key}] [GPU] test: ${nbFilter} ${nbRow}x${nbCol} filters on ${inputRows}x${inputCols}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, atrousRate=${attrs.atrousRate}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`
+      const key = `convolutional.Conv3D.${i}`
+      const [inputDim1, inputDim2, inputDim3, inputChannels] = inputShape
+      const [nbFilter, kernelDim1, kernelDim2, kernelDim3] = kernelShape
+      const title = `[${key}] [GPU] test: ${nbFilter} ${kernelDim1}x${kernelDim2}x${kernelDim3} filters on ${inputDim1}x${inputDim2}x${inputDim3}x${inputChannels} input, activation='${attrs.activation}', border_mode='${attrs.borderMode}', subsample=${attrs.subsample}, dim_ordering='${attrs.dimOrdering}', bias=${attrs.bias}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.AtrousConvolution2D(Object.assign({ nbFilter, nbRow, nbCol }, attrs, { gpu: true }))
+        let testLayer = new layers.Conv3D(
+          Object.assign({ nbFilter, kernelDim1, kernelDim2, kernelDim3 }, attrs, { gpu: true })
+        )
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
