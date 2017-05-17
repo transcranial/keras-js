@@ -7,17 +7,30 @@ import ops from 'ndarray-ops'
  */
 export default class Cropping2D extends Layer {
   /**
-   * Creates a Cropping2D activation layer
-   * @param {cropping} attrs.cropping - tuple of tuple of int (length 2)
+   * Creates a Cropping2D layer
+   * @param {Number|Array<Number>|Array<Array<Number>>} attrs.cropping - int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints
+   * @param {String} attrs.data_format - either 'channels_last' or 'channels_first'
    */
   constructor(attrs = {}) {
     super(attrs)
     this.layerClass = 'Cropping2D'
 
-    const { cropping = [[0, 0], [0, 0]], dimOrdering = 'tf' } = attrs
+    const { cropping = [[0, 0], [0, 0]], data_format = 'channels_last' } = attrs
 
-    this.cropping = cropping
-    this.dimOrdering = dimOrdering
+    if (Array.isArray(cropping)) {
+      if (Array.isArray(cropping[0])) {
+        // [[int, int], [int, int]]
+        this.cropping = cropping
+      } else {
+        // [int, int]
+        this.cropping = [[cropping[0], cropping[0]], [cropping[1], cropping[1]]]
+      }
+    } else {
+      // int
+      this.cropping = [[cropping, cropping], [cropping, cropping]]
+    }
+
+    this.dataFormat = data_format
   }
 
   /**
@@ -26,8 +39,8 @@ export default class Cropping2D extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    // convert to tf ordering
-    if (this.dimOrdering === 'th') {
+    // convert to channels_last ordering
+    if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
 
@@ -46,8 +59,8 @@ export default class Cropping2D extends Layer {
     )
     x.tensor = y.tensor
 
-    // convert back to th ordering if necessary
-    if (this.dimOrdering === 'th') {
+    // convert back to channels_first ordering if necessary
+    if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(2, 0, 1)
     }
 

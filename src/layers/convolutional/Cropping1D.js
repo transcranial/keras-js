@@ -7,17 +7,20 @@ import ops from 'ndarray-ops'
  */
 export default class Cropping1D extends Layer {
   /**
-   * Creates a Cropping1D activation layer
-   * @param {cropping} attrs.cropping - tuple of of int (length 2)
+   * Creates a Cropping1D layer
+   * @param {Number|Array<Number>} attrs.cropping - int or tuple of int (length 2)
    */
   constructor(attrs = {}) {
     super(attrs)
     this.layerClass = 'Cropping1D'
 
-    const { cropping = [0, 0], dimOrdering = 'tf' } = attrs
+    const { cropping = [0, 0] } = attrs
 
-    this.cropping = cropping
-    this.dimOrdering = dimOrdering
+    if (Array.isArray(cropping)) {
+      this.cropping = cropping
+    } else {
+      this.cropping = [cropping, cropping]
+    }
   }
 
   /**

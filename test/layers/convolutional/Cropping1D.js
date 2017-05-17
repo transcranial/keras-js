@@ -43,4 +43,21 @@ describe('convolutional layer: Cropping1D', function() {
     assert.deepEqual(t.tensor.shape, shapeExpected)
     assert.isTrue(approxEquals(t.tensor, dataExpected))
   })
+
+  it(`[convolutional.Cropping1D.2] cropping 2 on 6x4 input`, function() {
+    const key = `convolutional.Cropping1D.2`
+    console.log(`\n%c[${key}] cropping 2 on 6x4 input`, styles.h3)
+    let testLayer = new layers.Cropping1D({ cropping: 2 })
+    let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+    console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+    const startTime = performance.now()
+    t = testLayer.call(t)
+    const endTime = performance.now()
+    console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+    logTime(startTime, endTime)
+    const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
+    const shapeExpected = TEST_DATA[key].expected.shape
+    assert.deepEqual(t.tensor.shape, shapeExpected)
+    assert.isTrue(approxEquals(t.tensor, dataExpected))
+  })
 })
