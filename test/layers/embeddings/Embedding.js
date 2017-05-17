@@ -7,9 +7,9 @@ describe('embeddings layer: Embedding', function() {
   const layers = KerasJS.layers
 
   const testParams = [
-    { inputShape: [7], attrs: { inputDim: 5, outputDim: 3, inputLength: 7, maskZero: false, dropout: 0 } },
-    { inputShape: [10], attrs: { inputDim: 20, outputDim: 5, inputLength: 10, maskZero: true, dropout: 0 } },
-    { inputShape: [5], attrs: { inputDim: 33, outputDim: 2, inputLength: 5, maskZero: false, dropout: 0.5 } }
+    { attrs: { input_dim: 5, output_dim: 3, input_length: 7, mask_zero: false } },
+    { attrs: { input_dim: 20, output_dim: 5, input_length: 10, mask_zero: true } },
+    { attrs: { input_dim: 33, output_dim: 2, input_length: 5, mask_zero: false } }
   ]
 
   before(function() {
@@ -18,7 +18,7 @@ describe('embeddings layer: Embedding', function() {
 
   testParams.forEach(({ attrs }, i) => {
     const key = `embeddings.Embedding.${i}`
-    const title = `[${key}] test: inputDim='${attrs.inputDim}', outputDim=${attrs.outputDim}, inputLength=${attrs.inputLength}, maskZero=${attrs.maskZero}, dropout=${attrs.dropout}`
+    const title = `[${key}] test: input_dim='${attrs.input_dim}', output_dim=${attrs.output_dim}, input_length=${attrs.input_length}, mask_zero=${attrs.mask_zero}`
 
     it(title, function() {
       console.log(`\n%c${title}`, styles.h3)

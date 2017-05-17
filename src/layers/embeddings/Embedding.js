@@ -13,17 +13,14 @@ export default class Embedding extends Layer {
     super(attrs)
     this.layerClass = 'Embedding'
 
-    const { inputDim = 1, outputDim = 1, inputLength = 0, maskZero = false, dropout = 0 } = attrs
+    const { input_dim = 1, output_dim = 1, input_length = 0, mask_zero = false } = attrs
 
-    this.inputDim = inputDim
-    this.outputDim = outputDim
-    this.inputLength = inputLength
+    this.inputDim = input_dim
+    this.outputDim = output_dim
+    this.inputLength = input_length
 
-    // maskZero will be important for subsequence layers
-    this.maskZero = maskZero
-
-    // relevant only during training phase
-    this.dropout = dropout
+    // mask_zero will be important for subsequent layers
+    this.maskZero = mask_zero
 
     // Layer weights specification
     this.params = ['W']
