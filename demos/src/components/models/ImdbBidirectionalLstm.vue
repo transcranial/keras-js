@@ -300,9 +300,9 @@ export default {
       position: relative;
 
       & .input-label {
-        font-family: var(--font-3);
+        font-family: var(--font-cursive);
         font-size: 18px;
-        color: var(--color-2);
+        color: var(--color-lightgray);
         text-align: left;
       }
 
@@ -319,7 +319,7 @@ export default {
         & .input-clear-button {
           display: flex;
           align-items: center;
-          color: var(--color-2);
+          color: var(--color-lightgray);
           transition: color 0.2s ease-in;
 
           & .material-icons {
@@ -327,13 +327,13 @@ export default {
           }
 
           &:hover {
-            color: var(--color-1-lighter);
+            color: var(--color-green-lighter);
             cursor: pointer;
           }
         }
 
         & .input-load-button {
-          &:hover { color: var(--color-1); }
+          &:hover { color: var(--color-green); }
         }
       }
     }
@@ -352,22 +352,22 @@ export default {
 
       & .output-heading {
         max-width: 200px;
-        color: var(--color-2);
-        font-family: var(--font-2);
+        color: var(--color-lightgray);
+        font-family: var(--font-monospace);
         font-size: 16px;
         margin: 10px;
 
         & span.output-label.positive {
-          color: var(--color-1);
+          color: var(--color-green);
         }
         & span.output-label.negative {
-          color: var(--color-4);
+          color: var(--color-red);
         }
       }
 
       & .output-value {
         transition: color 0.4s ease-in-out;
-        font-family: var(--font-2);
+        font-family: var(--font-monospace);
         font-size: 42px;
         margin: 10px;
       }
@@ -401,7 +401,7 @@ export default {
       z-index: 1;
 
       & .layer-class-name {
-        color: var(--color-1);
+        color: var(--color-green);
         font-size: 14px;
         font-weight: bold;
       }
@@ -426,14 +426,14 @@ export default {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    border: 1px solid var(--color-2);
+    border: 1px solid var(--color-lightgray);
     border-radius: 5px;
     padding: 10px;
 
     & .lstm-visualization-word {
-      font-family: var(--font-2);
+      font-family: var(--font-monospace);
       font-size: 14px;
-      color: var(--color-3);
+      color: var(--color-darkgray);
       padding: 3px 6px;
     }
   }

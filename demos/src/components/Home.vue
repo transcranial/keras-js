@@ -76,11 +76,11 @@ export default {
   overflow: hidden;
 
   &:hover {
-    border-color: var(--color-1);
+    border-color: var(--color-green);
     cursor: pointer;
 
     & .demo-card-heading {
-      color: var(--color-1);
+      color: var(--color-green);
     }
   }
 }
@@ -89,8 +89,8 @@ export default {
   flex: 1;
   padding: 20px;
   text-align: center;
-  color: var(--color-2);
-  font-family: var(--font-1);
+  color: var(--color-lightgray);
+  font-family: var(--font-sans-serif);
   font-size: 20px;
   transition: color 0.2s ease-in;
 }

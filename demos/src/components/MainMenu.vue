@@ -79,7 +79,7 @@ export default {
 
   & h1 {
     color: #CCCCCC;
-    font-family: var(--font-1);
+    font-family: var(--font-sans-serif);
     font-size: 1.5rem;
     user-select: none;
     cursor: default;
@@ -93,13 +93,13 @@ export default {
 
 .menu-list {
   & li {
-    color: var(--color-2);
+    color: var(--color-lightgray);
     border-left: 2px solid white;
     margin-bottom: 5px;
   }
 
   & li.active {
-    border-left: 2px solid var(--color-1);
+    border-left: 2px solid var(--color-green);
   }
 
   & a {
@@ -109,11 +109,11 @@ export default {
     justify-content: space-between;
 
     &:hover {
-      color: var(--color-1);
+      color: var(--color-green);
       background-color: whitesmoke;
 
       & .github-logo {
-        fill: var(--color-1);
+        fill: var(--color-green);
       }
     }
 
@@ -134,23 +134,23 @@ export default {
   }
 
   & a {
-    color: var(--color-1);
+    color: var(--color-green);
     padding: 0;
     display: inline-flex;
     background-color: none;
     transition: color 0.2s ease-in;
 
     & .github-logo {
-      fill: var(--color-1);
+      fill: var(--color-green);
       transition: fill 0.2s ease-in;
     }
 
     &:hover {
-      color: var(--color-1-light);
+      color: var(--color-green-light);
       background: none;
 
       & .github-logo {
-        fill: var(--color-1-light);
+        fill: var(--color-green-light);
       }
     }
   }

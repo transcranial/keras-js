@@ -302,9 +302,9 @@ export default {
 
     & .input-container {
       & .input-label {
-        font-family: var(--font-3);
+        font-family: var(--font-cursive);
         font-size: 16px;
-        color: var(--color-2);
+        color: var(--color-lightgray);
         text-align: left;
         user-select: none;
         cursor: default;
@@ -319,9 +319,9 @@ export default {
 
         & span {
           margin: 0 10px;
-          font-family: var(--font-3);
+          font-family: var(--font-cursive);
           font-size: 16px;
-          color: var(--color-2);
+          color: var(--color-lightgray);
         }
       }
     }
@@ -367,9 +367,9 @@ export default {
         }
 
         & .error {
-          color: var(--color-err);
+          color: var(--color-error);
           font-size: 14px;
-          font-family: var(--font-1);
+          font-family: var(--font-sans-serif);
           margin: 20px;
         }
       }
@@ -406,11 +406,11 @@ export default {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-family: var(--font-2);
+            font-family: var(--font-monospace);
             font-size: 18px;
-            color: var(--color-2);
+            color: var(--color-lightgray);
             padding: 0 6px;
-            border-right: 2px solid var(--color-1-lighter);
+            border-right: 2px solid var(--color-green-lighter);
           }
 
           & .output-bar {
@@ -421,20 +421,20 @@ export default {
           & .output-value {
             text-align: left;
             margin-left: 5px;
-            font-family: var(--font-2);
+            font-family: var(--font-monospace);
             font-size: 14px;
-            color: var(--color-2);
+            color: var(--color-lightgray);
           }
         }
 
         & .output-class.predicted {
           & .output-label {
-            color: var(--color-1);
-            border-left-color: var(--color-1);
+            color: var(--color-green);
+            border-left-color: var(--color-green);
           }
 
           & .output-value {
-            color: var(--color-1);
+            color: var(--color-green);
           }
         }
       }
@@ -471,7 +471,7 @@ export default {
           padding: 2px 10px 0px;
 
           & .layer-class-name {
-            color: var(--color-1);
+            color: var(--color-green);
             font-size: 14px;
             font-weight: bold;
           }
@@ -484,7 +484,7 @@ export default {
         }
 
         & .layer.has-result {
-          border-color: var(--color-1);
+          border-color: var(--color-green);
         }
       }
     }

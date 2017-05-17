@@ -41,9 +41,9 @@ export default {
 
 body {
   background: linear-gradient(0deg, #CCCCCC, #F0F0F0);
-  color: var(--color-3);
+  color: var(--color-darkgray);
   min-height: 100vh;
-  font-family: var(--font-1);
+  font-family: var(--font-sans-serif);
 }
 
 .title {
@@ -53,13 +53,13 @@ body {
   align-items: center;
 
   & span {
-    color: var(--color-1);
+    color: var(--color-green);
     margin-right: 20px;
   }
 }
 
 .subtitle {
-  color: var(--color-3);
+  color: var(--color-darkgray);
 }
 
 .demo {
@@ -70,9 +70,9 @@ body {
     top: 0;
     right: 0;
     padding: 30px;
-    color: var(--color-1);
+    color: var(--color-green);
     font-size: 18px;
-    font-family: var(--font-2);
+    font-family: var(--font-monospace);
     padding: 20px 50px;
     margin: 30px;
     background: rgba(255, 255, 255, 0.5);
@@ -84,7 +84,7 @@ body {
     max-width: 1200px;
     border-radius: 5px;
     background: white;
-    color: var(--color-3);
+    color: var(--color-darkgray);
     padding: 20px 20px 5px 20px;
     margin: 20px auto;
     box-shadow: 5px 5px #CCCCCC;
@@ -95,11 +95,11 @@ body {
       font-size: 12px;
 
       & a {
-        color: var(--color-1);
+        color: var(--color-green);
         transition: color 0.2s ease-in;
 
         &:hover {
-          color: var(--color-1-light);
+          color: var(--color-green-light);
         }
       }
     }
@@ -112,11 +112,11 @@ body {
       & .info-panel-close-btn {
         display: flex;
         align-items: center;
-        color: var(--color-2);
+        color: var(--color-lightgray);
         transition: color 0.2s ease-in;
 
         &:hover {
-          color: var(--color-1-lighter);
+          color: var(--color-green-lighter);
           cursor: pointer;
         }
       }
@@ -134,58 +134,58 @@ body {
 
 .mdl-switch.is-checked {
   & .mdl-switch__thumb {
-    background: var(--color-1-light);
+    background: var(--color-green-light);
   }
 
   & .mdl-switch__track {
-    background: var(--color-1-lighter);
+    background: var(--color-green-lighter);
   }
 }
 
 .mdl-textfield {
   & .mdl-textfield__input {
-    color: var(--color-3);
-    border-bottom-color: var(--color-1-light);
-    font-family: var(--font-1);
+    color: var(--color-darkgray);
+    border-bottom-color: var(--color-green-light);
+    font-family: var(--font-sans-serif);
     font-size: 14px;
   }
 
   & .mdl-textfield__label {
-    font-family: var(--font-2);
-    color: var(--color-1-light);
+    font-family: var(--font-monospace);
+    color: var(--color-green-light);
   }
 
   & .mdl-icon-toggle__label {
-    color: var(--color-1-light);
+    color: var(--color-green-light);
   }
 }
 
 .mdl-textfield.is-focused {
   & .mdl-textfield__input {
-    border-color: var(--color-1);
+    border-color: var(--color-green);
   }
 
   & .mdl-textfield__label {
-    color: var(--color-1);
+    color: var(--color-green);
 
     &::after {
-      background-color: var(--color-1);
+      background-color: var(--color-green);
     }
   }
 
   & .mdl-icon-toggle__label {
-    color: var(--color-1);
+    color: var(--color-green);
   }
 }
 
 .mdl-menu {
   & .mdl-menu__item {
-    font-family: var(--font-2);
+    font-family: var(--font-monospace);
     font-size: 14px;
-    color: var(--color-2);
+    color: var(--color-lightgray);
 
     &:hover {
-      background-color: var(--color-1-light);
+      background-color: var(--color-green-light);
       color: white;
     }
   }

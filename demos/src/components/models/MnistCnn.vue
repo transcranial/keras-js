@@ -336,9 +336,9 @@ export default {
       user-select: none;
 
       & .input-label {
-        font-family: var(--font-3);
+        font-family: var(--font-cursive);
         font-size: 18px;
-        color: var(--color-2);
+        color: var(--color-lightgray);
         text-align: right;
 
         & span.arrow {
@@ -354,11 +354,11 @@ export default {
         display: inline-flex;
         justify-content: flex-end;
         margin: 10px 0;
-        border: 15px solid var(--color-1-lighter);
+        border: 15px solid var(--color-green-lighter);
         transition: border-color 0.2s ease-in;
 
         &:hover {
-          border-color: var(--color-1-light);
+          border-color: var(--color-green-light);
         }
 
         & canvas {
@@ -378,7 +378,7 @@ export default {
         & .input-clear-button {
           display: flex;
           align-items: center;
-          color: var(--color-2);
+          color: var(--color-lightgray);
           transition: color 0.2s ease-in;
 
           & .material-icons {
@@ -386,7 +386,7 @@ export default {
           }
 
           &:hover {
-            color: var(--color-1-lighter);
+            color: var(--color-green-lighter);
             cursor: pointer;
           }
         }
@@ -418,12 +418,12 @@ export default {
         align-items: center;
         justify-content: center;
         padding: 0 6px;
-        border-bottom: 2px solid var(--color-1-lighter);
+        border-bottom: 2px solid var(--color-green-lighter);
 
         & .output-label {
-          font-family: var(--font-2);
+          font-family: var(--font-monospace);
           font-size: 1.5rem;
-          color: var(--color-2);
+          color: var(--color-lightgray);
         }
 
         & .output-bar {
@@ -434,10 +434,10 @@ export default {
       }
 
       & .output-class.predicted {
-        border-bottom-color: var(--color-1);
+        border-bottom-color: var(--color-green);
 
         & .output-label {
-          color: var(--color-1);
+          color: var(--color-green);
         }
       }
     }
@@ -474,7 +474,7 @@ export default {
         font-size: 12px;
 
         & span.layer-class {
-          color: var(--color-1);
+          color: var(--color-green);
           font-size: 14px;
           font-weight: bold;
         }

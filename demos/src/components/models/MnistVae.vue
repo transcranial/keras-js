@@ -310,9 +310,9 @@ export default {
       user-select: none;
 
       & .input-label {
-        font-family: var(--font-3);
+        font-family: var(--font-cursive);
         font-size: 18px;
-        color: var(--color-2);
+        color: var(--color-lightgray);
         text-align: right;
 
         & span.arrow {
@@ -329,11 +329,11 @@ export default {
         display: inline-flex;
         justify-content: flex-end;
         margin: 10px 0;
-        border: 15px solid var(--color-1-lighter);
+        border: 15px solid var(--color-green-lighter);
         transition: border-color 0.2s ease-in;
 
         &:hover {
-          border-color: var(--color-1-light);
+          border-color: var(--color-green-light);
         }
 
         & canvas {
@@ -351,9 +351,9 @@ export default {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-family: var(--font-2);
+          font-family: var(--font-monospace);
           font-size: 14px;
-          color: var(--color-1);
+          color: var(--color-green);
         }
 
         & .axis.x-axis {
@@ -382,9 +382,9 @@ export default {
     & .coordinates {
       margin-left: 5px;
       margin-top: 45px;
-      font-family: var(--font-2);
+      font-family: var(--font-monospace);
       font-size: 20px;
-      color: var(--color-2);
+      color: var(--color-lightgray);
     }
   }
 
@@ -432,7 +432,7 @@ export default {
         font-size: 12px;
 
         & span.layer-class {
-          color: var(--color-1);
+          color: var(--color-green);
           font-size: 14px;
           font-weight: bold;
         }
