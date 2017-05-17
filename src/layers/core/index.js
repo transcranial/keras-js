@@ -7,17 +7,5 @@ import Flatten from './Flatten'
 import Reshape from './Reshape'
 import Permute from './Permute'
 import RepeatVector from './RepeatVector'
-import Merge from './Merge'
 
-export {
-  Dense,
-  Activation,
-  Dropout,
-  SpatialDropout2D,
-  SpatialDropout3D,
-  Flatten,
-  Reshape,
-  Permute,
-  RepeatVector,
-  Merge
-}
+export { Dense, Activation, Dropout, SpatialDropout2D, SpatialDropout3D, Flatten, Reshape, Permute, RepeatVector }
