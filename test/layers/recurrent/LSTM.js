@@ -12,7 +12,7 @@ describe('recurrent layer: LSTM', function() {
       attrs: {
         outputDim: 4,
         activation: 'tanh',
-        innerActivation: 'hardSigmoid',
+        innerActivation: 'hard_sigmoid',
         returnSequences: false,
         goBackwards: false,
         stateful: false
@@ -34,7 +34,7 @@ describe('recurrent layer: LSTM', function() {
       attrs: {
         outputDim: 4,
         activation: 'tanh',
-        innerActivation: 'hardSigmoid',
+        innerActivation: 'hard_sigmoid',
         returnSequences: true,
         goBackwards: false,
         stateful: false
@@ -45,7 +45,7 @@ describe('recurrent layer: LSTM', function() {
       attrs: {
         outputDim: 4,
         activation: 'tanh',
-        innerActivation: 'hardSigmoid',
+        innerActivation: 'hard_sigmoid',
         returnSequences: false,
         goBackwards: true,
         stateful: false
@@ -56,7 +56,7 @@ describe('recurrent layer: LSTM', function() {
       attrs: {
         outputDim: 4,
         activation: 'tanh',
-        innerActivation: 'hardSigmoid',
+        innerActivation: 'hard_sigmoid',
         returnSequences: true,
         goBackwards: true,
         stateful: false
@@ -67,7 +67,7 @@ describe('recurrent layer: LSTM', function() {
       attrs: {
         outputDim: 4,
         activation: 'tanh',
-        innerActivation: 'hardSigmoid',
+        innerActivation: 'hard_sigmoid',
         returnSequences: false,
         goBackwards: false,
         stateful: true
@@ -78,7 +78,7 @@ describe('recurrent layer: LSTM', function() {
       attrs: {
         outputDim: 4,
         activation: 'tanh',
-        innerActivation: 'hardSigmoid',
+        innerActivation: 'hard_sigmoid',
         returnSequences: true,
         goBackwards: false,
         stateful: true
@@ -89,7 +89,7 @@ describe('recurrent layer: LSTM', function() {
       attrs: {
         outputDim: 4,
         activation: 'tanh',
-        innerActivation: 'hardSigmoid',
+        innerActivation: 'hard_sigmoid',
         returnSequences: false,
         goBackwards: true,
         stateful: true
@@ -100,7 +100,7 @@ describe('recurrent layer: LSTM', function() {
       attrs: {
         outputDim: 4,
         activation: 'tanh',
-        innerActivation: 'hardSigmoid',
+        innerActivation: 'hard_sigmoid',
         returnSequences: true,
         goBackwards: true,
         stateful: true

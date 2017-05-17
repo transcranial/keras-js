@@ -26,7 +26,7 @@ export default class LSTM extends Layer {
     const {
       outputDim = 1,
       activation = 'tanh',
-      innerActivation = 'hardSigmoid',
+      innerActivation = 'hard_sigmoid',
       returnSequences = false,
       goBackwards = false,
       stateful = false

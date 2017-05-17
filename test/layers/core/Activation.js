@@ -30,15 +30,15 @@ describe('core layer: Activation', function() {
     assert.isTrue(approxEquals(t.tensor, dataExpected))
   })
 
-  it('[core.Activation.1] should produce expected values for hardSigmoid activation following Dense layer', function() {
+  it('[core.Activation.1] should produce expected values for hard_sigmoid activation following Dense layer', function() {
     const key = 'core.Activation.1'
-    console.log(`\n%c[${key}] test 2 (hardSigmoid)`, styles.h3)
+    console.log(`\n%c[${key}] test 2 (hard_sigmoid)`, styles.h3)
     let testLayer1 = new layers.Dense({ outputDim: 2 })
     testLayer1.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     t = testLayer1.call(t)
     console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-    let testLayer2 = new layers.Activation({ activation: 'hardSigmoid' })
+    let testLayer2 = new layers.Activation({ activation: 'hard_sigmoid' })
     const startTime = performance.now()
     t = testLayer2.call(t)
     const endTime = performance.now()

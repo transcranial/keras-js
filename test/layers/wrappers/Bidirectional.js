@@ -41,13 +41,13 @@ describe('wrappers layer: Bidirectional', function() {
       wrappedLayer: 'GRU',
       inputShape: [3, 6],
       attrs: { mergeMode: 'concat' },
-      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', innerActivation: 'hardSigmoid', returnSequences: true }
+      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', innerActivation: 'hard_sigmoid', returnSequences: true }
     },
     {
       wrappedLayer: 'LSTM',
       inputShape: [3, 6],
       attrs: { mergeMode: 'concat' },
-      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', innerActivation: 'hardSigmoid', returnSequences: true }
+      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', innerActivation: 'hard_sigmoid', returnSequences: true }
     }
   ]
 

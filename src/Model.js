@@ -268,10 +268,10 @@ export default class Model {
         const wrappedLayerClass = layerConfig.layer.class_name
         let wrappedLayerAttrs = mapKeys(wrappedLayerConfig, (v, k) => camelCase(k))
         if ('activation' in wrappedLayerAttrs) {
-          wrappedLayerAttrs.activation = camelCase(wrappedLayerAttrs.activation)
+          wrappedLayerAttrs.activation = wrappedLayerAttrs.activation
         }
         if ('innerActivation' in wrappedLayerAttrs) {
-          wrappedLayerAttrs.innerActivation = camelCase(wrappedLayerAttrs.innerActivation)
+          wrappedLayerAttrs.innerActivation = wrappedLayerAttrs.innerActivation
         }
         wrappedLayerAttrs.gpu = this.gpu
 
@@ -282,10 +282,10 @@ export default class Model {
         // create regular layers
         let attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
         if ('activation' in attrs) {
-          attrs.activation = camelCase(attrs.activation)
+          attrs.activation = attrs.activation
         }
         if ('innerActivation' in attrs) {
-          attrs.innerActivation = camelCase(attrs.innerActivation)
+          attrs.innerActivation = attrs.innerActivation
         }
         attrs.gpu = this.gpu
         attrs.pipeline = this.pipeline

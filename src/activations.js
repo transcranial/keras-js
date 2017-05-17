@@ -123,7 +123,7 @@ export function sigmoid(x) {
 
 // Reference hard sigmoid with slope and shift values from theano, see
 // https://github.com/Theano/Theano/blob/master/theano/tensor/nnet/sigm.py
-const _hardSigmoid = cwise({
+const _hard_sigmoid = cwise({
   args: ['array'],
   body: function(_x) {
     _x = _x * 0.2 + 0.5
@@ -140,8 +140,8 @@ const _hardSigmoid = cwise({
  * @param {Tensor} x
  * @returns {Tensor} `this`
  */
-export function hardSigmoid(x) {
-  _hardSigmoid(x.tensor)
+export function hard_sigmoid(x) {
+  _hard_sigmoid(x.tensor)
   return this
 }
 

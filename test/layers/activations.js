@@ -385,20 +385,20 @@ describe('activations', function() {
   })
 
   /*********************************************************
-   * hardSigmoid
+   * hard_sigmoid
    *********************************************************/
-  describe('hardSigmoid', function() {
+  describe('hard_sigmoid', function() {
     before(function() {
-      console.log('\n%chardSigmoid', styles.h2)
+      console.log('\n%chard_sigmoid', styles.h2)
     })
 
-    it('[activations.hardSigmoid.0] should work for 1D tensor', function() {
-      const key = 'activations.hardSigmoid.0'
+    it('[activations.hard_sigmoid.0] should work for 1D tensor', function() {
+      const key = 'activations.hard_sigmoid.0'
       console.log(`\n%c[${key}] 1D`, styles.h3)
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
       const startTime = performance.now()
-      activations.hardSigmoid(t)
+      activations.hard_sigmoid(t)
       const endTime = performance.now()
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
       logTime(startTime, endTime)
@@ -408,13 +408,13 @@ describe('activations', function() {
       assert.isTrue(approxEquals(t.tensor, dataExpected))
     })
 
-    it('[activations.hardSigmoid.1] should work for 2D tensor', function() {
-      const key = 'activations.hardSigmoid.1'
+    it('[activations.hard_sigmoid.1] should work for 2D tensor', function() {
+      const key = 'activations.hard_sigmoid.1'
       console.log(`\n%c[${key}] 2D`, styles.h3)
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
       const startTime = performance.now()
-      activations.hardSigmoid(t)
+      activations.hard_sigmoid(t)
       const endTime = performance.now()
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
       logTime(startTime, endTime)
@@ -424,13 +424,13 @@ describe('activations', function() {
       assert.isTrue(approxEquals(t.tensor, dataExpected))
     })
 
-    it('[activations.hardSigmoid.2] should work for 3D tensor', function() {
-      const key = 'activations.hardSigmoid.2'
+    it('[activations.hard_sigmoid.2] should work for 3D tensor', function() {
+      const key = 'activations.hard_sigmoid.2'
       console.log(`\n%c[${key}] 3D`, styles.h3)
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
       const startTime = performance.now()
-      activations.hardSigmoid(t)
+      activations.hard_sigmoid(t)
       const endTime = performance.now()
       console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
       logTime(startTime, endTime)
