@@ -12,8 +12,8 @@ import WebGLConv2D from '../../ext/convolutional/WebGLConv2D'
 export default class Conv2D extends Layer {
   /**
    * Creates a Conv2D layer
-   * @param {number} attrs.filters - Number of convolution filters to use.
-   * @param {number} attrs.kernel_size - Number of [rows, cols] in the convolution kernel.
+   * @param {Number} attrs.filters - Number of convolution filters to use.
+   * @param {Array<Number>|Number} attrs.kernel_size - Size of the convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {

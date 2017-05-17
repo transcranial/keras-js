@@ -9,8 +9,8 @@ import unsqueeze from 'ndarray-unsqueeze'
 export default class Conv1D extends Layer {
   /**
    * Creates a Conv1D layer
-   * @param {number} attrs.filters - Number of convolution filters to use.
-   * @param {number} attrs.kernel_size - Length of 1D convolution kernel.
+   * @param {Number} attrs.filters - Number of convolution filters to use.
+   * @param {Number} attrs.kernel_size - Length of 1D convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {

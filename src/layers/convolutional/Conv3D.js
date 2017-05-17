@@ -10,10 +10,8 @@ import gemm from 'ndarray-gemm'
 export default class Conv3D extends Layer {
   /**
    * Creates a Conv3D layer
-   * @param {number} attrs.nbFilter - Number of convolution filters to use.
-   * @param {number} attrs.kernelDim1 - Length of the first dimension in the convolution kernel.
-   * @param {number} attrs.kernelDim2 - Length of the second dimension in the convolution kernel.
-   * @param {number} attrs.kernelDim3 - Length of the third dimension in the convolution kernel.
+   * @param {Number} attrs.filters - Number of convolution filters to use.
+   * @param {Array<Number>|Number} attrs.kernel_size - Size of the convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
@@ -21,40 +19,61 @@ export default class Conv3D extends Layer {
     this.layerClass = 'Conv3D'
 
     const {
-      nbFilter = 1,
-      kernelDim1 = 1,
-      kernelDim2 = 1,
-      kernelDim3 = 1,
+      filters = 1,
+      kernel_size = [1, 1, 1],
+      strides = [1, 1, 1],
+      padding = 'valid',
+      data_format = 'channels_last',
+      dilation_rate = [1, 1, 1],
       activation = 'linear',
-      borderMode = 'valid',
-      subsample = [1, 1, 1],
-      dimOrdering = 'tf',
-      bias = true
+      use_bias = true
     } = attrs
 
-    this.kernelShape = [nbFilter, kernelDim1, kernelDim2, kernelDim3]
+    if (Array.isArray(kernel_size)) {
+      this.kernelShape = [filters, ...kernel_size]
+    } else {
+      this.kernelShape = [filters, kernel_size, kernel_size, kernel_size]
+    }
+
+    if (Array.isArray(strides)) {
+      this.strides = strides
+    } else {
+      this.strides = [strides, strides, strides]
+    }
+
+    if (padding === 'valid' || padding === 'same') {
+      this.padding = padding
+    } else {
+      throw new Error(`${this.name} [Conv3D layer] Invalid padding.`)
+    }
+
+    if (data_format === 'channels_last' || data_format === 'channels_first') {
+      this.dataFormat = data_format
+    } else {
+      throw new Error(`${this.name} [Conv3D layer] Only channels_last and channels_first data formats are allowed.`)
+    }
+
+    if (Array.isArray(dilation_rate)) {
+      this.dilationRate = dilation_rate
+    } else {
+      this.dilationRate = [dilation_rate, dilation_rate, dilation_rate]
+    }
+    if (
+      (this.dilationRate[0] !== 1 || this.dilationRate[1] !== 1 || this.dilationRate[2] !== 1) &&
+      (this.strides[0] !== 1 || this.strides[1] !== 1 || this.strides[2] !== 1)
+    ) {
+      // Currently, specifying any dilation_rate value != 1 is incompatible with specifying any stride value != 1
+      // https://keras.io/layers/convolutional/#conv3d
+      throw new Error(`${this.name} [Conv3D layer] Incompatible combination of dilation_rate with strides.`)
+    }
 
     this.activation = activation
     this.activationFunc = activations[activation]
 
-    if (borderMode === 'valid' || borderMode === 'same') {
-      this.borderMode = borderMode
-    } else {
-      throw new Error(`${this.name} [Conv3D layer] Invalid borderMode.`)
-    }
-
-    this.subsample = subsample
-
-    if (dimOrdering === 'tf' || dimOrdering === 'th') {
-      this.dimOrdering = dimOrdering
-    } else {
-      throw new Error(`${this.name} [Conv3D layer] Only tf and th dim ordering are allowed.`)
-    }
-
-    this.bias = bias
+    this.use_bias = use_bias
 
     // Layer weights specification
-    this.params = this.bias ? ['W', 'b'] : ['W']
+    this.params = this.use_bias ? ['W', 'b'] : ['W']
 
     // Enable layer gpu +/- pipeline mode if supported
     if (this.gpu && weblas) {
@@ -65,13 +84,13 @@ export default class Conv3D extends Layer {
 
   /**
    * Method for setting layer weights. Extends `super` method.
-   * W weight tensor is converted to `tf` mode if in `th` mode.
-   * In `tf` mode, W weight tensor has shape [kernelDim1, kernelDim2, kernelDim3, inputChannels, nbFilter]
-   * In `th` mode, W weight tensor has shape [nbFilter, inputChannels, kernelDim1, kernelDim2, kernelDim3]
+   * W weight tensor is converted to `channels_last` mode if in `channels_first` mode.
+   * In `channels_last` mode, W weight tensor has shape [kernelDim1, kernelDim2, kernelDim3, inputChannels, nbFilter]
+   * In `channels_first` mode, W weight tensor has shape [nbFilter, inputChannels, kernelDim1, kernelDim2, kernelDim3]
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights(weightsArr) {
-    if (this.dimOrdering === 'th') {
+    if (this.dataFormat === 'channels_first') {
       // W
       weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 4, 1, 0)
     }
@@ -83,7 +102,7 @@ export default class Conv3D extends Layer {
       if (!this._wRowsMat._gpuMaxSizeExceeded) {
         this._wRowsMat.weblasTensor = this._wRowsMat.weblasTensor.transpose()
       }
-      if (this.bias) {
+      if (this.use_bias) {
         this.weights.b.createWeblasTensor()
       } else {
         this._zerosVec = new Tensor([], [this.weights.W.tensor.shape[4]])
@@ -105,25 +124,30 @@ export default class Conv3D extends Layer {
     const inputDim3 = x.tensor.shape[2]
     const [nbFilter, kernelDim1, kernelDim2, kernelDim3] = this.kernelShape
 
-    const outputDim1 = this.borderMode === 'same'
-      ? Math.floor((inputDim1 + this.subsample[0] - 1) / this.subsample[0])
-      : Math.floor((inputDim1 - kernelDim1 + this.subsample[0]) / this.subsample[0])
-    const outputDim2 = this.borderMode === 'same'
-      ? Math.floor((inputDim2 + this.subsample[1] - 1) / this.subsample[1])
-      : Math.floor((inputDim2 - kernelDim2 + this.subsample[1]) / this.subsample[1])
-    const outputDim3 = this.borderMode === 'same'
-      ? Math.floor((inputDim3 + this.subsample[2] - 1) / this.subsample[2])
-      : Math.floor((inputDim3 - kernelDim3 + this.subsample[2]) / this.subsample[2])
+    // effective shape after filter dilation
+    const kernelDim1Dilated = kernelDim1 + (kernelDim1 - 1) * (this.dilationRate[0] - 1)
+    const kernelDim2Dilated = kernelDim2 + (kernelDim2 - 1) * (this.dilationRate[1] - 1)
+    const kernelDim3Dilated = kernelDim3 + (kernelDim3 - 1) * (this.dilationRate[2] - 1)
+
+    const outputDim1 = this.padding === 'same'
+      ? Math.floor((inputDim1 + this.strides[0] - 1) / this.strides[0])
+      : Math.floor((inputDim1 - kernelDim1Dilated + this.strides[0]) / this.strides[0])
+    const outputDim2 = this.padding === 'same'
+      ? Math.floor((inputDim2 + this.strides[1] - 1) / this.strides[1])
+      : Math.floor((inputDim2 - kernelDim2Dilated + this.strides[1]) / this.strides[1])
+    const outputDim3 = this.padding === 'same'
+      ? Math.floor((inputDim3 + this.strides[2] - 1) / this.strides[2])
+      : Math.floor((inputDim3 - kernelDim3Dilated + this.strides[2]) / this.strides[2])
     const outputChannels = nbFilter
 
-    const paddingDim1 = this.borderMode === 'same'
-      ? Math.max(0, Math.floor((outputDim1 - 1) * this.subsample[0] + kernelDim1 - inputDim1))
+    const paddingDim1 = this.padding === 'same'
+      ? Math.max(0, Math.floor((outputDim1 - 1) * this.strides[0] + kernelDim1Dilated - inputDim1))
       : 0
-    const paddingDim2 = this.borderMode === 'same'
-      ? Math.max(0, Math.floor((outputDim2 - 1) * this.subsample[1] + kernelDim2 - inputDim2))
+    const paddingDim2 = this.padding === 'same'
+      ? Math.max(0, Math.floor((outputDim2 - 1) * this.strides[1] + kernelDim2Dilated - inputDim2))
       : 0
-    const paddingDim3 = this.borderMode === 'same'
-      ? Math.max(0, Math.floor((outputDim3 - 1) * this.subsample[2] + kernelDim3 - inputDim3))
+    const paddingDim3 = this.padding === 'same'
+      ? Math.max(0, Math.floor((outputDim3 - 1) * this.strides[2] + kernelDim3Dilated - inputDim3))
       : 0
     const paddingDim1Before = Math.floor(paddingDim1 / 2)
     const paddingDim1After = paddingDim1 - paddingDim1Before
@@ -144,12 +168,12 @@ export default class Conv3D extends Layer {
   }
 
   /**
-   * Pad input tensor if necessary, for borderMode='same'
+   * Pad input tensor if necessary, for padding='same'
    * @param {Tensor} x
    * @returns {Tensor} x
    */
   _padInput(x) {
-    if (this.borderMode === 'same') {
+    if (this.padding === 'same') {
       const [inputDim1, inputDim2, inputDim3, inputChannels] = x.tensor.shape
       const [
         paddingDim1Before,
@@ -195,17 +219,22 @@ export default class Conv3D extends Layer {
     const nbPatches = outputDim1 * outputDim2 * outputDim3
     const patchLen = kernelDim1 * kernelDim2 * kernelDim3 * inputChannels
 
+    // effective shape after filter dilation
+    const kernelDim1Dilated = kernelDim1 + (kernelDim1 - 1) * (this.dilationRate[0] - 1)
+    const kernelDim2Dilated = kernelDim2 + (kernelDim2 - 1) * (this.dilationRate[1] - 1)
+    const kernelDim3Dilated = kernelDim3 + (kernelDim3 - 1) * (this.dilationRate[2] - 1)
+
     if (!this._volColsMat) {
       this._volColsMat = new Tensor([], [nbPatches, patchLen])
     }
 
     if (
-      kernelDim1 === 1 &&
-      kernelDim2 === 1 &&
-      kernelDim3 === 1 &&
-      this.subsample[0] === 1 &&
-      this.subsample[1] === 1 &&
-      this.subsample[2] === 1
+      kernelDim1Dilated === 1 &&
+      kernelDim2Dilated === 1 &&
+      kernelDim3Dilated === 1 &&
+      this.strides[0] === 1 &&
+      this.strides[1] === 1 &&
+      this.strides[2] === 1
     ) {
       this._volColsMat.replaceTensorData(x.tensor.data)
       if (this._useWeblas) {
@@ -216,12 +245,15 @@ export default class Conv3D extends Layer {
 
     let patch = new Tensor([], [kernelDim1, kernelDim2, kernelDim3, inputChannels])
     let offset = 0
-    for (let i = 0, limit = inputDim1 - kernelDim1; i <= limit; i += this.subsample[0]) {
-      for (let j = 0, limit = inputDim2 - kernelDim2; j <= limit; j += this.subsample[1]) {
-        for (let k = 0, limit = inputDim3 - kernelDim3; k <= limit; k += this.subsample[2]) {
+    for (let i = 0, limit = inputDim1 - kernelDim1Dilated; i <= limit; i += this.strides[0]) {
+      for (let j = 0, limit = inputDim2 - kernelDim2Dilated; j <= limit; j += this.strides[1]) {
+        for (let k = 0, limit = inputDim3 - kernelDim3Dilated; k <= limit; k += this.strides[2]) {
           ops.assign(
             patch.tensor,
-            x.tensor.hi(i + kernelDim1, j + kernelDim2, k + kernelDim3, inputChannels).lo(i, j, k, 0)
+            x.tensor
+              .hi(i + kernelDim1Dilated, j + kernelDim2Dilated, k + kernelDim3Dilated, inputChannels)
+              .lo(i, j, k, 0)
+              .step(this.dilationRate[0], this.dilationRate[1], this.dilationRate[2], 1)
           )
           this._volColsMat.tensor.data.set(patch.tensor.data, offset)
           offset += patchLen
@@ -262,8 +294,8 @@ export default class Conv3D extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    // convert to tf ordering
-    if (this.dimOrdering === 'th') {
+    // convert to channels_last ordering
+    if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(1, 2, 3, 0)
     }
 
@@ -280,12 +312,12 @@ export default class Conv3D extends Layer {
     const matMul = new Tensor([], [nbPatches, nbFilter])
 
     if (this._useWeblas && !(this._volColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
-      const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
+      const bias = this.use_bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
       matMul.tensor.data = weblas.pipeline
         .sgemm(1, this._volColsMat.weblasTensor, this._wRowsMat.weblasTensor, 1, bias)
         .transfer()
     } else {
-      if (this.bias) {
+      if (this.use_bias) {
         for (let n = 0; n < nbFilter; n++) {
           ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
         }
@@ -306,7 +338,7 @@ export default class Conv3D extends Layer {
     this.activationFunc(x)
 
     // convert back to th ordering if necessary
-    if (this.dimOrdering === 'th') {
+    if (this.dataFormat === 'th') {
       x.tensor = x.tensor.transpose(3, 0, 1, 2)
     }
 
