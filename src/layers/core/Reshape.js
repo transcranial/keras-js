@@ -8,14 +8,14 @@ import Layer from '../../Layer'
 export default class Reshape extends Layer {
   /**
    * Creates a Reshape layer
-   * @param {number[]} attrs.targetShape
+   * @param {number[]} attrs.target_shape
    */
   constructor(attrs = {}) {
     super(attrs)
     this.layerClass = 'Reshape'
 
-    const { targetShape = [] } = attrs
-    this.targetShape = targetShape
+    const { target_shape = [] } = attrs
+    this.targetShape = target_shape
   }
 
   /**

@@ -13,7 +13,7 @@ describe('core layer: Dropout', function() {
   it('[core.Dropout.0] should just pass through tensor during test time', function() {
     const key = 'core.Dropout.0'
     console.log(`\n%c[${key}] should pass through`, styles.h3)
-    let testLayer1 = new layers.Dense({ outputDim: 2 })
+    let testLayer1 = new layers.Dense({ output_dim: 2 })
     testLayer1.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     t = testLayer1.call(t)

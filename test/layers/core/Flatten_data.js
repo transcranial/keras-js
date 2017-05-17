@@ -5,16 +5,16 @@
 ;(function() {
   var DATA = {
     'core.Flatten.0': {
-      input: { data: [0, 0.2, 0.5, -0.1, 1, 2], shape: [6] },
-      expected: { data: [0, 0.2, 0.5, -0.1, 1, 2], shape: [6] }
+      expected: { shape: [6], data: [0, 0.2, 0.5, -0.1, 1, 2] },
+      input: { shape: [6], data: [0, 0.2, 0.5, -0.1, 1, 2] }
     },
     'core.Flatten.1': {
-      input: { data: [0, 0.2, 0.5, -0.1, 1, 2], shape: [3, 2] },
-      expected: { data: [0, 0.2, 0.5, -0.1, 1, 2], shape: [6] }
+      expected: { shape: [6], data: [0.0, 0.2, 0.5, -0.1, 1.0, 2.0] },
+      input: { shape: [3, 2], data: [0, 0.2, 0.5, -0.1, 1, 2] }
     },
     'core.Flatten.2': {
-      input: { data: [0, 0.2, 0.5, -0.1, 1, 2, 0, 0.2, 0.5, -0.1, 1, 2], shape: [3, 2, 2] },
-      expected: { data: [0, 0.2, 0.5, -0.1, 1, 2, 0, 0.2, 0.5, -0.1, 1, 2], shape: [12] }
+      expected: { shape: [12], data: [0.0, 0.2, 0.5, -0.1, 1.0, 2.0, 0.0, 0.2, 0.5, -0.1, 1.0, 2.0] },
+      input: { shape: [3, 2, 2], data: [0, 0.2, 0.5, -0.1, 1, 2, 0, 0.2, 0.5, -0.1, 1, 2] }
     }
   }
 

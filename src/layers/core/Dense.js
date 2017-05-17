@@ -17,16 +17,16 @@ export default class Dense extends Layer {
     super(attrs)
     this.layerClass = 'Dense'
 
-    const { outputDim = 1, activation = 'linear', inputDim = null, bias = true } = attrs
+    const { output_dim = 1, activation = 'linear', input_dim = null, use_bias = true } = attrs
 
     this.activation = activation
     this.activationFunc = activations[activation]
-    this.outputDim = outputDim
-    this.inputDim = inputDim
-    this.bias = bias
+    this.outputDim = output_dim
+    this.inputDim = input_dim
+    this.use_bias = use_bias
 
     // Layer weights specification
-    this.params = this.bias ? ['W', 'b'] : ['W']
+    this.params = this.use_bias ? ['W', 'b'] : ['W']
 
     // Input shape specification
     if (this.inputDim) {
@@ -52,7 +52,7 @@ export default class Dense extends Layer {
       if (!this.weights.W._gpuMaxSizeExceeded) {
         this.weights.W.weblasTensor = this.weights.W.weblasTensor.transpose()
       }
-      if (this.bias) {
+      if (this.use_bias) {
         this.weights.b.createWeblasTensor()
       } else {
         this._zerosVec = new Tensor([], [this.weights.W.tensor.shape[1]])
@@ -84,10 +84,10 @@ export default class Dense extends Layer {
     }
 
     if (this._useWeblas && !(x._gpuMaxSizeExceeded || this.weights.W._gpuMaxSizeExceeded)) {
-      const bias = this.bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
+      const bias = this.use_bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
       y.tensor.data = weblas.pipeline.sgemm(1, x.weblasTensor, this.weights.W.weblasTensor, 1, bias).transfer()
     } else {
-      if (this.bias) {
+      if (this.use_bias) {
         ops.assign(y.tensor, this.weights.b.tensor)
       }
       gemv(1, this.weights.W.tensor.transpose(1, 0), x.tensor, 1, y.tensor)
