@@ -1,20 +1,20 @@
 export const ARCHITECTURE_DIAGRAM = [
   // /////////////////////////////////////////////////////////////////////
   // initial
-  { name: 'zeropadding2d_1', className: 'ZeroPadding2D', details: '3x3 padding', row: 0, col: 0 },
+  { name: 'zero_padding2d_1', className: 'ZeroPadding2D', details: '3x3 padding', row: 0, col: 0 },
   {
     name: 'conv1',
     className: 'Conv2D',
-    details: '64 7x7 filters, 2x2 strides, border mode valid',
+    details: '64 7x7 filters, 2x2 strides, padding valid',
     row: 1,
     col: 0
   },
   { name: 'bn_conv1', className: 'BatchNormalization', details: 'channel axis features', row: 2, col: 0 },
   { name: 'activation_1', className: 'Activation', details: 'ReLU', row: 3, col: 0 },
   {
-    name: 'maxpooling2d_1',
+    name: 'max_pooling2d_1',
     className: 'MaxPooling2D',
-    details: '3x3 pool size, 2x2 strides, border mode valid',
+    details: '3x3 pool size, 2x2 strides, padding valid',
     row: 4,
     col: 0
   },
@@ -23,7 +23,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res2a_branch2a',
     className: 'Conv2D',
-    details: '64 1x1 filters, 1x1 strides, border mode valid',
+    details: '64 1x1 filters, 1x1 strides, padding valid',
     row: 5,
     col: 0
   },
@@ -32,7 +32,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res2a_branch2b',
     className: 'Conv2D',
-    details: '64 3x3 filters, 1x1 strides, border mode same',
+    details: '64 3x3 filters, 1x1 strides, padding same',
     row: 8,
     col: 0
   },
@@ -41,27 +41,27 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res2a_branch2c',
     className: 'Conv2D',
-    details: '256 1x1 filters, 1x1 strides, border mode valid',
+    details: '256 1x1 filters, 1x1 strides, padding valid',
     row: 11,
     col: 0
   },
   {
     name: 'res2a_branch1',
     className: 'Conv2D',
-    details: '256 1x1 filters, 1x1 strides, border mode valid',
+    details: '256 1x1 filters, 1x1 strides, padding valid',
     row: 5,
     col: 1
   },
   { name: 'bn2a_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 12, col: 0 },
   { name: 'bn2a_branch1', className: 'BatchNormalization', details: 'channel axis features', row: 6, col: 1 },
-  { name: 'merge_1', className: 'Merge', details: 'sum', row: 13, col: 1 },
+  { name: 'add_1', className: 'Add', row: 13, col: 1 },
   { name: 'activation_4', className: 'Activation', details: 'ReLU', row: 14, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // identity block 2b
   {
     name: 'res2b_branch2a',
     className: 'Conv2D',
-    details: '64 1x1 filters, 1x1 strides, border mode valid',
+    details: '64 1x1 filters, 1x1 strides, padding valid',
     row: 15,
     col: 0
   },
@@ -70,7 +70,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res2b_branch2b',
     className: 'Conv2D',
-    details: '64 3x3 filters, 1x1 strides, border mode same',
+    details: '64 3x3 filters, 1x1 strides, padding same',
     row: 18,
     col: 0
   },
@@ -79,19 +79,19 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res2b_branch2c',
     className: 'Conv2D',
-    details: '256 1x1 filters, 1x1 strides, border mode valid',
+    details: '256 1x1 filters, 1x1 strides, padding valid',
     row: 21,
     col: 0
   },
   { name: 'bn2b_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 22, col: 0 },
-  { name: 'merge_2', className: 'Merge', details: 'sum', row: 23, col: 1 },
+  { name: 'add_2', className: 'Add', row: 23, col: 1 },
   { name: 'activation_7', className: 'Activation', details: 'ReLU', row: 24, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // identity block 2c
   {
     name: 'res2c_branch2a',
     className: 'Conv2D',
-    details: '64 1x1 filters, 1x1 strides, border mode valid',
+    details: '64 1x1 filters, 1x1 strides, padding valid',
     row: 25,
     col: 0
   },
@@ -100,7 +100,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res2c_branch2b',
     className: 'Conv2D',
-    details: '64 3x3 filters, 1x1 strides, border mode same',
+    details: '64 3x3 filters, 1x1 strides, padding same',
     row: 28,
     col: 0
   },
@@ -109,19 +109,19 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res2c_branch2c',
     className: 'Conv2D',
-    details: '256 1x1 filters, 1x1 strides, border mode valid',
+    details: '256 1x1 filters, 1x1 strides, padding valid',
     row: 31,
     col: 0
   },
   { name: 'bn2c_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 32, col: 0 },
-  { name: 'merge_3', className: 'Merge', details: 'sum', row: 33, col: 1 },
+  { name: 'add_3', className: 'Add', row: 33, col: 1 },
   { name: 'activation_10', className: 'Activation', details: 'ReLU', row: 34, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // conv block 3a
   {
     name: 'res3a_branch2a',
     className: 'Conv2D',
-    details: '128 1x1 filters, 2x2 strides, border mode valid',
+    details: '128 1x1 filters, 2x2 strides, padding valid',
     row: 35,
     col: 0
   },
@@ -130,7 +130,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res3a_branch2b',
     className: 'Conv2D',
-    details: '128 3x3 filters, 1x1 strides, border mode same',
+    details: '128 3x3 filters, 1x1 strides, padding same',
     row: 38,
     col: 0
   },
@@ -139,27 +139,27 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res3a_branch2c',
     className: 'Conv2D',
-    details: '512 1x1 filters, 1x1 strides, border mode valid',
+    details: '512 1x1 filters, 1x1 strides, padding valid',
     row: 41,
     col: 0
   },
   {
     name: 'res3a_branch1',
     className: 'Conv2D',
-    details: '512 1x1 filters, 1x1 strides, border mode valid',
+    details: '512 1x1 filters, 1x1 strides, padding valid',
     row: 35,
     col: 1
   },
   { name: 'bn3a_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 42, col: 0 },
   { name: 'bn3a_branch1', className: 'BatchNormalization', details: 'channel axis features', row: 36, col: 1 },
-  { name: 'merge_4', className: 'Merge', details: 'sum', row: 43, col: 1 },
+  { name: 'add_4', className: 'Add', row: 43, col: 1 },
   { name: 'activation_13', className: 'Activation', details: 'ReLU', row: 44, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // identity block 3b
   {
     name: 'res3b_branch2a',
     className: 'Conv2D',
-    details: '128 1x1 filters, 1x1 strides, border mode valid',
+    details: '128 1x1 filters, 1x1 strides, padding valid',
     row: 45,
     col: 0
   },
@@ -168,7 +168,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res3b_branch2b',
     className: 'Conv2D',
-    details: '128 3x3 filters, 1x1 strides, border mode same',
+    details: '128 3x3 filters, 1x1 strides, padding same',
     row: 48,
     col: 0
   },
@@ -177,19 +177,19 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res3b_branch2c',
     className: 'Conv2D',
-    details: '512 1x1 filters, 1x1 strides, border mode valid',
+    details: '512 1x1 filters, 1x1 strides, padding valid',
     row: 51,
     col: 0
   },
   { name: 'bn3b_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 52, col: 0 },
-  { name: 'merge_5', className: 'Merge', details: 'sum', row: 53, col: 1 },
+  { name: 'add_5', className: 'Add', row: 53, col: 1 },
   { name: 'activation_16', className: 'Activation', details: 'ReLU', row: 54, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // identity block 3c
   {
     name: 'res3c_branch2a',
     className: 'Conv2D',
-    details: '128 1x1 filters, 1x1 strides, border mode valid',
+    details: '128 1x1 filters, 1x1 strides, padding valid',
     row: 55,
     col: 0
   },
@@ -198,7 +198,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res3c_branch2b',
     className: 'Conv2D',
-    details: '128 3x3 filters, 1x1 strides, border mode same',
+    details: '128 3x3 filters, 1x1 strides, padding same',
     row: 58,
     col: 0
   },
@@ -207,19 +207,19 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res3c_branch2c',
     className: 'Conv2D',
-    details: '512 1x1 filters, 1x1 strides, border mode valid',
+    details: '512 1x1 filters, 1x1 strides, padding valid',
     row: 61,
     col: 0
   },
   { name: 'bn3c_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 62, col: 0 },
-  { name: 'merge_6', className: 'Merge', details: 'sum', row: 63, col: 1 },
+  { name: 'add_6', className: 'Add', row: 63, col: 1 },
   { name: 'activation_19', className: 'Activation', details: 'ReLU', row: 64, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // identity block 3d
   {
     name: 'res3d_branch2a',
     className: 'Conv2D',
-    details: '128 1x1 filters, 1x1 strides, border mode valid',
+    details: '128 1x1 filters, 1x1 strides, padding valid',
     row: 65,
     col: 0
   },
@@ -228,7 +228,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res3d_branch2b',
     className: 'Conv2D',
-    details: '128 3x3 filters, 1x1 strides, border mode same',
+    details: '128 3x3 filters, 1x1 strides, padding same',
     row: 68,
     col: 0
   },
@@ -237,19 +237,19 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res3d_branch2c',
     className: 'Conv2D',
-    details: '512 1x1 filters, 1x1 strides, border mode valid',
+    details: '512 1x1 filters, 1x1 strides, padding valid',
     row: 71,
     col: 0
   },
   { name: 'bn3d_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 72, col: 0 },
-  { name: 'merge_7', className: 'Merge', details: 'sum', row: 73, col: 1 },
+  { name: 'add_7', className: 'Add', row: 73, col: 1 },
   { name: 'activation_22', className: 'Activation', details: 'ReLU', row: 74, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // conv block 4a
   {
     name: 'res4a_branch2a',
     className: 'Conv2D',
-    details: '256 1x1 filters, 2x2 strides, border mode valid',
+    details: '256 1x1 filters, 2x2 strides, padding valid',
     row: 75,
     col: 0
   },
@@ -258,7 +258,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res4a_branch2b',
     className: 'Conv2D',
-    details: '256 3x3 filters, 1x1 strides, border mode same',
+    details: '256 3x3 filters, 1x1 strides, padding same',
     row: 78,
     col: 0
   },
@@ -267,27 +267,27 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res4a_branch2c',
     className: 'Conv2D',
-    details: '1024 1x1 filters, 1x1 strides, border mode valid',
+    details: '1024 1x1 filters, 1x1 strides, padding valid',
     row: 81,
     col: 0
   },
   {
     name: 'res4a_branch1',
     className: 'Conv2D',
-    details: '1024 1x1 filters, 2x2 strides, border mode valid',
+    details: '1024 1x1 filters, 2x2 strides, padding valid',
     row: 75,
     col: 1
   },
   { name: 'bn4a_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 82, col: 0 },
   { name: 'bn4a_branch1', className: 'BatchNormalization', details: 'channel axis features', row: 76, col: 1 },
-  { name: 'merge_8', className: 'Merge', details: 'sum', row: 83, col: 1 },
+  { name: 'add_8', className: 'Add', row: 83, col: 1 },
   { name: 'activation_25', className: 'Activation', details: 'ReLU', row: 84, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // identity block 4b
   {
     name: 'res4b_branch2a',
     className: 'Conv2D',
-    details: '256 1x1 filters, 1x1 strides, border mode valid',
+    details: '256 1x1 filters, 1x1 strides, padding valid',
     row: 85,
     col: 0
   },
@@ -296,7 +296,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res4b_branch2b',
     className: 'Conv2D',
-    details: '256 3x3 filters, 1x1 strides, border mode same',
+    details: '256 3x3 filters, 1x1 strides, padding same',
     row: 88,
     col: 0
   },
@@ -305,19 +305,19 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res4b_branch2c',
     className: 'Conv2D',
-    details: '1024 1x1 filters, 1x1 strides, border mode valid',
+    details: '1024 1x1 filters, 1x1 strides, padding valid',
     row: 91,
     col: 0
   },
   { name: 'bn4b_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 92, col: 0 },
-  { name: 'merge_9', className: 'Merge', details: 'sum', row: 93, col: 1 },
+  { name: 'add_9', className: 'Add', row: 93, col: 1 },
   { name: 'activation_28', className: 'Activation', details: 'ReLU', row: 94, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // identity block 4c
   {
     name: 'res4c_branch2a',
     className: 'Conv2D',
-    details: '256 1x1 filters, 1x1 strides, border mode valid',
+    details: '256 1x1 filters, 1x1 strides, padding valid',
     row: 95,
     col: 0
   },
@@ -326,7 +326,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res4c_branch2b',
     className: 'Conv2D',
-    details: '256 3x3 filters, 1x1 strides, border mode same',
+    details: '256 3x3 filters, 1x1 strides, padding same',
     row: 98,
     col: 0
   },
@@ -335,19 +335,19 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res4c_branch2c',
     className: 'Conv2D',
-    details: '1024 1x1 filters, 1x1 strides, border mode valid',
+    details: '1024 1x1 filters, 1x1 strides, padding valid',
     row: 101,
     col: 0
   },
   { name: 'bn4c_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 102, col: 0 },
-  { name: 'merge_10', className: 'Merge', details: 'sum', row: 103, col: 1 },
+  { name: 'add_10', className: 'Add', row: 103, col: 1 },
   { name: 'activation_31', className: 'Activation', details: 'ReLU', row: 104, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // identity block 4d
   {
     name: 'res4d_branch2a',
     className: 'Conv2D',
-    details: '256 1x1 filters, 1x1 strides, border mode valid',
+    details: '256 1x1 filters, 1x1 strides, padding valid',
     row: 105,
     col: 0
   },
@@ -356,7 +356,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res4d_branch2b',
     className: 'Conv2D',
-    details: '256 3x3 filters, 1x1 strides, border mode same',
+    details: '256 3x3 filters, 1x1 strides, padding same',
     row: 108,
     col: 0
   },
@@ -365,19 +365,19 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res4d_branch2c',
     className: 'Conv2D',
-    details: '1024 1x1 filters, 1x1 strides, border mode valid',
+    details: '1024 1x1 filters, 1x1 strides, padding valid',
     row: 111,
     col: 0
   },
   { name: 'bn4d_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 112, col: 0 },
-  { name: 'merge_11', className: 'Merge', details: 'sum', row: 113, col: 1 },
+  { name: 'add_11', className: 'Add', row: 113, col: 1 },
   { name: 'activation_34', className: 'Activation', details: 'ReLU', row: 114, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // identity block 4e
   {
     name: 'res4e_branch2a',
     className: 'Conv2D',
-    details: '256 1x1 filters, 1x1 strides, border mode valid',
+    details: '256 1x1 filters, 1x1 strides, padding valid',
     row: 115,
     col: 0
   },
@@ -386,7 +386,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res4e_branch2b',
     className: 'Conv2D',
-    details: '256 3x3 filters, 1x1 strides, border mode same',
+    details: '256 3x3 filters, 1x1 strides, padding same',
     row: 118,
     col: 0
   },
@@ -395,19 +395,19 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res4e_branch2c',
     className: 'Conv2D',
-    details: '1024 1x1 filters, 1x1 strides, border mode valid',
+    details: '1024 1x1 filters, 1x1 strides, padding valid',
     row: 121,
     col: 0
   },
   { name: 'bn4e_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 122, col: 0 },
-  { name: 'merge_12', className: 'Merge', details: 'sum', row: 123, col: 1 },
+  { name: 'add_12', className: 'Add', row: 123, col: 1 },
   { name: 'activation_37', className: 'Activation', details: 'ReLU', row: 124, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // identity block 4f
   {
     name: 'res4f_branch2a',
     className: 'Conv2D',
-    details: '256 1x1 filters, 1x1 strides, border mode valid',
+    details: '256 1x1 filters, 1x1 strides, padding valid',
     row: 125,
     col: 0
   },
@@ -416,7 +416,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res4f_branch2b',
     className: 'Conv2D',
-    details: '256 3x3 filters, 1x1 strides, border mode same',
+    details: '256 3x3 filters, 1x1 strides, padding same',
     row: 128,
     col: 0
   },
@@ -425,19 +425,19 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res4f_branch2c',
     className: 'Conv2D',
-    details: '1024 1x1 filters, 1x1 strides, border mode valid',
+    details: '1024 1x1 filters, 1x1 strides, padding valid',
     row: 131,
     col: 0
   },
   { name: 'bn4f_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 132, col: 0 },
-  { name: 'merge_13', className: 'Merge', details: 'sum', row: 133, col: 1 },
+  { name: 'add_13', className: 'Add', row: 133, col: 1 },
   { name: 'activation_40', className: 'Activation', details: 'ReLU', row: 134, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // conv block 5a
   {
     name: 'res5a_branch2a',
     className: 'Conv2D',
-    details: '512 1x1 filters, 2x2 strides, border mode valid',
+    details: '512 1x1 filters, 2x2 strides, padding valid',
     row: 135,
     col: 0
   },
@@ -446,7 +446,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res5a_branch2b',
     className: 'Conv2D',
-    details: '512 3x3 filters, 1x1 strides, border mode same',
+    details: '512 3x3 filters, 1x1 strides, padding same',
     row: 138,
     col: 0
   },
@@ -455,27 +455,27 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res5a_branch2c',
     className: 'Conv2D',
-    details: '2048 1x1 filters, 1x1 strides, border mode valid',
+    details: '2048 1x1 filters, 1x1 strides, padding valid',
     row: 141,
     col: 0
   },
   {
     name: 'res5a_branch1',
     className: 'Conv2D',
-    details: '2048 1x1 filters, 2x2 strides, border mode valid',
+    details: '2048 1x1 filters, 2x2 strides, padding valid',
     row: 135,
     col: 1
   },
   { name: 'bn5a_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 142, col: 0 },
   { name: 'bn5a_branch1', className: 'BatchNormalization', details: 'channel axis features', row: 136, col: 1 },
-  { name: 'merge_14', className: 'Merge', details: 'sum', row: 143, col: 1 },
+  { name: 'add_14', className: 'Add', row: 143, col: 1 },
   { name: 'activation_43', className: 'Activation', details: 'ReLU', row: 144, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // identity block 5b
   {
     name: 'res5b_branch2a',
     className: 'Conv2D',
-    details: '512 1x1 filters, 1x1 strides, border mode valid',
+    details: '512 1x1 filters, 1x1 strides, padding valid',
     row: 145,
     col: 0
   },
@@ -484,7 +484,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res5b_branch2b',
     className: 'Conv2D',
-    details: '512 3x3 filters, 1x1 strides, border mode same',
+    details: '512 3x3 filters, 1x1 strides, padding same',
     row: 148,
     col: 0
   },
@@ -493,19 +493,19 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res5b_branch2c',
     className: 'Conv2D',
-    details: '2048 1x1 filters, 1x1 strides, border mode valid',
+    details: '2048 1x1 filters, 1x1 strides, padding valid',
     row: 151,
     col: 0
   },
   { name: 'bn5b_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 152, col: 0 },
-  { name: 'merge_15', className: 'Merge', details: 'sum', row: 153, col: 1 },
+  { name: 'add_15', className: 'Add', row: 153, col: 1 },
   { name: 'activation_46', className: 'Activation', details: 'ReLU', row: 154, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // identity block 5c
   {
     name: 'res5c_branch2a',
     className: 'Conv2D',
-    details: '512 1x1 filters, 1x1 strides, border mode valid',
+    details: '512 1x1 filters, 1x1 strides, padding valid',
     row: 155,
     col: 0
   },
@@ -514,7 +514,7 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res5c_branch2b',
     className: 'Conv2D',
-    details: '512 3x3 filters, 1x1 strides, border mode same',
+    details: '512 3x3 filters, 1x1 strides, padding same',
     row: 158,
     col: 0
   },
@@ -523,19 +523,19 @@ export const ARCHITECTURE_DIAGRAM = [
   {
     name: 'res5c_branch2c',
     className: 'Conv2D',
-    details: '2048 1x1 filters, 1x1 strides, border mode valid',
+    details: '2048 1x1 filters, 1x1 strides, padding valid',
     row: 161,
     col: 0
   },
   { name: 'bn5c_branch2c', className: 'BatchNormalization', details: 'channel axis features', row: 162, col: 0 },
-  { name: 'merge_16', className: 'Merge', details: 'sum', row: 163, col: 1 },
+  { name: 'add_16', className: 'Add', row: 163, col: 1 },
   { name: 'activation_49', className: 'Activation', details: 'ReLU', row: 164, col: 1 },
   // /////////////////////////////////////////////////////////////////////
   // final
   {
     name: 'avg_pool',
     className: 'AveragePooling2D',
-    details: '7x7 pool size, 7x7 strides, border mode valid',
+    details: '7x7 pool size, 7x7 strides, padding valid',
     row: 165,
     col: 1
   },
@@ -547,7 +547,7 @@ export const ARCHITECTURE_CONNECTIONS = [
   // main
   { from: 'res2a_branch1', to: 'fc1000' },
   // initial + conv block 2a
-  { from: 'zeropadding2d_1', to: 'bn2a_branch2c' },
+  { from: 'zero_padding2d_1', to: 'bn2a_branch2c' },
   // identity block 2b
   { from: 'res2b_branch2a', to: 'bn2b_branch2c' },
   // identity block 2c
@@ -579,7 +579,7 @@ export const ARCHITECTURE_CONNECTIONS = [
   // identity block 5c
   { from: 'res5c_branch2a', to: 'bn5c_branch2c' },
   // block connections start
-  { from: 'maxpooling2d_1', to: 'res2a_branch1', corner: 'top-right' },
+  { from: 'max_pooling2d_1', to: 'res2a_branch1', corner: 'top-right' },
   { from: 'activation_4', to: 'res2b_branch2a', corner: 'top-left' },
   { from: 'activation_7', to: 'res2c_branch2a', corner: 'top-left' },
   { from: 'activation_10', to: 'res3a_branch2a', corner: 'top-left' },
@@ -596,20 +596,20 @@ export const ARCHITECTURE_CONNECTIONS = [
   { from: 'activation_43', to: 'res5b_branch2a', corner: 'top-left' },
   { from: 'activation_46', to: 'res5c_branch2a', corner: 'top-left' },
   // block connections to merge
-  { from: 'bn2a_branch2c', to: 'merge_1', corner: 'bottom-left' },
-  { from: 'bn2b_branch2c', to: 'merge_2', corner: 'bottom-left' },
-  { from: 'bn2c_branch2c', to: 'merge_3', corner: 'bottom-left' },
-  { from: 'bn3a_branch2c', to: 'merge_4', corner: 'bottom-left' },
-  { from: 'bn3b_branch2c', to: 'merge_5', corner: 'bottom-left' },
-  { from: 'bn3c_branch2c', to: 'merge_6', corner: 'bottom-left' },
-  { from: 'bn3d_branch2c', to: 'merge_7', corner: 'bottom-left' },
-  { from: 'bn4a_branch2c', to: 'merge_8', corner: 'bottom-left' },
-  { from: 'bn4b_branch2c', to: 'merge_9', corner: 'bottom-left' },
-  { from: 'bn4c_branch2c', to: 'merge_10', corner: 'bottom-left' },
-  { from: 'bn4d_branch2c', to: 'merge_11', corner: 'bottom-left' },
-  { from: 'bn4e_branch2c', to: 'merge_12', corner: 'bottom-left' },
-  { from: 'bn4f_branch2c', to: 'merge_13', corner: 'bottom-left' },
-  { from: 'bn5a_branch2c', to: 'merge_14', corner: 'bottom-left' },
-  { from: 'bn5b_branch2c', to: 'merge_15', corner: 'bottom-left' },
-  { from: 'bn5c_branch2c', to: 'merge_16', corner: 'bottom-left' }
+  { from: 'bn2a_branch2c', to: 'add_1', corner: 'bottom-left' },
+  { from: 'bn2b_branch2c', to: 'add_2', corner: 'bottom-left' },
+  { from: 'bn2c_branch2c', to: 'add_3', corner: 'bottom-left' },
+  { from: 'bn3a_branch2c', to: 'add_4', corner: 'bottom-left' },
+  { from: 'bn3b_branch2c', to: 'add_5', corner: 'bottom-left' },
+  { from: 'bn3c_branch2c', to: 'add_6', corner: 'bottom-left' },
+  { from: 'bn3d_branch2c', to: 'add_7', corner: 'bottom-left' },
+  { from: 'bn4a_branch2c', to: 'add_8', corner: 'bottom-left' },
+  { from: 'bn4b_branch2c', to: 'add_9', corner: 'bottom-left' },
+  { from: 'bn4c_branch2c', to: 'add_10', corner: 'bottom-left' },
+  { from: 'bn4d_branch2c', to: 'add_11', corner: 'bottom-left' },
+  { from: 'bn4e_branch2c', to: 'add_12', corner: 'bottom-left' },
+  { from: 'bn4f_branch2c', to: 'add_13', corner: 'bottom-left' },
+  { from: 'bn5a_branch2c', to: 'add_14', corner: 'bottom-left' },
+  { from: 'bn5b_branch2c', to: 'add_15', corner: 'bottom-left' },
+  { from: 'bn5c_branch2c', to: 'add_16', corner: 'bottom-left' }
 ]
