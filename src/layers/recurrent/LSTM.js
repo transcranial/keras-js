@@ -11,11 +11,12 @@ import cwise from 'cwise'
 export default class LSTM extends Layer {
   /**
    * Creates a LSTM layer
-   * @param {number} attrs.outputDim - output dimensionality
+   * @param {number} attrs.units - output dimensionality
    * @param {number} [attrs.activation] - activation function
-   * @param {number} [attrs.innerActivation] - inner activation function
-   * @param {number} [attrs.returnSequences] - return the last output in the output sequence or the full sequence
-   * @param {number} [attrs.goBackwards] - process the input sequence backwards
+   * @param {number} [attrs.recurrent_activation] - inner activation function
+   * @param {number} [attrs.use_bias] - use bias
+   * @param {number} [attrs.return_sequences] - return the last output in the output sequence or the full sequence
+   * @param {number} [attrs.go_backwards] - process the input sequence backwards
    * @param {number} [attrs.stateful] - whether to save the last state as the initial state for the next pass
    * @param {Object} [attrs] - layer attributes
    */
@@ -24,28 +25,85 @@ export default class LSTM extends Layer {
     this.layerClass = 'LSTM'
 
     const {
-      outputDim = 1,
+      units = 1,
       activation = 'tanh',
-      innerActivation = 'hard_sigmoid',
-      returnSequences = false,
-      goBackwards = false,
+      use_bias = true,
+      recurrent_activation = 'hard_sigmoid',
+      return_sequences = false,
+      go_backwards = false,
       stateful = false
     } = attrs
 
-    this.outputDim = outputDim
+    this.units = units
 
-    // keep this.activation and this.innerActivation for Bidirectional wrapper layer to use
+    // keep this.activation and this.recurrentActivation for Bidirectional wrapper layer to use
     this.activation = activation
-    this.innerActivation = innerActivation
+    this.recurrentActivation = recurrent_activation
     this.activationFunc = activations[activation]
-    this.innerActivationFunc = activations[innerActivation]
+    this.recurrentActivationFunc = activations[recurrent_activation]
 
-    this.returnSequences = returnSequences
-    this.goBackwards = goBackwards
+    this.use_bias = use_bias
+
+    this.returnSequences = return_sequences
+    this.goBackwards = go_backwards
     this.stateful = stateful
 
     // Layer weights specification
-    this.params = ['W_i', 'U_i', 'b_i', 'W_c', 'U_c', 'b_c', 'W_f', 'U_f', 'b_f', 'W_o', 'U_o', 'b_o']
+    this.params = this.use_bias ? ['W', 'U', 'b'] : ['W', 'U']
+  }
+
+  /**
+   * Method for setting layer weights. Extends `super` method.
+   * W weight tensor is split into W_i, W_f, W_c, W_o
+   * U weight tensor is split into U_i, U_f, U_c, U_o
+   * b weight tensor is split into b_i, b_f, b_c, b_o (or create empty bias if this.use_bias is false)
+   * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
+   */
+  setWeights(weightsArr) {
+    super.setWeights(weightsArr)
+
+    const shape_W = this.weights['W'].tensor.shape
+    this.weights['W_i'] = new Tensor([], [shape_W[0], this.units])
+    this.weights['W_f'] = new Tensor([], [shape_W[0], this.units])
+    this.weights['W_c'] = new Tensor([], [shape_W[0], this.units])
+    this.weights['W_o'] = new Tensor([], [shape_W[0], this.units])
+    ops.assign(this.weights['W_i'].tensor, this.weights['W'].tensor.hi(shape_W[0], this.units).lo(0, 0))
+    ops.assign(this.weights['W_f'].tensor, this.weights['W'].tensor.hi(shape_W[0], 2 * this.units).lo(0, this.units))
+    ops.assign(
+      this.weights['W_c'].tensor,
+      this.weights['W'].tensor.hi(shape_W[0], 3 * this.units).lo(0, 2 * this.units)
+    )
+    ops.assign(
+      this.weights['W_o'].tensor,
+      this.weights['W'].tensor.hi(shape_W[0], 4 * this.units).lo(0, 3 * this.units)
+    )
+
+    const shape_U = this.weights['U'].tensor.shape
+    this.weights['U_i'] = new Tensor([], [shape_U[0], this.units])
+    this.weights['U_f'] = new Tensor([], [shape_U[0], this.units])
+    this.weights['U_c'] = new Tensor([], [shape_U[0], this.units])
+    this.weights['U_o'] = new Tensor([], [shape_U[0], this.units])
+    ops.assign(this.weights['U_i'].tensor, this.weights['U'].tensor.hi(shape_U[0], this.units).lo(0, 0))
+    ops.assign(this.weights['U_f'].tensor, this.weights['U'].tensor.hi(shape_U[0], 2 * this.units).lo(0, this.units))
+    ops.assign(
+      this.weights['U_c'].tensor,
+      this.weights['U'].tensor.hi(shape_U[0], 3 * this.units).lo(0, 2 * this.units)
+    )
+    ops.assign(
+      this.weights['U_o'].tensor,
+      this.weights['U'].tensor.hi(shape_U[0], 4 * this.units).lo(0, 3 * this.units)
+    )
+
+    this.weights['b_i'] = new Tensor([], [this.units])
+    this.weights['b_f'] = new Tensor([], [this.units])
+    this.weights['b_c'] = new Tensor([], [this.units])
+    this.weights['b_o'] = new Tensor([], [this.units])
+    if (this.use_bias) {
+      ops.assign(this.weights['b_i'].tensor, this.weights['b'].tensor.hi(this.units).lo(0))
+      ops.assign(this.weights['b_f'].tensor, this.weights['b'].tensor.hi(2 * this.units).lo(this.units))
+      ops.assign(this.weights['b_c'].tensor, this.weights['b'].tensor.hi(3 * this.units).lo(2 * this.units))
+      ops.assign(this.weights['b_o'].tensor, this.weights['b'].tensor.hi(4 * this.units).lo(3 * this.units))
+    }
   }
 
   _combine = cwise({
@@ -112,17 +170,17 @@ export default class LSTM extends Layer {
       gemv(1, this.weights['W_i'].tensor.transpose(1, 0), currentX.tensor, 1, tempXI.tensor)
       gemv(1, this.weights['U_i'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHI.tensor)
       this._combine(currentInputGateState.tensor, tempXI.tensor, tempHI.tensor, this.weights['b_i'].tensor)
-      this.innerActivationFunc(currentInputGateState)
+      this.recurrentActivationFunc(currentInputGateState)
 
       gemv(1, this.weights['W_f'].tensor.transpose(1, 0), currentX.tensor, 1, tempXF.tensor)
       gemv(1, this.weights['U_f'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHF.tensor)
       this._combine(currentForgetGateState.tensor, tempXF.tensor, tempHF.tensor, this.weights['b_f'].tensor)
-      this.innerActivationFunc(currentForgetGateState)
+      this.recurrentActivationFunc(currentForgetGateState)
 
       gemv(1, this.weights['W_o'].tensor.transpose(1, 0), currentX.tensor, 1, tempXO.tensor)
       gemv(1, this.weights['U_o'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHO.tensor)
       this._combine(currentOutputGateState.tensor, tempXO.tensor, tempHO.tensor, this.weights['b_o'].tensor)
-      this.innerActivationFunc(currentOutputGateState)
+      this.recurrentActivationFunc(currentOutputGateState)
 
       gemv(1, this.weights['W_c'].tensor.transpose(1, 0), currentX.tensor, 1, tempXC.tensor)
       gemv(1, this.weights['U_c'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHC.tensor)

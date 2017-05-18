@@ -11,11 +11,12 @@ import cwise from 'cwise'
 export default class GRU extends Layer {
   /**
    * Creates a GRU layer
-   * @param {number} attrs.outputDim - output dimensionality
+   * @param {number} attrs.units - output dimensionality
    * @param {number} [attrs.activation] - activation function
-   * @param {number} [attrs.innerActivation] - inner activation function
-   * @param {number} [attrs.returnSequences] - return the last output in the output sequence or the full sequence
-   * @param {number} [attrs.goBackwards] - process the input sequence backwards
+   * @param {number} [attrs.recurrent_activation] - inner activation function
+   * @param {number} [attrs.use_bias] - use bias
+   * @param {number} [attrs.return_sequences] - return the last output in the output sequence or the full sequence
+   * @param {number} [attrs.go_backwards] - process the input sequence backwards
    * @param {number} [attrs.stateful] - whether to save the last state as the initial state for the next pass
    * @param {Object} [attrs] - layer attributes
    */
@@ -24,28 +25,73 @@ export default class GRU extends Layer {
     this.layerClass = 'GRU'
 
     const {
-      outputDim = 1,
+      units = 1,
       activation = 'tanh',
-      innerActivation = 'hard_sigmoid',
-      returnSequences = false,
-      goBackwards = false,
+      use_bias = true,
+      recurrent_activation = 'hard_sigmoid',
+      return_sequences = false,
+      go_backwards = false,
       stateful = false
     } = attrs
 
-    this.outputDim = outputDim
+    this.units = units
 
-    // keep this.activation and this.innerActivation for Bidirectional wrapper layer to use
+    // keep this.activation and this.recurrentActivation for Bidirectional wrapper layer to use
     this.activation = activation
-    this.innerActivation = innerActivation
+    this.recurrentActivation = recurrent_activation
     this.activationFunc = activations[activation]
-    this.innerActivationFunc = activations[innerActivation]
+    this.recurrentActivationFunc = activations[recurrent_activation]
 
-    this.returnSequences = returnSequences
-    this.goBackwards = goBackwards
+    this.use_bias = use_bias
+
+    this.returnSequences = return_sequences
+    this.goBackwards = go_backwards
     this.stateful = stateful
 
     // Layer weights specification
-    this.params = ['W_z', 'U_z', 'b_z', 'W_r', 'U_r', 'b_r', 'W_h', 'U_h', 'b_h']
+    this.params = this.use_bias ? ['W', 'U', 'b'] : ['W', 'U']
+  }
+
+  /**
+   * Method for setting layer weights. Extends `super` method.
+   * W weight tensor is split into W_z, W_r, W_h
+   * U weight tensor is split into U_z, U_r, U_h
+   * b weight tensor is split into b_z, b_r, b_h (or create empty bias if this.use_bias is false)
+   * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
+   */
+  setWeights(weightsArr) {
+    super.setWeights(weightsArr)
+
+    const shape_W = this.weights['W'].tensor.shape
+    this.weights['W_z'] = new Tensor([], [shape_W[0], this.units])
+    this.weights['W_r'] = new Tensor([], [shape_W[0], this.units])
+    this.weights['W_h'] = new Tensor([], [shape_W[0], this.units])
+    ops.assign(this.weights['W_z'].tensor, this.weights['W'].tensor.hi(shape_W[0], this.units).lo(0, 0))
+    ops.assign(this.weights['W_r'].tensor, this.weights['W'].tensor.hi(shape_W[0], 2 * this.units).lo(0, this.units))
+    ops.assign(
+      this.weights['W_h'].tensor,
+      this.weights['W'].tensor.hi(shape_W[0], 3 * this.units).lo(0, 2 * this.units)
+    )
+
+    const shape_U = this.weights['U'].tensor.shape
+    this.weights['U_z'] = new Tensor([], [shape_U[0], this.units])
+    this.weights['U_r'] = new Tensor([], [shape_U[0], this.units])
+    this.weights['U_h'] = new Tensor([], [shape_U[0], this.units])
+    ops.assign(this.weights['U_z'].tensor, this.weights['U'].tensor.hi(shape_U[0], this.units).lo(0, 0))
+    ops.assign(this.weights['U_r'].tensor, this.weights['U'].tensor.hi(shape_U[0], 2 * this.units).lo(0, this.units))
+    ops.assign(
+      this.weights['U_h'].tensor,
+      this.weights['U'].tensor.hi(shape_U[0], 3 * this.units).lo(0, 2 * this.units)
+    )
+
+    this.weights['b_z'] = new Tensor([], [this.units])
+    this.weights['b_r'] = new Tensor([], [this.units])
+    this.weights['b_h'] = new Tensor([], [this.units])
+    if (this.use_bias) {
+      ops.assign(this.weights['b_z'].tensor, this.weights['b'].tensor.hi(this.units).lo(0))
+      ops.assign(this.weights['b_r'].tensor, this.weights['b'].tensor.hi(2 * this.units).lo(this.units))
+      ops.assign(this.weights['b_h'].tensor, this.weights['b'].tensor.hi(3 * this.units).lo(2 * this.units))
+    }
   }
 
   _combine = cwise({
@@ -70,9 +116,9 @@ export default class GRU extends Layer {
   call(x) {
     let currentX = new Tensor([], [x.tensor.shape[1]])
 
-    const dimUpdateGate = this.weights['b_z'].tensor.shape[0]
-    const dimResetGate = this.weights['b_r'].tensor.shape[0]
-    const dimHiddenState = this.weights['b_h'].tensor.shape[0]
+    const dimUpdateGate = this.units
+    const dimResetGate = this.units
+    const dimHiddenState = this.units
 
     let currentUpdateGateState = new Tensor([], [dimUpdateGate])
     let tempXZ = new Tensor([], [dimUpdateGate])
@@ -102,12 +148,12 @@ export default class GRU extends Layer {
       gemv(1, this.weights['W_z'].tensor.transpose(1, 0), currentX.tensor, 1, tempXZ.tensor)
       gemv(1, this.weights['U_z'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHZ.tensor)
       this._combine(currentUpdateGateState.tensor, tempXZ.tensor, tempHZ.tensor, this.weights['b_z'].tensor)
-      this.innerActivationFunc(currentUpdateGateState)
+      this.recurrentActivationFunc(currentUpdateGateState)
 
       gemv(1, this.weights['W_r'].tensor.transpose(1, 0), currentX.tensor, 1, tempXR.tensor)
       gemv(1, this.weights['U_r'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHR.tensor)
       this._combine(currentResetGateState.tensor, tempXR.tensor, tempHR.tensor, this.weights['b_r'].tensor)
-      this.innerActivationFunc(currentResetGateState)
+      this.recurrentActivationFunc(currentResetGateState)
 
       ops.muleq(currentResetGateState.tensor, previousHiddenState.tensor)
       gemv(1, this.weights['W_h'].tensor.transpose(1, 0), currentX.tensor, 1, tempXH.tensor)

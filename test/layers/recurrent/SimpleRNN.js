@@ -9,39 +9,102 @@ describe('recurrent layer: SimpleRNN', function() {
   const testParams = [
     {
       inputShape: [3, 6],
-      attrs: { outputDim: 4, activation: 'tanh', returnSequences: false, goBackwards: false, stateful: false }
+      attrs: {
+        units: 4,
+        activation: 'tanh',
+        use_bias: true,
+        return_sequences: false,
+        go_backwards: false,
+        stateful: false
+      }
     },
     {
       inputShape: [8, 5],
-      attrs: { outputDim: 5, activation: 'sigmoid', returnSequences: false, goBackwards: false, stateful: false }
+      attrs: {
+        units: 5,
+        activation: 'sigmoid',
+        use_bias: true,
+        return_sequences: false,
+        go_backwards: false,
+        stateful: false
+      }
     },
     {
       inputShape: [7, 6],
-      attrs: { outputDim: 4, activation: 'tanh', returnSequences: true, goBackwards: false, stateful: false }
+      attrs: {
+        units: 4,
+        activation: 'tanh',
+        use_bias: true,
+        return_sequences: true,
+        go_backwards: false,
+        stateful: false
+      }
     },
     {
       inputShape: [7, 6],
-      attrs: { outputDim: 4, activation: 'tanh', returnSequences: false, goBackwards: true, stateful: false }
+      attrs: {
+        units: 4,
+        activation: 'tanh',
+        use_bias: true,
+        return_sequences: false,
+        go_backwards: true,
+        stateful: false
+      }
     },
     {
       inputShape: [7, 6],
-      attrs: { outputDim: 4, activation: 'tanh', returnSequences: true, goBackwards: true, stateful: false }
+      attrs: {
+        units: 4,
+        activation: 'tanh',
+        use_bias: true,
+        return_sequences: true,
+        go_backwards: true,
+        stateful: false
+      }
     },
     {
       inputShape: [7, 6],
-      attrs: { outputDim: 4, activation: 'tanh', returnSequences: false, goBackwards: false, stateful: true }
+      attrs: {
+        units: 4,
+        activation: 'tanh',
+        use_bias: true,
+        return_sequences: false,
+        go_backwards: false,
+        stateful: true
+      }
     },
     {
       inputShape: [7, 6],
-      attrs: { outputDim: 4, activation: 'tanh', returnSequences: true, goBackwards: false, stateful: true }
+      attrs: {
+        units: 4,
+        activation: 'tanh',
+        use_bias: true,
+        return_sequences: true,
+        go_backwards: false,
+        stateful: true
+      }
     },
     {
       inputShape: [7, 6],
-      attrs: { outputDim: 4, activation: 'tanh', returnSequences: false, goBackwards: true, stateful: true }
+      attrs: {
+        units: 4,
+        activation: 'tanh',
+        use_bias: true,
+        return_sequences: false,
+        go_backwards: true,
+        stateful: true
+      }
     },
     {
       inputShape: [7, 6],
-      attrs: { outputDim: 4, activation: 'tanh', returnSequences: true, goBackwards: true, stateful: true }
+      attrs: {
+        units: 4,
+        activation: 'tanh',
+        use_bias: false,
+        return_sequences: true,
+        go_backwards: true,
+        stateful: true
+      }
     }
   ]
 
@@ -59,7 +122,7 @@ describe('recurrent layer: SimpleRNN', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `recurrent.SimpleRNN.${i}`
-      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, activation='${attrs.activation}', returnSequences=${attrs.returnSequences}, goBackwards=${attrs.goBackwards}, stateful=${attrs.stateful}`
+      const title = `[${key}] [CPU] test: ${inputShape} input, activation='${attrs.activation}', use_bias=${attrs.use_bias}, return_sequences=${attrs.return_sequences}, go_backwards=${attrs.go_backwards}, stateful=${attrs.stateful}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
@@ -97,7 +160,7 @@ describe('recurrent layer: SimpleRNN', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `recurrent.SimpleRNN.${i}`
-      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, activation='${attrs.activation}', returnSequences=${attrs.returnSequences}, goBackwards=${attrs.goBackwards}, stateful=${attrs.stateful}`
+      const title = `[${key}] [GPU] test: ${inputShape} input, activation='${attrs.activation}', use_bias=${attrs.use_bias}, return_sequences=${attrs.return_sequences}, go_backwards=${attrs.go_backwards}, stateful=${attrs.stateful}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)

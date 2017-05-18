@@ -10,99 +10,108 @@ describe('recurrent layer: GRU', function() {
     {
       inputShape: [3, 6],
       attrs: {
-        outputDim: 4,
+        units: 4,
         activation: 'tanh',
-        innerActivation: 'hard_sigmoid',
-        returnSequences: false,
-        goBackwards: false,
+        recurrent_activation: 'hard_sigmoid',
+        use_bias: true,
+        return_sequences: false,
+        go_backwards: false,
         stateful: false
       }
     },
     {
       inputShape: [8, 5],
       attrs: {
-        outputDim: 5,
+        units: 5,
         activation: 'sigmoid',
-        innerActivation: 'sigmoid',
-        returnSequences: false,
-        goBackwards: false,
+        recurrent_activation: 'sigmoid',
+        use_bias: true,
+        return_sequences: false,
+        go_backwards: false,
         stateful: false
       }
     },
     {
       inputShape: [3, 6],
       attrs: {
-        outputDim: 4,
+        units: 4,
         activation: 'tanh',
-        innerActivation: 'hard_sigmoid',
-        returnSequences: true,
-        goBackwards: false,
+        recurrent_activation: 'hard_sigmoid',
+        use_bias: true,
+        return_sequences: true,
+        go_backwards: false,
         stateful: false
       }
     },
     {
       inputShape: [3, 6],
       attrs: {
-        outputDim: 4,
+        units: 4,
         activation: 'tanh',
-        innerActivation: 'hard_sigmoid',
-        returnSequences: false,
-        goBackwards: true,
+        recurrent_activation: 'hard_sigmoid',
+        use_bias: true,
+        return_sequences: false,
+        go_backwards: true,
         stateful: false
       }
     },
     {
       inputShape: [3, 6],
       attrs: {
-        outputDim: 4,
+        units: 4,
         activation: 'tanh',
-        innerActivation: 'hard_sigmoid',
-        returnSequences: true,
-        goBackwards: true,
+        recurrent_activation: 'hard_sigmoid',
+        use_bias: true,
+        return_sequences: true,
+        go_backwards: true,
         stateful: false
       }
     },
     {
       inputShape: [3, 6],
       attrs: {
-        outputDim: 4,
+        units: 4,
         activation: 'tanh',
-        innerActivation: 'hard_sigmoid',
-        returnSequences: false,
-        goBackwards: false,
+        recurrent_activation: 'hard_sigmoid',
+        use_bias: true,
+        return_sequences: false,
+        go_backwards: false,
         stateful: true
       }
     },
     {
       inputShape: [3, 6],
       attrs: {
-        outputDim: 4,
+        units: 4,
         activation: 'tanh',
-        innerActivation: 'hard_sigmoid',
-        returnSequences: true,
-        goBackwards: false,
+        recurrent_activation: 'hard_sigmoid',
+        use_bias: true,
+        return_sequences: true,
+        go_backwards: false,
         stateful: true
       }
     },
     {
       inputShape: [3, 6],
       attrs: {
-        outputDim: 4,
+        units: 4,
         activation: 'tanh',
-        innerActivation: 'hard_sigmoid',
-        returnSequences: false,
-        goBackwards: true,
+        recurrent_activation: 'hard_sigmoid',
+        use_bias: true,
+        return_sequences: false,
+        go_backwards: true,
         stateful: true
       }
     },
     {
       inputShape: [3, 6],
       attrs: {
-        outputDim: 4,
+        units: 4,
         activation: 'tanh',
-        innerActivation: 'hard_sigmoid',
-        returnSequences: true,
-        goBackwards: true,
+        recurrent_activation: 'hard_sigmoid',
+        use_bias: false,
+        return_sequences: true,
+        go_backwards: true,
         stateful: true
       }
     }
@@ -122,7 +131,7 @@ describe('recurrent layer: GRU', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `recurrent.GRU.${i}`
-      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, activation='${attrs.activation}', innerActivation='${attrs.innerActivation}', returnSequences=${attrs.returnSequences}, goBackwards=${attrs.goBackwards}, stateful=${attrs.stateful}`
+      const title = `[${key}] [CPU] test: ${inputShape} input, activation='${attrs.activation}', recurrent_activation='${attrs.recurrent_activation}', use_bias=${attrs.use_bias}, return_sequences=${attrs.return_sequences}, go_backwards=${attrs.go_backwards}, stateful=${attrs.stateful}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
@@ -160,7 +169,7 @@ describe('recurrent layer: GRU', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `recurrent.GRU.${i}`
-      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, activation='${attrs.activation}', innerActivation='${attrs.innerActivation}', returnSequences=${attrs.returnSequences}, goBackwards=${attrs.goBackwards}, stateful=${attrs.stateful}`
+      const title = `[${key}] [GPU] test: ${inputShape} input, activation='${attrs.activation}', recurrent_activation='${attrs.recurrent_activation}', use_bias=${attrs.use_bias}, return_sequences=${attrs.return_sequences}, go_backwards=${attrs.go_backwards}, stateful=${attrs.stateful}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)

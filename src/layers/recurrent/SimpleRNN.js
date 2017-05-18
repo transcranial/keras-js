@@ -11,10 +11,11 @@ import cwise from 'cwise'
 export default class SimpleRNN extends Layer {
   /**
    * Creates a SimpleRNN layer
-   * @param {number} attrs.outputDim - output dimensionality
+   * @param {number} attrs.units - output dimensionality
    * @param {number} [attrs.activation] - activation function
-   * @param {number} [attrs.returnSequences] - return the last output in the output sequence or the full sequence
-   * @param {number} [attrs.goBackwards] - process the input sequence backwards
+   * @param {number} [attrs.use_bias] - use bias
+   * @param {number} [attrs.return_sequences] - return the last output in the output sequence or the full sequence
+   * @param {number} [attrs.go_backwards] - process the input sequence backwards
    * @param {number} [attrs.stateful] - whether to save the last state as the initial state for the next pass
    * @param {Object} [attrs] - layer attributes
    */
@@ -22,20 +23,41 @@ export default class SimpleRNN extends Layer {
     super(attrs)
     this.layerClass = 'SimpleRNN'
 
-    const { outputDim = 1, activation = 'tanh', returnSequences = false, goBackwards = false, stateful = false } = attrs
+    const {
+      units = 1,
+      activation = 'tanh',
+      use_bias = true,
+      return_sequences = false,
+      go_backwards = false,
+      stateful = false
+    } = attrs
 
-    this.outputDim = outputDim
+    this.units = units
 
     // keep this.activation for Bidirectional wrapper layer to use
     this.activation = activation
     this.activationFunc = activations[activation]
 
-    this.returnSequences = returnSequences
-    this.goBackwards = goBackwards
+    this.use_bias = use_bias
+
+    this.returnSequences = return_sequences
+    this.goBackwards = go_backwards
     this.stateful = stateful
 
     // Layer weights specification
-    this.params = ['W', 'U', 'b']
+    this.params = this.use_bias ? ['W', 'U', 'b'] : ['W', 'U']
+  }
+
+  /**
+   * Method for setting layer weights. Extends `super` method.
+   * Create empty bias if this.use_bias is false.
+   * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
+   */
+  setWeights(weightsArr) {
+    super.setWeights(weightsArr)
+    if (!this.use_bias) {
+      this.weights['b'] = new Tensor([], [this.units])
+    }
   }
 
   _combine = cwise({
@@ -53,7 +75,7 @@ export default class SimpleRNN extends Layer {
   call(x) {
     let currentX = new Tensor([], [x.tensor.shape[1]])
 
-    const dimHiddenState = this.weights['b'].tensor.shape[0]
+    const dimHiddenState = this.units
     let currentHiddenState = this.stateful && this.currentHiddenState
       ? this.currentHiddenState
       : new Tensor([], [dimHiddenState])
