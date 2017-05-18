@@ -190,7 +190,7 @@ See `demos/src/` for source code of real examples written in VueJS.
 
   - *normalization*: BatchNormalization
 
-  - *pooling*: MaxPooling1D, MaxPooling2D, MaxPooling3D, AveragePooling1D, AveragePooling2D, AveragePooling3D, GlobalMaxPooling1D, GlobalAveragePooling1D, GlobalMaxPooling2D, GlobalAveragePooling2D
+  - *pooling*: MaxPooling1D, MaxPooling2D, MaxPooling3D, AveragePooling1D, AveragePooling2D, AveragePooling3D, GlobalMaxPooling1D, GlobalMaxPooling2D, GlobalMaxPooling3D, GlobalAveragePooling1D, GlobalAveragePooling2D, GlobalAveragePooling3D
 
   - *recurrent*: SimpleRNN, LSTM, GRU
 
@@ -203,8 +203,6 @@ See `demos/src/` for source code of real examples written in VueJS.
   - *core*: Lambda
 
   - *locally-connected*: LocallyConnected1D, LocallyConnected2D
-
-  - *pooling*: GlobalMaxPooling3D, GlobalAveragePooling3D
 
 ### Notes
 
