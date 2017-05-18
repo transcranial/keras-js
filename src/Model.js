@@ -2,7 +2,6 @@ import Promise from 'bluebird'
 import axios from 'axios'
 import toPairs from 'lodash/toPairs'
 import mapKeys from 'lodash/mapKeys'
-import camelCase from 'lodash/camelCase'
 import find from 'lodash/find'
 import keys from 'lodash/keys'
 import values from 'lodash/values'
@@ -223,10 +222,6 @@ export default class Model {
    *
    * For class Model, the network DAG is constructed from the configuration inbound
    * and outbound nodes.
-   *
-   * Layer constructors take an `attrs` object, which contain layer parameters among
-   * other information. Note that in the Keras model config object variables are
-   * in snake_case. We convert the variable names to camelCase here.
    */
   _createLayers() {
     const modelClass = this.data.model.class_name
@@ -263,34 +258,16 @@ export default class Model {
       let layer
       if (layerClass === 'Bidirectional' || layerClass === 'TimeDistributed') {
         // create wrapper layers
-        let attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
         const wrappedLayerConfig = layerConfig.layer.config
         const wrappedLayerClass = layerConfig.layer.class_name
-        let wrappedLayerAttrs = mapKeys(wrappedLayerConfig, (v, k) => camelCase(k))
-        if ('activation' in wrappedLayerAttrs) {
-          wrappedLayerAttrs.activation = wrappedLayerAttrs.activation
-        }
-        if ('innerActivation' in wrappedLayerAttrs) {
-          wrappedLayerAttrs.innerActivation = wrappedLayerAttrs.innerActivation
-        }
-        wrappedLayerAttrs.gpu = this.gpu
+        wrappedLayerConfig.gpu = this.gpu
 
         layer = new layers[layerClass](
-          Object.assign(attrs, { layer: new layers[wrappedLayerClass](wrappedLayerAttrs) })
+          Object.assign({}, layerConfig, { layer: new layers[wrappedLayerClass](wrappedLayerConfig) })
         )
       } else {
         // create regular layers
-        let attrs = mapKeys(layerConfig, (v, k) => camelCase(k))
-        if ('activation' in attrs) {
-          attrs.activation = attrs.activation
-        }
-        if ('innerActivation' in attrs) {
-          attrs.innerActivation = attrs.innerActivation
-        }
-        attrs.gpu = this.gpu
-        attrs.pipeline = this.pipeline
-
-        layer = new layers[layerClass](attrs)
+        layer = new layers[layerClass](Object.assign({ gpu: this.gpu, pipeline: this.pipeline }, layerConfig))
       }
 
       // layer weights
@@ -298,13 +275,13 @@ export default class Model {
       if (layerClass === 'Bidirectional') {
         const forwardName = layerConfig.layer.config.name
         const backwardName = forwardName.replace(/forward/, 'backward')
-        const forwardWeightNames = layer.forwardLayer.params.map(param => `${forwardName}_${param}`)
-        const backwardWeightNames = layer.backwardLayer.params.map(param => `${backwardName}_${param}`)
+        const forwardWeightNames = layer.forwardLayer.params.map(param => `${forwardName}/${param}`)
+        const backwardWeightNames = layer.backwardLayer.params.map(param => `${backwardName}/${param}`)
         weightNames = forwardWeightNames.concat(backwardWeightNames)
       } else if (layerClass === 'TimeDistributed') {
-        weightNames = layer.layer.params.map(param => `${layerConfig.layer.config.name}_${param}`)
+        weightNames = layer.layer.params.map(param => `${layerConfig.layer.config.name}/${param}`)
       } else {
-        weightNames = layer.params.map(param => `${layerConfig.name}_${param}`)
+        weightNames = layer.params.map(param => `${layerConfig.name}/${param}`)
       }
       if (weightNames && weightNames.length) {
         const weights = weightNames.map(weightName => {
