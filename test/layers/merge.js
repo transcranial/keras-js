@@ -21,8 +21,8 @@ describe('merge layers', function() {
     it('[merge.Add.0] should produce expected values', function() {
       const key = 'merge.Add.0'
       console.log(`\n%c[${key}]`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2 = new layers.Add()
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -55,8 +55,8 @@ describe('merge layers', function() {
     it('[merge.Multiply.0] should produce expected values', function() {
       const key = 'merge.Multiply.0'
       console.log(`\n%c[${key}]`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2 = new layers.Multiply()
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -89,8 +89,8 @@ describe('merge layers', function() {
     it('[merge.Average.0] should produce expected values', function() {
       const key = 'merge.Average.0'
       console.log(`\n%c[${key}]`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2 = new layers.Average()
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -123,8 +123,8 @@ describe('merge layers', function() {
     it('[merge.Maximum.0] should produce expected values', function() {
       const key = 'merge.Maximum.0'
       console.log(`\n%c[${key}]`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2 = new layers.Maximum()
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -157,8 +157,8 @@ describe('merge layers', function() {
     it('[merge.Concatenate.0] should produce expected values: 1D inputs, axis=-1', function() {
       const key = 'merge.Concatenate.0'
       console.log(`\n%c[${key}] 1D inputs, axis=-1`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2 = new layers.Concatenate({ axis: -1 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
       testLayer1b.setWeights(TEST_DATA[key].weights.slice(2, 4).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -182,9 +182,9 @@ describe('merge layers', function() {
     it('[merge.Concatenate.1] should produce expected values: 2D inputs, axis=-1', function() {
       const key = 'merge.Concatenate.1'
       console.log(`\n%c[${key}] 2D inputs, axis=-1`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
       let testLayer2a = new layers.RepeatVector({ n: 3 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Concatenate({ axis: -1 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -211,9 +211,9 @@ describe('merge layers', function() {
     it('[merge.Concatenate.2] should produce expected values: 2D inputs, axis=-2', function() {
       const key = 'merge.Concatenate.2'
       console.log(`\n%c[${key}] 2D inputs, axis=-2`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
       let testLayer2a = new layers.RepeatVector({ n: 3 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Concatenate({ axis: -2 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -240,9 +240,9 @@ describe('merge layers', function() {
     it('[merge.Concatenate.3] should produce expected values: 2D inputs, axis=1', function() {
       const key = 'merge.Concatenate.3'
       console.log(`\n%c[${key}] 2D inputs, axis=1`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
       let testLayer2a = new layers.RepeatVector({ n: 3 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Concatenate({ axis: 1 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -269,9 +269,9 @@ describe('merge layers', function() {
     it('[merge.Concatenate.4] should produce expected values: 2D inputs, axis=2', function() {
       const key = 'merge.Concatenate.4'
       console.log(`\n%c[${key}] 2D inputs, axis=2`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
       let testLayer2a = new layers.RepeatVector({ n: 3 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Concatenate({ axis: 2 })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -307,9 +307,9 @@ describe('merge layers', function() {
     it('[merge.Dot.0] should produce expected values: 2D x 2D inputs, axes=1, normalize=False', function() {
       const key = 'merge.Dot.0'
       console.log(`\n%c[${key}] 2D x 2D inputs, axes=1, normalize=False`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
       let testLayer2a = new layers.RepeatVector({ n: 3 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Dot({ axes: 1, normalize: false })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -336,9 +336,9 @@ describe('merge layers', function() {
     it('[merge.Dot.1] should produce expected values: 2D x 2D inputs, axes=2, normalize=False', function() {
       const key = 'merge.Dot.1'
       console.log(`\n%c[${key}] 2D x 2D inputs, axes=2, normalize=False`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
       let testLayer2a = new layers.RepeatVector({ n: 3 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Dot({ axes: 2, normalize: false })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -365,9 +365,9 @@ describe('merge layers', function() {
     it('[merge.Dot.2] should produce expected values: 2D x 2D inputs, axes=1, normalize=True', function() {
       const key = 'merge.Dot.2'
       console.log(`\n%c[${key}] 2D x 2D inputs, axes=1, normalize=True`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
       let testLayer2a = new layers.RepeatVector({ n: 3 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Dot({ axes: 1, normalize: true })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -394,9 +394,9 @@ describe('merge layers', function() {
     it('[merge.Dot.3] should produce expected values: 2D x 2D inputs, axes=2, normalize=True', function() {
       const key = 'merge.Dot.3'
       console.log(`\n%c[${key}] 2D x 2D inputs, axes=2, normalize=True`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
       let testLayer2a = new layers.RepeatVector({ n: 3 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Dot({ axes: 2, normalize: true })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))
@@ -423,9 +423,9 @@ describe('merge layers', function() {
     it('[merge.Dot.4] should produce expected values: 2D x 2D inputs, axes=(2,2), normalize=True', function() {
       const key = 'merge.Dot.4'
       console.log(`\n%c[${key}] 2D x 2D inputs, axes=(2,2), normalize=True`, styles.h3)
-      let testLayer1a = new layers.Dense({ output_dim: 2 })
+      let testLayer1a = new layers.Dense({ units: 2 })
       let testLayer2a = new layers.RepeatVector({ n: 3 })
-      let testLayer1b = new layers.Dense({ output_dim: 2 })
+      let testLayer1b = new layers.Dense({ units: 2 })
       let testLayer2b = new layers.RepeatVector({ n: 3 })
       let testLayer3 = new layers.Dot({ axes: [2, 2], normalize: true })
       testLayer1a.setWeights(TEST_DATA[key].weights.slice(0, 2).map(w => new KerasJS.Tensor(w.data, w.shape)))

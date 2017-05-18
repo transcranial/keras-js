@@ -13,7 +13,7 @@ describe('core layer: Activation', function() {
   it('[core.Activation.0] should produce expected values for tanh activation following Dense layer', function() {
     const key = 'core.Activation.0'
     console.log(`\n%c[${key}] test 1 (tanh)`, styles.h3)
-    let testLayer1 = new layers.Dense({ output_dim: 2 })
+    let testLayer1 = new layers.Dense({ units: 2 })
     testLayer1.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     t = testLayer1.call(t)
@@ -33,7 +33,7 @@ describe('core layer: Activation', function() {
   it('[core.Activation.1] should produce expected values for hard_sigmoid activation following Dense layer', function() {
     const key = 'core.Activation.1'
     console.log(`\n%c[${key}] test 2 (hard_sigmoid)`, styles.h3)
-    let testLayer1 = new layers.Dense({ output_dim: 2 })
+    let testLayer1 = new layers.Dense({ units: 2 })
     testLayer1.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
     let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
     t = testLayer1.call(t)

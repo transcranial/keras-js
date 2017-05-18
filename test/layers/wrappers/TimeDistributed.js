@@ -10,7 +10,7 @@ describe('wrappers layer: TimeDistributed', function() {
     {
       wrappedLayer: 'Dense',
       inputShape: [3, 6],
-      wrappedLayerAttrs: { output_dim: 4, activation: 'linear', input_dim: null, use_bias: true }
+      wrappedLayerAttrs: { units: 4, activation: 'linear', input_dim: null, use_bias: true }
     },
     {
       wrappedLayer: 'Conv2D',

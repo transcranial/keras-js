@@ -10,18 +10,18 @@ import ops from 'ndarray-ops'
 export default class Dense extends Layer {
   /**
    * Creates a Dense layer
-   * @param {number} attrs.outputDim - output dimension size
+   * @param {number} attrs.units - output dimension size
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
     super(attrs)
     this.layerClass = 'Dense'
 
-    const { output_dim = 1, activation = 'linear', input_dim = null, use_bias = true } = attrs
+    const { units = 1, activation = 'linear', input_dim = null, use_bias = true } = attrs
 
     this.activation = activation
     this.activationFunc = activations[activation]
-    this.outputDim = output_dim
+    this.units = units
     this.inputDim = input_dim
     this.use_bias = use_bias
 
@@ -77,7 +77,7 @@ export default class Dense extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    let y = new Tensor([], [this.outputDim])
+    let y = new Tensor([], [this.units])
 
     if (this._useWeblas) {
       x.createWeblasTensor()
@@ -95,6 +95,7 @@ export default class Dense extends Layer {
     x.tensor = y.tensor
 
     this.activationFunc(x)
+    console.log(x)
 
     return x
   }

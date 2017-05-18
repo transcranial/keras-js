@@ -21,7 +21,7 @@ describe('core layer: Dense', function() {
     it('[core.Dense.0] [CPU] should produce expected values', function() {
       const key = 'core.Dense.0'
       console.log(`\n%c[${key}] [CPU] test 1`, styles.h3)
-      let testLayer = new layers.Dense({ output_dim: 2 })
+      let testLayer = new layers.Dense({ units: 2 })
       testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -39,7 +39,7 @@ describe('core layer: Dense', function() {
     it('[core.Dense.1] [CPU] should produce expected values, with sigmoid activation function', function() {
       const key = 'core.Dense.1'
       console.log(`\n%c[${key}] [CPU] test 2 (with sigmoid activation)`, styles.h3)
-      let testLayer = new layers.Dense({ output_dim: 2, activation: 'sigmoid' })
+      let testLayer = new layers.Dense({ units: 2, activation: 'sigmoid' })
       testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -57,7 +57,7 @@ describe('core layer: Dense', function() {
     it('[core.Dense.2] [CPU] should produce expected values, with softplus activation function and no bias', function() {
       const key = 'core.Dense.2'
       console.log(`\n%c[${key}] [CPU] test 3 (with softplus activation and no bias)`, styles.h3)
-      let testLayer = new layers.Dense({ output_dim: 2, activation: 'softplus', use_bias: false })
+      let testLayer = new layers.Dense({ units: 2, activation: 'softplus', use_bias: false })
       testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -84,7 +84,7 @@ describe('core layer: Dense', function() {
     it('[core.Dense.3] [GPU] should produce expected values', function() {
       const key = 'core.Dense.3'
       console.log(`\n%c[${key}] [GPU] test 1`, styles.h3)
-      let testLayer = new layers.Dense({ output_dim: 2, gpu: true })
+      let testLayer = new layers.Dense({ units: 2, gpu: true })
       testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -102,7 +102,7 @@ describe('core layer: Dense', function() {
     it('[core.Dense.4] [GPU] should produce expected values, with sigmoid activation function', function() {
       const key = 'core.Dense.4'
       console.log(`\n%c[${key}] [GPU] test 2 (with sigmoid activation)`, styles.h3)
-      let testLayer = new layers.Dense({ output_dim: 2, activation: 'sigmoid', gpu: true })
+      let testLayer = new layers.Dense({ units: 2, activation: 'sigmoid', gpu: true })
       testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -120,7 +120,7 @@ describe('core layer: Dense', function() {
     it('[core.Dense.5] [GPU] should produce expected values, with softplus activation function and no bias', function() {
       const key = 'core.Dense.5'
       console.log(`\n%c[${key}] [GPU] test 3 (with softplus activation and no bias)`, styles.h3)
-      let testLayer = new layers.Dense({ output_dim: 2, activation: 'softplus', use_bias: false, gpu: true })
+      let testLayer = new layers.Dense({ units: 2, activation: 'softplus', use_bias: false, gpu: true })
       testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
       console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
