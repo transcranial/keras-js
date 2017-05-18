@@ -95,7 +95,6 @@ export default class Dense extends Layer {
     x.tensor = y.tensor
 
     this.activationFunc(x)
-    console.log(x)
 
     return x
   }
