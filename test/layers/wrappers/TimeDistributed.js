@@ -10,20 +10,20 @@ describe('wrappers layer: TimeDistributed', function() {
     {
       wrappedLayer: 'Dense',
       inputShape: [3, 6],
-      wrappedLayerAttrs: { outputDim: 4, activation: 'linear', inputDim: null, bias: true }
+      wrappedLayerAttrs: { output_dim: 4, activation: 'linear', input_dim: null, use_bias: true }
     },
     {
       wrappedLayer: 'Conv2D',
       inputShape: [5, 4, 4, 2],
       wrappedLayerAttrs: {
-        nbFilter: 6,
-        nbRow: 3,
-        nbCol: 3,
+        filters: 6,
+        kernel_size: [3, 3],
+        strides: [1, 1],
+        padding: 'valid',
+        data_format: 'channels_last',
+        dilation_rate: [1, 1],
         activation: 'linear',
-        borderMode: 'valid',
-        subsample: [1, 1],
-        dimOrdering: 'tf',
-        bias: true
+        use_bias: true
       }
     }
   ]
@@ -42,7 +42,7 @@ describe('wrappers layer: TimeDistributed', function() {
 
     testParams.forEach(({ wrappedLayer, inputShape, wrappedLayerAttrs }, i) => {
       const key = `wrappers.TimeDistributed.${i}`
-      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`
+      const title = `[${key}] [CPU] test: ${inputShape} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
@@ -73,7 +73,7 @@ describe('wrappers layer: TimeDistributed', function() {
 
     testParams.forEach(({ wrappedLayer, inputShape, wrappedLayerAttrs }, i) => {
       const key = `wrappers.TimeDistributed.${i}`
-      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`
+      const title = `[${key}] [GPU] test: ${inputShape} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)

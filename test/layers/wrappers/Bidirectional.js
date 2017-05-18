@@ -10,44 +10,44 @@ describe('wrappers layer: Bidirectional', function() {
     {
       wrappedLayer: 'SimpleRNN',
       inputShape: [3, 6],
-      attrs: { mergeMode: 'sum' },
-      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: false }
+      attrs: { merge_mode: 'sum' },
+      wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: false }
     },
     {
       wrappedLayer: 'SimpleRNN',
       inputShape: [3, 6],
-      attrs: { mergeMode: 'mul' },
-      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: false }
+      attrs: { merge_mode: 'mul' },
+      wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: false }
     },
     {
       wrappedLayer: 'SimpleRNN',
       inputShape: [3, 6],
-      attrs: { mergeMode: 'concat' },
-      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: false }
+      attrs: { merge_mode: 'concat' },
+      wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: false }
     },
     {
       wrappedLayer: 'SimpleRNN',
       inputShape: [3, 6],
-      attrs: { mergeMode: 'ave' },
-      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: false }
+      attrs: { merge_mode: 'ave' },
+      wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: false }
     },
     {
       wrappedLayer: 'SimpleRNN',
       inputShape: [3, 6],
-      attrs: { mergeMode: 'concat' },
-      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', returnSequences: true }
+      attrs: { merge_mode: 'concat' },
+      wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: true }
     },
     {
       wrappedLayer: 'GRU',
       inputShape: [3, 6],
-      attrs: { mergeMode: 'concat' },
-      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', innerActivation: 'hard_sigmoid', returnSequences: true }
+      attrs: { merge_mode: 'concat' },
+      wrappedLayerAttrs: { units: 4, activation: 'tanh', recurrent_activation: 'hard_sigmoid', return_sequences: true }
     },
     {
       wrappedLayer: 'LSTM',
       inputShape: [3, 6],
-      attrs: { mergeMode: 'concat' },
-      wrappedLayerAttrs: { outputDim: 4, activation: 'tanh', innerActivation: 'hard_sigmoid', returnSequences: true }
+      attrs: { merge_mode: 'concat' },
+      wrappedLayerAttrs: { units: 4, activation: 'tanh', recurrent_activation: 'hard_sigmoid', return_sequences: true }
     }
   ]
 
@@ -65,7 +65,7 @@ describe('wrappers layer: Bidirectional', function() {
 
     testParams.forEach(({ wrappedLayer, inputShape, attrs, wrappedLayerAttrs }, i) => {
       const key = `wrappers.Bidirectional.${i}`
-      const title = `[${key}] [CPU] test: ${inputShape[0]}x${inputShape[1]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`
+      const title = `[${key}] [CPU] test: ${inputShape} input, merge_mode: ${attrs.merge_mode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
@@ -98,7 +98,7 @@ describe('wrappers layer: Bidirectional', function() {
 
     testParams.forEach(({ wrappedLayer, inputShape, attrs, wrappedLayerAttrs }, i) => {
       const key = `wrappers.Bidirectional.${i}`
-      const title = `[${key}] [GPU] test: ${inputShape[0]}x${inputShape[1]} input, mergeMode: ${attrs.mergeMode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`
+      const title = `[${key}] [GPU] test: ${inputShape} input, merge_mode: ${attrs.merge_mode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)

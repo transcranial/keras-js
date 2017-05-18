@@ -11,30 +11,29 @@ export default class Bidirectional extends Layer {
   /**
    * Creates a Bidirectional wrapper layer
    * @param {Layer} attrs.layer
-   * @param {Layer} [attrs.mergeMode] - one of concat, mul, sum, ave
+   * @param {String} [attrs.merge_mode] - one of concat, mul, sum, ave
    */
   constructor(attrs = {}) {
     super(attrs)
     this.layerClass = 'Bidirectional'
 
-    const { layer, mergeMode = 'concat' } = attrs
+    const { layer, merge_mode = 'concat' } = attrs
 
     if (!layer) throw new Error('[Bidirectional] wrapped layer is undefined.')
 
     this.forwardLayer = layer
 
-    let backwardLayerAttrs = pick(layer, [
-      'outputDim',
-      'activation',
-      'innerActivation',
-      'returnSequences',
-      'goBackwards',
-      'stateful'
-    ])
-    backwardLayerAttrs.goBackwards = !backwardLayerAttrs.goBackwards
+    let backwardLayerAttrs = {
+      units: this.forwardLayer.units,
+      activation: this.forwardLayer.activation,
+      recurrent_activation: this.forwardLayer.recurrentActivation,
+      return_sequences: this.forwardLayer.returnSequences,
+      go_backwards: !this.forwardLayer.goBackwards,
+      stateful: this.forwardLayer.stateful
+    }
     this.backwardLayer = new recurrentLayers[layer.layerClass](backwardLayerAttrs)
 
-    this.mergeMode = mergeMode
+    this.mergeMode = merge_mode
   }
 
   /**
