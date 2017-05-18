@@ -29,14 +29,14 @@
               @touchend="selectCoordinates"
             ></canvas>
             <div class="axis x-axis">
-              <span>-1.5</span>
+              <span>-1</span>
               <span>x</span>
-              <span>1.5</span>
+              <span>1</span>
             </div>
             <div class="axis y-axis">
-              <span>-1.5</span>
+              <span>-1</span>
               <span>y</span>
-              <span>1.5</span>
+              <span>1</span>
             </div>
           </div>
         </div>
@@ -51,7 +51,7 @@
       <div class="column output-column">
         <div class="output">
           <canvas id="output-canvas-scaled" width="150" height="150"></canvas>
-          <canvas id="output-canvas" width="27" height="27" style="display:none;"></canvas>
+          <canvas id="output-canvas" width="28" height="28" style="display:none;"></canvas>
         </div>
       </div>
     </div>
@@ -102,13 +102,13 @@ const MODEL_FILEPATHS_PROD = {
 const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
 const LAYER_DISPLAY_CONFIG = {
-  dense_10: { heading: 'input dimensions = 2, output dimensions = 128, ReLU activation', scalingFactor: 2 },
-  dense_11: { heading: 'ReLU activation, output dimensions = 25088 (64 x 14 x 14)', scalingFactor: 2 },
-  reshape_4: { heading: '', scalingFactor: 2 },
-  Conv2DTranspose_10: { heading: '64 3x3 filters, border mode same, 1x1 strides, ReLU activation', scalingFactor: 2 },
-  Conv2DTranspose_11: { heading: '64 3x3 filters, border mode same, 1x1 strides, ReLU activation', scalingFactor: 2 },
-  Conv2DTranspose_12: { heading: '64 2x2 filters, border mode valid, 2x2 strides, ReLU activation', scalingFactor: 2 },
-  Conv2D_8: { heading: '1 2x2 filters, border mode valid, 1x1 strides, sigmoid activation', scalingFactor: 2 }
+  dense_19: { heading: 'input dimensions = 2, output dimensions = 128, ReLU activation', scalingFactor: 2 },
+  dense_20: { heading: 'ReLU activation, output dimensions = 25088 (64 x 14 x 14)', scalingFactor: 2 },
+  reshape_7: { heading: '', scalingFactor: 2 },
+  conv2d_transpose_19: { heading: '64 3x3 filters, padding same, 1x1 strides, ReLU activation', scalingFactor: 2 },
+  conv2d_transpose_20: { heading: '64 3x3 filters, padding same, 1x1 strides, ReLU activation', scalingFactor: 2 },
+  conv2d_transpose_21: { heading: '64 2x2 filters, padding valid, 2x2 strides, ReLU activation', scalingFactor: 2 },
+  conv2d_15: { heading: '1 2x2 filters, padding same, 1x1 strides, sigmoid activation', scalingFactor: 2 }
 }
 
 export default {
@@ -120,10 +120,10 @@ export default {
       useGpu: this.hasWebgl,
       model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)), // eslint-disable-line
       modelLoading: true,
-      output: new Float32Array(27 * 27),
+      output: new Float32Array(28 * 28),
       crosshairsActivated: false,
-      inputCoordinates: [-0.6, -1.2],
-      position: [60, 20],
+      inputCoordinates: [-0.3, -0.6],
+      position: [35, 20],
       layerResultImages: [],
       layerDisplayConfig: LAYER_DISPLAY_CONFIG
     }
@@ -185,7 +185,7 @@ export default {
     drawPosition: function() {
       const ctx = document.getElementById('input-canvas').getContext('2d')
       ctx.clearRect(0, 0, 200, 200)
-      ctx.fillStyle = '#674172'
+      ctx.fillStyle = 'rgb(103, 65, 114)'
       ctx.beginPath()
       ctx.arc(...this.position, 5, 0, Math.PI * 2, true)
       ctx.closePath()
@@ -208,28 +208,28 @@ export default {
       const [x, y] = this.getEventCanvasCoordinates(e)
       if (!this.model.isRunning) {
         this.position = [x, y]
-        this.inputCoordinates = [x * 3 / 200 - 1.5, y * 3 / 200 - 1.5]
+        this.inputCoordinates = [x * 2 / 200 - 1, y * 2 / 200 - 1]
         this.draw(e)
         this.runModel()
       }
     },
     runModel: function() {
-      const inputData = { input_4: new Float32Array(this.inputCoordinates) }
+      const inputData = { input_7: new Float32Array(this.inputCoordinates) }
       this.model.predict(inputData).then(outputData => {
-        this.output = outputData['Conv2D_8']
+        this.output = outputData['conv2d_15']
         this.drawOutput()
         this.getIntermediateResults()
       })
     },
     drawOutput: function() {
       const ctx = document.getElementById('output-canvas').getContext('2d')
-      const image = utils.image2Darray(this.output, 27, 27, [27, 188, 155])
+      const image = utils.image2Darray(this.output, 28, 28, [103, 65, 114])
       ctx.putImageData(image, 0, 0)
 
       // scale up
       const ctxScaled = document.getElementById('output-canvas-scaled').getContext('2d')
       ctxScaled.save()
-      ctxScaled.scale(150 / 27, 150 / 27)
+      ctxScaled.scale(150 / 28, 150 / 28)
       ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
       ctxScaled.drawImage(document.getElementById('output-canvas'), 0, 0)
       ctxScaled.restore()
