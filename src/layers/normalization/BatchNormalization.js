@@ -17,10 +17,11 @@ export default class BatchNormalization extends Layer {
     super(attrs)
     this.layerClass = 'BatchNormalization'
 
-    const { epsilon = 0.001, mode = 0, axis = -1 } = attrs
+    const { epsilon = 0.001, axis = -1, center = true, scale = true } = attrs
 
     this.epsilon = epsilon
-    this.mode = mode
+    this.center = center
+    this.scale = scale
 
     // no batch axis, so axis is less 1 compared to representation in keras
     // will be set in call(), as input tensor shape is needed to calculate axis
@@ -29,8 +30,14 @@ export default class BatchNormalization extends Layer {
     this.axisNormalized = false
 
     // Layer weights specification
-    // running mean and std are non_trainable_weights in mode 0
-    this.params = this.mode === 0 ? ['gamma', 'beta', 'running_mean', 'running_std'] : ['gamma', 'beta']
+    this.params = []
+    if (this.scale) {
+      this.params.push('gamma')
+    }
+    if (this.center) {
+      this.params.push('beta')
+    }
+    this.params = this.params.concat(['moving_mean', 'moving_variance'])
 
     // Enable layer gpu +/- pipeline mode if supported
     if (this.gpu && weblas) {
@@ -80,8 +87,8 @@ export default class BatchNormalization extends Layer {
       this.epsilon,
       this.weights.gamma.weblasTensor,
       this.weights.beta.weblasTensor,
-      this.weights.running_mean.weblasTensor,
-      this.weights.running_std.weblasTensor
+      this.weights.moving_mean.weblasTensor,
+      this.weights.moving_variance.weblasTensor
     )
 
     return x
@@ -109,74 +116,33 @@ export default class BatchNormalization extends Layer {
     let _beta = new Tensor([], x.tensor.shape)
     for (let i = 0; i < x.tensor.shape[this.axis]; i++) {
       broadcast[this.axis] = i
-      ops.assigns(_gamma.tensor.pick(...broadcast), this.weights.gamma.tensor.get(i))
-      ops.assigns(_beta.tensor.pick(...broadcast), this.weights.beta.tensor.get(i))
+      if (this.scale) {
+        ops.assigns(_gamma.tensor.pick(...broadcast), this.weights.gamma.tensor.get(i))
+      }
+      if (this.center) {
+        ops.assigns(_beta.tensor.pick(...broadcast), this.weights.beta.tensor.get(i))
+      }
     }
 
     let _mean = new Tensor([], x.tensor.shape)
     let _std = new Tensor([], x.tensor.shape)
 
-    if (this.mode === 0) {
-      // feature-wise normalization
-      for (let i = 0; i < x.tensor.shape[this.axis]; i++) {
-        broadcast[this.axis] = i
-        ops.assigns(_mean.tensor.pick(...broadcast), this.weights.running_mean.tensor.get(i))
-        ops.assigns(_std.tensor.pick(...broadcast), this.weights.running_std.tensor.get(i) + this.epsilon)
-      }
-      ops.sqrteq(_std.tensor)
-    } else if (this.mode === 1) {
-      // sample-wise normalization
-      let reducedShape = x.tensor.shape.slice()
-      reducedShape.splice(this.axis, 1)
-
-      // mean
-      let sampleMean = new Tensor([], reducedShape)
-      for (let i = 0; i < x.tensor.shape[this.axis]; i++) {
-        broadcast[this.axis] = i
-        ops.addeq(sampleMean.tensor, x.tensor.pick(...broadcast))
-      }
-      ops.divseq(sampleMean.tensor, x.tensor.shape[this.axis])
-
-      // stddev
-      let sampleStd = new Tensor([], reducedShape)
-      let stdTemp = new Tensor([], reducedShape)
-      for (let i = 0; i < x.tensor.shape[this.axis]; i++) {
-        broadcast[this.axis] = i
-        ops.sub(stdTemp.tensor, x.tensor.pick(...broadcast), sampleMean.tensor)
-        ops.powseq(stdTemp.tensor, 2)
-        ops.addeq(sampleStd.tensor, stdTemp.tensor)
-      }
-      ops.divseq(sampleStd.tensor, x.tensor.shape[this.axis])
-      ops.addseq(sampleStd.tensor, this.epsilon)
-      ops.sqrteq(sampleStd.tensor)
-      ops.addseq(sampleStd.tensor, this.epsilon)
-
-      // broadcast
-      for (let i = 0; i < x.tensor.shape[this.axis]; i++) {
-        broadcast[this.axis] = i
-        ops.assign(_mean.tensor.pick(...broadcast), sampleMean.tensor)
-        ops.assign(_std.tensor.pick(...broadcast), sampleStd.tensor)
-      }
-    } else if (this.mode === 2) {
-      // feature-wise normalization, using per-batch statistics
-      // here, batch size always = 1
-      for (let i = 0; i < x.tensor.shape[this.axis]; i++) {
-        broadcast[this.axis] = i
-        let reduction = flattenDeep(unpack(x.tensor.pick(...broadcast)))
-        let axisMean = reduction.reduce((a, b) => a + b, 0) / reduction.length
-        let axisStd = reduction.map(x => (x - axisMean) * (x - axisMean)).reduce((a, b) => a + b, 0) / reduction.length
-        ops.assigns(_mean.tensor.pick(...broadcast), axisMean)
-        ops.assigns(_std.tensor.pick(...broadcast), axisStd + this.epsilon)
-      }
-      ops.sqrteq(_std.tensor)
-    } else {
-      throw new Error(`[normalization.BatchNormalization] Invalid mode ${this.mode}.`)
+    // feature-wise normalization
+    for (let i = 0; i < x.tensor.shape[this.axis]; i++) {
+      broadcast[this.axis] = i
+      ops.assigns(_mean.tensor.pick(...broadcast), this.weights.moving_mean.tensor.get(i))
+      ops.assigns(_std.tensor.pick(...broadcast), this.weights.moving_variance.tensor.get(i) + this.epsilon)
     }
+    ops.sqrteq(_std.tensor)
 
     ops.subeq(x.tensor, _mean.tensor)
     ops.diveq(x.tensor, _std.tensor)
-    ops.muleq(x.tensor, _gamma.tensor)
-    ops.addeq(x.tensor, _beta.tensor)
+    if (this.scale) {
+      ops.muleq(x.tensor, _gamma.tensor)
+    }
+    if (this.center) {
+      ops.addeq(x.tensor, _beta.tensor)
+    }
 
     return x
   }

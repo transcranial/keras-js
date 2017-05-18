@@ -7,13 +7,13 @@ describe('normalization layer: BatchNormalization', function() {
   const layers = KerasJS.layers
 
   const testParams = [
-    { attrs: { epsilon: 0.00001, mode: 0, axis: -1 } },
-    { attrs: { epsilon: 0.01, mode: 0, axis: -1 } },
-    { attrs: { epsilon: 0.00001, mode: 0, axis: 1 } },
-    { attrs: { epsilon: 0.00001, mode: 0, axis: 2 } },
-    { attrs: { epsilon: 0.00001, mode: 0, axis: 3 } },
-    { attrs: { epsilon: 0.00001, mode: 1, axis: -1 } },
-    { attrs: { epsilon: 0.00001, mode: 2, axis: -1 } }
+    { attrs: { epsilon: 0.00001, axis: -1, center: true, scale: true } },
+    { attrs: { epsilon: 0.01, axis: -1, center: true, scale: true } },
+    { attrs: { epsilon: 0.00001, axis: 1, center: true, scale: true } },
+    { attrs: { epsilon: 0.00001, axis: 2, center: true, scale: true } },
+    { attrs: { epsilon: 0.00001, axis: 3, center: true, scale: false } },
+    { attrs: { epsilon: 0.00001, axis: -1, center: false, scale: true } },
+    { attrs: { epsilon: 0.001, axis: -1, center: false, scale: false } }
   ]
 
   before(function() {
@@ -22,7 +22,7 @@ describe('normalization layer: BatchNormalization', function() {
 
   testParams.forEach(({ attrs }, i) => {
     const key = `normalization.BatchNormalization.${i}`
-    const title = `[${key}] test: epsilon='${attrs.epsilon}', mode=${attrs.mode}, axis=${attrs.axis}`
+    const title = `[${key}] test: epsilon='${attrs.epsilon}', axis=${attrs.axis}, center=${attrs.center}, scale=${attrs.scale}`
 
     it(title, function() {
       console.log(`\n%c${title}`, styles.h3)
