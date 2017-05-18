@@ -105,14 +105,14 @@ const INDEX_FROM = 3
 
 // network layers
 const ARCHITECTURE_DIAGRAM_LAYERS = [
-  { name: 'embedding_1', className: 'Embedding', details: '200 time steps, dim 20000 -> 64' },
+  { name: 'embedding_2', className: 'Embedding', details: '200 time steps, dims 20000 -> 64' },
   {
-    name: 'bidirectional_1',
+    name: 'bidirectional_2',
     className: 'Bidirectional [LSTM]',
-    details: '200 time steps, dim 64 -> 32, concat merge, tanh activation, hard sigmoid inner activation'
+    details: '200 time steps, dims 64 -> 32, concat merge, tanh activation, hard sigmoid recurrent activation'
   },
-  { name: 'dropout_1', className: 'Dropout', details: 'p=0.5 (active during training)' },
-  { name: 'dense_1', className: 'Dense', details: 'output dim 1, sigmoid activation' }
+  { name: 'dropout_2', className: 'Dropout', details: 'p=0.5 (active during training)' },
+  { name: 'dense_2', className: 'Dense', details: 'output dims 1, sigmoid activation' }
 ]
 
 export default {
@@ -256,9 +256,9 @@ export default {
       })
     }, 200),
     stepwiseCalc: function() {
-      const fcLayer = this.model.modelLayersMap.get('dense_1')
-      const forwardHiddenStates = this.model.modelLayersMap.get('bidirectional_1').forwardLayer.hiddenStateSequence
-      const backwardHiddenStates = this.model.modelLayersMap.get('bidirectional_1').backwardLayer.hiddenStateSequence
+      const fcLayer = this.model.modelLayersMap.get('dense_2')
+      const forwardHiddenStates = this.model.modelLayersMap.get('bidirectional_2').forwardLayer.hiddenStateSequence
+      const backwardHiddenStates = this.model.modelLayersMap.get('bidirectional_2').backwardLayer.hiddenStateSequence
       const forwardDim = forwardHiddenStates.tensor.shape[1]
       const backwardDim = backwardHiddenStates.tensor.shape[1]
 
