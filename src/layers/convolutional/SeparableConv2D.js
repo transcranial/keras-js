@@ -34,8 +34,8 @@ class _DepthwiseConv2D extends Conv2D {
     let patch = new Tensor([], [nbRow, nbCol, 1])
     let offset = 0
     for (let c = 0; c < inputChannels; c++) {
-      for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.subsample[0]) {
-        for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.subsample[1]) {
+      for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.strides[0]) {
+        for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.strides[1]) {
           ops.assign(patch.tensor, x.tensor.hi(i + nbRow, j + nbCol, c + 1).lo(i, j, c))
           this._imColsMat.tensor.data.set(patch.tensor.data, offset)
           offset += patchLen
@@ -130,9 +130,8 @@ class _DepthwiseConv2D extends Conv2D {
 export default class SeparableConv2D extends Layer {
   /**
    * Creates a SeparableConv2D layer
-   * @param {number} attrs.nbFilter - Number of convolution filters to use.
-   * @param {number} attrs.nbRow - Number of rows in the convolution kernel.
-   * @param {number} attrs.nbCol - Number of columns in the convolution kernel.
+   * @param {Number} attrs.filters - Number of convolution filters to use.
+   * @param {Array<Number>|Number} attrs.kernel_size - Size of the convolution kernel.
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
@@ -140,63 +139,77 @@ export default class SeparableConv2D extends Layer {
     this.layerClass = 'SeparableConv2D'
 
     const {
-      nbFilter = 1,
-      nbRow = 1,
-      nbCol = 1,
+      filters = 1,
+      kernel_size = [1, 1],
+      strides = [1, 1],
+      padding = 'valid',
+      data_format = 'channels_last',
+      depth_multiplier = 1,
       activation = 'linear',
-      borderMode = 'valid',
-      subsample = [1, 1],
-      depthMultiplier = 1,
-      dimOrdering = 'tf',
-      bias = true
+      use_bias = true
     } = attrs
+
+    if (Array.isArray(kernel_size)) {
+      this.kernelShape = [filters, ...kernel_size]
+    } else {
+      this.kernelShape = [filters, kernel_size, kernel_size]
+    }
+
+    if (Array.isArray(strides)) {
+      this.strides = strides
+    } else {
+      this.strides = [strides, strides]
+    }
+
+    if (padding === 'valid' || padding === 'same') {
+      this.padding = padding
+    } else {
+      throw new Error(`${this.name} [Conv2D layer] Invalid padding.`)
+    }
+
+    if (data_format === 'channels_last' || data_format === 'channels_first') {
+      this.dataFormat = data_format
+    } else {
+      throw new Error(`${this.name} [Conv2D layer] Only channels_last and channels_first data formats are allowed.`)
+    }
 
     this.activation = activation
     this.activationFunc = activations[activation]
 
-    if (borderMode === 'valid' || borderMode === 'same') {
-      this.borderMode = borderMode
+    if (padding === 'valid' || padding === 'same') {
+      this.padding = padding
     } else {
-      throw new Error(`${this.name} [SeparableConv2D layer] Invalid borderMode.`)
+      throw new Error(`${this.name} [SeparableConv2D layer] Invalid padding.`)
     }
 
-    this.subsample = subsample
-    this.depthMultiplier = depthMultiplier
-
-    if (dimOrdering === 'tf' || dimOrdering === 'th') {
-      this.dimOrdering = dimOrdering
-    } else {
-      throw new Error(`${this.name} [SeparableConv2D layer] Only tf and th dim ordering are allowed.`)
-    }
-
-    this.bias = bias
+    this.use_bias = use_bias
 
     // Layer weights specification
-    this.params = this.bias ? ['depthwise_kernel', 'pointwise_kernel', 'b'] : ['depthwise_kernel', 'pointwise_kernel']
+    this.params = this.use_bias
+      ? ['depthwise_kernel', 'pointwise_kernel', 'b']
+      : ['depthwise_kernel', 'pointwise_kernel']
 
     // SeparableConv2D has two components: depthwise, and pointwise.
     // Activation function and bias is applied at the end.
     // Subsampling (striding) only performed on depthwise part, not the pointwise part.
     this.depthwiseConvAttrs = {
-      nbFilter: this.depthMultiplier,
-      nbRow,
-      nbCol,
+      filters: depth_multiplier,
+      kernel_size: [this.kernelShape[1], this.kernelShape[2]],
+      strides: this.strides,
+      padding,
+      data_format,
       activation: 'linear',
-      borderMode,
-      subsample,
-      dimOrdering,
-      bias: false,
+      use_bias: false,
       gpu: attrs.gpu
     }
     this.pointwiseConvAttrs = {
-      nbFilter,
-      nbRow: 1,
-      nbCol: 1,
+      filters,
+      kernel_size: [1, 1],
+      strides: [1, 1],
+      padding,
+      data_format,
       activation: 'linear',
-      borderMode,
-      subsample: [1, 1],
-      dimOrdering,
-      bias: this.bias,
+      use_bias,
       gpu: attrs.gpu
     }
   }
