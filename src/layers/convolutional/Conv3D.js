@@ -73,7 +73,7 @@ export default class Conv3D extends Layer {
     this.use_bias = use_bias
 
     // Layer weights specification
-    this.params = this.use_bias ? ['W', 'b'] : ['W']
+    this.params = this.use_bias ? ['kernel', 'bias'] : ['kernel']
 
     // Enable layer gpu +/- pipeline mode if supported
     if (this.gpu && weblas) {
@@ -103,9 +103,9 @@ export default class Conv3D extends Layer {
         this._wRowsMat.weblasTensor = this._wRowsMat.weblasTensor.transpose()
       }
       if (this.use_bias) {
-        this.weights.b.createWeblasTensor()
+        this.weights['bias'].createWeblasTensor()
       } else {
-        this._zerosVec = new Tensor([], [this.weights.W.tensor.shape[4]])
+        this._zerosVec = new Tensor([], [this.weights['kernel'].tensor.shape[4]])
         this._zerosVec.createWeblasTensor()
       }
     }
@@ -271,7 +271,7 @@ export default class Conv3D extends Layer {
    * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
    */
   _w2row() {
-    const inputChannels = this.weights.W.tensor.shape[3]
+    const inputChannels = this.weights['kernel'].tensor.shape[3]
     const [nbFilter, kernelDim1, kernelDim2, kernelDim3] = this.kernelShape
     const patchLen = kernelDim1 * kernelDim2 * kernelDim3 * inputChannels
 
@@ -280,7 +280,7 @@ export default class Conv3D extends Layer {
     let patch = new Tensor([], [kernelDim1, kernelDim2, kernelDim3, inputChannels])
     let patchRaveled = new Tensor([], [patchLen])
     for (let n = 0; n < nbFilter; n++) {
-      ops.assign(patch.tensor, this.weights.W.tensor.pick(null, null, null, null, n))
+      ops.assign(patch.tensor, this.weights['kernel'].tensor.pick(null, null, null, null, n))
       patchRaveled.replaceTensorData(patch.tensor.data)
       ops.assign(wRowsMat.tensor.pick(null, n), patchRaveled.tensor)
     }
@@ -312,14 +312,14 @@ export default class Conv3D extends Layer {
     const matMul = new Tensor([], [nbPatches, nbFilter])
 
     if (this._useWeblas && !(this._volColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
-      const bias = this.use_bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
+      const bias = this.use_bias ? this.weights['bias'].weblasTensor : this._zerosVec.weblasTensor
       matMul.tensor.data = weblas.pipeline
         .sgemm(1, this._volColsMat.weblasTensor, this._wRowsMat.weblasTensor, 1, bias)
         .transfer()
     } else {
       if (this.use_bias) {
         for (let n = 0; n < nbFilter; n++) {
-          ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
+          ops.assigns(matMul.tensor.pick(null, n), this.weights['bias'].tensor.get(n))
         }
       }
       gemm(matMul.tensor, this._volColsMat.tensor, this._wRowsMat.tensor, 1, 1)

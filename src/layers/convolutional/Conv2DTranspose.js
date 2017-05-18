@@ -60,7 +60,7 @@ export default class Conv2DTranspose extends Layer {
     this.use_bias = use_bias
 
     // Layer weights specification
-    this.params = this.use_bias ? ['W', 'b'] : ['W']
+    this.params = this.use_bias ? ['kernel', 'bias'] : ['kernel']
 
     // Enable layer gpu +/- pipeline mode if supported
     if (this.gpu && weblas) {
@@ -157,14 +157,14 @@ export default class Conv2DTranspose extends Layer {
    * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
    */
   _w2row() {
-    const [nbRow, nbCol, nbFilter, inputChannels] = this.weights.W.tensor.shape
+    const [nbRow, nbCol, nbFilter, inputChannels] = this.weights['kernel'].tensor.shape
 
     const wRowsMat = new Tensor([], [inputChannels, nbRow * nbCol * nbFilter])
 
     let channelRaveled = new Tensor([], [nbRow * nbCol * nbFilter])
     let channel = new Tensor([], [nbRow, nbCol, nbFilter])
     for (let c = 0; c < inputChannels; c++) {
-      ops.assign(channel.tensor, this.weights.W.tensor.pick(null, null, null, c))
+      ops.assign(channel.tensor, this.weights['kernel'].tensor.pick(null, null, null, c))
       channelRaveled.replaceTensorData(channel.tensor.data)
       ops.assign(wRowsMat.tensor.pick(c, null), channelRaveled.tensor)
     }
@@ -193,7 +193,7 @@ export default class Conv2DTranspose extends Layer {
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const matMul = new Tensor([], [inputRows * inputCols, nbRow * nbCol * nbFilter])
     if (this._useWeblas && !(imColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
-      let _zerosVec = new Tensor([], [this.weights.W.tensor.shape[3]])
+      let _zerosVec = new Tensor([], [this.weights['kernel'].tensor.shape[3]])
       _zerosVec.createWeblasTensor()
       matMul.tensor.data = weblas.pipeline
         .sgemm(1, imColsMat.weblasTensor, this._wRowsMat.weblasTensor, 0, _zerosVec)
@@ -221,7 +221,7 @@ export default class Conv2DTranspose extends Layer {
     // bias
     if (this.use_bias) {
       for (let n = 0; n < nbFilter; n++) {
-        ops.assigns(outputPadded.tensor.pick(null, null, n), this.weights.b.tensor.get(n))
+        ops.assigns(outputPadded.tensor.pick(null, null, n), this.weights['bias'].tensor.get(n))
       }
     }
 

@@ -49,7 +49,7 @@ export default class GRU extends Layer {
     this.stateful = stateful
 
     // Layer weights specification
-    this.params = this.use_bias ? ['W', 'U', 'b'] : ['W', 'U']
+    this.params = this.use_bias ? ['kernel', 'recurrent_kernel', 'bias'] : ['kernel', 'recurrent_kernel']
   }
 
   /**
@@ -62,35 +62,41 @@ export default class GRU extends Layer {
   setWeights(weightsArr) {
     super.setWeights(weightsArr)
 
-    const shape_W = this.weights['W'].tensor.shape
+    const shape_W = this.weights['kernel'].tensor.shape
     this.weights['W_z'] = new Tensor([], [shape_W[0], this.units])
     this.weights['W_r'] = new Tensor([], [shape_W[0], this.units])
     this.weights['W_h'] = new Tensor([], [shape_W[0], this.units])
-    ops.assign(this.weights['W_z'].tensor, this.weights['W'].tensor.hi(shape_W[0], this.units).lo(0, 0))
-    ops.assign(this.weights['W_r'].tensor, this.weights['W'].tensor.hi(shape_W[0], 2 * this.units).lo(0, this.units))
+    ops.assign(this.weights['W_z'].tensor, this.weights['kernel'].tensor.hi(shape_W[0], this.units).lo(0, 0))
+    ops.assign(
+      this.weights['W_r'].tensor,
+      this.weights['kernel'].tensor.hi(shape_W[0], 2 * this.units).lo(0, this.units)
+    )
     ops.assign(
       this.weights['W_h'].tensor,
-      this.weights['W'].tensor.hi(shape_W[0], 3 * this.units).lo(0, 2 * this.units)
+      this.weights['kernel'].tensor.hi(shape_W[0], 3 * this.units).lo(0, 2 * this.units)
     )
 
-    const shape_U = this.weights['U'].tensor.shape
+    const shape_U = this.weights['recurrent_kernel'].tensor.shape
     this.weights['U_z'] = new Tensor([], [shape_U[0], this.units])
     this.weights['U_r'] = new Tensor([], [shape_U[0], this.units])
     this.weights['U_h'] = new Tensor([], [shape_U[0], this.units])
-    ops.assign(this.weights['U_z'].tensor, this.weights['U'].tensor.hi(shape_U[0], this.units).lo(0, 0))
-    ops.assign(this.weights['U_r'].tensor, this.weights['U'].tensor.hi(shape_U[0], 2 * this.units).lo(0, this.units))
+    ops.assign(this.weights['U_z'].tensor, this.weights['recurrent_kernel'].tensor.hi(shape_U[0], this.units).lo(0, 0))
+    ops.assign(
+      this.weights['U_r'].tensor,
+      this.weights['recurrent_kernel'].tensor.hi(shape_U[0], 2 * this.units).lo(0, this.units)
+    )
     ops.assign(
       this.weights['U_h'].tensor,
-      this.weights['U'].tensor.hi(shape_U[0], 3 * this.units).lo(0, 2 * this.units)
+      this.weights['recurrent_kernel'].tensor.hi(shape_U[0], 3 * this.units).lo(0, 2 * this.units)
     )
 
     this.weights['b_z'] = new Tensor([], [this.units])
     this.weights['b_r'] = new Tensor([], [this.units])
     this.weights['b_h'] = new Tensor([], [this.units])
     if (this.use_bias) {
-      ops.assign(this.weights['b_z'].tensor, this.weights['b'].tensor.hi(this.units).lo(0))
-      ops.assign(this.weights['b_r'].tensor, this.weights['b'].tensor.hi(2 * this.units).lo(this.units))
-      ops.assign(this.weights['b_h'].tensor, this.weights['b'].tensor.hi(3 * this.units).lo(2 * this.units))
+      ops.assign(this.weights['b_z'].tensor, this.weights['bias'].tensor.hi(this.units).lo(0))
+      ops.assign(this.weights['b_r'].tensor, this.weights['bias'].tensor.hi(2 * this.units).lo(this.units))
+      ops.assign(this.weights['b_h'].tensor, this.weights['bias'].tensor.hi(3 * this.units).lo(2 * this.units))
     }
   }
 

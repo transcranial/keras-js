@@ -75,7 +75,7 @@ export default class Conv2D extends Layer {
     this.use_bias = use_bias
 
     // Layer weights specification
-    this.params = this.use_bias ? ['W', 'b'] : ['W']
+    this.params = this.use_bias ? ['kernel', 'bias'] : ['kernel']
 
     // Enable layer gpu +/- pipeline mode if supported
     if (this.gpu && weblas) {
@@ -112,9 +112,9 @@ export default class Conv2D extends Layer {
         this._wRowsMat.weblasTensor = this._wRowsMat.weblasTensor.transpose()
       }
       if (this.use_bias) {
-        this.weights.b.createWeblasTensor()
+        this.weights['bias'].createWeblasTensor()
       } else {
-        this._zerosVec = new Tensor([], [this.weights.W.tensor.shape[3]])
+        this._zerosVec = new Tensor([], [this.weights['kernel'].tensor.shape[3]])
         this._zerosVec.createWeblasTensor()
       }
     }
@@ -243,7 +243,7 @@ export default class Conv2D extends Layer {
    * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
    */
   _w2row() {
-    const inputChannels = this.weights.W.tensor.shape[2]
+    const inputChannels = this.weights['kernel'].tensor.shape[2]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const patchLen = nbRow * nbCol * inputChannels
 
@@ -252,7 +252,7 @@ export default class Conv2D extends Layer {
     let patch = new Tensor([], [nbRow, nbCol, inputChannels])
     let patchRaveled = new Tensor([], [patchLen])
     for (let n = 0; n < nbFilter; n++) {
-      ops.assign(patch.tensor, this.weights.W.tensor.pick(null, null, null, n))
+      ops.assign(patch.tensor, this.weights['kernel'].tensor.pick(null, null, null, n))
       patchRaveled.replaceTensorData(patch.tensor.data)
       ops.assign(this._wRowsMat.tensor.pick(null, n), patchRaveled.tensor)
     }
@@ -333,7 +333,7 @@ export default class Conv2D extends Layer {
 
     this._tiledIndexMapping(this.inputShape)
 
-    const bias = this.use_bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
+    const bias = this.use_bias ? this.weights['bias'].weblasTensor : this._zerosVec.weblasTensor
     x.weblasTensor = this.webglConv2D.call(
       x.weblasTensor,
       this._wRowsMat.weblasTensor,
@@ -372,7 +372,7 @@ export default class Conv2D extends Layer {
 
     if (this._useWeblas && !(this._imColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
       // GPU
-      const bias = this.use_bias ? this.weights.b.weblasTensor : this._zerosVec.weblasTensor
+      const bias = this.use_bias ? this.weights['bias'].weblasTensor : this._zerosVec.weblasTensor
       matMul.tensor.data = weblas.pipeline
         .sgemm(1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor, 1, bias)
         .transfer()
@@ -380,7 +380,7 @@ export default class Conv2D extends Layer {
       // CPU
       if (this.use_bias) {
         for (let n = 0; n < nbFilter; n++) {
-          ops.assigns(matMul.tensor.pick(null, n), this.weights.b.tensor.get(n))
+          ops.assigns(matMul.tensor.pick(null, n), this.weights['bias'].tensor.get(n))
         }
       }
       gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1)

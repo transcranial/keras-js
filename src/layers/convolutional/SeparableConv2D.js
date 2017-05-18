@@ -54,7 +54,7 @@ class _DepthwiseConv2D extends Conv2D {
    * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
    */
   _w2row() {
-    const inputChannels = this.weights.W.tensor.shape[2]
+    const inputChannels = this.weights['kernel'].tensor.shape[2]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const patchLen = nbRow * nbCol
 
@@ -65,7 +65,7 @@ class _DepthwiseConv2D extends Conv2D {
     let p = 0
     for (let c = 0; c < inputChannels; c++) {
       for (let n = 0; n < nbFilter; n++) {
-        ops.assign(patch.tensor, this.weights.W.tensor.pick(null, null, c, n))
+        ops.assign(patch.tensor, this.weights['kernel'].tensor.pick(null, null, c, n))
         patchRaveled.replaceTensorData(patch.tensor.data)
         ops.assign(this._wRowsMat.tensor.pick(null, p), patchRaveled.tensor)
         p += 1
@@ -186,7 +186,7 @@ export default class SeparableConv2D extends Layer {
 
     // Layer weights specification
     this.params = this.use_bias
-      ? ['depthwise_kernel', 'pointwise_kernel', 'b']
+      ? ['depthwise_kernel', 'pointwise_kernel', 'bias']
       : ['depthwise_kernel', 'pointwise_kernel']
 
     // SeparableConv2D has two components: depthwise, and pointwise.

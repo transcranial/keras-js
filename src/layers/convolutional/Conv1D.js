@@ -40,7 +40,7 @@ export default class Conv1D extends Layer {
     this.use_bias = use_bias
 
     // Layer weights specification
-    this.params = this.use_bias ? ['W', 'b'] : ['W']
+    this.params = this.use_bias ? ['kernel', 'bias'] : ['kernel']
 
     // Bootstrap Conv2D layer:
     // Conv1D is actually a shim on top of Conv2D, where

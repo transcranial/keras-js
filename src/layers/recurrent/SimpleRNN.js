@@ -45,7 +45,7 @@ export default class SimpleRNN extends Layer {
     this.stateful = stateful
 
     // Layer weights specification
-    this.params = this.use_bias ? ['W', 'U', 'b'] : ['W', 'U']
+    this.params = this.use_bias ? ['kernel', 'recurrent_kernel', 'bias'] : ['kernel', 'recurrent_kernel']
   }
 
   /**
@@ -56,7 +56,7 @@ export default class SimpleRNN extends Layer {
   setWeights(weightsArr) {
     super.setWeights(weightsArr)
     if (!this.use_bias) {
-      this.weights['b'] = new Tensor([], [this.units])
+      this.weights['bias'] = new Tensor([], [this.units])
     }
   }
 
@@ -93,9 +93,9 @@ export default class SimpleRNN extends Layer {
     const _step = () => {
       ops.assign(previousHiddenState.tensor, currentHiddenState.tensor)
 
-      gemv(1, this.weights['W'].tensor.transpose(1, 0), currentX.tensor, 1, tempXH.tensor)
-      gemv(1, this.weights['U'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHH.tensor)
-      this._combine(currentHiddenState.tensor, tempXH.tensor, tempHH.tensor, this.weights['b'].tensor)
+      gemv(1, this.weights['kernel'].tensor.transpose(1, 0), currentX.tensor, 1, tempXH.tensor)
+      gemv(1, this.weights['recurrent_kernel'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHH.tensor)
+      this._combine(currentHiddenState.tensor, tempXH.tensor, tempHH.tensor, this.weights['bias'].tensor)
       this.activationFunc(currentHiddenState)
     }
 

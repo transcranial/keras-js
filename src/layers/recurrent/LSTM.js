@@ -49,7 +49,7 @@ export default class LSTM extends Layer {
     this.stateful = stateful
 
     // Layer weights specification
-    this.params = this.use_bias ? ['W', 'U', 'b'] : ['W', 'U']
+    this.params = this.use_bias ? ['kernel', 'recurrent_kernel', 'bias'] : ['kernel', 'recurrent_kernel']
   }
 
   /**
@@ -62,36 +62,42 @@ export default class LSTM extends Layer {
   setWeights(weightsArr) {
     super.setWeights(weightsArr)
 
-    const shape_W = this.weights['W'].tensor.shape
+    const shape_W = this.weights['kernel'].tensor.shape
     this.weights['W_i'] = new Tensor([], [shape_W[0], this.units])
     this.weights['W_f'] = new Tensor([], [shape_W[0], this.units])
     this.weights['W_c'] = new Tensor([], [shape_W[0], this.units])
     this.weights['W_o'] = new Tensor([], [shape_W[0], this.units])
-    ops.assign(this.weights['W_i'].tensor, this.weights['W'].tensor.hi(shape_W[0], this.units).lo(0, 0))
-    ops.assign(this.weights['W_f'].tensor, this.weights['W'].tensor.hi(shape_W[0], 2 * this.units).lo(0, this.units))
+    ops.assign(this.weights['W_i'].tensor, this.weights['kernel'].tensor.hi(shape_W[0], this.units).lo(0, 0))
+    ops.assign(
+      this.weights['W_f'].tensor,
+      this.weights['kernel'].tensor.hi(shape_W[0], 2 * this.units).lo(0, this.units)
+    )
     ops.assign(
       this.weights['W_c'].tensor,
-      this.weights['W'].tensor.hi(shape_W[0], 3 * this.units).lo(0, 2 * this.units)
+      this.weights['kernel'].tensor.hi(shape_W[0], 3 * this.units).lo(0, 2 * this.units)
     )
     ops.assign(
       this.weights['W_o'].tensor,
-      this.weights['W'].tensor.hi(shape_W[0], 4 * this.units).lo(0, 3 * this.units)
+      this.weights['kernel'].tensor.hi(shape_W[0], 4 * this.units).lo(0, 3 * this.units)
     )
 
-    const shape_U = this.weights['U'].tensor.shape
+    const shape_U = this.weights['recurrent_kernel'].tensor.shape
     this.weights['U_i'] = new Tensor([], [shape_U[0], this.units])
     this.weights['U_f'] = new Tensor([], [shape_U[0], this.units])
     this.weights['U_c'] = new Tensor([], [shape_U[0], this.units])
     this.weights['U_o'] = new Tensor([], [shape_U[0], this.units])
-    ops.assign(this.weights['U_i'].tensor, this.weights['U'].tensor.hi(shape_U[0], this.units).lo(0, 0))
-    ops.assign(this.weights['U_f'].tensor, this.weights['U'].tensor.hi(shape_U[0], 2 * this.units).lo(0, this.units))
+    ops.assign(this.weights['U_i'].tensor, this.weights['recurrent_kernel'].tensor.hi(shape_U[0], this.units).lo(0, 0))
+    ops.assign(
+      this.weights['U_f'].tensor,
+      this.weights['recurrent_kernel'].tensor.hi(shape_U[0], 2 * this.units).lo(0, this.units)
+    )
     ops.assign(
       this.weights['U_c'].tensor,
-      this.weights['U'].tensor.hi(shape_U[0], 3 * this.units).lo(0, 2 * this.units)
+      this.weights['recurrent_kernel'].tensor.hi(shape_U[0], 3 * this.units).lo(0, 2 * this.units)
     )
     ops.assign(
       this.weights['U_o'].tensor,
-      this.weights['U'].tensor.hi(shape_U[0], 4 * this.units).lo(0, 3 * this.units)
+      this.weights['recurrent_kernel'].tensor.hi(shape_U[0], 4 * this.units).lo(0, 3 * this.units)
     )
 
     this.weights['b_i'] = new Tensor([], [this.units])
@@ -99,10 +105,10 @@ export default class LSTM extends Layer {
     this.weights['b_c'] = new Tensor([], [this.units])
     this.weights['b_o'] = new Tensor([], [this.units])
     if (this.use_bias) {
-      ops.assign(this.weights['b_i'].tensor, this.weights['b'].tensor.hi(this.units).lo(0))
-      ops.assign(this.weights['b_f'].tensor, this.weights['b'].tensor.hi(2 * this.units).lo(this.units))
-      ops.assign(this.weights['b_c'].tensor, this.weights['b'].tensor.hi(3 * this.units).lo(2 * this.units))
-      ops.assign(this.weights['b_o'].tensor, this.weights['b'].tensor.hi(4 * this.units).lo(3 * this.units))
+      ops.assign(this.weights['b_i'].tensor, this.weights['bias'].tensor.hi(this.units).lo(0))
+      ops.assign(this.weights['b_f'].tensor, this.weights['bias'].tensor.hi(2 * this.units).lo(this.units))
+      ops.assign(this.weights['b_c'].tensor, this.weights['bias'].tensor.hi(3 * this.units).lo(2 * this.units))
+      ops.assign(this.weights['b_o'].tensor, this.weights['bias'].tensor.hi(4 * this.units).lo(3 * this.units))
     }
   }
 
