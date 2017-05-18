@@ -327,7 +327,7 @@ export default class Model {
   }
 
   /**
-   * Runs .call() on Merge layer
+   * Runs .call() on merge layer
    * @param {Layer} currentLayer
    * @param {Layer[]} inboundLayers
    * @param {boolean} copyBeforeCall
@@ -422,7 +422,7 @@ export default class Model {
       // Where computational logic lives for a given layer node
       // - Makes sure results are available from inbound layer nodes
       // - Keeps generator going until results are available from inbound layer nodes
-      //   (important for Merge layer nodes where multiple inbound nodes may
+      //   (important for merge layer nodes where multiple inbound nodes may
       //    complete asynchronously)
       // - Runs computation for current layer node: .call()
       // - Starts new generator function for outbound nodes
@@ -443,9 +443,12 @@ export default class Model {
           .map(n => this.modelDAG[n].outbound)
           .reduce((num, outbound) => num + outbound.length, 0)
         const copyBeforeCall = numSiblingNodes >= 1
-        currentLayer.result = layerClass === 'Merge'
-          ? this._mergeLayerCall(currentLayer, inboundLayers, copyBeforeCall)
-          : this._regularLayerCall(currentLayer, inboundLayers[0], copyBeforeCall)
+
+        if (['Add', 'Multiply', 'Average', 'Maximum', 'Concatenate', 'Dot'].includes(layerClass)) {
+          currentLayer.result = this._mergeLayerCall(currentLayer, inboundLayers, copyBeforeCall)
+        } else {
+          currentLayer.result = this._regularLayerCall(currentLayer, inboundLayers[0], copyBeforeCall)
+        }
 
         currentLayer.hasResult = true
         currentLayer.visited = true
