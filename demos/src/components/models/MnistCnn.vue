@@ -105,17 +105,17 @@ const MODEL_FILEPATHS_PROD = {
 const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
 const LAYER_DISPLAY_CONFIG = {
-  Conv2D_1: { heading: '32 3x3 filters, border mode valid, 1x1 strides', scalingFactor: 2 },
+  conv2d_1: { heading: '32 3x3 filters, padding valid, 1x1 strides', scalingFactor: 2 },
   activation_1: { heading: 'ReLU', scalingFactor: 2 },
-  Conv2D_2: { heading: '32 3x3 filters, border mode valid, 1x1 strides', scalingFactor: 2 },
+  conv2d_2: { heading: '32 3x3 filters, padding valid, 1x1 strides', scalingFactor: 2 },
   activation_2: { heading: 'ReLU', scalingFactor: 2 },
-  maxpooling2d_1: { heading: '2x2 pools, 1x1 strides', scalingFactor: 2 },
+  max_pooling2d_1: { heading: '2x2 pooling, 1x1 strides', scalingFactor: 2 },
   dropout_1: { heading: 'p=0.25 (only active during training phase)', scalingFactor: 2 },
   flatten_1: { heading: '', scalingFactor: 2 },
-  dense_1: { heading: 'output dimensionality 128', scalingFactor: 4 },
+  dense_1: { heading: 'output dimensions 128', scalingFactor: 4 },
   activation_3: { heading: 'ReLU', scalingFactor: 4 },
   dropout_2: { heading: 'p=0.5 (only active during training phase)', scalingFactor: 4 },
-  dense_2: { heading: 'output dimensionality 10', scalingFactor: 8 },
+  dense_2: { heading: 'output dimensions 10', scalingFactor: 8 },
   activation_4: { heading: 'Softmax', scalingFactor: 8 }
 }
 
