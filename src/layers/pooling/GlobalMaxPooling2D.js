@@ -13,8 +13,8 @@ export default class GlobalMaxPooling2D extends Layer {
     super(attrs)
     this.layerClass = 'GlobalMaxPooling2D'
 
-    const { dimOrdering = 'tf' } = attrs
-    this.dimOrdering = dimOrdering
+    const { data_format = 'channels_last' } = attrs
+    this.dataFormat = data_format
   }
 
   /**
@@ -23,8 +23,8 @@ export default class GlobalMaxPooling2D extends Layer {
    * @returns {Tensor} x
    */
   call(x) {
-    // convert to tf ordering
-    if (this.dimOrdering === 'th') {
+    // convert to channels_last ordering
+    if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(1, 2, 0)
     }
 

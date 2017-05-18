@@ -7,43 +7,58 @@ describe('pooling layer: AveragePooling2D', function() {
   const layers = KerasJS.layers
 
   const testParams = [
-    { inputShape: [6, 6, 3], attrs: { poolSize: [2, 2], strides: null, borderMode: 'valid', dimOrdering: 'tf' } },
     {
       inputShape: [6, 6, 3],
-      attrs: { poolSize: [2, 2], strides: [1, 1], borderMode: 'valid', dimOrdering: 'tf' }
+      attrs: { pool_size: [2, 2], strides: null, padding: 'valid', data_format: 'channels_last' }
+    },
+    {
+      inputShape: [6, 6, 3],
+      attrs: { pool_size: [2, 2], strides: [1, 1], padding: 'valid', data_format: 'channels_last' }
     },
     {
       inputShape: [6, 7, 3],
-      attrs: { poolSize: [2, 2], strides: [2, 1], borderMode: 'valid', dimOrdering: 'tf' }
+      attrs: { pool_size: [2, 2], strides: [2, 1], padding: 'valid', data_format: 'channels_last' }
     },
-    { inputShape: [6, 6, 3], attrs: { poolSize: [3, 3], strides: null, borderMode: 'valid', dimOrdering: 'tf' } },
     {
       inputShape: [6, 6, 3],
-      attrs: { poolSize: [3, 3], strides: [3, 3], borderMode: 'valid', dimOrdering: 'tf' }
+      attrs: { pool_size: [3, 3], strides: null, padding: 'valid', data_format: 'channels_last' }
     },
-    { inputShape: [6, 6, 3], attrs: { poolSize: [2, 2], strides: null, borderMode: 'same', dimOrdering: 'tf' } },
     {
       inputShape: [6, 6, 3],
-      attrs: { poolSize: [2, 2], strides: [1, 1], borderMode: 'same', dimOrdering: 'tf' }
+      attrs: { pool_size: [3, 3], strides: [3, 3], padding: 'valid', data_format: 'channels_last' }
+    },
+    {
+      inputShape: [6, 6, 3],
+      attrs: { pool_size: [2, 2], strides: null, padding: 'same', data_format: 'channels_last' }
+    },
+    {
+      inputShape: [6, 6, 3],
+      attrs: { pool_size: [2, 2], strides: [1, 1], padding: 'same', data_format: 'channels_last' }
     },
     {
       inputShape: [6, 7, 3],
-      attrs: { poolSize: [2, 2], strides: [2, 1], borderMode: 'same', dimOrdering: 'tf' }
+      attrs: { pool_size: [2, 2], strides: [2, 1], padding: 'same', data_format: 'channels_last' }
     },
-    { inputShape: [6, 6, 3], attrs: { poolSize: [3, 3], strides: null, borderMode: 'same', dimOrdering: 'tf' } },
     {
       inputShape: [6, 6, 3],
-      attrs: { poolSize: [3, 3], strides: [3, 3], borderMode: 'same', dimOrdering: 'tf' }
+      attrs: { pool_size: [3, 3], strides: null, padding: 'same', data_format: 'channels_last' }
+    },
+    {
+      inputShape: [6, 6, 3],
+      attrs: { pool_size: [3, 3], strides: [3, 3], padding: 'same', data_format: 'channels_last' }
     },
     {
       inputShape: [5, 6, 3],
-      attrs: { poolSize: [3, 3], strides: [2, 2], borderMode: 'valid', dimOrdering: 'th' }
+      attrs: { pool_size: [3, 3], strides: [2, 2], padding: 'valid', data_format: 'channels_first' }
     },
     {
       inputShape: [5, 6, 3],
-      attrs: { poolSize: [3, 3], strides: [1, 1], borderMode: 'same', dimOrdering: 'th' }
+      attrs: { pool_size: [3, 3], strides: [1, 1], padding: 'same', data_format: 'channels_first' }
     },
-    { inputShape: [4, 6, 4], attrs: { poolSize: [2, 2], strides: null, borderMode: 'valid', dimOrdering: 'th' } }
+    {
+      inputShape: [4, 6, 4],
+      attrs: { pool_size: [2, 2], strides: null, padding: 'valid', data_format: 'channels_first' }
+    }
   ]
 
   before(function() {
@@ -52,8 +67,7 @@ describe('pooling layer: AveragePooling2D', function() {
 
   testParams.forEach(({ inputShape, attrs }, i) => {
     const key = `pooling.AveragePooling2D.${i}`
-    const [inputRows, inputCols, inputChannels] = inputShape
-    const title = `[${key}] test: ${inputRows}x${inputCols}x${inputChannels} input, poolSize='${attrs.poolSize}', strides=${attrs.strides}, borderMode=${attrs.borderMode}, dimOrdering=${attrs.dimOrdering}`
+    const title = `[${key}] test: ${inputShape} input, pool_size='${attrs.pool_size}', strides=${attrs.strides}, padding=${attrs.padding}, data_format=${attrs.data_format}`
 
     it(title, function() {
       console.log(`\n%c${title}`, styles.h3)

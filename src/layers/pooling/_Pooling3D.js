@@ -13,12 +13,24 @@ export default class _Pooling3D extends Layer {
     super(attrs)
     this.layerClass = '_Pooling3D'
 
-    const { poolSize = [2, 2, 2], strides = null, borderMode = 'valid', dimOrdering = 'tf' } = attrs
+    const { pool_size = [2, 2, 2], strides = null, padding = 'valid', data_format = 'channels_last' } = attrs
 
-    this.poolSize = poolSize
-    this.strides = strides === null ? poolSize : strides
-    this.borderMode = borderMode
-    this.dimOrdering = dimOrdering
+    if (Array.isArray(pool_size)) {
+      this.poolSize = pool_size
+    } else {
+      this.poolSize = [pool_size, pool_size, pool_size]
+    }
+
+    if (Array.isArray(strides)) {
+      this.strides = strides
+    } else if (strides !== null) {
+      this.strides = [strides, strides, strides]
+    } else {
+      this.strides = this.poolSize
+    }
+
+    this.padding = padding
+    this.dataFormat = data_format
 
     // default pooling function
     // can be `max` or `average`
@@ -36,23 +48,23 @@ export default class _Pooling3D extends Layer {
     const [inputDim1, inputDim2, inputDim3, inputChannels] = x.tensor.shape
     const [poolDim1, poolDim2, poolDim3] = this.poolSize
 
-    const outputDim1 = this.borderMode === 'same'
+    const outputDim1 = this.padding === 'same'
       ? Math.floor((inputDim1 + this.strides[0] - 1) / this.strides[0])
       : Math.floor((inputDim1 - poolDim1 + this.strides[0]) / this.strides[0])
-    const outputDim2 = this.borderMode === 'same'
+    const outputDim2 = this.padding === 'same'
       ? Math.floor((inputDim2 + this.strides[1] - 1) / this.strides[1])
       : Math.floor((inputDim2 - poolDim2 + this.strides[1]) / this.strides[1])
-    const outputDim3 = this.borderMode === 'same'
+    const outputDim3 = this.padding === 'same'
       ? Math.floor((inputDim3 + this.strides[2] - 1) / this.strides[2])
       : Math.floor((inputDim3 - poolDim3 + this.strides[2]) / this.strides[2])
 
-    const paddingDim1 = this.borderMode === 'same'
+    const paddingDim1 = this.padding === 'same'
       ? Math.max(0, Math.floor((outputDim1 - 1) * this.strides[0] + poolDim1 - inputDim1))
       : 0
-    const paddingDim2 = this.borderMode === 'same'
+    const paddingDim2 = this.padding === 'same'
       ? Math.max(0, Math.floor((outputDim2 - 1) * this.strides[1] + poolDim2 - inputDim2))
       : 0
-    const paddingDim3 = this.borderMode === 'same'
+    const paddingDim3 = this.padding === 'same'
       ? Math.max(0, Math.floor((outputDim3 - 1) * this.strides[2] + poolDim3 - inputDim3))
       : 0
     const paddingDim1Before = Math.floor(paddingDim1 / 2)
@@ -74,7 +86,7 @@ export default class _Pooling3D extends Layer {
   }
 
   /**
-   * Pad input tensor if necessary, for borderMode='same'.
+   * Pad input tensor if necessary, for padding='same'.
    * See above for notes on calculating padding.
    * For max, we pad with -infinity.
    * For average we pad with zero.
@@ -82,7 +94,7 @@ export default class _Pooling3D extends Layer {
    * @returns {Tensor} x
    */
   _padInput(x) {
-    if (this.borderMode === 'same') {
+    if (this.padding === 'same') {
       const [inputDim1, inputDim2, inputDim3, inputChannels] = x.tensor.shape
       const [
         paddingDim1Before,
@@ -127,8 +139,8 @@ export default class _Pooling3D extends Layer {
       throw new Error(`[pooling._Pooling3D] pooling function must be max or average.`)
     }
 
-    // convert to tf ordering
-    if (this.dimOrdering === 'th') {
+    // convert to channels_last ordering
+    if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(1, 2, 3, 0)
     }
 
@@ -191,8 +203,8 @@ export default class _Pooling3D extends Layer {
 
     x.tensor = y.tensor
 
-    // convert back to th ordering if necessary
-    if (this.dimOrdering === 'th') {
+    // convert back to channels_first ordering if necessary
+    if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(3, 0, 1, 2)
     }
 

@@ -13,11 +13,11 @@ export default class _Pooling1D extends Layer {
     super(attrs)
     this.layerClass = '_Pooling1D'
 
-    const { poolLength = 2, stride = null, borderMode = 'valid' } = attrs
+    const { pool_size = 2, strides = null, padding = 'valid' } = attrs
 
-    this.poolLength = poolLength
-    this.stride = stride === null ? poolLength : stride
-    this.borderMode = borderMode
+    this.poolSize = pool_size
+    this.strides = strides === null ? this.poolSize : strides
+    this.padding = padding
 
     // default pooling function
     // can be `max` or `average`
@@ -34,21 +34,21 @@ export default class _Pooling1D extends Layer {
       throw new Error(`[pooling._Pooling1D] pooling function must be max or average.`)
     }
 
-    const stepsNew = this.borderMode === 'valid'
-      ? Math.floor((x.tensor.shape[0] - this.poolLength + this.stride) / this.stride)
-      : Math.floor((x.tensor.shape[0] + this.stride - 1) / this.stride)
+    const stepsNew = this.padding === 'valid'
+      ? Math.floor((x.tensor.shape[0] - this.poolSize + this.strides) / this.strides)
+      : Math.floor((x.tensor.shape[0] + this.strides - 1) / this.strides)
 
     let y = new Tensor([], [stepsNew, x.tensor.shape[1]])
     let yStep = new Tensor([], [x.tensor.shape[1]])
 
-    // in borderMode same, start negative from beyond step 0
-    let step = this.borderMode === 'valid'
+    // in padding same, start negative from beyond step 0
+    let step = this.padding === 'valid'
       ? 0
-      : Math.min(0, Math.ceil((x.tensor.shape[0] - (stepsNew - 1) * this.stride - this.poolLength) / 2))
+      : Math.min(0, Math.ceil((x.tensor.shape[0] - (stepsNew - 1) * this.strides - this.poolSize) / 2))
 
     for (let i = 0; i < stepsNew; i++) {
       let _step = Math.max(0, step)
-      let limit = this.poolLength + Math.min(0, step)
+      let limit = this.poolSize + Math.min(0, step)
       ops.assign(yStep.tensor, x.tensor.pick(_step, null))
 
       let count = 1
@@ -69,7 +69,7 @@ export default class _Pooling1D extends Layer {
       }
 
       ops.assign(y.tensor.pick(i, null), yStep.tensor)
-      step += this.stride
+      step += this.strides
     }
 
     x.tensor = y.tensor

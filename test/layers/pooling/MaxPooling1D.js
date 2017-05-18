@@ -7,15 +7,15 @@ describe('pooling layer: MaxPooling1D', function() {
   const layers = KerasJS.layers
 
   const testParams = [
-    { inputShape: [6, 6], attrs: { poolLength: 2, stride: null, borderMode: 'valid' } },
-    { inputShape: [6, 6], attrs: { poolLength: 2, stride: 1, borderMode: 'valid' } },
-    { inputShape: [6, 6], attrs: { poolLength: 2, stride: 3, borderMode: 'valid' } },
-    { inputShape: [6, 6], attrs: { poolLength: 2, stride: null, borderMode: 'same' } },
-    { inputShape: [6, 6], attrs: { poolLength: 2, stride: 1, borderMode: 'same' } },
-    { inputShape: [6, 6], attrs: { poolLength: 2, stride: 3, borderMode: 'same' } },
-    { inputShape: [6, 6], attrs: { poolLength: 3, stride: null, borderMode: 'valid' } },
-    { inputShape: [7, 7], attrs: { poolLength: 3, stride: 1, borderMode: 'same' } },
-    { inputShape: [7, 7], attrs: { poolLength: 3, stride: 3, borderMode: 'same' } }
+    { inputShape: [6, 6], attrs: { pool_size: 2, strides: null, padding: 'valid' } },
+    { inputShape: [6, 6], attrs: { pool_size: 2, strides: 1, padding: 'valid' } },
+    { inputShape: [6, 6], attrs: { pool_size: 2, strides: 3, padding: 'valid' } },
+    { inputShape: [6, 6], attrs: { pool_size: 2, strides: null, padding: 'same' } },
+    { inputShape: [6, 6], attrs: { pool_size: 2, strides: 1, padding: 'same' } },
+    { inputShape: [6, 6], attrs: { pool_size: 2, strides: 3, padding: 'same' } },
+    { inputShape: [6, 6], attrs: { pool_size: 3, strides: null, padding: 'valid' } },
+    { inputShape: [7, 7], attrs: { pool_size: 3, strides: 1, padding: 'same' } },
+    { inputShape: [7, 7], attrs: { pool_size: 3, strides: 3, padding: 'same' } }
   ]
 
   before(function() {
@@ -24,8 +24,7 @@ describe('pooling layer: MaxPooling1D', function() {
 
   testParams.forEach(({ inputShape, attrs }, i) => {
     const key = `pooling.MaxPooling1D.${i}`
-    const [inputLength, inputFeatures] = inputShape
-    const title = `[${key}] test: ${inputLength}x${inputFeatures} input, poolLength='${attrs.poolLength}', stride=${attrs.stride}, borderMode=${attrs.borderMode}`
+    const title = `[${key}] test: ${inputShape} input, pool_size='${attrs.pool_size}', strides=${attrs.strides}, padding=${attrs.padding}`
 
     it(title, function() {
       console.log(`\n%c${title}`, styles.h3)

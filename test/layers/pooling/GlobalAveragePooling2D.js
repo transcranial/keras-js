@@ -7,9 +7,9 @@ describe('pooling layer: GlobalAveragePooling2D', function() {
   const layers = KerasJS.layers
 
   const testParams = [
-    { inputShape: [6, 6, 3], attrs: { dimOrdering: 'tf' } },
-    { inputShape: [3, 6, 6], attrs: { dimOrdering: 'th' } },
-    { inputShape: [5, 3, 2], attrs: { dimOrdering: 'tf' } }
+    { inputShape: [6, 6, 3], attrs: { data_format: 'channels_last' } },
+    { inputShape: [3, 6, 6], attrs: { data_format: 'channels_first' } },
+    { inputShape: [5, 3, 2], attrs: { data_format: 'channels_last' } }
   ]
 
   before(function() {
@@ -18,8 +18,7 @@ describe('pooling layer: GlobalAveragePooling2D', function() {
 
   testParams.forEach(({ inputShape, attrs }, i) => {
     const key = `pooling.GlobalAveragePooling2D.${i}`
-    const [inputRows, inputCols, inputChannels] = inputShape
-    const title = `[${key}] test: ${inputRows}x${inputCols}x${inputChannels} input, dimOrdering=${attrs.dimOrdering}`
+    const title = `[${key}] test: ${inputShape} input, data_format=${attrs.data_format}`
 
     it(title, function() {
       console.log(`\n%c${title}`, styles.h3)

@@ -14,8 +14,7 @@ describe('pooling layer: GlobalMaxPooling1D', function() {
 
   testParams.forEach(({ inputShape }, i) => {
     const key = `pooling.GlobalMaxPooling1D.${i}`
-    const [inputLength, inputFeatures] = inputShape
-    const title = `[${key}] test: ${inputLength}x${inputFeatures} input`
+    const title = `[${key}] test: ${inputShape} input`
 
     it(title, function() {
       console.log(`\n%c${title}`, styles.h3)
