@@ -1,11 +1,12 @@
 .git
 demos
+dist
 node_modules
 notebooks
 src
 test
 .babelrc
-.gitattributes
+.eslintrc
 .gitignore
 .npmignore
 index.html

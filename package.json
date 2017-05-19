@@ -1,12 +1,12 @@
 {
   "name": "keras-js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Run Keras models (tensorflow backend) in the browser, with GPU support",
-  "main": "dist/keras.js",
+  "main": "lib/index.js",
   "scripts": {
     "watch": "NODE_ENV=development BABEL_ENV=browser webpack --watch --config webpack.config.js",
     "build:browser": "rm -rf dist; NODE_ENV=production BABEL_ENV=browser webpack --config webpack.config.js",
-    "build:node": "rm -rf lib; NODE_ENV=production BABEL_ENV=node babel src --out-dir lib",
+    "build:node": "rm -rf lib; cp -r src lib; NODE_ENV=production BABEL_ENV=node babel lib --out-dir lib",
     "build": "npm run build:browser && npm run build:node",
     "server": "http-server . -c-1 -p 3000",
     "demos:watch": "cd demos; NODE_ENV=development BABEL_ENV=browser webpack --watch --config webpack.config.js",
@@ -36,6 +36,7 @@
   "homepage": "https://github.com/transcranial/keras-js#readme",
   "dependencies": {
     "axios": "^0.16.1",
+    "babel-polyfill": "^6.23.0",
     "bluebird": "^3.5.0",
     "cwise": "^1.0.10",
     "lodash": "^4.17.4",
@@ -58,7 +59,6 @@
     "babel-plugin-transform-async-to-module-method": "^6.24.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.4.0",
     "blueimp-load-image": "^2.12.2",
     "css-loader": "^0.28.1",
