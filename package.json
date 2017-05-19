@@ -9,8 +9,8 @@
     "build:node": "rm -rf lib; NODE_ENV=production BABEL_ENV=node babel src --out-dir lib",
     "build": "npm run build:browser && npm run build:node",
     "server": "http-server . -c-1 -p 3000",
-    "demos:watch": "cd demos && NODE_ENV=development webpack --watch --config webpack.config.js",
-    "demos:build": "cd demos && NODE_ENV=production webpack --config webpack.config.js"
+    "demos:watch": "cd demos; NODE_ENV=development BABEL_ENV=browser webpack --watch --config webpack.config.js",
+    "demos:build": "cd demos; rm -rf dist; NODE_ENV=production BABEL_ENV=browser webpack --config webpack.config.js"
   },
   "repository": {
     "type": "git",
