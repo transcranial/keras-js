@@ -3,10 +3,11 @@ const webpack = require('webpack')
 
 const config = {
   entry: path.resolve(__dirname, 'src/index'),
+  resolve: { extensions: ['.js'] },
   output: { path: path.resolve(__dirname, 'dist'), filename: 'keras.js', library: 'KerasJS', libraryTarget: 'umd' },
   module: {
     rules: [
-      { test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
+      { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
       { test: /\.(glsl|frag|vert)$/, use: ['raw-loader', 'glslify-loader'], exclude: /node_modules/ }
     ]
   },
