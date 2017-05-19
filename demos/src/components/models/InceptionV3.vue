@@ -103,9 +103,9 @@ const MODEL_FILEPATHS_DEV = {
   metadata: '/demos/data/inception_v3/inception_v3_metadata.json'
 }
 const MODEL_FILEPATHS_PROD = {
-  model: 'demos/data/inception_v3/inception_v3.json',
+  model: 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3.json',
   weights: 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3_weights.buf',
-  metadata: 'demos/data/inception_v3/inception_v3_metadata.json'
+  metadata: 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3_metadata.json'
 }
 const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 

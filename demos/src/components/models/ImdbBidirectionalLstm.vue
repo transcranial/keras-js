@@ -75,9 +75,9 @@ const MODEL_FILEPATHS_DEV = {
   metadata: '/demos/data/imdb_bidirectional_lstm/imdb_bidirectional_lstm_metadata.json'
 }
 const MODEL_FILEPATHS_PROD = {
-  model: 'demos/data/imdb_bidirectional_lstm/imdb_bidirectional_lstm.json',
+  model: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm.json',
   weights: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm_weights.buf',
-  metadata: 'demos/data/imdb_bidirectional_lstm/imdb_bidirectional_lstm_metadata.json'
+  metadata: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm_metadata.json'
 }
 const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
@@ -87,9 +87,9 @@ const ADDITIONAL_DATA_FILEPATHS_DEV = {
   testSamples: '/demos/data/imdb_bidirectional_lstm/imdb_dataset_test.json'
 }
 const ADDITIONAL_DATA_FILEPATHS_PROD = {
-  wordIndex: 'demos/data/imdb_bidirectional_lstm/imdb_dataset_word_index_top20000.json',
-  wordDict: 'demos/data/imdb_bidirectional_lstm/imdb_dataset_word_dict_top20000.json',
-  testSamples: 'demos/data/imdb_bidirectional_lstm/imdb_dataset_test.json'
+  wordIndex: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_dataset_word_index_top20000.json',
+  wordDict: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_dataset_word_dict_top20000.json',
+  testSamples: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_dataset_test.json'
 }
 const ADDITIONAL_DATA_FILEPATHS = process.env.NODE_ENV === 'production'
   ? ADDITIONAL_DATA_FILEPATHS_PROD

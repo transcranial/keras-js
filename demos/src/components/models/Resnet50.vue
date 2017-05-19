@@ -103,9 +103,9 @@ const MODEL_FILEPATHS_DEV = {
   metadata: '/demos/data/resnet50/resnet50_metadata.json'
 }
 const MODEL_FILEPATHS_PROD = {
-  model: 'demos/data/resnet50/resnet50.json',
+  model: 'https://transcranial.github.io/keras-js-demos-data/resnet50/resnet50.json',
   weights: 'https://transcranial.github.io/keras-js-demos-data/resnet50/resnet50_weights.buf',
-  metadata: 'demos/data/resnet50/resnet50_metadata.json'
+  metadata: 'https://transcranial.github.io/keras-js-demos-data/resnet50/resnet50_metadata.json'
 }
 const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
