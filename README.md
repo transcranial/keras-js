@@ -150,20 +150,17 @@ See `demos/src/` for source code of real examples written in VueJS.
       }
 
       // make predictions
+      return model.predict(inputData)
+    })
+    .then(outputData => {
       // outputData is an object keyed by names of the output layers
       // or `output` for Sequential models
-      model.predict(inputData)
-        .then(outputData => {
-          // e.g.,
-          // outputData['fc1000']
-        })
-        .catch(err => {
-          // handle error
-        }
+      // e.g.,
+      // outputData['fc1000']
     })
     .catch(err => {
       // handle error
-    }
+    })
   ```
 
   Alternatively, we could also use async/await:
