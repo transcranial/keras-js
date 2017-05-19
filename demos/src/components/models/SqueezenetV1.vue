@@ -7,14 +7,6 @@
     <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
       Loading...{{ loadingProgress }}%
     </div>
-    <div class="info-panel" v-if="showInfoPanel">
-      <div class="info-panel-text">
-        In contrast to ResNet-50 and Inception-V3, the size of the weights for SqueezeNet is relatively minimal, less than 5 MB. We use the architecture and pretrained weights from <a target="_blank" href="https://github.com/rcmalli/keras-squeezenet">rcmalli/keras-squeezenet</a> (original at <a target="_blank" href="https://github.com/DeepScale/SqueezeNet">DeepScale/SqueezeNet</a>). See Jupyter notebook <a target="_blank" href="https://github.com/transcranial/keras-js/blob/master/notebooks/demos/squeezenet_v1.1.ipynb">here</a>. Enter any valid image URL as input to the network. You can also select from a list of prepopulated image URLs. The endpoint must have CORS enabled, to enable us to extract the numeric data from the canvas element, so not all URLs will work. Imgur and <a target="_blank" href="https://www.flickr.com/search/?text=&license=2%2C3%2C4%2C5%2C6%2C9&sort=interestingness-desc">Flickr creative commons</a> all work, and are good places to start. After running the network, the top-5 classes are displayed. Keep in mind also we are limited to the <a target="_blank" href="https://github.com/transcranial/keras-js/blob/master/demos/src/utils/imagenet.js">1,000 classes of ImageNet</a>. Keep in mind that this is image classification and not object detection, so the network is forced to output a single class through softmax. Best results are on images where the classification target spans a large portion of the image. All computation performed entirely in your browser.
-      </div>
-      <div class="info-panel-close">
-        <div class="info-panel-close-btn" @click="closeInfoPanel"><i class="material-icons">close</i>CLOSE</div>
-      </div>
-    </div>
     <div class="top-container" v-if="!modelLoading">
       <div class="input-container">
         <div class="input-label">Enter a valid image URL or select an image from the dropdown:</div>
@@ -114,7 +106,6 @@ export default {
 
   data: function() {
     return {
-      showInfoPanel: true,
       useGpu: false,
       showComputationFlow: true,
       model: new KerasJS.Model(Object.assign({ gpu: false, pipeline: false, layerCallPauses: true }, MODEL_CONFIG)), // eslint-disable-line
@@ -210,9 +201,6 @@ export default {
   },
 
   methods: {
-    closeInfoPanel: function() {
-      this.showInfoPanel = false
-    },
     onImageURLInputEnter: function(e) {
       this.imageURLSelect = null
       this.loadImageToCanvas(e.target.value)

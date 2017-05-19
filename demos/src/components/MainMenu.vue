@@ -64,11 +64,8 @@
 
 <script>
 export default {
-  computed: {
-    currentView: function() {
-      const path = this.$route.path
-      return path.replace(/^\//, '') || 'home'
-    }
+  props: {
+    currentView: { type: String, default: 'home' }
   }
 }
 </script>

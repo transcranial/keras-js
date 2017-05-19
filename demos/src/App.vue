@@ -2,7 +2,8 @@
   <div id="app">
     <div class="columns">
       <div class="column is-3" style="min-width: 350px; max-width: 450px;">
-        <main-menu></main-menu>
+        <main-menu :current-view="currentView"></main-menu>
+        <info-panel :current-view="currentView"></info-panel>
       </div>
       <div class="column is-9">
         <router-view :has-webgl="hasWebgl"></router-view>
@@ -13,11 +14,18 @@
 
 <script>
 import MainMenu from './components/MainMenu'
+import InfoPanel from './components/InfoPanel'
 
 export default {
-  components: { MainMenu },
+  components: { MainMenu, InfoPanel },
   data: function() {
     return { hasWebgl: true }
+  },
+  computed: {
+    currentView: function() {
+      const path = this.$route.path
+      return path.replace(/^\//, '') || 'home'
+    }
   },
   created: function() {
     const canvas = document.createElement('canvas')
@@ -77,50 +85,6 @@ body {
     margin: 30px;
     background: rgba(255, 255, 255, 0.5);
     border-radius: 10px;
-  }
-
-  & .info-panel {
-    width: 100%;
-    max-width: 1200px;
-    border-radius: 5px;
-    background: white;
-    color: var(--color-darkgray);
-    padding: 20px 20px 5px 20px;
-    margin: 20px auto;
-    box-shadow: 5px 5px #CCCCCC;
-
-    & .info-panel-text {
-      width: 100%;
-      margin-bottom: 10px;
-      font-size: 12px;
-
-      & a {
-        color: var(--color-green);
-        transition: color 0.2s ease-in;
-
-        &:hover {
-          color: var(--color-green-light);
-        }
-      }
-    }
-
-    & .info-panel-close {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-
-      & .info-panel-close-btn {
-        display: flex;
-        align-items: center;
-        color: var(--color-lightgray);
-        transition: color 0.2s ease-in;
-
-        &:hover {
-          color: var(--color-green-lighter);
-          cursor: pointer;
-        }
-      }
-    }
   }
 }
 

@@ -7,14 +7,6 @@
     <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
       Loading...{{ loadingProgress }}%
     </div>
-    <div class="info-panel" v-if="showInfoPanel">
-      <div class="info-panel-text">
-        Modified from the MNIST convolution/deconvolution variational autoencoder example <a target="_blank" href="https://github.com/fchollet/keras/blob/master/examples/variational_autoencoder_deconv.py">here</a>. The network demonstrated here is the generative decoder portion (see <a target="_blank" href="https://github.com/transcranial/keras-js/blob/master/demos/notebooks/mnist_vae.ipynb">Jupyter notebook</a>). The network generates an image through a series of Conv2DTranspose layers from coordinates in the 2D latent space. All computation performed entirely in your browser. Toggling GPU on/off shouldn't reveal any significant speed differences, as this is a fairly small network. In the architecture diagram below, intermediate outputs at each layer are also visualized.
-      </div>
-      <div class="info-panel-close">
-        <div class="info-panel-close-btn" @click="closeInfoPanel"><i class="material-icons">close</i>CLOSE</div>
-      </div>
-    </div>
     <div class="columns input-output" v-if="!modelLoading">
       <div class="column input-column">
         <div class="input-container">
@@ -116,7 +108,6 @@ export default {
 
   data: function() {
     return {
-      showInfoPanel: true,
       useGpu: this.hasWebgl,
       model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)), // eslint-disable-line
       modelLoading: true,
@@ -153,9 +144,6 @@ export default {
   },
 
   methods: {
-    closeInfoPanel: function() {
-      this.showInfoPanel = false
-    },
     activateCrosshairs: function() {
       this.crosshairsActivated = true
     },

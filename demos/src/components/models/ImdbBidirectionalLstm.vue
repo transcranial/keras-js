@@ -7,12 +7,6 @@
     <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
       Loading...{{ loadingProgress }}%
     </div>
-    <div class="info-panel" v-if="showInfoPanel">
-      <div class="info-panel-text">This demo is modified from the Keras <a target="_blank" href="https://github.com/fchollet/keras/blob/master/examples/imdb_bidirectional_lstm.py">example</a> demonstrating the Bidirectional wrapper class around an LSTM layer. Click on "load sample text" to populate the textbox with a sample IMDB movie review (preprocessed) from the test set (not used during training). You can also enter your own text into the textbox, but keep in mind the model was trained on IMDB movie reviews only (see the corresponding <a target="_blank" href="https://github.com/transcranial/keras-js/blob/master/demos/notebooks/imdb_bidirectional_lstm.ipynb">Jupyter notebook</a>). The result is a number from 0 (negative) to 1 (positive). We visualize the contributions from each word by running the forward+backward concatenated hidden state corresponding to each word through the final Dense layer.</div>
-      <div class="info-panel-close">
-        <div class="info-panel-close-btn" @click="closeInfoPanel"><i class="material-icons">close</i>CLOSE</div>
-      </div>
-    </div>
     <div class="columns input-output" v-if="!modelLoading">
       <div class="column input-column">
         <div class="input-container">
@@ -120,7 +114,6 @@ export default {
 
   data: function() {
     return {
-      showInfoPanel: true,
       useGpu: false,
       model: new KerasJS.Model(Object.assign({ gpu: false }, MODEL_CONFIG)), // eslint-disable-line
       modelLoading: true,
@@ -171,9 +164,6 @@ export default {
   },
 
   methods: {
-    closeInfoPanel: function() {
-      this.showInfoPanel = false
-    },
     clear: function() {
       this.inputText = ''
       this.inputTextParsed = []
