@@ -138,7 +138,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 14,
     col: 3
   },
-  { name: 'mixed0', className: 'Merge', details: 'concat by channel axes', row: 18, col: 3 },
+  { name: 'mixed0', className: 'Concatenate', details: 'by channel axis', row: 18, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 1: 35 x 35 x 256
   {
@@ -246,7 +246,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 21,
     col: 3
   },
-  { name: 'mixed1', className: 'Merge', details: 'concat by channel axes', row: 25, col: 3 },
+  { name: 'mixed1', className: 'Concatenate', details: 'by channel axis', row: 25, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 2: 35 x 35 x 256
   {
@@ -354,7 +354,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 28,
     col: 3
   },
-  { name: 'mixed2', className: 'Merge', details: 'concat by channel axes', row: 32, col: 3 },
+  { name: 'mixed2', className: 'Concatenate', details: 'by channel axis', row: 32, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 3: 17 x 17 x 768
   {
@@ -420,7 +420,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 33,
     col: 2
   },
-  { name: 'mixed3', className: 'Merge', details: 'concat by channel axes', row: 39, col: 3 },
+  { name: 'mixed3', className: 'Concatenate', details: 'by channel axis', row: 39, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 4: 17 x 17 x 768
   {
@@ -570,7 +570,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 42,
     col: 3
   },
-  { name: 'mixed4', className: 'Merge', details: 'concat by channel axes', row: 50, col: 3 },
+  { name: 'mixed4', className: 'Concatenate', details: 'by channel axis', row: 50, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 5: 17 x 17 x 768
   {
@@ -720,7 +720,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 53,
     col: 3
   },
-  { name: 'mixed5', className: 'Merge', details: 'concat by channel axes', row: 61, col: 3 },
+  { name: 'mixed5', className: 'Concatenate', details: 'by channel axis', row: 61, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 6: 17 x 17 x 768
   {
@@ -870,7 +870,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 64,
     col: 3
   },
-  { name: 'mixed6', className: 'Merge', details: 'concat by channel axes', row: 72, col: 3 },
+  { name: 'mixed6', className: 'Concatenate', details: 'by channel axis', row: 72, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 7: 17 x 17 x 768
   {
@@ -1020,7 +1020,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 75,
     col: 3
   },
-  { name: 'mixed7', className: 'Merge', details: 'concat by channel axes', row: 83, col: 3 },
+  { name: 'mixed7', className: 'Concatenate', details: 'by channel axis', row: 83, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 8: 8 x 8 x 1280
   {
@@ -1114,7 +1114,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 84,
     col: 2
   },
-  { name: 'mixed8', className: 'Merge', details: 'concat by channel axes', row: 92, col: 3 },
+  { name: 'mixed8', className: 'Concatenate', details: 'by channel axis', row: 92, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 9: 8 x 8 x 2048
   {
@@ -1251,8 +1251,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 94,
     col: 0
   },
-  { name: 'mixed9_0', className: 'Merge', details: 'concat by channel axes', row: 97, col: 1 },
-  { name: 'concatenate_1', className: 'Merge', details: 'concat by channel axes', row: 99, col: 2 },
+  { name: 'mixed9_0', className: 'Concatenate', details: 'by channel axis', row: 97, col: 1 },
+  { name: 'concatenate_1', className: 'Concatenate', details: 'by channel axis', row: 99, col: 2 },
   {
     name: 'batch_normalization_85',
     className: 'BatchNormalization',
@@ -1260,7 +1260,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 95,
     col: 3
   },
-  { name: 'mixed9', className: 'Merge', details: 'concat by channel axes', row: 100, col: 3 },
+  { name: 'mixed9', className: 'Concatenate', details: 'by channel axis', row: 100, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // mixed block 10: 8 x 8 x 2048
   {
@@ -1397,8 +1397,8 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 102,
     col: 0
   },
-  { name: 'mixed9_1', className: 'Merge', details: 'concat by channel axes', row: 105, col: 1 },
-  { name: 'concatenate_2', className: 'Merge', details: 'concat by channel axes', row: 107, col: 2 },
+  { name: 'mixed9_1', className: 'Concatenate', details: 'by channel axis', row: 105, col: 1 },
+  { name: 'concatenate_2', className: 'Concatenate', details: 'by channel axis', row: 107, col: 2 },
   {
     name: 'batch_normalization_94',
     className: 'BatchNormalization',
@@ -1406,7 +1406,7 @@ export const ARCHITECTURE_DIAGRAM = [
     row: 103,
     col: 3
   },
-  { name: 'mixed10', className: 'Merge', details: 'concat by channel axes', row: 108, col: 3 },
+  { name: 'mixed10', className: 'Concatenate', details: 'by channel axis', row: 108, col: 3 },
   // /////////////////////////////////////////////////////////////////////
   // final
   {

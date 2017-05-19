@@ -25,7 +25,9 @@ Library version compatibility:
 
 - 50-layer Residual Network, trained on ImageNet
 
-- Inception V3, trained on ImageNet
+- Inception v3, trained on ImageNet
+
+- SqueezeNet v1.1, trained on ImageNet
 
 - Bidirectional LSTM for IMDB sentiment classification
 

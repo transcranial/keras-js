@@ -1,7 +1,7 @@
 <template>
-  <div class="demo inception-v3">
+  <div class="demo squeezenet-v1">
     <div class="title">
-      <span>Inception v3, trained on ImageNet</span>
+      <span>SqueezeNet v1.1, trained on ImageNet</span>
       <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
     </div>
     <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
@@ -9,7 +9,7 @@
     </div>
     <div class="info-panel" v-if="showInfoPanel">
       <div class="info-panel-text">
-        Note that ~100 MB of weights must be loaded. We use the Keras architecture from <a target="_blank" href="https://github.com/fchollet/keras/blob/master/keras/applications/inception_v3.py">here</a> and pretrained weights from <a target="_blank" href="https://github.com/fchollet/deep-learning-models">here</a>. Enter any valid image URL as input to the network. You can also select from a list of prepopulated image URLs. The endpoint must have CORS enabled, to enable us to extract the numeric data from the canvas element, so not all URLs will work. Imgur and <a target="_blank" href="https://www.flickr.com/search/?text=&license=2%2C3%2C4%2C5%2C6%2C9&sort=interestingness-desc">Flickr creative commons</a> all work, and are good places to start. After running the network, the top-5 classes are displayed. Keep in mind also we are limited to the <a target="_blank" href="https://github.com/transcranial/keras-js/blob/master/demos/src/utils/imagenet.js">1,000 classes of ImageNet</a>. Keep in mind that this is image classification and not object detection, so the network is forced to output a single class through softmax. Best results are on images where the classification target spans a large portion of the image. All computation performed entirely in your browser. Toggling GPU on should offer significant speedups compared to CPU. Running the network may still take several seconds (optimizations to come). With "show computational flow" toggled, computation through the network will be shown in the architecture diagram (scroll down as computation is performed layer by layer).
+        In contrast to ResNet-50 and Inception-V3, the size of the weights for SqueezeNet is relatively minimal, less than 5 MB. We use the architecture and pretrained weights from <a target="_blank" href="https://github.com/rcmalli/keras-squeezenet">rcmalli/keras-squeezenet</a> (original at <a target="_blank" href="https://github.com/DeepScale/SqueezeNet">DeepScale/SqueezeNet</a>). See Jupyter notebook <a target="_blank" href="https://github.com/transcranial/keras-js/blob/master/notebooks/demos/squeezenet_v1.1.ipynb">here</a>. Enter any valid image URL as input to the network. You can also select from a list of prepopulated image URLs. The endpoint must have CORS enabled, to enable us to extract the numeric data from the canvas element, so not all URLs will work. Imgur and <a target="_blank" href="https://www.flickr.com/search/?text=&license=2%2C3%2C4%2C5%2C6%2C9&sort=interestingness-desc">Flickr creative commons</a> all work, and are good places to start. After running the network, the top-5 classes are displayed. Keep in mind also we are limited to the <a target="_blank" href="https://github.com/transcranial/keras-js/blob/master/demos/src/utils/imagenet.js">1,000 classes of ImageNet</a>. Keep in mind that this is image classification and not object detection, so the network is forced to output a single class through softmax. Best results are on images where the classification target spans a large portion of the image. All computation performed entirely in your browser.
       </div>
       <div class="info-panel-close">
         <div class="info-panel-close-btn" @click="closeInfoPanel"><i class="material-icons">close</i>CLOSE</div>
@@ -47,7 +47,7 @@
           <div class="error" v-if="imageLoadingError">Error loading URL</div>
         </div>
         <div class="canvas-container">
-          <canvas id="input-canvas" width="299" height="299"></canvas>
+          <canvas id="input-canvas" width="227" height="227"></canvas>
         </div>
       </div>
       <div class="column output-column">
@@ -67,8 +67,8 @@
     </div>
     <div class="architecture-container" v-if="!modelLoading">
       <div v-for="(row, rowIndex) in architectureDiagramRows" :key="`row-${rowIndex}`" class="layers-row">
-        <div v-for="layers in row" class="layer-column">
-          <div v-for="layer in layers" :key="`layer-${layer.name}`"
+        <div v-for="layer in row" :key="`layer-${layer.name}`" class="layer-column">
+          <div
             v-if="layer.className"
             class="layer"
             :class="{ 'has-result': layersWithResults.includes(layer.name) }"
@@ -95,17 +95,17 @@ import ops from 'ndarray-ops'
 import filter from 'lodash/filter'
 import * as utils from '../../utils'
 import { IMAGE_URLS } from '../../data/sample-image-urls'
-import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/inception-v3-arch'
+import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/squeezenet-v1.1-arch'
 
 const MODEL_FILEPATHS_DEV = {
-  model: '/demos/data/inception_v3/inception_v3.json',
-  weights: '/demos/data/inception_v3/inception_v3_weights.buf',
-  metadata: '/demos/data/inception_v3/inception_v3_metadata.json'
+  model: '/demos/data/squeezenet_v1.1/squeezenet_v1.1.json',
+  weights: '/demos/data/squeezenet_v1.1/squeezenet_v1.1_weights.buf',
+  metadata: '/demos/data/squeezenet_v1.1/squeezenet_v1.1_metadata.json'
 }
 const MODEL_FILEPATHS_PROD = {
-  model: 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3.json',
-  weights: 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3_weights.buf',
-  metadata: 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3_metadata.json'
+  model: 'https://transcranial.github.io/keras-js-demos-data/squeezenet_v1.1/squeezenet_v1.1.json',
+  weights: 'https://transcranial.github.io/keras-js-demos-data/squeezenet_v1.1/squeezenet_v1.1_weights.buf',
+  metadata: 'https://transcranial.github.io/keras-js-demos-data/squeezenet_v1.1/squeezenet_v1.1_metadata.json'
 }
 const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
@@ -115,11 +115,9 @@ export default {
   data: function() {
     return {
       showInfoPanel: true,
-      useGpu: this.hasWebgl,
+      useGpu: false,
       showComputationFlow: true,
-      model: new KerasJS.Model( // eslint-disable-line
-        Object.assign({ gpu: this.hasWebgl, pipeline: false, layerCallPauses: true }, MODEL_CONFIG)
-      ),
+      model: new KerasJS.Model(Object.assign({ gpu: false, pipeline: false, layerCallPauses: true }, MODEL_CONFIG)), // eslint-disable-line
       modelLoading: true,
       modelRunning: false,
       imageURLInput: '',
@@ -152,13 +150,9 @@ export default {
       return this.model.getLoadingProgress()
     },
     architectureDiagramRows: function() {
-      let rows = []
-      for (let row = 0; row < 112; row++) {
-        let cols = []
-        for (let col = 0; col < 4; col++) {
-          cols.push(filter(this.architectureDiagram, { row, col }))
-        }
-        rows.push(cols)
+      const rows = []
+      for (let row = 0; row < 50; row++) {
+        rows.push(filter(this.architectureDiagram, { row }))
       }
       return rows
     },
@@ -168,7 +162,7 @@ export default {
     },
     outputClasses: function() {
       if (!this.output) {
-        let empty = []
+        const empty = []
         for (let i = 0; i < 5; i++) {
           empty.push({ name: '-', probability: 0 })
         }
@@ -206,12 +200,12 @@ export default {
           } else if (conn.corner === 'top-left') {
             path = `M${xFrom},${yFrom} L${xTo + 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
           } else if (conn.corner === 'bottom-right') {
-            path = `M${xFrom},${yFrom} L${xFrom},${yFrom + 20} Q${xFrom},${yFrom + 30} ${xFrom - 10},${yFrom + 30} L${xTo + 10},${yFrom + 30} Q${xTo},${yFrom + 30} ${xTo},${yFrom + 40} L${xTo},${yTo}`
+            path = `M${xFrom},${yFrom} L${xFrom},${yTo - 10} Q${xFrom},${yTo} ${xFrom - 10},${yTo} L${xTo},${yTo}`
           }
 
           this.architectureDiagramPaths.push(path)
         })
-      }, 1000)
+      }, 100)
     })
   },
 
@@ -251,7 +245,7 @@ export default {
             })
           }
         },
-        { maxWidth: 299, maxHeight: 299, cover: true, crop: true, canvas: true, crossOrigin: 'Anonymous' }
+        { maxWidth: 227, maxHeight: 227, cover: true, crop: true, canvas: true, crossOrigin: 'Anonymous' }
       )
     },
     runModel: function() {
@@ -261,19 +255,18 @@ export default {
 
       // data processing
       // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
-      // and https://github.com/fchollet/keras/blob/master/keras/applications/inception_v3.py
       let dataTensor = ndarray(new Float32Array(data), [width, height, 4])
       let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3])
-      ops.divseq(dataTensor, 255)
-      ops.subseq(dataTensor, 0.5)
-      ops.mulseq(dataTensor, 2)
-      ops.assign(dataProcessedTensor.pick(null, null, 0), dataTensor.pick(null, null, 0))
+      ops.subseq(dataTensor.pick(null, null, 2), 103.939)
+      ops.subseq(dataTensor.pick(null, null, 1), 116.779)
+      ops.subseq(dataTensor.pick(null, null, 0), 123.68)
+      ops.assign(dataProcessedTensor.pick(null, null, 0), dataTensor.pick(null, null, 2))
       ops.assign(dataProcessedTensor.pick(null, null, 1), dataTensor.pick(null, null, 1))
-      ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 2))
+      ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 0))
 
       const inputData = { input_1: dataProcessedTensor.data }
       this.model.predict(inputData).then(outputData => {
-        this.output = outputData['predictions']
+        this.output = outputData['loss']
         this.modelRunning = false
       })
     },
@@ -297,7 +290,7 @@ export default {
 <style scoped>
 @import '../../variables.css';
 
-.demo.inception-v3 {
+.demo.squeezenet-v1 {
   & .top-container {
     margin: 10px;
     position: relative;
@@ -445,8 +438,8 @@ export default {
   }
 
   & .architecture-container {
-    min-width: 800px;
-    max-width: 1200px;
+    min-width: 700px;
+    max-width: 900px;
     margin: 0 auto;
     position: relative;
 
@@ -472,7 +465,6 @@ export default {
           border: 2px solid white;
           border-radius: 5px;
           padding: 2px 10px 0px;
-          margin: 3px;
 
           & .layer-class-name {
             color: var(--color-green);

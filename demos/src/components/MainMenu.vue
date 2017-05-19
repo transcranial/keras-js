@@ -26,7 +26,13 @@
       </li>
       <li :class="{ active: currentView === 'inception-v3' }">
         <a href="#/inception-v3">
-          <span class="menu-item-heading">Inception V3</span>
+          <span class="menu-item-heading">Inception v3</span>
+          <span class="menu-item-subheading">ImageNet</span>
+        </a>
+      </li>
+      <li :class="{ active: currentView === 'squeezenet-v1.1' }">
+        <a href="#/squeezenet-v1.1">
+          <span class="menu-item-heading">SqueezeNet v1.1</span>
           <span class="menu-item-subheading">ImageNet</span>
         </a>
       </li>

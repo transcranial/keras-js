@@ -25,8 +25,8 @@
             @input.native="inputChanged"
           ></mdl-textfield>
           <div class="input-buttons">
-            <div class="input-load-button" v-on:click="randomSample"><i class="material-icons">add_circle</i>LOAD SAMPLE TEXT</div>
-            <div class="input-clear-button" v-on:click="clear"><i class="material-icons">clear</i>CLEAR</div>
+            <div class="input-load-button" @click="randomSample"><i class="material-icons">add_circle</i>LOAD SAMPLE TEXT</div>
+            <div class="input-clear-button" @click="clear"><i class="material-icons">clear</i>CLEAR</div>
           </div>
         </div>
       </div>

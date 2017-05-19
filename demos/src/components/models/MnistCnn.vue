@@ -34,7 +34,7 @@
             <canvas id="input-canvas-centercrop" style="display:none;"></canvas>
           </div>
           <div class="input-buttons">
-            <div class="input-clear-button" v-on:click="clear"><i class="material-icons">clear</i>CLEAR</div>
+            <div class="input-clear-button" @click="clear"><i class="material-icons">clear</i>CLEAR</div>
           </div>
         </div>
       </div>
