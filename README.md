@@ -29,8 +29,6 @@ Library version compatibility:
 
 - Bidirectional LSTM for IMDB sentiment classification
 
-*planned*: Char-RNN, SqueezeNet
-
 ### Usage
 
 See `demos/src/` for source code of real examples written in VueJS.
@@ -179,31 +177,33 @@ See `demos/src/` for source code of real examples written in VueJS.
 
 ### Available layers
 
-  - *advanced activations*: LeakyReLU, PReLU, ELU, ThresholdedReLU
+  - *core*: Dense, Activation, Dropout, SpatialDropout1D, SpatialDropout2D, SpatialDropout3D, Flatten, Reshape, Permute, RepeatVector
 
   - *convolutional*: Conv1D, Conv2D, SeparableConv2D, Conv2DTranspose, Conv3D, Cropping1D, Cropping2D, Cropping3D, UpSampling1D, UpSampling2D, UpSampling3D, ZeroPadding1D, ZeroPadding2D, ZeroPadding3D
-
-  - *core*: Dense, Activation, Dropout, SpatialDropout1D, SpatialDropout2D, SpatialDropout3D, Flatten, Reshape, Permute, RepeatVector, Merge
-
-  - *embeddings*: Embedding
-
-  - *noise*: GaussianNoise, GaussianDropout
-
-  - *normalization*: BatchNormalization
 
   - *pooling*: MaxPooling1D, MaxPooling2D, MaxPooling3D, AveragePooling1D, AveragePooling2D, AveragePooling3D, GlobalMaxPooling1D, GlobalMaxPooling2D, GlobalMaxPooling3D, GlobalAveragePooling1D, GlobalAveragePooling2D, GlobalAveragePooling3D
 
   - *recurrent*: SimpleRNN, LSTM, GRU
 
+  - *embeddings*: Embedding
+
+  - *merge*: Add, Multiply, Average, Maximum, Concatenate, Dot
+
+  - *advanced activations*: LeakyReLU, PReLU, ELU, ThresholdedReLU
+
+  - *normalization*: BatchNormalization
+
+  - *noise*: GaussianNoise, GaussianDropout
+
   - *wrappers*: Bidirectional, TimeDistributed
+
+  - *legacy*: Merge, MaxoutDense, Highway
 
 ### Layers to be implemented
 
-  Note: Lambda layers cannot be implemented directly at this point, but will eventually create a mechanism for defining computational logic through JavaScript.
-
   - *core*: Lambda
 
-  - *locally-connected*: LocallyConnected1D, LocallyConnected2D
+  - *local*: LocallyConnected1D, LocallyConnected2D
 
 ### Notes
 

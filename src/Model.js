@@ -444,7 +444,7 @@ export default class Model {
           .reduce((num, outbound) => num + outbound.length, 0)
         const copyBeforeCall = numSiblingNodes >= 1
 
-        if (['Add', 'Multiply', 'Average', 'Maximum', 'Concatenate', 'Dot'].includes(layerClass)) {
+        if (['Merge', 'Add', 'Multiply', 'Average', 'Maximum', 'Concatenate', 'Dot'].includes(layerClass)) {
           currentLayer.result = this._mergeLayerCall(currentLayer, inboundLayers, copyBeforeCall)
         } else {
           currentLayer.result = this._regularLayerCall(currentLayer, inboundLayers[0], copyBeforeCall)
