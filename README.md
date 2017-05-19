@@ -6,6 +6,10 @@ Currently the focus of this library is on forward-pass inference only.
 
 Tensor operations are extended on top of the [ndarray](https://github.com/scijs/ndarray) library. GPU support is powered by WebGL through [weblas](https://github.com/waylonflinn/weblas).
 
+Library version compatibility:
+- Keras 2.0.4
+- TensorFlow 1.1.0
+
 ### [Interactive Demos](https://transcranial.github.io/keras-js)
 
 <p align="center">
