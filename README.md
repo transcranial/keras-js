@@ -23,6 +23,8 @@ Library version compatibility:
 
 - Convolutional Variational Autoencoder, trained on MNIST
 
+- Auxiliary Classifier Generative Adversarial Networks (AC-GAN) on MNIST
+
 - 50-layer Residual Network, trained on ImageNet
 
 - Inception v3, trained on ImageNet
@@ -225,9 +227,7 @@ There are extensive tests for each implemented layer. See `notebooks/` for jupyt
 
 ```sh
 $ npm install
-```
-or
-```sh
+# or
 $ yarn
 ```
 
