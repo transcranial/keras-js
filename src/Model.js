@@ -221,7 +221,7 @@ export default class Model {
    * Input layer as the initial layer, however.
    *
    * For class Model, the network DAG is constructed from the configuration inbound
-   * and outbound nodes.
+   * and outbound nodes. Note that Models can have layers be entire Sequential branches.
    */
   _createLayers() {
     const modelClass = this.data.model.class_name
@@ -233,96 +233,122 @@ export default class Model {
       modelConfig = this.data.model.config.layers
     }
 
+    if (!(Array.isArray(modelConfig) && modelConfig.length)) {
+      throw new Error('Model configuration does not contain any layers.')
+    }
+
     modelConfig.forEach((layerDef, index) => {
       const layerClass = layerDef.class_name
       const layerConfig = layerDef.config
 
-      if (!(layerClass in layers)) {
-        throw new Error(`Layer ${layerClass} specified in model configuration is not implemented!`)
-      }
+      if (modelClass === 'Model' && layerClass === 'Sequential') {
+        // when layer is a Sequential branch in a Model
+        layerConfig.forEach((branchLayerDef, branchIndex) => {
+          const branchLayerClass = branchLayerDef.class_name
+          const branchLayerConfig = branchLayerDef.config
 
-      // create InputLayer node for Sequential class (which is not explicitly defined in config)
-      // create input tensor for InputLayer specified in Model class (layer itself created later)
-      if (modelClass === 'Sequential' && index === 0) {
-        const inputName = 'input'
-        const inputShape = layerConfig.batch_input_shape.slice(1)
-        const layer = new layers.InputLayer({ name: inputName, shape: inputShape })
-        this.modelLayersMap.set(inputName, layer)
-        this.modelDAG[inputName] = { layerClass: 'InputLayer', name: inputName, inbound: [], outbound: [] }
-        this.inputTensors[inputName] = new Tensor([], inputShape)
-      } else if (modelClass === 'Model' && layerClass === 'InputLayer') {
-        const inputShape = layerConfig.batch_input_shape.slice(1)
-        this.inputTensors[layerConfig.name] = new Tensor([], inputShape)
-      }
+          const branchInboundLayerNames = branchIndex === 0
+            ? layerDef.inbound_nodes[0].map(node => node[0])
+            : [layerConfig[branchIndex - 1].config.name]
 
-      let layer
-      if (layerClass === 'Bidirectional' || layerClass === 'TimeDistributed') {
-        // create wrapper layers
-        const wrappedLayerConfig = layerConfig.layer.config
-        const wrappedLayerClass = layerConfig.layer.class_name
-        wrappedLayerConfig.gpu = this.gpu
-
-        layer = new layers[layerClass](
-          Object.assign({}, layerConfig, { layer: new layers[wrappedLayerClass](wrappedLayerConfig) })
-        )
-      } else {
-        // create regular layers
-        layer = new layers[layerClass](Object.assign({ gpu: this.gpu, pipeline: this.pipeline }, layerConfig))
-      }
-
-      // layer weights
-      let weightNames = []
-      if (layerClass === 'Bidirectional') {
-        const forwardWeightNames = layer.forwardLayer.params.map(
-          param => `${layerConfig.name}/forward_${layerConfig.layer.config.name}/${param}`
-        )
-        const backwardWeightNames = layer.backwardLayer.params.map(
-          param => `${layerConfig.name}/backward_${layerConfig.layer.config.name}/${param}`
-        )
-        weightNames = forwardWeightNames.concat(backwardWeightNames)
-      } else if (layerClass === 'TimeDistributed') {
-        weightNames = layer.layer.params.map(param => `${layerConfig.name}/${param}`)
-      } else {
-        weightNames = layer.params.map(param => `${layerConfig.name}/${param}`)
-      }
-      if (weightNames && weightNames.length) {
-        const weights = weightNames.map(weightName => {
-          const paramMetadata = find(this.data.metadata, meta => {
-            const weightRE = new RegExp(`^${weightName}`)
-            return meta.layer_name === layerConfig.name && weightRE.test(meta.weight_name)
-          })
-          if (!paramMetadata) {
-            throw new Error(`[Model] error loading weights.`)
-          }
-
-          const { offset, length, shape } = paramMetadata
-          return new Tensor(new Float32Array(this.data.weights, offset, length), shape)
+          this._createLayer(branchLayerClass, branchLayerConfig, branchInboundLayerNames)
         })
-        layer.setWeights(weights)
-      }
-
-      this.modelLayersMap.set(layerConfig.name, layer)
-      this.modelDAG[layerConfig.name] = { layerClass, name: layerConfig.name, inbound: [], outbound: [] }
-
-      if (modelClass === 'Sequential') {
-        if (index === 0) {
+      } else if (!(layerClass in layers)) {
+        throw new Error(`Layer ${layerClass} specified in model configuration is not implemented!`)
+      } else {
+        // create InputLayer node for Sequential class (which is not explicitly defined in config)
+        // create input tensor for InputLayer specified in Model class (layer itself created later)
+        if (modelClass === 'Sequential' && index === 0) {
           const inputName = 'input'
-          this.modelDAG[inputName].outbound.push(layerConfig.name)
-          this.modelDAG[layerConfig.name].inbound.push(inputName)
-        } else {
-          const prevLayerConfig = modelConfig[index - 1].config
-          this.modelDAG[layerConfig.name].inbound.push(prevLayerConfig.name)
-          this.modelDAG[prevLayerConfig.name].outbound.push(layerConfig.name)
+          const inputShape = layerConfig.batch_input_shape.slice(1)
+          const layer = new layers.InputLayer({ name: inputName, shape: inputShape })
+          this.modelLayersMap.set(inputName, layer)
+          this.modelDAG[inputName] = { layerClass: 'InputLayer', name: inputName, inbound: [], outbound: [] }
+          this.inputTensors[inputName] = new Tensor([], inputShape)
+        } else if (modelClass === 'Model' && layerClass === 'InputLayer') {
+          const inputShape = layerConfig.batch_input_shape.slice(1)
+          this.inputTensors[layerConfig.name] = new Tensor([], inputShape)
         }
-      } else if (modelClass === 'Model') {
-        if (layerDef.inbound_nodes && layerDef.inbound_nodes.length) {
-          layerDef.inbound_nodes[0].forEach(node => {
-            const inboundLayerName = node[0]
-            this.modelDAG[layerConfig.name].inbound.push(inboundLayerName)
-            this.modelDAG[inboundLayerName].outbound.push(layerConfig.name)
-          })
+
+        let inboundLayerNames = []
+        if (modelClass === 'Sequential') {
+          if (index === 0) {
+            inboundLayerNames = ['input']
+          } else {
+            inboundLayerNames = [modelConfig[index - 1].config.name]
+          }
+        } else if (modelClass === 'Model') {
+          const inboundNodes = layerDef.inbound_nodes
+          if (inboundNodes && inboundNodes.length) {
+            inboundLayerNames = inboundNodes[0].map(node => node[0])
+          }
         }
+
+        this._createLayer(layerClass, layerConfig, inboundLayerNames)
       }
+    })
+  }
+
+  /**
+   * Create single layer.
+   * @param {String} layerClass
+   * @param {Object} layerConfig
+   * @param {Array<String>} inboundLayerNames
+   * @param {Boolean} isSequential
+   */
+  _createLayer(layerClass, layerConfig, inboundLayerNames) {
+    let layer
+    if (layerClass === 'Bidirectional' || layerClass === 'TimeDistributed') {
+      // create wrapper layers
+      const wrappedLayerConfig = layerConfig.layer.config
+      const wrappedLayerClass = layerConfig.layer.class_name
+      wrappedLayerConfig.gpu = this.gpu
+
+      layer = new layers[layerClass](
+        Object.assign({}, layerConfig, { layer: new layers[wrappedLayerClass](wrappedLayerConfig) })
+      )
+    } else {
+      // create regular layers
+      layer = new layers[layerClass](Object.assign({ gpu: this.gpu, pipeline: this.pipeline }, layerConfig))
+    }
+
+    // layer weights
+    let weightNames = []
+    if (layerClass === 'Bidirectional') {
+      const forwardWeightNames = layer.forwardLayer.params.map(
+        param => `${layerConfig.name}/forward_${layerConfig.layer.config.name}/${param}`
+      )
+      const backwardWeightNames = layer.backwardLayer.params.map(
+        param => `${layerConfig.name}/backward_${layerConfig.layer.config.name}/${param}`
+      )
+      weightNames = forwardWeightNames.concat(backwardWeightNames)
+    } else if (layerClass === 'TimeDistributed') {
+      weightNames = layer.layer.params.map(param => `${layerConfig.name}/${param}`)
+    } else {
+      weightNames = layer.params.map(param => `${layerConfig.name}/${param}`)
+    }
+    if (weightNames && weightNames.length) {
+      const weights = weightNames.map(weightName => {
+        const paramMetadata = find(this.data.metadata, meta => {
+          const weightRE = new RegExp(`^${weightName}`)
+          return weightRE.test(meta.weight_name)
+        })
+        if (!paramMetadata) {
+          throw new Error(`[Model] error loading weights.`)
+        }
+
+        const { offset, length, shape } = paramMetadata
+        return new Tensor(new Float32Array(this.data.weights, offset, length), shape)
+      })
+      layer.setWeights(weights)
+    }
+
+    this.modelLayersMap.set(layerConfig.name, layer)
+    this.modelDAG[layerConfig.name] = { layerClass, name: layerConfig.name, inbound: [], outbound: [] }
+
+    inboundLayerNames.forEach(layerName => {
+      this.modelDAG[layerConfig.name].inbound.push(layerName)
+      this.modelDAG[layerName].outbound.push(layerConfig.name)
     })
   }
 

@@ -18,6 +18,12 @@
           <span class="menu-item-subheading">MNIST</span>
         </a>
       </li>
+      <li :class="{ active: currentView === 'mnist-acgan' }">
+        <a href="#/mnist-acgan">
+          <span class="menu-item-heading">AC-GAN</span>
+          <span class="menu-item-subheading">MNIST</span>
+        </a>
+      </li>
       <li :class="{ active: currentView === 'resnet50' }">
         <a href="#/resnet50">
           <span class="menu-item-heading">Residual Network (50-layer)</span>
