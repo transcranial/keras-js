@@ -1,6 +1,6 @@
 {
   "name": "keras-js",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Run Keras models (tensorflow backend) in the browser, with GPU support",
   "main": "lib/index.js",
   "scripts": {
