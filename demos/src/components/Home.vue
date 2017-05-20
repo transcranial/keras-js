@@ -51,8 +51,8 @@ export default {
   width: 100%;
   max-width: 1000px;
   margin: 30px auto;
-  background: white;
-  border: 2px solid white;
+  background: whitesmoke;
+  border: 2px solid whitesmoke;
   border-radius: 10px;
   transition: border-color 0.2s ease-in;
   cursor: default;

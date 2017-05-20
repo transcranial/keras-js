@@ -2,8 +2,8 @@
   <div class="demo imdb-bidirectional-lstm">
     <div class="title">
       <span>Bidirectional LSTM for IMDB sentiment classification</span>
-      <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
     </div>
+    <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
     <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
       Loading...{{ loadingProgress }}%
     </div>
@@ -356,7 +356,7 @@ export default {
       }
 
       & .output-value {
-        transition: color 0.4s ease-in-out;
+        transition: color 0.3s ease-in-out;
         font-family: var(--font-monospace);
         font-size: 42px;
         margin: 10px;
@@ -378,14 +378,14 @@ export default {
       left: 0;
       height: 5px;
       width: 100%;
-      background: white;
+      background: whitesmoke;
     }
 
     & .layer {
       display: inline-block;
       width: 170px;
       margin-right: 10px;
-      background: white;
+      background: whitesmoke;
       border-radius: 5px;
       padding: 2px 10px 0px;
       z-index: 1;

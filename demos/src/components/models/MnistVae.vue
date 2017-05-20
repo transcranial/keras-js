@@ -2,12 +2,19 @@
   <div class="demo mnist-vae">
     <div class="title">
       <span>Convolutional Variational Autoencoder, trained on MNIST</span>
-      <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
     </div>
+    <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
     <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
       Loading...{{ loadingProgress }}%
     </div>
     <div class="columns input-output" v-if="!modelLoading">
+      <div class="column is-3 controls-column">
+        <mdl-switch v-model="useGpu" :disabled="modelLoading || !hasWebgl">use GPU</mdl-switch>
+        <div class="coordinates">
+          <div class="coordinates-x">x: {{ inputCoordinates[0] < 0 ? inputCoordinates[0].toFixed(2) : inputCoordinates[0].toFixed(3) }}</div>
+          <div class="coordinates-y">y: {{ inputCoordinates[1] < 0 ? inputCoordinates[1].toFixed(2) : inputCoordinates[1].toFixed(3) }}</div>
+        </div>
+      </div>
       <div class="column input-column">
         <div class="input-container">
           <div class="input-label">Click around the latent space <span class="arrow">⤸</span></div>
@@ -33,16 +40,9 @@
           </div>
         </div>
       </div>
-      <div class="column is-2 controls-column">
-        <mdl-switch v-model="useGpu" :disabled="modelLoading || !hasWebgl">use GPU</mdl-switch>
-        <div class="coordinates">
-          <div class="coordinates-x">x: {{ inputCoordinates[0] < 0 ? inputCoordinates[0].toFixed(2) : inputCoordinates[0].toFixed(3) }}</div>
-          <div class="coordinates-y">y: {{ inputCoordinates[1] < 0 ? inputCoordinates[1].toFixed(2) : inputCoordinates[1].toFixed(3) }}</div>
-        </div>
-      </div>
       <div class="column output-column">
         <div class="output">
-          <canvas id="output-canvas-scaled" width="150" height="150"></canvas>
+          <canvas id="output-canvas-scaled" width="180" height="180"></canvas>
           <canvas id="output-canvas" width="28" height="28" style="display:none;"></canvas>
         </div>
       </div>
@@ -135,7 +135,7 @@ export default {
   mounted: function() {
     this.model.ready().then(() => {
       this.modelLoading = false
-      this.$nextTick(function() {
+      this.$nextTick(() => {
         this.drawPosition()
         this.getIntermediateResults()
         this.runModel()
@@ -173,7 +173,7 @@ export default {
     drawPosition: function() {
       const ctx = document.getElementById('input-canvas').getContext('2d')
       ctx.clearRect(0, 0, 200, 200)
-      ctx.fillStyle = 'rgb(103, 65, 114)'
+      ctx.fillStyle = 'rgb(57, 62, 70)'
       ctx.beginPath()
       ctx.arc(...this.position, 5, 0, Math.PI * 2, true)
       ctx.closePath()
@@ -211,13 +211,13 @@ export default {
     },
     drawOutput: function() {
       const ctx = document.getElementById('output-canvas').getContext('2d')
-      const image = utils.image2Darray(this.output, 28, 28, [103, 65, 114])
+      const image = utils.image2Darray(this.output, 28, 28, [57, 62, 70])
       ctx.putImageData(image, 0, 0)
 
       // scale up
       const ctxScaled = document.getElementById('output-canvas-scaled').getContext('2d')
       ctxScaled.save()
-      ctxScaled.scale(150 / 28, 150 / 28)
+      ctxScaled.scale(180 / 28, 180 / 28)
       ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
       ctxScaled.drawImage(document.getElementById('output-canvas'), 0, 0)
       ctxScaled.restore()
@@ -288,8 +288,28 @@ export default {
     justify-content: center;
   }
 
+  & .column.controls-column {
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding-top: 80px;
+
+    & .mdl-switch {
+      width: auto;
+      margin-right: 15px;
+    }
+
+    & .coordinates {
+      margin-left: 5px;
+      margin-top: 45px;
+      font-family: var(--font-monospace);
+      font-size: 20px;
+      color: var(--color-lightgray);
+    }
+  }
+
   & .column.input-column {
-    justify-content: flex-end;
+    justify-content: center;
 
     & .input-container {
       text-align: right;
@@ -325,7 +345,7 @@ export default {
         }
 
         & canvas {
-          background: white;
+          background: whitesmoke;
 
           &:hover {
             cursor: crosshair;
@@ -361,21 +381,6 @@ export default {
     }
   }
 
-  & .column.controls-column {
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding-top: 80px;
-
-    & .coordinates {
-      margin-left: 5px;
-      margin-top: 45px;
-      font-family: var(--font-monospace);
-      font-size: 20px;
-      color: var(--color-lightgray);
-    }
-  }
-
   & .column.output-column {
     justify-content: flex-start;
 
@@ -384,7 +389,7 @@ export default {
       overflow: hidden;
 
       & canvas {
-        background: white;
+        background: whitesmoke;
       }
     }
   }
@@ -397,7 +402,7 @@ export default {
       z-index: 0;
       top: 0;
       left: 50%;
-      background: white;
+      background: whitesmoke;
       width: 15px;
       height: 100%;
     }
@@ -406,7 +411,7 @@ export default {
       position: relative;
       z-index: 1;
       margin: 30px 20px;
-      background: white;
+      background: whitesmoke;
       border-radius: 10px;
       padding: 20px;
       overflow-x: auto;
@@ -429,7 +434,7 @@ export default {
       & .layer-result-canvas-container {
         display: inline-flex;
         flex-wrap: wrap;
-        background: white;
+        background: whitesmoke;
 
         & canvas {
           border: 1px solid lightgray;

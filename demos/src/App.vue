@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="container">
     <div class="columns">
       <div class="column is-3" style="min-width: 350px; max-width: 450px;">
         <main-menu :current-view="currentView"></main-menu>
@@ -83,7 +83,7 @@ body {
     font-family: var(--font-monospace);
     padding: 20px 50px;
     margin: 30px;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 10px;
   }
 }
@@ -150,7 +150,7 @@ body {
 
     &:hover {
       background-color: var(--color-green-light);
-      color: white;
+      color: whitesmoke;
     }
   }
 }

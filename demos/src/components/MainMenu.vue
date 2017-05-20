@@ -82,7 +82,7 @@ export default {
 .menu {
   padding: 40px;
   margin: 20px;
-  background: white;
+  background: whitesmoke;
   border-radius: 10px;
   box-shadow: 5px 5px #CCCCCC;
 
@@ -103,7 +103,7 @@ export default {
 .menu-list {
   & li {
     color: var(--color-lightgray);
-    border-left: 2px solid white;
+    border-left: 2px solid whitesmoke;
     margin-bottom: 5px;
   }
 

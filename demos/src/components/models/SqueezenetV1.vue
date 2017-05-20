@@ -2,8 +2,8 @@
   <div class="demo squeezenet-v1">
     <div class="title">
       <span>SqueezeNet v1.1, trained on ImageNet</span>
-      <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
     </div>
+    <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
     <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
       Loading...{{ loadingProgress }}%
     </div>
@@ -106,9 +106,11 @@ export default {
 
   data: function() {
     return {
-      useGpu: false,
+      useGpu: this.hasWebgl,
       showComputationFlow: true,
-      model: new KerasJS.Model(Object.assign({ gpu: false, pipeline: false, layerCallPauses: true }, MODEL_CONFIG)), // eslint-disable-line
+      model: new KerasJS.Model(
+        Object.assign({ gpu: this.hasWebgl, pipeline: false, layerCallPauses: true }, MODEL_CONFIG)
+      ), // eslint-disable-line
       modelLoading: true,
       modelRunning: false,
       imageURLInput: '',
@@ -166,41 +168,43 @@ export default {
   mounted: function() {
     this.model.ready().then(() => {
       this.modelLoading = false
-
-      this.architectureDiagramPaths = []
-      setTimeout(() => {
-        this.architectureConnections.forEach(conn => {
-          const containerElem = document.getElementsByClassName('architecture-container')[0]
-          const fromElem = document.getElementById(conn.from)
-          const toElem = document.getElementById(conn.to)
-          const containerElemCoords = containerElem.getBoundingClientRect()
-          const fromElemCoords = fromElem.getBoundingClientRect()
-          const toElemCoords = toElem.getBoundingClientRect()
-          const xContainer = containerElemCoords.left
-          const yContainer = containerElemCoords.top
-          const xFrom = fromElemCoords.left + fromElemCoords.width / 2 - xContainer
-          const yFrom = fromElemCoords.top + fromElemCoords.height / 2 - yContainer
-          const xTo = toElemCoords.left + toElemCoords.width / 2 - xContainer
-          const yTo = toElemCoords.top + toElemCoords.height / 2 - yContainer
-
-          let path = `M${xFrom},${yFrom} L${xTo},${yTo}`
-          if (conn.corner === 'top-right') {
-            path = `M${xFrom},${yFrom} L${xTo - 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
-          } else if (conn.corner === 'bottom-left') {
-            path = `M${xFrom},${yFrom} L${xFrom},${yTo - 10} Q${xFrom},${yTo} ${xFrom + 10},${yTo} L${xTo},${yTo}`
-          } else if (conn.corner === 'top-left') {
-            path = `M${xFrom},${yFrom} L${xTo + 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
-          } else if (conn.corner === 'bottom-right') {
-            path = `M${xFrom},${yFrom} L${xFrom},${yTo - 10} Q${xFrom},${yTo} ${xFrom - 10},${yTo} L${xTo},${yTo}`
-          }
-
-          this.architectureDiagramPaths.push(path)
-        })
-      }, 100)
+      this.$nextTick(() => {
+        this.drawArchitectureDiagramPaths()
+      })
     })
   },
 
   methods: {
+    drawArchitectureDiagramPaths: function() {
+      this.architectureDiagramPaths = []
+      this.architectureConnections.forEach(conn => {
+        const containerElem = document.getElementsByClassName('architecture-container')[0]
+        const fromElem = document.getElementById(conn.from)
+        const toElem = document.getElementById(conn.to)
+        const containerElemCoords = containerElem.getBoundingClientRect()
+        const fromElemCoords = fromElem.getBoundingClientRect()
+        const toElemCoords = toElem.getBoundingClientRect()
+        const xContainer = containerElemCoords.left
+        const yContainer = containerElemCoords.top
+        const xFrom = fromElemCoords.left + fromElemCoords.width / 2 - xContainer
+        const yFrom = fromElemCoords.top + fromElemCoords.height / 2 - yContainer
+        const xTo = toElemCoords.left + toElemCoords.width / 2 - xContainer
+        const yTo = toElemCoords.top + toElemCoords.height / 2 - yContainer
+
+        let path = `M${xFrom},${yFrom} L${xTo},${yTo}`
+        if (conn.corner === 'top-right') {
+          path = `M${xFrom},${yFrom} L${xTo - 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
+        } else if (conn.corner === 'bottom-left') {
+          path = `M${xFrom},${yFrom} L${xFrom},${yTo - 10} Q${xFrom},${yTo} ${xFrom + 10},${yTo} L${xTo},${yTo}`
+        } else if (conn.corner === 'top-left') {
+          path = `M${xFrom},${yFrom} L${xTo + 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
+        } else if (conn.corner === 'bottom-right') {
+          path = `M${xFrom},${yFrom} L${xFrom},${yTo - 10} Q${xFrom},${yTo} ${xFrom - 10},${yTo} L${xTo},${yTo}`
+        }
+
+        this.architectureDiagramPaths.push(path)
+      })
+    },
     onImageURLInputEnter: function(e) {
       this.imageURLSelect = null
       this.loadImageToCanvas(e.target.value)
@@ -283,6 +287,8 @@ export default {
     margin: 10px;
     position: relative;
     display: flex;
+    align-items: center;
+    justify-content: center;
 
     & .input-container {
       & .input-label {
@@ -363,7 +369,7 @@ export default {
         justify-content: flex-end;
 
         & canvas {
-          background: white;
+          background: whitesmoke;
         }
       }
     }
@@ -449,8 +455,8 @@ export default {
 
         & .layer {
           display: inline-block;
-          background: white;
-          border: 2px solid white;
+          background: whitesmoke;
+          border: 2px solid whitesmoke;
           border-radius: 5px;
           padding: 2px 10px 0px;
 

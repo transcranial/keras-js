@@ -2,8 +2,8 @@
   <div class="demo mnist-cnn">
     <div class="title">
       <span>Basic Convnet for MNIST</span>
-      <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
     </div>
+    <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
     <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
       Loading...{{ loadingProgress }}%
     </div>
@@ -150,7 +150,7 @@ export default {
   mounted: function() {
     this.model.ready().then(() => {
       this.modelLoading = false
-      this.$nextTick(function() {
+      this.$nextTick(() => {
         this.getIntermediateResults()
       })
     })
@@ -350,7 +350,7 @@ export default {
         }
 
         & canvas {
-          background: white;
+          background: whitesmoke;
 
           &:hover {
             cursor: crosshair;
@@ -439,7 +439,7 @@ export default {
       z-index: 0;
       top: 0;
       left: 50%;
-      background: white;
+      background: whitesmoke;
       width: 15px;
       height: 100%;
     }
@@ -448,7 +448,7 @@ export default {
       position: relative;
       z-index: 1;
       margin: 30px 20px;
-      background: white;
+      background: whitesmoke;
       border-radius: 10px;
       padding: 20px;
       overflow-x: auto;
@@ -471,7 +471,7 @@ export default {
       & .layer-result-canvas-container {
         display: inline-flex;
         flex-wrap: wrap;
-        background: white;
+        background: whitesmoke;
 
         & canvas {
           border: 1px solid lightgray;
