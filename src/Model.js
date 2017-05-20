@@ -484,6 +484,8 @@ export default class Model {
           // useful for allowing DOM operations and other simultaneously running functions on the main thread
           await Promise.delay(0)
         }
+      } else {
+        this.layersWithResults.push(this.modelLayersMap.get(node).name)
       }
       await this._traverseDAG(outbound)
     } else {
