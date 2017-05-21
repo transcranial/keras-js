@@ -4,7 +4,7 @@ import Layer from '../../Layer'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 import checkPipelineSupport from '../../utils/checkPipelineSupport'
-import WebGLConv2D from '../../ext/convolutional/WebGLConv2D'
+import WebGLConv2D from '../../webgl/convolutional/WebGLConv2D'
 
 /**
  * Conv2D layer class

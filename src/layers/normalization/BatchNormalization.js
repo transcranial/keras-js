@@ -4,7 +4,7 @@ import ops from 'ndarray-ops'
 import unpack from 'ndarray-unpack'
 import flattenDeep from 'lodash/flattenDeep'
 import checkPipelineSupport from '../../utils/checkPipelineSupport'
-import WebGLBatchNorm from '../../ext/normalization/WebGLBatchNorm'
+import WebGLBatchNorm from '../../webgl/normalization/WebGLBatchNorm'
 
 /**
  * BatchNormalization layer class

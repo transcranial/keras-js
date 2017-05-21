@@ -1,6 +1,6 @@
 import _Pooling2D from './_Pooling2D'
 import checkPipelineSupport from '../../utils/checkPipelineSupport'
-import WebGLPooling2D from '../../ext/pooling/WebGLPooling2D'
+import WebGLPooling2D from '../../webgl/pooling/WebGLPooling2D'
 
 /**
  * MaxPooling2D layer class, extends abstract _Pooling2D class

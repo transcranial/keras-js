@@ -1,7 +1,7 @@
 import * as activations from '../../activations'
 import Layer from '../../Layer'
 import checkPipelineSupport from '../../utils/checkPipelineSupport'
-import WebGLActivation from '../../ext/core/WebGLActivation'
+import WebGLActivation from '../../webgl/core/WebGLActivation'
 
 /**
  * Activation layer class
