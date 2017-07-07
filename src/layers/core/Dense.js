@@ -1,6 +1,7 @@
-import * as activations from '../../activations'
+import { webgl2 } from '../../WebGL2'
 import Tensor from '../../Tensor'
 import Layer from '../../Layer'
+import * as activations from '../../activations'
 import { gemv } from 'ndarray-blas-level2'
 import ops from 'ndarray-ops'
 
@@ -10,7 +11,7 @@ import ops from 'ndarray-ops'
 export default class Dense extends Layer {
   /**
    * Creates a Dense layer
-   * @param {number} attrs.units - output dimension size
+   * @param {Number} attrs.units - output dimension size
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
@@ -22,80 +23,77 @@ export default class Dense extends Layer {
     this.activation = activation
     this.activationFunc = activations[activation]
     this.units = units
-    this.inputDim = input_dim
+    this.input_dim = input_dim
     this.use_bias = use_bias
 
     // Layer weights specification
     this.params = this.use_bias ? ['kernel', 'bias'] : ['kernel']
 
     // Input shape specification
-    if (this.inputDim) {
-      this.inputShape = [this.inputDim]
+    if (this.input_dim) {
+      this.inputShape = [this.input_dim]
     }
 
-    // Enable layer gpu +/- pipeline mode if supported
-    if (this.gpu && weblas) {
-      this._useWeblas = true
-      this._pipelineEnabled = false
-    }
-  }
+    // Output
+    this.output = new Tensor([], [this.units])
 
-  /**
-   * Method for setting layer weights. Extends `super` method.
-   * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
-   */
-  setWeights(weightsArr) {
-    super.setWeights(weightsArr)
-
-    if (this._useWeblas) {
-      this.weights['kernel'].createWeblasTensor()
-      if (!this.weights['kernel']._gpuMaxSizeExceeded) {
-        this.weights['kernel'].weblasTensor = this.weights['kernel'].weblasTensor.transpose()
-      }
-      if (this.use_bias) {
-        this.weights['bias'].createWeblasTensor()
-      } else {
-        this._zerosVec = new Tensor([], [this.weights['kernel'].tensor.shape[1]])
-        this._zerosVec.createWeblasTensor()
-      }
+    // GPU setup
+    if (this.gpu) {
+      this.program = webgl2.compileProgram(require('./Dense.webgl2.glsl'))
+      this.output.createGLTexture()
     }
   }
 
   /**
-   * Method for layer computational logic
-   *
-   * x = W^T * x + b
-   *
-   * weblas notes:
-   * sgemm(M, N, K, alpha, A, B, beta, C), where A, B, C are Float32Array
-   * - alpha * A * B + beta * C
-   * - A has shape M x N
-   * - B has shape N x K
-   * - C has shape M x K
+   * Layer computational logic
    *
    * @param {Tensor} x
    * @returns {Tensor} x
    */
   call(x) {
-    let y = new Tensor([], [this.units])
-
-    if (this._useWeblas) {
-      x.createWeblasTensor()
-    }
-
-    if (this._useWeblas && !(x._gpuMaxSizeExceeded || this.weights['kernel']._gpuMaxSizeExceeded)) {
-      const bias = this.use_bias ? this.weights['bias'].weblasTensor : this._zerosVec.weblasTensor
-      y.tensor.data = weblas.pipeline.sgemm(1, x.weblasTensor, this.weights['kernel'].weblasTensor, 1, bias).transfer()
+    if (this.gpu) {
+      this._call_gpu(x)
     } else {
-      if (this.use_bias) {
-        ops.assign(y.tensor, this.weights['bias'].tensor)
-      }
-      gemv(1, this.weights['kernel'].tensor.transpose(1, 0), x.tensor, 1, y.tensor)
+      this._call_cpu(x)
     }
-    x.tensor = y.tensor
+    return this.output
+  }
 
-    this.activationFunc(x)
+  /**
+   * CPU call
+   */
+  _call_cpu(x) {
+    if (this.use_bias) {
+      ops.assign(this.output.tensor, this.weights['bias'].tensor)
+    }
+    gemv(1, this.weights['kernel'].tensor.transpose(1, 0), x.tensor, 1, this.output.tensor)
+    this.activationFunc(this.output)
+  }
 
-    return x
+  /**
+   * GPU call
+   */
+  _call_gpu(x) {
+    webgl2.selectProgram(this.program)
+
+    if (!x.glTexture) {
+      x.createGLTexture()
+    }
+
+    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
+
+    const textures = [x.glTexture, ...this.params.map(p => this.weights[p].glTexture)]
+    const textureNames = ['x', ...this.params]
+    webgl2.bindInputTextures(this.program, textures, textureNames)
+
+    const uniforms = [this.use_bias ? 1 : 0, ...this.weights['kernel'].glTextureShape]
+    const uniformTypes = ['bool', 'int', 'int']
+    const uniformNames = ['use_bias', 'M', 'N']
+    webgl2.bindUniforms(this.program, uniforms, uniformTypes, uniformNames)
+
+    webgl2.runProgram()
+
+    this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
+    this.activationFunc(this.output)
   }
 }
