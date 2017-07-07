@@ -1,5 +1,5 @@
 import ndarray from 'ndarray'
-import { MAX_TEXTURE_SIZE } from './constants'
+import { webgl2, MAX_TEXTURE_SIZE } from './WebGL2'
 
 const checkShape = (data, shape) => {
   if (data.length && shape.length && data.length !== shape.reduce((a, b) => a * b, 1)) {
@@ -45,75 +45,111 @@ export default class Tensor {
     }
   }
 
-  /**
-   * Create weblas pipeline tensor in GPU memory
-   * 1-D or 2-D only
-   * see https://github.com/waylonflinn/weblas/wiki/Pipeline
-   *
-   * gl.MAX_TEXTURE_SIZE is a limiting factor.
-   * Where this is exceeded, falls back to CPU.
-   */
-  createWeblasTensor() {
-    if (this.weblasTensor) {
-      this.weblasTensor.delete()
-    }
-
+  createGLTexture() {
+    let shape = []
     if (this.tensor.shape.length === 1) {
-      const len = this.tensor.shape[0]
-      if (len > MAX_TEXTURE_SIZE) {
-        this._gpuMaxSizeExceeded = true
-      } else {
-        const shape = [1, len]
-        this.weblasTensor = new weblas.pipeline.Tensor(shape, this.tensor.data)
-      }
+      shape = [1, this.tensor.shape[0]]
     } else if (this.tensor.shape.length === 2) {
-      if (this.tensor.shape.some(s => s > MAX_TEXTURE_SIZE)) {
-        this._gpuMaxSizeExceeded = true
-      } else {
-        const shape = this.tensor.shape
-        this.weblasTensor = new weblas.pipeline.Tensor(shape, this.tensor.data)
-      }
+      shape = this.tensor.shape
     } else {
-      throw new Error('[Tensor] can only create weblas Tensor for 1-D or 2-D only')
+      throw new Error('[Tensor] can only create gpu tensor for 1-D or 2-D shapes only')
+    }
+
+    const gl = webgl2.context
+
+    const data = this.tensor.data
+    this.glTexture = gl.createTexture()
+    gl.bindTexture(gl.TEXTURE_2D, this.glTexture)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, shape[1], shape[0], 0, gl.RED, gl.FLOAT, data)
+
+    this.glTextureShape = shape
+
+    // clamp to edge
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+
+    // no interpolation
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+  }
+
+  deleteGLTexture() {
+    if (this.glTexture) {
+      const gl = webgl2.context
+      gl.deleteTexture(this.glTexture)
+      delete this.glTexture
     }
   }
 
-  /**
-   * Delete weblas pipeline tensor
-   */
-  deleteWeblasTensor() {
-    if (this.weblasTensor) {
-      this.weblasTensor.delete()
-      delete this.weblasTensor
-    }
-  }
-
-  /**
-   * Copies from another weblas pipeline tensor
-   */
-  copyFromWeblasTensor(weblasTensor) {
-    const webgl = weblas.gpu.gl
-    const glCtx = webgl.context
-    const program = webgl.createProgram(require('./texture_copy.glsl'))
-    this.weblasTensor = new weblas.pipeline.Tensor(weblasTensor.shape, null)
-
-    webgl.selectProgram(program)
-    glCtx.activeTexture(glCtx.TEXTURE0)
-    glCtx.bindTexture(glCtx.TEXTURE_2D, weblasTensor.texture)
-    const sampler = glCtx.getUniformLocation(program, 'source')
-    glCtx.uniform1i(sampler, 0)
-
-    // texture dimensions, with padding if necessary
-    // bind to output texture
-    // see https://github.com/waylonflinn/weblas/blob/master/lib/webgl.js#L478
-    const [h, w] = this.weblasTensor.shape
-    const pad = webgl.getPad(w)
-    webgl.bindOutputTexture(h, (w + pad) / 4, this.weblasTensor.texture)
-
-    // run shader program to copy
-    glCtx.drawElements(glCtx.TRIANGLES, 6, glCtx.UNSIGNED_SHORT, 0)
-
-    // unbind source texture
-    webgl.unbindInputTexture(glCtx.TEXTURE0)
-  }
+  // /**
+  //  * Create weblas pipeline tensor in GPU memory
+  //  * 1-D or 2-D only
+  //  * see https://github.com/waylonflinn/weblas/wiki/Pipeline
+  //  *
+  //  * gl.MAX_TEXTURE_SIZE is a limiting factor.
+  //  * Where this is exceeded, falls back to CPU.
+  //  */
+  // createWeblasTensor() {
+  //   if (this.weblasTensor) {
+  //     this.weblasTensor.delete()
+  //   }
+  //
+  //   if (this.tensor.shape.length === 1) {
+  //     const len = this.tensor.shape[0]
+  //     if (len > MAX_TEXTURE_SIZE) {
+  //       this._gpuMaxSizeExceeded = true
+  //     } else {
+  //       const shape = [1, len]
+  //       this.weblasTensor = new weblas.pipeline.Tensor(shape, this.tensor.data)
+  //     }
+  //   } else if (this.tensor.shape.length === 2) {
+  //     if (this.tensor.shape.some(s => s > MAX_TEXTURE_SIZE)) {
+  //       this._gpuMaxSizeExceeded = true
+  //     } else {
+  //       const shape = this.tensor.shape
+  //       this.weblasTensor = new weblas.pipeline.Tensor(shape, this.tensor.data)
+  //     }
+  //   } else {
+  //     throw new Error('[Tensor] can only create weblas Tensor for 1-D or 2-D only')
+  //   }
+  // }
+  //
+  // /**
+  //  * Delete weblas pipeline tensor
+  //  */
+  // deleteWeblasTensor() {
+  //   if (this.weblasTensor) {
+  //     this.weblasTensor.delete()
+  //     delete this.weblasTensor
+  //   }
+  // }
+  //
+  // /**
+  //  * Copies from another weblas pipeline tensor
+  //  */
+  // copyFromWeblasTensor(weblasTensor) {
+  //   const webgl = weblas.gpu.gl
+  //   const glCtx = webgl.context
+  //   const program = webgl.createProgram(require('./texture_copy.glsl'))
+  //   this.weblasTensor = new weblas.pipeline.Tensor(weblasTensor.shape, null)
+  //
+  //   webgl.selectProgram(program)
+  //   glCtx.activeTexture(glCtx.TEXTURE0)
+  //   glCtx.bindTexture(glCtx.TEXTURE_2D, weblasTensor.texture)
+  //   const sampler = glCtx.getUniformLocation(program, 'source')
+  //   glCtx.uniform1i(sampler, 0)
+  //
+  //   // texture dimensions, with padding if necessary
+  //   // bind to output texture
+  //   // see https://github.com/waylonflinn/weblas/blob/master/lib/webgl.js#L478
+  //   const [h, w] = this.weblasTensor.shape
+  //   const pad = webgl.getPad(w)
+  //   webgl.bindOutputTexture(h, (w + pad) / 4, this.weblasTensor.texture)
+  //
+  //   // run shader program to copy
+  //   glCtx.drawElements(glCtx.TRIANGLES, 6, glCtx.UNSIGNED_SHORT, 0)
+  //
+  //   // unbind source texture
+  //   webgl.unbindInputTexture(glCtx.TEXTURE0)
+  // }
 }
