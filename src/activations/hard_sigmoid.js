@@ -1,6 +1,6 @@
 import ops from 'ndarray-ops'
 import cwise from 'cwise'
-import Tensor from './Tensor'
+import Tensor from '../Tensor'
 
 // Reference hard sigmoid with slope and shift values from theano, see
 // https://github.com/Theano/Theano/blob/master/theano/tensor/nnet/sigm.py
