@@ -1,7 +1,7 @@
-import * as activations from '../../activations'
 import Layer from '../../Layer'
-import checkPipelineSupport from '../../utils/checkPipelineSupport'
-import WebGLActivation from '../../webgl/core/WebGLActivation'
+import Tensor from '../../Tensor'
+import { webgl2 } from '../../WebGL2'
+import * as activations from '../../activations'
 
 /**
  * Activation layer class
@@ -9,7 +9,7 @@ import WebGLActivation from '../../webgl/core/WebGLActivation'
 export default class Activation extends Layer {
   /**
    * Creates an Activation layer
-   * @param {string} attrs.activation - name of activation function
+   * @param {String} attrs.activation - name of activation function
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -20,54 +20,55 @@ export default class Activation extends Layer {
     this.activation = activation
     this.activationFunc = activations[activation]
 
-    // Enable layer gpu +/- pipeline mode if supported
-    if (this.gpu && weblas) {
-      this._useWeblas = true
-      if (this.pipeline) {
-        const isPipelineModeSupported = checkPipelineSupport(this.layerClass, attrs)
-        if (isPipelineModeSupported) {
-          this._pipelineEnabled = true
-          this.webglActivation = new WebGLActivation()
-        } else {
-          this._pipelineEnabled = false
-        }
-      }
+    // GPU setup
+    if (this.gpu) {
+      this.program = webgl2.compileProgram(require(`../../activations/${this.activation}.webgl2.glsl`))
     }
   }
 
   /**
-   * Runs layer computational logic in pipeline mode
+   * Layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
-   */
-  _callPipelineMode(x) {
-    if (!x._fromPipeline) {
-      return this._callRegularMode(x)
-    }
-    x.weblasTensor = this.webglActivation.call(x.weblasTensor, this.activation)
-    return x
-  }
-
-  /**
-   * Runs layer computational logic in regular mode
-   * @param {Tensor} x
-   * @returns {Tensor} x
-   */
-  _callRegularMode(x) {
-    this.activationFunc(x)
-    return x
-  }
-
-  /**
-   * Method for layer computational logic
-   * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
-    if (this._pipelineEnabled) {
-      return this._callPipelineMode(x)
+    if (this.gpu) {
+      this._call_gpu(x)
     } else {
-      return this._callRegularMode(x)
+      this._call_cpu(x)
+    }
+    return this.output
+  }
+
+  /**
+   * CPU call
+   */
+  _call_cpu(x) {
+    this.output = x
+    this.activationFunc(this.output)
+  }
+
+  /**
+   * GPU call
+   */
+  _call_gpu(x) {
+    if (!x.glTexture) {
+      x.createGLTexture()
+    }
+
+    this.output = this.output || new Tensor([], x.tensor.shape)
+    if (!this.output.glTexture) {
+      this.output.createGLTexture()
+    }
+
+    webgl2.selectProgram(this.program)
+    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
+    webgl2.bindInputTextures(this.program, [x.glTexture], ['x'])
+    webgl2.runProgram()
+
+    if (this.outbound.length === 0) {
+      this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
     }
   }
 }

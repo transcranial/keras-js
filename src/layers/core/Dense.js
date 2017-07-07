@@ -1,7 +1,7 @@
-import { webgl2 } from '../../WebGL2'
-import Tensor from '../../Tensor'
 import Layer from '../../Layer'
+import Tensor from '../../Tensor'
 import * as activations from '../../activations'
+import { webgl2 } from '../../WebGL2'
 import { gemv } from 'ndarray-blas-level2'
 import ops from 'ndarray-ops'
 
@@ -51,7 +51,7 @@ export default class Dense extends Layer {
    * Layer computational logic
    *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     if (this.gpu) {
@@ -97,6 +97,8 @@ export default class Dense extends Layer {
     webgl2.bindInputTextures(this.activationProgram, [this.output_preactiv.glTexture], ['x'])
     webgl2.runProgram()
 
-    this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
+    if (this.outbound.length === 0) {
+      this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
+    }
   }
 }
