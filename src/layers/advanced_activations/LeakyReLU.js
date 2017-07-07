@@ -1,4 +1,6 @@
 import Layer from '../../Layer'
+import Tensor from '../../Tensor'
+import { webgl2 } from '../../WebGL2'
 import { relu } from '../../activations'
 
 /**
@@ -16,15 +18,57 @@ export default class LeakyReLU extends Layer {
     const { alpha = 0.3 } = attrs
 
     this.alpha = alpha
+
+    // GPU setup
+    if (this.gpu) {
+      this.program = webgl2.compileProgram(require('./LeakyReLU.webgl2.glsl'))
+    }
   }
 
   /**
-   * Method for layer computational logic
+   * Layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
-    relu(x, { alpha: this.alpha })
-    return x
+    if (this.gpu) {
+      this._call_gpu(x)
+    } else {
+      this._call_cpu(x)
+    }
+    return this.output
+  }
+
+  /**
+   * CPU call
+   */
+  _call_cpu(x) {
+    this.output = x
+    relu(this.output, { alpha: this.alpha })
+  }
+
+  /**
+   * GPU call
+   */
+  _call_gpu(x) {
+    if (!x.glTexture) {
+      x.createGLTexture()
+    }
+
+    this.output = this.output || new Tensor([], x.tensor.shape)
+    if (!this.output.glTexture) {
+      this.output.createGLTexture()
+    }
+
+    webgl2.selectProgram(this.program)
+    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
+    webgl2.bindInputTextures(this.program, [x.glTexture], ['x'])
+    webgl2.bindUniforms(this.program, [this.alpha], ['float'], ['alpha'])
+    webgl2.runProgram()
+
+    if (this.outbound.length === 0) {
+      this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
+    }
   }
 }
