@@ -17,6 +17,9 @@ export default class Layer {
 
     this.params = []
     this.weights = {}
+
+    this.inbound = []
+    this.outbound = []
   }
 
   /**
