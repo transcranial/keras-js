@@ -1,10 +1,9 @@
-import * as activations from '../../activations'
-import Tensor from '../../Tensor'
 import Layer from '../../Layer'
+import Tensor from '../../Tensor'
+import * as activations from '../../activations'
+import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
-import checkPipelineSupport from '../../utils/checkPipelineSupport'
-import WebGLConv2D from '../../webgl/convolutional/WebGLConv2D'
 
 /**
  * Conv2D layer class
@@ -77,18 +76,10 @@ export default class Conv2D extends Layer {
     // Layer weights specification
     this.params = this.use_bias ? ['kernel', 'bias'] : ['kernel']
 
-    // Enable layer gpu +/- pipeline mode if supported
-    if (this.gpu && weblas) {
-      this._useWeblas = true
-      if (this.pipeline) {
-        const isPipelineModeSupported = checkPipelineSupport(this.layerClass, attrs)
-        if (isPipelineModeSupported) {
-          this._pipelineEnabled = true
-          this.webglConv2D = new WebGLConv2D()
-        } else {
-          this._pipelineEnabled = false
-        }
-      }
+    // GPU setup
+    if (this.gpu) {
+      this.mainProgram = webgl2.compileProgram(require('./Conv2D.webgl2.glsl'))
+      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.webgl2.glsl`))
     }
   }
 
@@ -103,19 +94,15 @@ export default class Conv2D extends Layer {
     if (this.dataFormat === 'channels_first') {
       weightsArr[0].tensor = weightsArr[0].tensor.transpose(2, 3, 1, 0)
     }
-    super.setWeights(weightsArr)
+    super.setWeights(weightsArr, false)
 
     this._w2row()
-    if (this._useWeblas) {
-      this._wRowsMat.createWeblasTensor()
-      if (!this._wRowsMat._gpuMaxSizeExceeded) {
-        this._wRowsMat.weblasTensor = this._wRowsMat.weblasTensor.transpose()
-      }
+
+    if (this.gpu) {
+      this.weights['kernel'] = this._wRowsMat
+      this.weights['kernel'].createGLTexture()
       if (this.use_bias) {
-        this.weights['bias'].createWeblasTensor()
-      } else {
-        this._zerosVec = new Tensor([], [this.weights['kernel'].tensor.shape[3]])
-        this._zerosVec.createWeblasTensor()
+        this.weights['bias'].createGLTexture()
       }
     }
   }
@@ -136,20 +123,24 @@ export default class Conv2D extends Layer {
     const nbRowDilated = nbRow + (nbRow - 1) * (this.dilationRate[0] - 1)
     const nbColDilated = nbCol + (nbCol - 1) * (this.dilationRate[1] - 1)
 
-    const outputRows = this.padding === 'same'
-      ? Math.floor((inputRows + this.strides[0] - 1) / this.strides[0])
-      : Math.floor((inputRows - nbRowDilated + this.strides[0]) / this.strides[0])
-    const outputCols = this.padding === 'same'
-      ? Math.floor((inputCols + this.strides[1] - 1) / this.strides[1])
-      : Math.floor((inputCols - nbColDilated + this.strides[1]) / this.strides[1])
+    const outputRows =
+      this.padding === 'same'
+        ? Math.floor((inputRows + this.strides[0] - 1) / this.strides[0])
+        : Math.floor((inputRows - nbRowDilated + this.strides[0]) / this.strides[0])
+    const outputCols =
+      this.padding === 'same'
+        ? Math.floor((inputCols + this.strides[1] - 1) / this.strides[1])
+        : Math.floor((inputCols - nbColDilated + this.strides[1]) / this.strides[1])
     const outputChannels = nbFilter
 
-    const paddingRow = this.padding === 'same'
-      ? Math.max(0, Math.floor((outputRows - 1) * this.strides[0] + nbRowDilated - inputRows))
-      : 0
-    const paddingCol = this.padding === 'same'
-      ? Math.max(0, Math.floor((outputCols - 1) * this.strides[1] + nbColDilated - inputCols))
-      : 0
+    const paddingRow =
+      this.padding === 'same'
+        ? Math.max(0, Math.floor((outputRows - 1) * this.strides[0] + nbRowDilated - inputRows))
+        : 0
+    const paddingCol =
+      this.padding === 'same'
+        ? Math.max(0, Math.floor((outputCols - 1) * this.strides[1] + nbColDilated - inputCols))
+        : 0
     const paddingRowBefore = Math.floor(paddingRow / 2)
     const paddingRowAfter = paddingRow - paddingRowBefore
     const paddingColBefore = Math.floor(paddingCol / 2)
@@ -190,7 +181,7 @@ export default class Conv2D extends Layer {
   /**
    * Convert input tensor to column matrix
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   _im2col(x) {
     const [inputRows, inputCols, inputChannels] = x.tensor.shape
@@ -211,8 +202,8 @@ export default class Conv2D extends Layer {
 
     if (nbRowDilated === 1 && nbColDilated === 1 && this.strides[0] === 1 && this.strides[1] === 1) {
       this._imColsMat.replaceTensorData(x.tensor.data)
-      if (this._useWeblas) {
-        this._imColsMat.createWeblasTensor()
+      if (this.gpu) {
+        this._imColsMat.createGLTexture()
       }
       return this._imColsMat
     }
@@ -232,15 +223,15 @@ export default class Conv2D extends Layer {
         offset += patchLen
       }
     }
-    if (this._useWeblas) {
-      this._imColsMat.createWeblasTensor()
+    if (this.gpu) {
+      this._imColsMat.createGLTexture()
     }
     return this._imColsMat
   }
 
   /**
    * Convert filter weights to row matrix
-   * @returns {Tensor|weblas.pipeline.Tensor} wRowsMat
+   * @returns {Tensor}
    */
   _w2row() {
     const inputChannels = this.weights['kernel'].tensor.shape[2]
@@ -317,47 +308,36 @@ export default class Conv2D extends Layer {
         offset += patchLen
       }
     }
-    this._tiledIndexMappingRow.createWeblasTensor()
-    this._tiledIndexMappingCol.createWeblasTensor()
+
+    if (this.gpu) {
+      this._tiledIndexMappingRow.createGLTexture()
+      this._tiledIndexMappingCol.createGLTexture()
+    }
   }
 
   /**
-   * Runs layer computational logic in pipeline mode
+   * Layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
-  _callPipelineMode(x) {
-    if (!x.weblasTensor) {
-      throw new Error('Variable passed in does not contain weblas tensor.')
+  call(x) {
+    if (this.gpu) {
+      this._call_gpu(x)
+    } else {
+      this._call_cpu(x)
     }
-
-    this._tiledIndexMapping(this.inputShape)
-
-    const bias = this.use_bias ? this.weights['bias'].weblasTensor : this._zerosVec.weblasTensor
-    x.weblasTensor = this.webglConv2D.call(
-      x.weblasTensor,
-      this._wRowsMat.weblasTensor,
-      bias,
-      this.activation,
-      x._fromPipeline ? this._tiledIndexMappingRow.weblasTensor : null,
-      x._fromPipeline ? this._tiledIndexMappingCol.weblasTensor : null
-    )
-
-    x._fromPipeline = true
-    x._actualShape = this.outputShape
-
-    return x
+    return this.output
   }
 
   /**
-   * Runs layer computational logic in regular mode
-   * @param {Tensor} x
-   * @returns {Tensor} x
+   * CPU call
    */
-  _callRegularMode(x) {
-    if (!x.tensor) {
-      throw new Error('Variable passed in does not contain tensor.')
-    }
+  _call_cpu(x) {
+    this.inputShape = x.tensor.shape
+    this._calcOutputShape(this.inputShape)
+    this._padInput(x)
+    this._im2col(x)
 
     // convert to channels_last ordering
     if (this.dataFormat === 'channels_first') {
@@ -370,70 +350,83 @@ export default class Conv2D extends Layer {
     const nbPatches = outputRows * outputCols
     const matMul = new Tensor([], [nbPatches, nbFilter])
 
-    if (this._useWeblas && !(this._imColsMat._gpuMaxSizeExceeded || this._wRowsMat._gpuMaxSizeExceeded)) {
-      // GPU
-      const bias = this.use_bias ? this.weights['bias'].weblasTensor : this._zerosVec.weblasTensor
-      matMul.tensor.data = weblas.pipeline
-        .sgemm(1, this._imColsMat.weblasTensor, this._wRowsMat.weblasTensor, 1, bias)
-        .transfer()
-    } else {
-      // CPU
-      if (this.use_bias) {
-        for (let n = 0; n < nbFilter; n++) {
-          ops.assigns(matMul.tensor.pick(null, n), this.weights['bias'].tensor.get(n))
-        }
+    if (this.use_bias) {
+      for (let n = 0; n < nbFilter; n++) {
+        ops.assigns(matMul.tensor.pick(null, n), this.weights['bias'].tensor.get(n))
       }
-      gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
     }
+    gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
 
-    let output = new Tensor([], this.outputShape)
+    this.output = new Tensor([], this.outputShape)
+
     let outputChannelRaveled = new Tensor([], [outputRows * outputCols])
     let outputChannel = new Tensor([], [outputRows, outputCols])
     for (let n = 0; n < nbFilter; n++) {
       ops.assign(outputChannelRaveled.tensor, matMul.tensor.pick(null, n))
       outputChannel.replaceTensorData(outputChannelRaveled.tensor.data)
-      ops.assign(output.tensor.pick(null, null, n), outputChannel.tensor)
+      ops.assign(this.output.tensor.pick(null, null, n), outputChannel.tensor)
     }
-    x.tensor = output.tensor
 
-    this.activationFunc(x)
+    this.activationFunc(this.output)
 
     // convert back to channels_first ordering if necessary
     if (this.dataFormat === 'channels_first') {
-      x.tensor = x.tensor.transpose(2, 0, 1)
+      this.output.tensor = this.output.tensor.transpose(2, 0, 1)
     }
-
-    return x
   }
 
   /**
-   * Method for layer computational logic
-   * @param {Tensor} x
-   * @returns {Tensor} x
+   * GPU call
    */
-  call(x) {
-    if (x._fromPipeline) {
-      this.inputShape = x._actualShape
+  _call_gpu(x) {
+    if (x.glTextureIsTiled) {
+      this.inputShape = x.untiledShape
+      this._calcOutputShape(this.inputShape)
+      this._tiledIndexMapping(this.inputShape)
     } else {
       this.inputShape = x.tensor.shape
-    }
-    this._calcOutputShape(this.inputShape)
-
-    if (this._pipelineEnabled) {
-      if (!x._fromPipeline) {
-        this._padInput(x)
-        this._im2col(x)
-        if (!this._imColsMat._gpuMaxSizeExceeded) {
-          x.weblasTensor = this._imColsMat.weblasTensor
-        } else {
-          return this._callRegularMode(x)
-        }
-      }
-      return this._callPipelineMode(x)
-    } else {
+      this._calcOutputShape(this.inputShape)
       this._padInput(x)
       this._im2col(x)
-      return this._callRegularMode(x)
+      x.glTexture = this._imColsMat.glTexture
+      x.glTextureShape = this._imColsMat.glTextureShape
+    }
+
+    // create output textures if doesn't already exist
+    if (!this.output_preactiv) {
+      const outputTextureShape = [x.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
+      this.output_preactiv = new Tensor([], outputTextureShape)
+      this.output_preactiv.createGLTexture()
+      this.output_preactiv.glTextureIsTiled = true
+      this.output_preactiv.untiledShape = this.outputShape
+    }
+    if (!this.output) {
+      const outputTextureShape = [x.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
+      this.output = new Tensor([], outputTextureShape)
+      this.output.createGLTexture()
+      this.output.glTextureIsTiled = true
+      this.output.untiledShape = this.outputShape
+    }
+
+    webgl2.selectProgram(this.mainProgram)
+    webgl2.bindOutputTexture(this.output_preactiv.glTexture, this.output_preactiv.glTextureShape)
+    const textures = [x.glTexture, ...this.params.map(p => this.weights[p].glTexture)]
+    const textureNames = ['x', ...this.params]
+    webgl2.bindInputTextures(this.mainProgram, textures, textureNames)
+    const uniforms = [this.use_bias ? 1 : 0, x.glTextureShape[0], ...this.weights['kernel'].glTextureShape]
+    const uniformTypes = ['bool', 'int', 'int', 'int']
+    const uniformNames = ['use_bias', 'M', 'K', 'N']
+    webgl2.bindUniforms(this.mainProgram, uniforms, uniformTypes, uniformNames)
+    webgl2.runProgram()
+
+    webgl2.selectProgram(this.activationProgram)
+    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
+    webgl2.bindInputTextures(this.activationProgram, [this.output_preactiv.glTexture], ['x'])
+    webgl2.runProgram()
+
+    if (this.outbound.length === 0) {
+      this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
+      this.output = this.reshapeTensorFromTiled(this.output)
     }
   }
 }
