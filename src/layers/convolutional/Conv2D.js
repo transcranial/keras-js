@@ -78,7 +78,7 @@ export default class Conv2D extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.mainProgram = webgl2.compileProgram(require('./Conv2D.webgl2.glsl'))
+      this.matMulProgram = webgl2.compileProgram(require('../../matMul.webgl2.glsl'))
       this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.webgl2.glsl`))
     }
   }
@@ -105,6 +105,21 @@ export default class Conv2D extends Layer {
         this.weights['bias'].createGLTexture()
       }
     }
+  }
+
+  /**
+   * Layer computational logic
+   *
+   * @param {Tensor} x
+   * @returns {Tensor}
+   */
+  call(x) {
+    if (this.gpu) {
+      this._call_gpu(x)
+    } else {
+      this._call_cpu(x)
+    }
+    return this.output
   }
 
   /**
@@ -155,7 +170,7 @@ export default class Conv2D extends Layer {
    * See above for notes on calculating padding.
    * @param {Tensor} x
    * @param {number} [padValue]
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   _padInput(x, padValue = 0) {
     if (this.padding === 'same') {
@@ -272,8 +287,8 @@ export default class Conv2D extends Layer {
         ops.assigns(indicesRow.tensor.pick(i, j, null), i * inputCols + j)
       }
     }
-    for (let k = 0; k < inputChannels; k++) {
-      ops.assigns(indicesCol.tensor.pick(null, null, k), k)
+    for (let c = 0; c < inputChannels; c++) {
+      ops.assigns(indicesCol.tensor.pick(null, null, c), c)
     }
 
     // padding for border mode 'same'
@@ -316,21 +331,6 @@ export default class Conv2D extends Layer {
   }
 
   /**
-   * Layer computational logic
-   *
-   * @param {Tensor} x
-   * @returns {Tensor}
-   */
-  call(x) {
-    if (this.gpu) {
-      this._call_gpu(x)
-    } else {
-      this._call_cpu(x)
-    }
-    return this.output
-  }
-
-  /**
    * CPU call
    */
   _call_cpu(x) {
@@ -338,11 +338,6 @@ export default class Conv2D extends Layer {
     this._calcOutputShape(this.inputShape)
     this._padInput(x)
     this._im2col(x)
-
-    // convert to channels_last ordering
-    if (this.dataFormat === 'channels_first') {
-      x.tensor = x.tensor.transpose(1, 2, 0)
-    }
 
     const nbFilter = this.kernelShape[0]
     const outputRows = this.outputShape[0]
@@ -397,8 +392,6 @@ export default class Conv2D extends Layer {
       const outputTextureShape = [x.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
       this.output_preactiv = new Tensor([], outputTextureShape)
       this.output_preactiv.createGLTexture()
-      this.output_preactiv.glTextureIsTiled = true
-      this.output_preactiv.untiledShape = this.outputShape
     }
     if (!this.output) {
       const outputTextureShape = [x.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
@@ -408,25 +401,39 @@ export default class Conv2D extends Layer {
       this.output.untiledShape = this.outputShape
     }
 
-    webgl2.selectProgram(this.mainProgram)
+    // Matrix Multiply
+    webgl2.selectProgram(this.matMulProgram)
     webgl2.bindOutputTexture(this.output_preactiv.glTexture, this.output_preactiv.glTextureShape)
-    const textures = [x.glTexture, ...this.params.map(p => this.weights[p].glTexture)]
-    const textureNames = ['x', ...this.params]
-    webgl2.bindInputTextures(this.mainProgram, textures, textureNames)
+    let textures = [x.glTexture, this.weights['kernel'].glTexture]
+    let textureNames = ['A', 'B']
+    if (this.use_bias) {
+      textures.push(this.weights['bias'].glTexture)
+      textureNames.push('C')
+    }
+    webgl2.bindInputTextures(this.matMulProgram, textures, textureNames)
     const uniforms = [this.use_bias ? 1 : 0, x.glTextureShape[0], ...this.weights['kernel'].glTextureShape]
     const uniformTypes = ['bool', 'int', 'int', 'int']
-    const uniformNames = ['use_bias', 'M', 'K', 'N']
-    webgl2.bindUniforms(this.mainProgram, uniforms, uniformTypes, uniformNames)
+    const uniformNames = ['addC', 'M', 'K', 'N']
+    webgl2.bindUniforms(this.matMulProgram, uniforms, uniformTypes, uniformNames)
     webgl2.runProgram()
 
+    // Activation
     webgl2.selectProgram(this.activationProgram)
     webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    webgl2.bindInputTextures(this.activationProgram, [this.output_preactiv.glTexture], ['x'])
+    textures = [this.output_preactiv.glTexture]
+    textureNames = ['x']
+    webgl2.bindInputTextures(this.activationProgram, textures, textureNames)
     webgl2.runProgram()
 
+    // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
       this.output = this.reshapeTensorFromTiled(this.output)
+
+      // convert back to channels_first ordering if necessary
+      if (this.dataFormat === 'channels_first') {
+        this.output.tensor = this.output.tensor.transpose(2, 0, 1)
+      }
     }
   }
 }

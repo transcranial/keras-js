@@ -71,9 +71,10 @@ export default class Conv1D extends Layer {
   }
 
   /**
-   * Method for layer computational logic
+   * Layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     x.tensor = unsqueeze(x.tensor).transpose(0, 2, 1)

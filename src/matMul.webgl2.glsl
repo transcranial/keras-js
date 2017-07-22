@@ -2,13 +2,13 @@
 precision mediump float;
 
 in vec2 outTex;
-uniform sampler2D x;
-uniform sampler2D kernel;
-uniform sampler2D bias;
-uniform bool use_bias;
-uniform int M; // rows of x
+uniform sampler2D A;
+uniform sampler2D B;
+uniform sampler2D C;
+uniform bool addC;
+uniform int M; // rows of A
 uniform int K; // common dimension
-uniform int N; // cols of kernel
+uniform int N; // cols of B
 out vec4 outColor;
 
 void main() {
@@ -17,13 +17,13 @@ void main() {
 
   float sum = 0.;
   for (int i = 0; i < K; ++i) {
-    float a = texelFetch(x, ivec2(i, out_y), 0).r;
-    float b = texelFetch(kernel, ivec2(out_x, i), 0).r;
+    float a = texelFetch(A, ivec2(i, out_y), 0).r;
+    float b = texelFetch(B, ivec2(out_x, i), 0).r;
     sum += a * b;
   }
 
-  if (use_bias) {
-    sum += texelFetch(bias, ivec2(out_x, 0), 0).r;
+  if (addC) {
+    sum += texelFetch(C, ivec2(out_x, 0), 0).r;
     outColor = vec4(sum);
   } else {
     outColor = vec4(sum);

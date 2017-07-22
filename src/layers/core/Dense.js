@@ -40,7 +40,7 @@ export default class Dense extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.mainProgram = webgl2.compileProgram(require('./Dense.webgl2.glsl'))
+      this.matMulProgram = webgl2.compileProgram(require('../../matMul.webgl2.glsl'))
       this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.webgl2.glsl`))
       this.output_preactiv.createGLTexture()
       this.output.createGLTexture()
@@ -81,22 +81,31 @@ export default class Dense extends Layer {
       x.createGLTexture()
     }
 
-    webgl2.selectProgram(this.mainProgram)
+    // Matrix Multiply
+    webgl2.selectProgram(this.matMulProgram)
     webgl2.bindOutputTexture(this.output_preactiv.glTexture, this.output_preactiv.glTextureShape)
-    const textures = [x.glTexture, ...this.params.map(p => this.weights[p].glTexture)]
-    const textureNames = ['x', ...this.params]
-    webgl2.bindInputTextures(this.mainProgram, textures, textureNames)
-    const uniforms = [this.use_bias ? 1 : 0, ...this.weights['kernel'].glTextureShape]
-    const uniformTypes = ['bool', 'int', 'int']
-    const uniformNames = ['use_bias', 'M', 'N']
-    webgl2.bindUniforms(this.mainProgram, uniforms, uniformTypes, uniformNames)
+    let textures = [x.glTexture, this.weights['kernel'].glTexture]
+    let textureNames = ['A', 'B']
+    if (this.use_bias) {
+      textures.push(this.weights['bias'].glTexture)
+      textureNames.push('C')
+    }
+    webgl2.bindInputTextures(this.matMulProgram, textures, textureNames)
+    const uniforms = [this.use_bias ? 1 : 0, x.glTextureShape[0], ...this.weights['kernel'].glTextureShape]
+    const uniformTypes = ['bool', 'int', 'int', 'int']
+    const uniformNames = ['addC', 'M', 'K', 'N']
+    webgl2.bindUniforms(this.matMulProgram, uniforms, uniformTypes, uniformNames)
     webgl2.runProgram()
 
+    // Activation
     webgl2.selectProgram(this.activationProgram)
     webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    webgl2.bindInputTextures(this.activationProgram, [this.output_preactiv.glTexture], ['x'])
+    textures = [this.output_preactiv.glTexture]
+    textureNames = ['x']
+    webgl2.bindInputTextures(this.activationProgram, textures, textureNames)
     webgl2.runProgram()
 
+    // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
     }
