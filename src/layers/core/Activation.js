@@ -64,7 +64,10 @@ export default class Activation extends Layer {
 
     webgl2.selectProgram(this.program)
     webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    webgl2.bindInputTextures(this.program, [x.glTexture], ['x'])
+    const textures = [x.glTexture]
+    const textureTypes = ['2d']
+    const textureNames = ['x']
+    webgl2.bindInputTextures(this.program, textures, textureTypes, textureNames)
     webgl2.runProgram()
 
     if (this.outbound.length === 0) {

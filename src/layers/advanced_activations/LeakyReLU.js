@@ -63,8 +63,14 @@ export default class LeakyReLU extends Layer {
 
     webgl2.selectProgram(this.program)
     webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    webgl2.bindInputTextures(this.program, [x.glTexture], ['x'])
-    webgl2.bindUniforms(this.program, [this.alpha], ['float'], ['alpha'])
+    const textures = [x.glTexture]
+    const textureTypes = ['2d']
+    const textureNames = ['x']
+    webgl2.bindInputTextures(this.program, textures, textureTypes, textureNames)
+    const uniforms = [this.alpha]
+    const uniformTypes = ['float']
+    const uniformNames = ['alpha']
+    webgl2.bindUniforms(this.program, uniforms, uniformTypes, uniformNames)
     webgl2.runProgram()
 
     if (this.outbound.length === 0) {

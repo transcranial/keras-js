@@ -466,12 +466,14 @@ export default class Conv3D extends Layer {
     webgl2.selectProgram(this.matMulProgram)
     webgl2.bindOutputTexture(this.output_preactiv.glTexture, this.output_preactiv.glTextureShape)
     let textures = [x.glTexture, this.weights['kernel'].glTexture]
+    let textureTypes = ['2d', '2d']
     let textureNames = ['A', 'B']
     if (this.use_bias) {
       textures.push(this.weights['bias'].glTexture)
+      textureTypes.push('2d')
       textureNames.push('C')
     }
-    webgl2.bindInputTextures(this.matMulProgram, textures, textureNames)
+    webgl2.bindInputTextures(this.matMulProgram, textures, textureTypes, textureNames)
     const uniforms = [this.use_bias ? 1 : 0, x.glTextureShape[0], ...this.weights['kernel'].glTextureShape]
     const uniformTypes = ['bool', 'int', 'int', 'int']
     const uniformNames = ['addC', 'M', 'K', 'N']
@@ -482,8 +484,9 @@ export default class Conv3D extends Layer {
     webgl2.selectProgram(this.activationProgram)
     webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
     textures = [this.output_preactiv.glTexture]
+    textureTypes = ['2d']
     textureNames = ['x']
-    webgl2.bindInputTextures(this.activationProgram, textures, textureNames)
+    webgl2.bindInputTextures(this.activationProgram, textures, textureTypes, textureNames)
     webgl2.runProgram()
 
     // GPU -> CPU data transfer

@@ -74,7 +74,10 @@ export default class PReLU extends Layer {
 
     webgl2.selectProgram(this.program)
     webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    webgl2.bindInputTextures(this.program, [x.glTexture, this.weights['alphas'].glTexture], ['x', 'alphas'])
+    const textures = [x.glTexture, this.weights['alphas'].glTexture]
+    const textureTypes = ['2d', '2d']
+    const textureNames = ['x', 'alphas']
+    webgl2.bindInputTextures(this.program, textures, textureTypes, textureNames)
     webgl2.runProgram()
 
     if (this.outbound.length === 0) {

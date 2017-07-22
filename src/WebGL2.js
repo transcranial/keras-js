@@ -160,14 +160,21 @@ class WebGL2 {
    *
    * @param {WebGLProgram} program
    * @param {WebGLTexture[]} textures
+   * @param {String[]} types
    * @param {String[]} names
    */
-  bindInputTextures(program, textures, names) {
+  bindInputTextures(program, textures, types, names) {
     const gl = webgl2.context
+
+    const textureTypesMap = {
+      '2d': gl.TEXTURE_2D,
+      '2darray': gl.TEXTURE_2D_ARRAY,
+      '3d': gl.TEXTURE_3D
+    }
 
     textures.forEach((tex, i) => {
       gl.activeTexture(gl.TEXTURE0 + i)
-      gl.bindTexture(gl.TEXTURE_2D, tex)
+      gl.bindTexture(textureTypesMap[types[i]], tex)
       gl.uniform1i(gl.getUniformLocation(program, names[i]), i)
     })
   }
