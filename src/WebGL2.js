@@ -166,7 +166,7 @@ class WebGL2 {
   bindInputTextures(program, textures, types, names) {
     const gl = webgl2.context
 
-    const textureTypesMap = {
+    const targetMap = {
       '2d': gl.TEXTURE_2D,
       '2darray': gl.TEXTURE_2D_ARRAY,
       '3d': gl.TEXTURE_3D
@@ -174,7 +174,7 @@ class WebGL2 {
 
     textures.forEach((tex, i) => {
       gl.activeTexture(gl.TEXTURE0 + i)
-      gl.bindTexture(textureTypesMap[types[i]], tex)
+      gl.bindTexture(targetMap[types[i]], tex)
       gl.uniform1i(gl.getUniformLocation(program, names[i]), i)
     })
   }
