@@ -65,9 +65,10 @@ export default class Layer {
    * Called at the end when data is read back from GPU (which is in tiled 2D format from texture)
    *
    * @param {Tensor} x
+   * @param {Number} axis
    * @returns {Tensor}
    */
-  reshapeTensorFromTiled(x) {
+  reshapeTensorFromTiled(x, axis = -1) {
     if (!x.glTextureIsTiled) {
       throw new Error('Tensor is not in tiled format.')
     }
@@ -75,18 +76,24 @@ export default class Layer {
       throw new Error('Tensor does not contain untiledShape.')
     }
 
-    // last axis is channel axis
-    const nbPatches = x.tensor.shape[0]
+    if (axis < 0) {
+      axis = x.untiledShape.length + axis
+    }
+
+    // second axis is the channel, or common, axis
+    const channelDataSize = x.tensor.shape[0]
     const channels = x.tensor.shape[1]
 
-    let reshaped = new Tensor([], x.untiledShape)
-    let outputChannelRaveled = new Tensor([], [nbPatches])
-    let outputChannel = new Tensor([], x.untiledShape.slice(0, -1))
+    const reshaped = new Tensor([], x.untiledShape)
+    const channelDataRaveled = new Tensor([], [channelDataSize])
+    const untiledChannelShape = [...x.untiledShape.slice(0, axis), ...x.untiledShape.slice(axis + 1)]
+    const untiledChannel = new Tensor([], untiledChannelShape)
+    const axisSlices = Array(x.untiledShape.length).fill(null)
     for (let n = 0; n < channels; n++) {
-      ops.assign(outputChannelRaveled.tensor, x.tensor.pick(null, n))
-      outputChannel.replaceTensorData(outputChannelRaveled.tensor.data)
-      const axisSlices = Array(x.untiledShape.length - 1).fill(null)
-      ops.assign(reshaped.tensor.pick(...axisSlices, n), outputChannel.tensor)
+      ops.assign(channelDataRaveled.tensor, x.tensor.pick(null, n))
+      untiledChannel.replaceTensorData(channelDataRaveled.tensor.data)
+      axisSlices[axis] = n
+      ops.assign(reshaped.tensor.pick(...axisSlices), untiledChannel.tensor)
     }
 
     return reshaped
