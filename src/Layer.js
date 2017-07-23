@@ -91,47 +91,4 @@ export default class Layer {
 
     return reshaped
   }
-
-  // /**
-  //  * Read data from GPU back out to CPU
-  //  * Typically called at the end of a pipelined layer sequence.
-  //
-  //  * @param {Tensor} input
-  //  * @returns {Tensor} output
-  //  */
-  // transferFromPipeline(x) {
-  //   if (!x.glTexture) {
-  //     throw new Error('Variable passed in does not contain weblas tensor.')
-  //   }
-  //   if (!x._fromPipeline) {
-  //     throw new Error('Variable passed in does not contain _fromPipeline.')
-  //   }
-  //   if (!x._actualShape) {
-  //     throw new Error('Variable passed in does not contain _actualShape.')
-  //   }
-  //
-  //   // last axis is channel axis
-  //   const channels = x.weblasTensor.shape[1]
-  //   const nbPatches = x._actualShape.slice(0, -1).reduce((a, b) => a * b, 1)
-  //
-  //   const tiled = new Tensor([], x.weblasTensor.shape)
-  //   tiled.tensor.data = x.weblasTensor.transfer()
-  //
-  //   let output = new Tensor([], x._actualShape)
-  //   let outputChannelRaveled = new Tensor([], [nbPatches])
-  //   let outputChannel = new Tensor([], x._actualShape.slice(0, -1))
-  //   for (let n = 0; n < channels; n++) {
-  //     ops.assign(outputChannelRaveled.tensor, tiled.tensor.pick(null, n))
-  //     outputChannel.replaceTensorData(outputChannelRaveled.tensor.data)
-  //     const axisSlices = Array(x._actualShape.length - 1).fill(null)
-  //     ops.assign(output.tensor.pick(...axisSlices, n), outputChannel.tensor)
-  //   }
-  //
-  //   output._fromPipeline = false
-  //   if (output._actualShape) {
-  //     delete output._actualShape
-  //   }
-  //
-  //   return output
-  // }
 }
