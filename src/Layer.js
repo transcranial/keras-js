@@ -59,43 +59,4 @@ export default class Layer {
       this.gpu = false
     }
   }
-
-  /**
-   * Reshapes tiled data into untiled form.
-   * Called at the end when data is read back from GPU (which is in tiled 2D format from texture)
-   *
-   * @param {Tensor} x
-   * @param {Number} axis
-   * @returns {Tensor}
-   */
-  reshapeTensorFromTiled(x, axis = -1) {
-    if (!x.glTextureIsTiled) {
-      throw new Error('Tensor is not in tiled format.')
-    }
-    if (!x.untiledShape) {
-      throw new Error('Tensor does not contain untiledShape.')
-    }
-
-    if (axis < 0) {
-      axis = x.untiledShape.length + axis
-    }
-
-    // second axis is the channel, or common, axis
-    const channelDataSize = x.tensor.shape[0]
-    const channels = x.tensor.shape[1]
-
-    const reshaped = new Tensor([], x.untiledShape)
-    const channelDataRaveled = new Tensor([], [channelDataSize])
-    const untiledChannelShape = [...x.untiledShape.slice(0, axis), ...x.untiledShape.slice(axis + 1)]
-    const untiledChannel = new Tensor([], untiledChannelShape)
-    const axisSlices = Array(x.untiledShape.length).fill(null)
-    for (let n = 0; n < channels; n++) {
-      ops.assign(channelDataRaveled.tensor, x.tensor.pick(null, n))
-      untiledChannel.replaceTensorData(channelDataRaveled.tensor.data)
-      axisSlices[axis] = n
-      ops.assign(reshaped.tensor.pick(...axisSlices), untiledChannel.tensor)
-    }
-
-    return reshaped
-  }
 }

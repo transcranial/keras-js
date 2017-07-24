@@ -186,7 +186,7 @@ export default class BatchNormalization extends Layer {
     if (this.outbound.length === 0) {
       this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
       if (this.output.glTextureIsTiled) {
-        this.output = this.reshapeTensorFromTiled(this.output, this.axis)
+        this.output.reshapeTensorFromTiled(this.axis)
       }
     }
   }

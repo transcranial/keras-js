@@ -492,7 +492,7 @@ export default class Conv3D extends Layer {
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
-      this.output = this.reshapeTensorFromTiled(this.output)
+      this.output.reshapeTensorFromTiled()
 
       // convert back to channels_first ordering if necessary
       if (this.dataFormat === 'channels_first') {

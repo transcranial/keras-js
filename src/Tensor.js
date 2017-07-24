@@ -47,6 +47,42 @@ export default class Tensor {
   }
 
   /**
+   * Reshapes tiled data into untiled form.
+   * Called at the end when data is read back from GPU (which is in tiled 2D format from texture)
+   * @param {Number} axis
+   */
+  reshapeTensorFromTiled(axis = -1) {
+    if (!this.glTextureIsTiled) {
+      throw new Error('Tensor is not in tiled format.')
+    }
+    if (!this.untiledShape) {
+      throw new Error('Tensor does not contain untiledShape.')
+    }
+
+    if (axis < 0) {
+      axis = this.untiledShape.length + axis
+    }
+
+    // second axis is the channel, or common, axis
+    const channelDataSize = this.tensor.shape[0]
+    const channels = this.tensor.shape[1]
+
+    const reshaped = ndarray(new this._type(this.untiledShape.reduce((a, b) => a * b, 1)), this.untiledShape)
+    const channelDataRaveled = ndarray(new this._type(channelDataSize), [channelDataSize])
+    const untiledChannelShape = [...this.untiledShape.slice(0, axis), ...this.untiledShape.slice(axis + 1)]
+    const untiledChannel = ndarray(new this._type(untiledChannelShape.reduce((a, b) => a * b, 1)), untiledChannelShape)
+    const axisSlices = Array(this.untiledShape.length).fill(null)
+    for (let n = 0; n < channels; n++) {
+      ops.assign(channelDataRaveled, this.tensor.pick(null, n))
+      untiledChannel.data = channelDataRaveled.data
+      axisSlices[axis] = n
+      ops.assign(reshaped.pick(...axisSlices), untiledChannel)
+    }
+
+    this.tensor = reshaped
+  }
+
+  /**
    * Creates WebGL2 texture
    * Without args, defaults to gl.TEXTURE_2D and gl.R32F
    */
