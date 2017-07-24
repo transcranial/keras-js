@@ -56,9 +56,13 @@ export default class LeakyReLU extends Layer {
       x.createGLTexture()
     }
 
-    this.output = this.output || new Tensor([], x.tensor.shape)
-    if (!this.output.glTexture) {
+    if (!this.output) {
+      this.output = new Tensor([], x.glTextureShape)
       this.output.createGLTexture()
+      if (x.glTextureIsTiled) {
+        this.output.glTextureIsTiled = x.glTextureIsTiled
+        this.output.untiledShape = x.untiledShape
+      }
     }
 
     webgl2.selectProgram(this.program)
