@@ -152,7 +152,7 @@ export default class Tensor {
    */
   transferFromGLTexture() {
     this.tensor.data = webgl2.readData(this.glTextureShape)
-    if (this.glTextureShape[0] === 1) {
+    if (!this.glTextureIsTiled && this.glTextureShape[0] === 1) {
       // collapse to 1D
       this.tensor = squeeze(this.tensor)
     }
