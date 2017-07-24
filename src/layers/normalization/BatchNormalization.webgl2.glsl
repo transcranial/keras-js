@@ -1,7 +1,5 @@
 #version 300 es
 precision mediump float;
-precision mediump int;
-precision mediump isampler2DArray;
 
 in vec2 outTex;
 uniform sampler2D X;
