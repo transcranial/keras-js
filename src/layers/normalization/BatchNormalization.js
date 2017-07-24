@@ -116,28 +116,10 @@ export default class BatchNormalization extends Layer {
    * Will only work on the 2D-tiled representation for post-convolutional BN
    */
   _call_gpu(x) {
-    this.inputShape = x.tensor.shape
-
     if (x.tensor.shape.length <= 2 && !x.glTexture) {
       x.createGLTexture()
     } else if (x.tensor.shape.length > 2 && !x.glTextureIsTiled) {
-      const normAxisLength = x.tensor.shape[this.axis]
-      const otherAxes = [...x.tensor.shape.slice(0, this.axis), ...x.tensor.shape.slice(this.axis + 1)]
-      const otherAxesSize = otherAxes.reduce((a, b) => a * b, 1)
-      const tiled = new Tensor([], [otherAxesSize, normAxisLength])
-      const otherAxesData = new Tensor([], otherAxes)
-      const otherAxesDataRaveled = new Tensor([], [otherAxesSize])
-      const axisSlices = Array(x.tensor.shape.length).fill(null)
-      for (let n = 0; n < normAxisLength; n++) {
-        axisSlices[this.axis] = n
-        ops.assign(otherAxesData.tensor, x.tensor.pick(...axisSlices))
-        otherAxesDataRaveled.replaceTensorData(otherAxesData.tensor.data)
-        ops.assign(tiled.tensor.pick(null, n), otherAxesDataRaveled.tensor)
-      }
-
-      x = tiled
-      x.glTextureIsTiled = true
-      x.untiledShape = this.inputShape
+      x.reshapeTensorToTiled(this.axis)
       x.createGLTexture()
     }
 
