@@ -8,7 +8,7 @@ import cwise from 'cwise'
  * reference code:
  * ```
  * pos = K.relu(x)
- * neg = self.alphas * (x - abs(x)) * 0.5
+ * neg = self.alpha * (x - abs(x)) * 0.5
  * return pos + neg
  * ```
  */
@@ -21,7 +21,7 @@ export default class PReLU extends Layer {
     this.layerClass = 'PReLU'
 
     // Layer weights specification
-    this.params = ['alphas']
+    this.params = ['alpha']
 
     // GPU setup
     if (this.gpu) {
@@ -56,7 +56,7 @@ export default class PReLU extends Layer {
    */
   _call_cpu(x) {
     this.output = x
-    this._compute(this.output.tensor, this.weights.alphas.tensor)
+    this._compute(this.output.tensor, this.weights['alpha'].tensor)
   }
 
   /**
@@ -78,9 +78,9 @@ export default class PReLU extends Layer {
 
     webgl2.selectProgram(this.program)
     webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    const textures = [x.glTexture, this.weights['alphas'].glTexture]
+    const textures = [x.glTexture, this.weights['alpha'].glTexture]
     const textureTypes = ['2d', '2d']
-    const textureNames = ['x', 'alphas']
+    const textureNames = ['x', 'alpha']
     webgl2.bindInputTextures(this.program, textures, textureTypes, textureNames)
     webgl2.runProgram()
 

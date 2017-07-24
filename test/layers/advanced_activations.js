@@ -63,7 +63,7 @@ describe('advanced activation layers', function() {
 
     it('[advanced_activations.PReLU.0] [CPU] should produce expected values', function() {
       const key = 'advanced_activations.PReLU.0'
-      console.log(`\n%c[${key}] [CPU] weights: alphas`, styles.h3)
+      console.log(`\n%c[${key}] [CPU] weights: alpha`, styles.h3)
       let testLayer = new layers.PReLU()
       testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
@@ -81,7 +81,7 @@ describe('advanced activation layers', function() {
 
     it('[advanced_activations.PReLU.0] [GPU] should produce expected values', function() {
       const key = 'advanced_activations.PReLU.0'
-      console.log(`\n%c[${key}] [GPU] weights: alphas`, styles.h3)
+      console.log(`\n%c[${key}] [GPU] weights: alpha`, styles.h3)
       let testLayer = new layers.PReLU({ gpu: true })
       testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
       let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
