@@ -1,6 +1,7 @@
+import { webgl2, MAX_TEXTURE_SIZE } from './WebGL2'
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
-import { webgl2, MAX_TEXTURE_SIZE } from './WebGL2'
+import squeeze from 'ndarray-squeeze'
 
 const checkShape = (data, shape) => {
   if (data.length && shape.length && data.length !== shape.reduce((a, b) => a * b, 1)) {
@@ -44,70 +45,6 @@ export default class Tensor {
     } else {
       throw new Error('[Tensor] invalid input for replaceTensorData method.')
     }
-  }
-
-  /**
-   * Reshapes data into tiled form.
-   * @param {Number} axis
-   */
-  reshapeTensorToTiled(axis = -1) {
-    if (axis < 0) {
-      axis = this.tensor.shape.length + axis
-    }
-
-    const normAxisLength = this.tensor.shape[axis]
-    const otherAxes = [...this.tensor.shape.slice(0, axis), ...this.tensor.shape.slice(axis + 1)]
-    const otherAxesSize = otherAxes.reduce((a, b) => a * b, 1)
-    const tiled = ndarray(new this._type(otherAxesSize * normAxisLength), [otherAxesSize, normAxisLength])
-    const otherAxesData = ndarray(new this._type(otherAxesSize), otherAxes)
-    const otherAxesDataRaveled = ndarray(new this._type(otherAxesSize), [otherAxesSize])
-    const axisSlices = Array(this.tensor.shape.length).fill(null)
-    for (let n = 0; n < normAxisLength; n++) {
-      axisSlices[axis] = n
-      ops.assign(otherAxesData, this.tensor.pick(...axisSlices))
-      otherAxesDataRaveled.data = otherAxesData.data
-      ops.assign(tiled.pick(null, n), otherAxesDataRaveled)
-    }
-
-    this.untiledShape = this.tensor.shape
-    this.tensor = tiled
-    this.glTextureIsTiled = true
-  }
-
-  /**
-   * Reshapes tiled data into untiled form.
-   * Called at the end when data is read back from GPU (which is in tiled 2D format from texture)
-   * @param {Number} axis
-   */
-  reshapeTensorFromTiled(axis = -1) {
-    if (!this.glTextureIsTiled) {
-      throw new Error('Tensor is not in tiled format.')
-    }
-    if (!this.untiledShape) {
-      throw new Error('Tensor does not contain untiledShape.')
-    }
-
-    if (axis < 0) {
-      axis = this.untiledShape.length + axis
-    }
-
-    // second axis is the channel, or common, axis
-    const channelDataSize = this.tensor.shape[0]
-    const channels = this.tensor.shape[1]
-
-    const reshaped = ndarray(new this._type(this.untiledShape.reduce((a, b) => a * b, 1)), this.untiledShape)
-    const channelDataRaveled = ndarray(new this._type(channelDataSize), [channelDataSize])
-    const untiledChannelShape = [...this.untiledShape.slice(0, axis), ...this.untiledShape.slice(axis + 1)]
-    const untiledChannel = ndarray(new this._type(untiledChannelShape.reduce((a, b) => a * b, 1)), untiledChannelShape)
-    const axisSlices = Array(this.untiledShape.length).fill(null)
-    for (let n = 0; n < channels; n++) {
-      ops.assign(channelDataRaveled, this.tensor.pick(null, n))
-      untiledChannel.data = channelDataRaveled.data
-      axisSlices[axis] = n
-      ops.assign(reshaped.pick(...axisSlices), untiledChannel)
-    }
-
-    this.tensor = reshaped
   }
 
   /**
@@ -208,5 +145,80 @@ export default class Tensor {
       gl.deleteTexture(this.glTexture)
       delete this.glTexture
     }
+  }
+
+  /**
+   * Transfer data from webgl texture on GPU to ndarray on CPU
+   */
+  transferFromGLTexture() {
+    this.tensor.data = webgl2.readData(this.glTextureShape)
+    if (this.glTextureShape[0] === 1) {
+      // collapse to 1D
+      this.tensor = squeeze(this.tensor)
+    }
+  }
+
+  /**
+   * Reshapes data into tiled form.
+   * @param {Number} axis
+   */
+  reshapeTensorToTiled(axis = -1) {
+    if (axis < 0) {
+      axis = this.tensor.shape.length + axis
+    }
+
+    const normAxisLength = this.tensor.shape[axis]
+    const otherAxes = [...this.tensor.shape.slice(0, axis), ...this.tensor.shape.slice(axis + 1)]
+    const otherAxesSize = otherAxes.reduce((a, b) => a * b, 1)
+    const tiled = ndarray(new this._type(otherAxesSize * normAxisLength), [otherAxesSize, normAxisLength])
+    const otherAxesData = ndarray(new this._type(otherAxesSize), otherAxes)
+    const otherAxesDataRaveled = ndarray(new this._type(otherAxesSize), [otherAxesSize])
+    const axisSlices = Array(this.tensor.shape.length).fill(null)
+    for (let n = 0; n < normAxisLength; n++) {
+      axisSlices[axis] = n
+      ops.assign(otherAxesData, this.tensor.pick(...axisSlices))
+      otherAxesDataRaveled.data = otherAxesData.data
+      ops.assign(tiled.pick(null, n), otherAxesDataRaveled)
+    }
+
+    this.untiledShape = this.tensor.shape
+    this.tensor = tiled
+    this.glTextureIsTiled = true
+  }
+
+  /**
+   * Reshapes tiled data into untiled form.
+   * Called at the end when data is read back from GPU (which is in tiled 2D format from texture)
+   * @param {Number} axis
+   */
+  reshapeTensorFromTiled(axis = -1) {
+    if (!this.glTextureIsTiled) {
+      throw new Error('Tensor is not in tiled format.')
+    }
+    if (!this.untiledShape) {
+      throw new Error('Tensor does not contain untiledShape.')
+    }
+
+    if (axis < 0) {
+      axis = this.untiledShape.length + axis
+    }
+
+    // second axis is the channel, or common, axis
+    const channelDataSize = this.tensor.shape[0]
+    const channels = this.tensor.shape[1]
+
+    const reshaped = ndarray(new this._type(this.untiledShape.reduce((a, b) => a * b, 1)), this.untiledShape)
+    const channelDataRaveled = ndarray(new this._type(channelDataSize), [channelDataSize])
+    const untiledChannelShape = [...this.untiledShape.slice(0, axis), ...this.untiledShape.slice(axis + 1)]
+    const untiledChannel = ndarray(new this._type(untiledChannelShape.reduce((a, b) => a * b, 1)), untiledChannelShape)
+    const axisSlices = Array(this.untiledShape.length).fill(null)
+    for (let n = 0; n < channels; n++) {
+      ops.assign(channelDataRaveled, this.tensor.pick(null, n))
+      untiledChannel.data = channelDataRaveled.data
+      axisSlices[axis] = n
+      ops.assign(reshaped.pick(...axisSlices), untiledChannel)
+    }
+
+    this.tensor = reshaped
   }
 }
