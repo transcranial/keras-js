@@ -166,7 +166,7 @@ export default class BatchNormalization extends Layer {
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
-      this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
+      this.output.transferFromGLTexture()
       if (this.output.glTextureIsTiled) {
         this.output.reshapeTensorFromTiled(this.axis)
       }

@@ -75,7 +75,7 @@ export default class Activation extends Layer {
     webgl2.runProgram()
 
     if (this.outbound.length === 0) {
-      this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
+      this.output.transferFromGLTexture()
     }
   }
 }

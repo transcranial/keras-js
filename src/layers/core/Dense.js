@@ -110,7 +110,7 @@ export default class Dense extends Layer {
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
-      this.output.tensor.data = webgl2.readData(this.output.glTextureShape)
+      this.output.transferFromGLTexture()
     }
   }
 }
