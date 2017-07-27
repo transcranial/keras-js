@@ -1,5 +1,6 @@
 import _Merge from './_Merge'
 import Tensor from '../../Tensor'
+import { webgl2 } from '../../WebGL2'
 import gemm from 'ndarray-gemm'
 import ops from 'ndarray-ops'
 
@@ -26,6 +27,11 @@ export default class Dot extends _Merge {
     }
 
     this.normalize = normalize
+
+    // GPU setup
+    if (this.gpu) {
+      this.mergeProgram = webgl2.compileProgram(require('./Dot.webgl2.glsl'))
+    }
   }
 
   /**
@@ -69,10 +75,4 @@ export default class Dot extends _Merge {
       throw new Error(`${this.name} [${this.layerClass} layer] dot mode for 3+ dim tensors not yet implemented.`)
     }
   }
-
-  /**
-   * GPU call
-   * @param {Tensor[]} inputs
-   */
-  _call_gpu(inputs) {}
 }

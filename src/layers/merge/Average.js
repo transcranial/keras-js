@@ -1,5 +1,6 @@
 import _Merge from './_Merge'
 import Tensor from '../../Tensor'
+import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
 
 /**
@@ -14,6 +15,11 @@ export default class Average extends _Merge {
     this.layerClass = 'Average'
 
     this.mode = 'ave'
+
+    // GPU setup
+    if (this.gpu) {
+      this.mergeProgram = webgl2.compileProgram(require('./Average.webgl2.glsl'))
+    }
   }
 
   /**
@@ -29,10 +35,4 @@ export default class Average extends _Merge {
     }
     ops.divseq(this.output.tensor, inputs.length)
   }
-
-  /**
-   * GPU call
-   * @param {Tensor[]} inputs
-   */
-  _call_gpu(inputs) {}
 }

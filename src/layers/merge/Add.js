@@ -1,5 +1,6 @@
 import _Merge from './_Merge'
 import Tensor from '../../Tensor'
+import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
 
 /**
@@ -14,6 +15,11 @@ export default class Add extends _Merge {
     this.layerClass = 'Add'
 
     this.mode = 'sum'
+
+    // GPU setup
+    if (this.gpu) {
+      this.mergeProgram = webgl2.compileProgram(require('./Add.webgl2.glsl'))
+    }
   }
 
   /**
@@ -28,10 +34,4 @@ export default class Add extends _Merge {
       ops.addeq(this.output.tensor, inputs[i].tensor)
     }
   }
-
-  /**
-   * GPU call
-   * @param {Tensor[]} inputs
-   */
-  _call_gpu(inputs) {}
 }
