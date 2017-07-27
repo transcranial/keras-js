@@ -1,4 +1,5 @@
 {
+  "ignore": "src/nnpack/libnnpack.js",
   "env": {
     "node": {
       "presets": [
