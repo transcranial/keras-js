@@ -35,19 +35,27 @@ export default class Dot extends _Merge {
   }
 
   /**
+   * Calculate output shape
+   * @param {Number[][]} inputShapes
+   */
+  _calcOutputShape(inputShapes) {
+    let shape1 = inputShapes[0].slice()
+    let shape2 = inputShapes[1].slice()
+    shape1.splice(this.dotAxes[0], 1)
+    shape2.splice(this.dotAxes[1], 1)
+    this.outputShape = shape1.concat(shape2)
+    if (this.outputShape.length === 1) {
+      this.outputShape.push(1)
+    }
+  }
+
+  /**
    * CPU call
    * @param {Tensor[]} inputs
    */
   _call_cpu(inputs) {
-    let shape1 = inputs[0].tensor.shape.slice()
-    let shape2 = inputs[1].tensor.shape.slice()
-    shape1.splice(this.dotAxes[0], 1)
-    shape2.splice(this.dotAxes[1], 1)
-    const outputShape = shape1.concat(shape2)
-    if (outputShape.length === 1) {
-      outputShape.push(1)
-    }
-    this.output = new Tensor([], outputShape)
+    this._calcOutputShape([inputs[0].tensor.shape, inputs[1].tensor.shape])
+    this.output = new Tensor([], this.outputShape)
 
     if (inputs[0].tensor.shape.length === 2 && inputs[1].tensor.shape.length === 2) {
       if (this.dotAxes[0] === 0 && this.dotAxes[1] === 0) {
@@ -73,6 +81,39 @@ export default class Dot extends _Merge {
       }
     } else {
       throw new Error(`${this.name} [${this.layerClass} layer] dot mode for 3+ dim tensors not yet implemented.`)
+    }
+  }
+
+  /**
+   * GPU call
+   * @param {Tensor[]} inputs
+   */
+  _call_gpu(inputs) {
+    this._calcOutputShape([inputs[0].glTextureShape, inputs[1].glTextureShape])
+
+    // create output textures if doesn't already exist
+    if (!this.output) {
+      this.output = new Tensor([], this.outputShape)
+      this.output.createGLTexture()
+    }
+
+    const commonDim = inputs[0].glTextureShape[this.dotAxes[0]]
+
+    webgl2.selectProgram(this.mergeProgram)
+    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
+    const uniforms = [...this.output.glTextureShape, ...this.dotAxes, commonDim, +this.normalize]
+    const uniformTypes = ['int', 'int', 'int', 'int', 'int', 'bool']
+    const uniformNames = ['rows', 'cols', 'dotAxis1', 'dotAxis2', 'commonDim', 'normalize']
+    webgl2.bindUniforms(this.mergeProgram, uniforms, uniformTypes, uniformNames)
+    const textures = [inputs[0].glTexture, inputs[1].glTexture]
+    const textureTypes = ['2d', '2d']
+    const textureNames = ['input1', 'input2']
+    webgl2.bindInputTextures(this.mergeProgram, textures, textureTypes, textureNames)
+    webgl2.runProgram()
+
+    // GPU -> CPU data transfer
+    if (this.outbound.length === 0) {
+      this.output.transferFromGLTexture()
     }
   }
 }

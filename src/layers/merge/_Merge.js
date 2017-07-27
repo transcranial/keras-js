@@ -26,7 +26,7 @@ export default class _Merge extends Layer {
    * Layer computational logic
    *
    * @param {Tensor[]} inputs
-   * @returns {Tensor}
+   * @returns
    */
   call(inputs) {
     if (this.gpu) {
