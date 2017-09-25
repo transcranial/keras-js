@@ -48,7 +48,13 @@ describe('wrappers layer: Bidirectional', function() {
       inputShape: [3, 6],
       attrs: { merge_mode: 'concat' },
       wrappedLayerAttrs: { units: 4, activation: 'tanh', recurrent_activation: 'hard_sigmoid', return_sequences: true }
-    }
+    },
+    {
+      wrappedLayer: 'SimpleRNN',
+      inputShape: [3, 6],
+      attrs: { merge_mode: 'sum' },
+      wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: true }
+    },
   ]
 
   before(function() {
