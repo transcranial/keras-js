@@ -147,9 +147,9 @@ class WebGL2 {
 
     values.forEach((val, i) => {
       const loc = gl.getUniformLocation(program, names[i])
-      if (types[i] === 'float' || types[i] === 'bool') {
+      if (types[i] === 'float') {
         gl.uniform1f(loc, val)
-      } else if (types[i] === 'int') {
+      } else if (types[i] === 'int' || types[i] === 'bool') {
         gl.uniform1i(loc, val)
       }
     })
