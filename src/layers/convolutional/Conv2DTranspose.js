@@ -299,8 +299,8 @@ export default class Conv2DTranspose extends Layer {
     }
 
     if (this.gpu) {
-      this._tiledOutputRowIndicesMap.createGLTexture('2darray', 'int')
-      this._tiledOutputColIndicesMap.createGLTexture('2darray', 'int')
+      this._tiledOutputRowIndicesMap.createGLTexture('2d_array', 'int')
+      this._tiledOutputColIndicesMap.createGLTexture('2d_array', 'int')
     }
   }
 
@@ -430,7 +430,7 @@ export default class Conv2DTranspose extends Layer {
       this._tiledOutputRowIndicesMap.glTexture,
       this._tiledOutputColIndicesMap.glTexture
     ]
-    textureTypes = ['2d', '2darray', '2darray']
+    textureTypes = ['2d', '2d_array', '2d_array']
     textureNames = ['matMulOutput', 'rowIndicesMap', 'colIndicesMap']
     if (this.use_bias) {
       textures.push(this.weights['bias'].glTexture)

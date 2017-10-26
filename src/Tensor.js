@@ -57,7 +57,7 @@ export default class Tensor {
       shape = [1, this.tensor.shape[0]]
     } else if (this.tensor.shape.length === 2) {
       shape = this.tensor.shape
-    } else if (this.tensor.shape.length === 3 && ['2darray', '3d'].includes(type)) {
+    } else if (this.tensor.shape.length === 3 && ['2d_array', '3d'].includes(type)) {
       shape = this.tensor.shape
     } else {
       throw new Error('[Tensor] cannot create WebGL2 texture.')
@@ -67,7 +67,7 @@ export default class Tensor {
 
     const targetMap = {
       '2d': gl.TEXTURE_2D,
-      '2darray': gl.TEXTURE_2D_ARRAY,
+      '2d_array': gl.TEXTURE_2D_ARRAY,
       '3d': gl.TEXTURE_3D
     }
 
@@ -102,7 +102,7 @@ export default class Tensor {
         typeMap[format],
         data
       )
-    } else if (type === '2darray' || type === '3d') {
+    } else if (type === '2d_array' || type === '3d') {
       // must shuffle data layout for webgl
       // data for TEXTURE_2D_ARRAY or TEXTURE_3D laid out sequentially per-slice
       const data = new this._type(this.tensor.data.length)

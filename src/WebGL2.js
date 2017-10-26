@@ -168,7 +168,7 @@ class WebGL2 {
 
     const targetMap = {
       '2d': gl.TEXTURE_2D,
-      '2darray': gl.TEXTURE_2D_ARRAY,
+      '2d_array': gl.TEXTURE_2D_ARRAY,
       '3d': gl.TEXTURE_3D
     }
 
