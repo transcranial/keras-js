@@ -1,5 +1,6 @@
 import Layer from '../../Layer'
 import Tensor from '../../Tensor'
+import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
 
 /**
@@ -22,34 +23,50 @@ export default class _Pooling1D extends Layer {
     // default pooling function
     // can be `max` or `average`
     this.poolingFunc = 'max'
+
+    // GPU setup
+    if (this.gpu) {
+      this.poolingProgram = webgl2.compileProgram(require('./_Pooling.webgl2.glsl'))
+    }
   }
 
   /**
-   * Method for layer computational logic
+   * Layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
-    if (this.poolingFunc !== 'max' && this.poolingFunc !== 'average') {
-      throw new Error(`[pooling._Pooling1D] pooling function must be max or average.`)
+    if (this.gpu) {
+      this._call_gpu(x)
+    } else {
+      this._call_cpu(x)
     }
+    return this.output
+  }
 
-    const stepsNew = this.padding === 'valid'
-      ? Math.floor((x.tensor.shape[0] - this.poolSize + this.strides) / this.strides)
-      : Math.floor((x.tensor.shape[0] + this.strides - 1) / this.strides)
+  /**
+   * CPU call
+   */
+  _call_cpu(x) {
+    const stepsNew =
+      this.padding === 'valid'
+        ? Math.floor((x.tensor.shape[0] - this.poolSize + this.strides) / this.strides)
+        : Math.floor((x.tensor.shape[0] + this.strides - 1) / this.strides)
 
-    let y = new Tensor([], [stepsNew, x.tensor.shape[1]])
-    let yStep = new Tensor([], [x.tensor.shape[1]])
+    this.output = new Tensor([], [stepsNew, x.tensor.shape[1]])
+    const outputStep = new Tensor([], [x.tensor.shape[1]])
 
     // in padding same, start negative from beyond step 0
-    let step = this.padding === 'valid'
-      ? 0
-      : Math.min(0, Math.ceil((x.tensor.shape[0] - (stepsNew - 1) * this.strides - this.poolSize) / 2))
+    let step =
+      this.padding === 'valid'
+        ? 0
+        : Math.min(0, Math.ceil((x.tensor.shape[0] - (stepsNew - 1) * this.strides - this.poolSize) / 2))
 
     for (let i = 0; i < stepsNew; i++) {
       let _step = Math.max(0, step)
       let limit = this.poolSize + Math.min(0, step)
-      ops.assign(yStep.tensor, x.tensor.pick(_step, null))
+      ops.assign(outputStep.tensor, x.tensor.pick(_step, null))
 
       let count = 1
       for (let j = 1; j < limit; j++) {
@@ -57,22 +74,104 @@ export default class _Pooling1D extends Layer {
           break
         }
         if (this.poolingFunc === 'max') {
-          ops.maxeq(yStep.tensor, x.tensor.pick(_step + j, null))
+          ops.maxeq(outputStep.tensor, x.tensor.pick(_step + j, null))
         } else if (this.poolingFunc === 'average') {
-          ops.addeq(yStep.tensor, x.tensor.pick(_step + j, null))
+          ops.addeq(outputStep.tensor, x.tensor.pick(_step + j, null))
         }
         count += 1
       }
 
       if (this.poolingFunc === 'average') {
-        ops.divseq(yStep.tensor, count)
+        ops.divseq(outputStep.tensor, count)
       }
 
-      ops.assign(y.tensor.pick(i, null), yStep.tensor)
+      ops.assign(this.output.tensor.pick(i, null), outputStep.tensor)
+      step += this.strides
+    }
+  }
+
+  /**
+   * Pre-compute index map for GPU pooling function
+   *
+   * @param {number[]} inputShape
+   */
+  _createIndexMap(inputShape) {
+    if (this.indexMap) {
+      return
+    }
+
+    const stepsNew =
+      this.padding === 'valid'
+        ? Math.floor((inputShape[0] - this.poolSize + this.strides) / this.strides)
+        : Math.floor((inputShape[0] + this.strides - 1) / this.strides)
+
+    this.outputShape = [stepsNew, inputShape[1]]
+
+    this.indexMap = new Tensor([], [stepsNew, this.poolSize], { type: Int32Array })
+    ops.assigns(this.indexMap.tensor, -1)
+
+    // in padding same, start negative from beyond step 0
+    let step =
+      this.padding === 'valid'
+        ? 0
+        : Math.min(0, Math.ceil((inputShape[0] - (stepsNew - 1) * this.strides - this.poolSize) / 2))
+
+    for (let i = 0; i < stepsNew; i++) {
+      let _step = Math.max(0, step)
+      let limit = this.poolSize + Math.min(0, step)
+
+      let inputIndex = _step
+      this.indexMap.tensor.set(i, 0, inputIndex)
+      for (let j = 1; j < limit; j++) {
+        inputIndex = _step + j
+        if (inputIndex <= inputShape[0] - 1) {
+          this.indexMap.tensor.set(i, j, inputIndex)
+        } else {
+          break
+        }
+      }
       step += this.strides
     }
 
-    x.tensor = y.tensor
-    return x
+    if (this.gpu) {
+      this.indexMap.createGLTexture('2d', 'int')
+    }
+  }
+
+  /**
+   * GPU call
+   */
+  _call_gpu(x) {
+    if (!x.glTexture) {
+      x.createGLTexture()
+    }
+    this.inputShape = x.tensor.shape
+    this._createIndexMap(this.inputShape)
+
+    // create output textures if doesn't already exist
+    if (!this.output) {
+      this.output = new Tensor([], this.outputShape)
+      this.output.createGLTexture()
+    }
+
+    // `true` if max pooling, `false` if average pooling
+    const isMaxPooling = this.poolingFunc === 'max'
+
+    webgl2.selectProgram(this.poolingProgram)
+    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
+    const uniforms = [...this.output.glTextureShape, this.poolSize, +isMaxPooling]
+    const uniformTypes = ['int', 'int', 'int', 'bool']
+    const uniformNames = ['rows', 'cols', 'poolSize', 'isMaxPooling']
+    webgl2.bindUniforms(this.poolingProgram, uniforms, uniformTypes, uniformNames)
+    const textures = [x.glTexture, this.indexMap.glTexture]
+    const textureTypes = ['2d', '2d']
+    const textureNames = ['x', 'indexMap']
+    webgl2.bindInputTextures(this.poolingProgram, textures, textureTypes, textureNames)
+    webgl2.runProgram()
+
+    // GPU -> CPU data transfer
+    if (this.outbound.length === 0) {
+      this.output.transferFromGLTexture()
+    }
   }
 }
