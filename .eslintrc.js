@@ -18,8 +18,7 @@ module.exports = {
     testGlobals: true,
     chai: true,
     performance: true,
-    weblas: true,
-    nnpack: true
+    weblas: true
   },
   extends: 'eslint:recommended'
 }

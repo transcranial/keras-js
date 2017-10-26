@@ -1,10 +1,7 @@
 {
-  "ignore": "src/nnpack/libnnpack.js",
   "env": {
     "node": {
-      "presets": [
-        ["env", { "targets": { "node": 4 } }]
-      ],
+      "presets": [["env", { "targets": { "node": 4 } }]],
       "plugins": [
         "transform-class-properties",
         "transform-object-rest-spread",
@@ -12,9 +9,7 @@
       ]
     },
     "browser": {
-      "presets": [
-        ["env", { "targets": { "browsers": [">0.5%"] } }]
-      ],
+      "presets": [["env", { "targets": { "browsers": [">0.5%"] } }]],
       "plugins": [
         "transform-class-properties",
         "transform-object-rest-spread",

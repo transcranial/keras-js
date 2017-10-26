@@ -10,17 +10,4 @@ if (typeof window !== 'undefined') {
   window.weblas = weblas
 }
 
-/*
-if (typeof window !== 'undefined' && 'WebAssembly' in window) {
-  window.nnpack = {
-    wasmBinary: require('arraybuffer-loader!./nnpack/libnnpack.wasm')
-  }
-  // libnnpack.js replaces first line so that we can use as global:
-  // `var Modules;`
-  // with
-  // `var Modules = window.nnpack;`
-  require('script-loader!./nnpack/libnnpack.js')
-}
-*/
-
 export { Model, Tensor, activations, layers, testUtils }
