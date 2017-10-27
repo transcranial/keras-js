@@ -23,7 +23,7 @@ function fetchJSON(f) {
   return fetch(f).then(res => res.json())
 }
 
-var dataFiles = ['data/activations.json']
+var dataFiles = ['data/activations.json', 'data/layers/advanced_activations.json', 'data/layers/core/Activation.json']
 
 window.TEST_DATA = {}
 Promise.all(dataFiles.map(f => fetchJSON(f))).then(jsonArr => {
@@ -40,13 +40,11 @@ Promise.all(dataFiles.map(f => fetchJSON(f))).then(jsonArr => {
 
 <!-- layers: advanced_activations -->
 <script src="layers/advanced_activations.js"></script>
-<script src="layers/advanced_activations_data.js"></script>
 
 <!-- layers: core -->
 <script src="layers/core/Dense.js"></script>
 <script src="layers/core/Dense_data.js"></script>
 <script src="layers/core/Activation.js"></script>
-<script src="layers/core/Activation_data.js"></script>
 <script src="layers/core/Dropout.js"></script>
 <script src="layers/core/Dropout_data.js"></script>
 <script src="layers/core/Flatten.js"></script>
