@@ -5,7 +5,6 @@ yarn.lock
 
 # jupyter
 notebooks/**/.ipynb_checkpoints/
-demos/notebooks/.ipynb_checkpoints/
 
 # misc
 .DS_Store
