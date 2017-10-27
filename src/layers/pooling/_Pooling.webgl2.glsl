@@ -15,15 +15,14 @@ void main() {
   int out_x = int(float(cols) * outTex.x);
   int out_y = int(float(rows) * outTex.y);
 
-  int poolIndex = texelFetch(indexMap, ivec2(0, out_y), 0).r;
-  float val = texelFetch(x, ivec2(out_x, poolIndex), 0).r;
-  int count = 1;
-  for (int i = 1; i < poolSize; ++i) {
-    poolIndex = texelFetch(indexMap, ivec2(i, out_y), 0).r;
+  float val = 0.;
+  int count = 0;
+  for (int i = 0; i < poolSize; ++i) {
+    int poolIndex = texelFetch(indexMap, ivec2(i, out_y), 0).r;
     if (poolIndex != -1) {
       float val2 = texelFetch(x, ivec2(out_x, poolIndex), 0).r;
       if (isMaxPooling) {
-        if (val2 > val) {
+        if (count == 0 || val2 > val) {
           val = val2;
         }
       } else {
