@@ -109,7 +109,7 @@ describe('recurrent layer: LSTM', function() {
         units: 4,
         activation: 'tanh',
         recurrent_activation: 'hard_sigmoid',
-        use_bias: false,
+        use_bias: true,
         return_sequences: true,
         go_backwards: true,
         stateful: true
