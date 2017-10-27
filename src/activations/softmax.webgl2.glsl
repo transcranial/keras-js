@@ -6,17 +6,23 @@ uniform sampler2D x;
 out vec4 outColor;
 
 void main() {
-  vec2 size = textureSize(x, 0);
-  int i = int(outTex.x * float(size[0]));
+  ivec2 size = textureSize(x, 0);
+  int out_x = int(float(size[0]) * outTex.x);
+  int out_y = int(float(size[1]) * outTex.y);
 
   float maxval = 0.0;
-  for (int j = 0; j < size[1]; ++j) {
-    maxval = max(maxval, texelFetch(x, ivec2(i, j), 0));
-  }
-  float sum = 0.0;
-  for (int j = 0; j < size[1]; ++j) {
-    sum += exp(texelFetch(x, ivec2(i, j), 0) - maxval);
+  for (int i = 0; i < int(size[0]); ++i) {
+    float val = texelFetch(x, ivec2(i, out_y), 0).r;
+    if (i == 0 || val > maxval) {
+      maxval = val;
+    }
   }
 
-  outColor = exp(texelFetch(x, ivec2(i, j), 0) - maxval) / sum;
+  float sum = 0.0;
+  for (int i = 0; i < int(size[0]); ++i) {
+    float val = texelFetch(x, ivec2(i, out_y), 0).r;
+    sum += exp(val - maxval);
+  }
+
+  outColor = exp(texture(x, vec2(outTex.x, outTex.y)) - maxval) / sum;
 }
