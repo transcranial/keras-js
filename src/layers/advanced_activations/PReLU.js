@@ -84,8 +84,12 @@ export default class PReLU extends Layer {
     webgl2.bindInputTextures(this.program, textures, textureTypes, textureNames)
     webgl2.runProgram()
 
+    // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
+      if (this.output.glTextureIsTiled) {
+        this.output.reshapeTensorFromTiled()
+      }
     }
   }
 }

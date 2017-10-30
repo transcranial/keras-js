@@ -52,11 +52,6 @@ export default class BatchNormalization extends Layer {
    * @returns {Tensor}
    */
   call(x) {
-    if (!this.axisNormalized) {
-      this.axis = this.axis < 0 ? x.tensor.shape.length + this.axis : this.axis - 1
-      this.axisNormalized = true
-    }
-
     if (this.gpu) {
       this._call_gpu(x)
     } else {
@@ -69,6 +64,11 @@ export default class BatchNormalization extends Layer {
    * CPU call
    */
   _call_cpu(x) {
+    if (!this.axisNormalized) {
+      this.axis = this.axis < 0 ? x.tensor.shape.length + this.axis : this.axis - 1
+      this.axisNormalized = true
+    }
+
     let broadcast = []
     for (let d = 0; d < x.tensor.shape.length; d++) {
       if (d === this.axis) broadcast.push(1)
@@ -116,6 +116,16 @@ export default class BatchNormalization extends Layer {
    * Will only work on the 2D-tiled representation for post-convolutional BN
    */
   _call_gpu(x) {
+    if (!this.axisNormalized) {
+      if (x.glTextureIsTiled) {
+        this.inputShape = x.untiledShape
+      } else {
+        this.inputShape = x.tensor.shape
+      }
+      this.axis = this.axis < 0 ? this.inputShape.length + this.axis : this.axis - 1
+      this.axisNormalized = true
+    }
+
     if (x.tensor.shape.length <= 2 && !x.glTexture) {
       x.createGLTexture()
     } else if (x.tensor.shape.length > 2 && !x.glTextureIsTiled) {

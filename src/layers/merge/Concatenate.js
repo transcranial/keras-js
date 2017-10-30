@@ -111,6 +111,9 @@ export default class Concatenate extends _Merge {
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
+      if (this.output.glTextureIsTiled) {
+        this.output.reshapeTensorFromTiled()
+      }
     }
   }
 }

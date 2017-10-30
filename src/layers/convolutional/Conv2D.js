@@ -395,49 +395,47 @@ export default class Conv2D extends Layer {
       this.inputShape = x.untiledShape
       this._calcOutputShape(this.inputShape)
       this._createIndexMap(this.inputShape)
-      if (!this.mappedInput) {
-        this.mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
-        this.mappedInput.createGLTexture()
+      if (!this._mappedInput) {
+        this._mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
+        this._mappedInput.createGLTexture()
       }
     } else {
       this.inputShape = x.tensor.shape
       this._calcOutputShape(this.inputShape)
       this._padInput(x)
       this._im2col(x)
-      x.glTexture = this._imColsMat.glTexture
-      x.glTextureShape = this._imColsMat.glTextureShape
     }
 
     // remap tiled input
     if (x.glTextureIsTiled) {
       webgl2.selectProgram(this.mapInputProgram)
-      webgl2.bindOutputTexture(this.mappedInput.glTexture, this.mappedInput.glTextureShape)
+      webgl2.bindOutputTexture(this._mappedInput.glTexture, this._mappedInput.glTextureShape)
       let textures = [x.glTexture, this.rowIndexMap.glTexture, this.colIndexMap.glTexture]
       let textureTypes = ['2d', '2d', '2d']
       let textureNames = ['x', 'rowIndexMap', 'colIndexMap']
       webgl2.bindInputTextures(this.mapInputProgram, textures, textureTypes, textureNames)
       webgl2.runProgram()
-
-      x.glTexture = this.mappedInput.glTexture
-      x.glTextureShape = this.mappedInput.glTextureShape
     }
 
-    const outputTextureShape = [x.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
+    const input = x.glTextureIsTiled ? this._mappedInput : this._imColsMat
+    const outputTextureShape = [input.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
 
-    // create output textures
+    // create output textures if doesn't already exist
     if (!this.outputPreactiv) {
       this.outputPreactiv = new Tensor([], outputTextureShape)
       this.outputPreactiv.createGLTexture()
     }
-    this.output = new Tensor([], outputTextureShape)
-    this.output.createGLTexture()
-    this.output.glTextureIsTiled = true
-    this.output.untiledShape = this.outputShape
+    if (!this.output) {
+      this.output = new Tensor([], outputTextureShape)
+      this.output.createGLTexture()
+      this.output.glTextureIsTiled = true
+      this.output.untiledShape = this.outputShape
+    }
 
     // Matrix Multiply
     webgl2.selectProgram(this.matMulProgram)
     webgl2.bindOutputTexture(this.outputPreactiv.glTexture, this.outputPreactiv.glTextureShape)
-    let textures = [x.glTexture, this.weights['kernel'].glTexture]
+    let textures = [input.glTexture, this.weights['kernel'].glTexture]
     let textureTypes = ['2d', '2d']
     let textureNames = ['A', 'B']
     if (this.use_bias) {
@@ -446,7 +444,7 @@ export default class Conv2D extends Layer {
       textureNames.push('C')
     }
     webgl2.bindInputTextures(this.matMulProgram, textures, textureTypes, textureNames)
-    const uniforms = [this.use_bias ? 1 : 0, x.glTextureShape[0], ...this.weights['kernel'].glTextureShape]
+    const uniforms = [this.use_bias ? 1 : 0, input.glTextureShape[0], ...this.weights['kernel'].glTextureShape]
     const uniformTypes = ['bool', 'int', 'int', 'int']
     const uniformNames = ['addC', 'M', 'K', 'N']
     webgl2.bindUniforms(this.matMulProgram, uniforms, uniformTypes, uniformNames)

@@ -84,8 +84,12 @@ export default class ELU extends Layer {
     webgl2.bindUniforms(this.program, uniforms, uniformTypes, uniformNames)
     webgl2.runProgram()
 
+    // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
+      if (this.output.glTextureIsTiled) {
+        this.output.reshapeTensorFromTiled()
+      }
     }
   }
 }
