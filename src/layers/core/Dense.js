@@ -35,14 +35,14 @@ export default class Dense extends Layer {
     }
 
     // Output
-    this.output_preactiv = new Tensor([], [this.units])
+    this.outputPreactiv = new Tensor([], [this.units])
     this.output = new Tensor([], [this.units])
 
     // GPU setup
     if (this.gpu) {
       this.matMulProgram = webgl2.compileProgram(require('../../matMul.webgl2.glsl'))
       this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.webgl2.glsl`))
-      this.output_preactiv.createGLTexture()
+      this.outputPreactiv.createGLTexture()
       this.output.createGLTexture()
     }
   }
@@ -83,7 +83,7 @@ export default class Dense extends Layer {
 
     // Matrix Multiply
     webgl2.selectProgram(this.matMulProgram)
-    webgl2.bindOutputTexture(this.output_preactiv.glTexture, this.output_preactiv.glTextureShape)
+    webgl2.bindOutputTexture(this.outputPreactiv.glTexture, this.outputPreactiv.glTextureShape)
     let textures = [x.glTexture, this.weights['kernel'].glTexture]
     let textureTypes = ['2d', '2d']
     let textureNames = ['A', 'B']
@@ -102,7 +102,7 @@ export default class Dense extends Layer {
     // Activation
     webgl2.selectProgram(this.activationProgram)
     webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    textures = [this.output_preactiv.glTexture]
+    textures = [this.outputPreactiv.glTexture]
     textureTypes = ['2d']
     textureNames = ['x']
     webgl2.bindInputTextures(this.activationProgram, textures, textureTypes, textureNames)

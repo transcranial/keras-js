@@ -449,10 +449,10 @@ export default class Conv3D extends Layer {
     }
 
     // create output textures if doesn't already exist
-    if (!this.output_preactiv) {
+    if (!this.outputPreactiv) {
       const outputTextureShape = [x.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
-      this.output_preactiv = new Tensor([], outputTextureShape)
-      this.output_preactiv.createGLTexture()
+      this.outputPreactiv = new Tensor([], outputTextureShape)
+      this.outputPreactiv.createGLTexture()
     }
     if (!this.output) {
       const outputTextureShape = [x.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
@@ -464,7 +464,7 @@ export default class Conv3D extends Layer {
 
     // Matrix Multiply
     webgl2.selectProgram(this.matMulProgram)
-    webgl2.bindOutputTexture(this.output_preactiv.glTexture, this.output_preactiv.glTextureShape)
+    webgl2.bindOutputTexture(this.outputPreactiv.glTexture, this.outputPreactiv.glTextureShape)
     let textures = [x.glTexture, this.weights['kernel'].glTexture]
     let textureTypes = ['2d', '2d']
     let textureNames = ['A', 'B']
@@ -483,7 +483,7 @@ export default class Conv3D extends Layer {
     // Activation
     webgl2.selectProgram(this.activationProgram)
     webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    textures = [this.output_preactiv.glTexture]
+    textures = [this.outputPreactiv.glTexture]
     textureTypes = ['2d']
     textureNames = ['x']
     webgl2.bindInputTextures(this.activationProgram, textures, textureTypes, textureNames)

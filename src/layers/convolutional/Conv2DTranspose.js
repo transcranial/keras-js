@@ -393,10 +393,10 @@ export default class Conv2DTranspose extends Layer {
       this.output_matmul = new Tensor([], outputTextureShape)
       this.output_matmul.createGLTexture()
     }
-    if (!this.output_preactiv) {
+    if (!this.outputPreactiv) {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
-      this.output_preactiv = new Tensor([], outputTextureShape)
-      this.output_preactiv.createGLTexture()
+      this.outputPreactiv = new Tensor([], outputTextureShape)
+      this.outputPreactiv.createGLTexture()
     }
     if (!this.output) {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
@@ -424,7 +424,7 @@ export default class Conv2DTranspose extends Layer {
     const test = new Tensor([], [this.outputShape[0] * this.outputShape[1], this.outputShape[2]])
     ops.assign(test.tensor, this._tiledOutputRowIndicesMap.tensor.pick(null, null, 0))
     webgl2.selectProgram(this.convTransposeProgram)
-    webgl2.bindOutputTexture(this.output_preactiv.glTexture, this.output_preactiv.glTextureShape)
+    webgl2.bindOutputTexture(this.outputPreactiv.glTexture, this.outputPreactiv.glTextureShape)
     textures = [
       this.output_matmul.glTexture,
       this._tiledOutputRowIndicesMap.glTexture,
@@ -452,7 +452,7 @@ export default class Conv2DTranspose extends Layer {
     // Activation
     webgl2.selectProgram(this.activationProgram)
     webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    textures = [this.output_preactiv.glTexture]
+    textures = [this.outputPreactiv.glTexture]
     textureTypes = ['2d']
     textureNames = ['x']
     webgl2.bindInputTextures(this.activationProgram, textures, textureTypes, textureNames)
