@@ -78,6 +78,7 @@ export default class Conv2D extends Layer {
 
     // GPU setup
     if (this.gpu) {
+      this.mapInputProgram = webgl2.compileProgram(require('../../mapInput.webgl2.glsl'))
       this.matMulProgram = webgl2.compileProgram(require('../../matMul.webgl2.glsl'))
       this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.webgl2.glsl`))
     }
@@ -267,70 +268,6 @@ export default class Conv2D extends Layer {
   }
 
   /**
-   * Creates a index mapping from the 2D-tiled input tensor with associated
-   * 3D tensor shape to the representation required prior to the matrix multiply.
-   * This allows us to work directly on the 2D tiled tensor representations rather
-   * than needing to reshape to the 3D reprentation and calling im2col.
-   * @param {number[]} inputShape
-   */
-  _tiledIndexMapping(inputShape) {
-    if (this._tiledIndexMappingRow && this._tiledIndexMappingCol) {
-      return
-    }
-
-    let [inputRows, inputCols, inputChannels] = inputShape
-
-    let indicesRow = new Tensor([], inputShape)
-    let indicesCol = new Tensor([], inputShape)
-    for (let i = 0; i < inputRows; i++) {
-      for (let j = 0; j < inputCols; j++) {
-        ops.assigns(indicesRow.tensor.pick(i, j, null), i * inputCols + j)
-      }
-    }
-    for (let c = 0; c < inputChannels; c++) {
-      ops.assigns(indicesCol.tensor.pick(null, null, c), c)
-    }
-
-    // padding for border mode 'same'
-    if (this.padding === 'same') {
-      const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.inputPadding
-      inputRows = inputRows + paddingRowBefore + paddingRowAfter
-      inputCols = inputCols + paddingColBefore + paddingColAfter
-      const padValue = -1
-      this._padInput(indicesRow, padValue)
-      this._padInput(indicesCol, padValue)
-    }
-
-    const nbRow = this.kernelShape[1]
-    const nbCol = this.kernelShape[2]
-    const outputRows = this.outputShape[0]
-    const outputCols = this.outputShape[1]
-    const nbPatches = outputRows * outputCols
-    const patchLen = nbRow * nbCol * inputChannels
-
-    this._tiledIndexMappingRow = new Tensor([], [nbPatches, patchLen])
-    this._tiledIndexMappingCol = new Tensor([], [nbPatches, patchLen])
-
-    let patchRow = new Tensor([], [nbRow, nbCol, inputChannels])
-    let patchCol = new Tensor([], [nbRow, nbCol, inputChannels])
-    let offset = 0
-    for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.strides[0]) {
-      for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.strides[1]) {
-        ops.assign(patchRow.tensor, indicesRow.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0))
-        ops.assign(patchCol.tensor, indicesCol.tensor.hi(i + nbRow, j + nbCol, inputChannels).lo(i, j, 0))
-        this._tiledIndexMappingRow.tensor.data.set(patchRow.tensor.data, offset)
-        this._tiledIndexMappingCol.tensor.data.set(patchCol.tensor.data, offset)
-        offset += patchLen
-      }
-    }
-
-    if (this.gpu) {
-      this._tiledIndexMappingRow.createGLTexture()
-      this._tiledIndexMappingCol.createGLTexture()
-    }
-  }
-
-  /**
    * CPU call
    */
   _call_cpu(x) {
@@ -371,13 +308,97 @@ export default class Conv2D extends Layer {
   }
 
   /**
+   * Creates a index mapping from the 2D-tiled input tensor with associated
+   * 3D tensor shape to the representation required prior to the matrix multiply.
+   * This allows us to work directly on the 2D tiled tensor representations rather
+   * than needing to reshape to the 3D reprentation and calling im2col.
+   * @param {number[]} inputShape
+   */
+  _createIndexMap(inputShape) {
+    if (this.rowIndexMap && this.colIndexMap) {
+      return
+    }
+
+    let [inputRows, inputCols, inputChannels] = inputShape
+
+    let indicesRow = new Tensor([], inputShape)
+    let indicesCol = new Tensor([], inputShape)
+    for (let i = 0; i < inputRows; i++) {
+      for (let j = 0; j < inputCols; j++) {
+        ops.assigns(indicesRow.tensor.pick(i, j, null), i * inputCols + j)
+      }
+    }
+    for (let c = 0; c < inputChannels; c++) {
+      ops.assigns(indicesCol.tensor.pick(null, null, c), c)
+    }
+
+    // padding for border mode 'same'
+    if (this.padding === 'same') {
+      const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.inputPadding
+      inputRows = inputRows + paddingRowBefore + paddingRowAfter
+      inputCols = inputCols + paddingColBefore + paddingColAfter
+      const padValue = -1
+      this._padInput(indicesRow, padValue)
+      this._padInput(indicesCol, padValue)
+    }
+
+    const nbRow = this.kernelShape[1]
+    const nbCol = this.kernelShape[2]
+    const outputRows = this.outputShape[0]
+    const outputCols = this.outputShape[1]
+    const nbPatches = outputRows * outputCols
+    const patchLen = nbRow * nbCol * inputChannels
+
+    // effective shape after filter dilation
+    const nbRowDilated = nbRow + (nbRow - 1) * (this.dilationRate[0] - 1)
+    const nbColDilated = nbCol + (nbCol - 1) * (this.dilationRate[1] - 1)
+
+    this.rowIndexMap = new Tensor([], [nbPatches, patchLen], { type: Int32Array })
+    this.colIndexMap = new Tensor([], [nbPatches, patchLen], { type: Int32Array })
+
+    let indicesRowPatch = new Tensor([], [nbRow, nbCol, inputChannels])
+    let indicesColPatch = new Tensor([], [nbRow, nbCol, inputChannels])
+    let offset = 0
+    for (let i = 0, limit = inputRows - nbRowDilated; i <= limit; i += this.strides[0]) {
+      for (let j = 0, limit = inputCols - nbColDilated; j <= limit; j += this.strides[1]) {
+        ops.assign(
+          indicesRowPatch.tensor,
+          indicesRow.tensor
+            .hi(i + nbRowDilated, j + nbColDilated, inputChannels)
+            .lo(i, j, 0)
+            .step(this.dilationRate[0], this.dilationRate[1], 1)
+        )
+        ops.assign(
+          indicesColPatch.tensor,
+          indicesCol.tensor
+            .hi(i + nbRowDilated, j + nbColDilated, inputChannels)
+            .lo(i, j, 0)
+            .step(this.dilationRate[0], this.dilationRate[1], 1)
+        )
+        this.rowIndexMap.tensor.data.set(indicesRowPatch.tensor.data, offset)
+        this.colIndexMap.tensor.data.set(indicesColPatch.tensor.data, offset)
+        offset += patchLen
+      }
+    }
+
+    if (this.gpu) {
+      this.rowIndexMap.createGLTexture('2d', 'int')
+      this.colIndexMap.createGLTexture('2d', 'int')
+    }
+  }
+
+  /**
    * GPU call
    */
   _call_gpu(x) {
     if (x.glTextureIsTiled) {
       this.inputShape = x.untiledShape
       this._calcOutputShape(this.inputShape)
-      this._tiledIndexMapping(this.inputShape)
+      this._createIndexMap(this.inputShape)
+      if (!this.mappedInput) {
+        this.mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
+        this.mappedInput.createGLTexture()
+      }
     } else {
       this.inputShape = x.tensor.shape
       this._calcOutputShape(this.inputShape)
@@ -387,23 +408,35 @@ export default class Conv2D extends Layer {
       x.glTextureShape = this._imColsMat.glTextureShape
     }
 
-    // create output textures if doesn't already exist
-    if (!this.output_preactiv) {
-      const outputTextureShape = [x.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
-      this.output_preactiv = new Tensor([], outputTextureShape)
-      this.output_preactiv.createGLTexture()
+    // remap tiled input
+    if (x.glTextureIsTiled) {
+      webgl2.selectProgram(this.mapInputProgram)
+      webgl2.bindOutputTexture(this.mappedInput.glTexture, this.mappedInput.glTextureShape)
+      let textures = [x.glTexture, this.rowIndexMap.glTexture, this.colIndexMap.glTexture]
+      let textureTypes = ['2d', '2d', '2d']
+      let textureNames = ['x', 'rowIndexMap', 'colIndexMap']
+      webgl2.bindInputTextures(this.mapInputProgram, textures, textureTypes, textureNames)
+      webgl2.runProgram()
+
+      x.glTexture = this.mappedInput.glTexture
+      x.glTextureShape = this.mappedInput.glTextureShape
     }
-    if (!this.output) {
-      const outputTextureShape = [x.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
-      this.output = new Tensor([], outputTextureShape)
-      this.output.createGLTexture()
-      this.output.glTextureIsTiled = true
-      this.output.untiledShape = this.outputShape
+
+    const outputTextureShape = [x.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
+
+    // create output textures
+    if (!this.outputPreactiv) {
+      this.outputPreactiv = new Tensor([], outputTextureShape)
+      this.outputPreactiv.createGLTexture()
     }
+    this.output = new Tensor([], outputTextureShape)
+    this.output.createGLTexture()
+    this.output.glTextureIsTiled = true
+    this.output.untiledShape = this.outputShape
 
     // Matrix Multiply
     webgl2.selectProgram(this.matMulProgram)
-    webgl2.bindOutputTexture(this.output_preactiv.glTexture, this.output_preactiv.glTextureShape)
+    webgl2.bindOutputTexture(this.outputPreactiv.glTexture, this.outputPreactiv.glTextureShape)
     let textures = [x.glTexture, this.weights['kernel'].glTexture]
     let textureTypes = ['2d', '2d']
     let textureNames = ['A', 'B']
@@ -422,7 +455,7 @@ export default class Conv2D extends Layer {
     // Activation
     webgl2.selectProgram(this.activationProgram)
     webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    textures = [this.output_preactiv.glTexture]
+    textures = [this.outputPreactiv.glTexture]
     textureTypes = ['2d']
     textureNames = ['x']
     webgl2.bindInputTextures(this.activationProgram, textures, textureTypes, textureNames)
@@ -432,6 +465,7 @@ export default class Conv2D extends Layer {
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
       this.output.reshapeTensorFromTiled()
+      console.log(this.output)
 
       // convert back to channels_first ordering if necessary
       if (this.dataFormat === 'channels_first') {
