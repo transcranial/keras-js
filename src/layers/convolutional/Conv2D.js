@@ -465,7 +465,6 @@ export default class Conv2D extends Layer {
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
       this.output.reshapeTensorFromTiled()
-      console.log(this.output)
 
       // convert back to channels_first ordering if necessary
       if (this.dataFormat === 'channels_first') {
