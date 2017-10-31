@@ -20,7 +20,9 @@ if (process.env.NODE_ENV === 'production') {
   config.devtool = 'cheap-module-source-map'
   config.plugins = [
     new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') }),
-    //NOTE: possible bug in uglify-js: unused needs to be set to false or else library will not work properly
+    // scope hoisting
+    new webpack.optimize.ModuleConcatenationPlugin(),
+    // uglify: unused needs to be set to false or else library will not work properly
     new webpack.optimize.UglifyJsPlugin({ compress: { warnings: false, unused: false } })
   ]
 } else {
