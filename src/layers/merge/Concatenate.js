@@ -71,6 +71,8 @@ export default class Concatenate extends _Merge {
       if (inputs[0].glTextureIsTiled) {
         this.output.glTextureIsTiled = inputs[0].glTextureIsTiled
         this.output.untiledShape = inputs[0].untiledShape
+        const _concatAxis = this.concatAxis < 0 ? this.output.untiledShape.length + this.concatAxis : this.concatAxis
+        this.output.untiledShape[_concatAxis] = sum(inputs.map(input => input.untiledShape[_concatAxis]))
       }
     }
     if (!this.runningOutput) {
