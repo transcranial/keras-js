@@ -54,7 +54,7 @@ describe('wrappers layer: Bidirectional', function() {
       inputShape: [3, 6],
       attrs: { merge_mode: 'sum' },
       wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: true }
-    },
+    }
   ]
 
   before(function() {
@@ -71,7 +71,9 @@ describe('wrappers layer: Bidirectional', function() {
 
     testParams.forEach(({ wrappedLayer, inputShape, attrs, wrappedLayerAttrs }, i) => {
       const key = `wrappers.Bidirectional.${i}`
-      const title = `[${key}] [CPU] test: ${inputShape} input, merge_mode: ${attrs.merge_mode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`
+      const title = `[${key}] [CPU] test: ${inputShape} input, merge_mode: ${attrs.merge_mode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
+        wrappedLayerAttrs
+      )}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
@@ -104,7 +106,9 @@ describe('wrappers layer: Bidirectional', function() {
 
     testParams.forEach(({ wrappedLayer, inputShape, attrs, wrappedLayerAttrs }, i) => {
       const key = `wrappers.Bidirectional.${i}`
-      const title = `[${key}] [GPU] test: ${inputShape} input, merge_mode: ${attrs.merge_mode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`
+      const title = `[${key}] [GPU] test: ${inputShape} input, merge_mode: ${attrs.merge_mode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
+        wrappedLayerAttrs
+      )}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
