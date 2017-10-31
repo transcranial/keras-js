@@ -239,6 +239,7 @@ export default class Conv2D extends Layer {
         offset += patchLen
       }
     }
+
     if (this.gpu) {
       this._imColsMat.createGLTexture()
     }
