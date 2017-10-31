@@ -1,4 +1,5 @@
 # [Keras.js](https://transcranial.github.io/keras-js)
+[![CDNJS version](https://img.shields.io/cdnjs/v/keras-js.svg)](https://cdnjs.com/libraries/keras-js)
 
 Run [Keras](https://github.com/fchollet/keras) models (trained using Tensorflow backend) in your browser, with GPU support. Models are created directly from the Keras JSON-format configuration file, using weights serialized directly from the corresponding HDF5 file. Also works in node, but only in CPU mode.
 
