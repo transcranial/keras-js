@@ -76,7 +76,26 @@ var dataFiles = [
   'data/layers/wrappers/Bidirectional.json',
   'data/layers/legacy/Merge.json',
   'data/layers/legacy/MaxoutDense.json',
-  'data/layers/legacy/Highway.json'
+  'data/layers/legacy/Highway.json',
+  'data/pipeline/00.json',
+  'data/pipeline/01.json',
+  'data/pipeline/02.json',
+  'data/pipeline/03.json',
+  'data/pipeline/04.json',
+  'data/pipeline/05.json',
+  'data/pipeline/06.json',
+  'data/pipeline/07.json',
+  'data/pipeline/08.json',
+  'data/pipeline/09.json',
+  'data/pipeline/10.json',
+  'data/pipeline/11.json',
+  'data/pipeline/12.json',
+  'data/pipeline/13.json',
+  'data/pipeline/14.json',
+  'data/pipeline/15.json',
+  'data/pipeline/16.json',
+  'data/pipeline/17.json',
+  'data/pipeline/18.json'
 ]
 
 window.TEST_DATA = {}
@@ -169,45 +188,24 @@ Promise.all(dataFiles.map(f => fetchJSON(f))).then(jsonArr => {
 
 <!-- pipeline -->
 <script src="pipeline/00.js"></script>
-<script src="pipeline/00_data.js"></script>
 <script src="pipeline/01.js"></script>
-<script src="pipeline/01_data.js"></script>
 <script src="pipeline/02.js"></script>
-<script src="pipeline/02_data.js"></script>
 <script src="pipeline/03.js"></script>
-<script src="pipeline/03_data.js"></script>
 <script src="pipeline/04.js"></script>
-<script src="pipeline/04_data.js"></script>
 <script src="pipeline/05.js"></script>
-<script src="pipeline/05_data.js"></script>
 <script src="pipeline/06.js"></script>
-<script src="pipeline/06_data.js"></script>
 <script src="pipeline/07.js"></script>
-<script src="pipeline/07_data.js"></script>
 <script src="pipeline/08.js"></script>
-<script src="pipeline/08_data.js"></script>
 <script src="pipeline/09.js"></script>
-<script src="pipeline/09_data.js"></script>
 <script src="pipeline/10.js"></script>
-<script src="pipeline/10_data.js"></script>
 <script src="pipeline/11.js"></script>
-<script src="pipeline/11_data.js"></script>
 <script src="pipeline/12.js"></script>
-<script src="pipeline/12_data.js"></script>
 <script src="pipeline/13.js"></script>
-<script src="pipeline/13_data.js"></script>
 <script src="pipeline/14.js"></script>
-<script src="pipeline/14_data.js"></script>
 <script src="pipeline/15.js"></script>
-<script src="pipeline/15_data.js"></script>
 <script src="pipeline/16.js"></script>
-<script src="pipeline/16_data.js"></script>
 <script src="pipeline/17.js"></script>
-<script src="pipeline/17_data.js"></script>
 <script src="pipeline/18.js"></script>
-<script src="pipeline/18_data.js"></script>
-<script src="pipeline/19.js"></script>
-<script src="pipeline/19_data.js"></script>
 
 <script>
 // mocha.checkLeaks()
