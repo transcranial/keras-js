@@ -126,11 +126,13 @@ export default class BatchNormalization extends Layer {
       this.axisNormalized = true
     }
 
-    if (x.tensor.shape.length <= 2 && !x.glTexture) {
-      x.createGLTexture()
-    } else if (x.tensor.shape.length > 2 && !x.glTextureIsTiled) {
-      x.reshapeTensorToTiled(this.axis)
-      x.createGLTexture()
+    if (!x.glTexture) {
+      if (x.tensor.shape.length <= 2) {
+        x.createGLTexture()
+      } else if (x.tensor.shape.length > 2 && !x.glTextureIsTiled) {
+        x.reshapeTensorToTiled(this.axis)
+        x.createGLTexture()
+      }
     }
 
     // create output textures if doesn't already exist
