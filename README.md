@@ -5,7 +5,7 @@ Run [Keras](https://github.com/fchollet/keras) models (trained using Tensorflow 
 
 Currently the focus of this library is on forward-pass inference only.
 
-Tensor operations are extended on top of the [ndarray](https://github.com/scijs/ndarray) library. GPU support is powered by WebGL through [weblas](https://github.com/waylonflinn/weblas).
+Tensor operations are extended on top of the [ndarray](https://github.com/scijs/ndarray) library. GPU support is powered by WebGL 2.
 
 Library version compatibility:
 - Keras 2.0.4

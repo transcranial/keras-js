@@ -17,8 +17,7 @@ module.exports = {
     TEST_DATA: true,
     testGlobals: true,
     chai: true,
-    performance: true,
-    weblas: true
+    performance: true
   },
   extends: 'eslint:recommended'
 }

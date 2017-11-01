@@ -48,8 +48,7 @@
     "ndarray-squeeze": "^1.0.2",
     "ndarray-tile": "^1.0.3",
     "ndarray-unpack": "^1.0.0",
-    "ndarray-unsqueeze": "^1.0.3",
-    "weblas": "^0.9.1"
+    "ndarray-unsqueeze": "^1.0.3"
   },
   "devDependencies": {
     "arraybuffer-loader": "^0.2.2",
