@@ -1,11 +1,9 @@
-import Layer from '../../Layer'
-import Tensor from '../../Tensor'
-import ops from 'ndarray-ops'
+import _GlobalPooling2D from './_GlobalPooling2D'
 
 /**
- * GlobalMaxPooling2D layer class
+ * GlobalMaxPooling2D layer class, extends abstract _GlobalPooling2D class
  */
-export default class GlobalMaxPooling2D extends Layer {
+export default class GlobalMaxPooling2D extends _GlobalPooling2D {
   /**
    * Creates a GlobalMaxPooling2D layer
    */
@@ -13,27 +11,6 @@ export default class GlobalMaxPooling2D extends Layer {
     super(attrs)
     this.layerClass = 'GlobalMaxPooling2D'
 
-    const { data_format = 'channels_last' } = attrs
-    this.dataFormat = data_format
-  }
-
-  /**
-   * Method for layer computational logic
-   * @param {Tensor} x
-   * @returns {Tensor} x
-   */
-  call(x) {
-    // convert to channels_last ordering
-    if (this.dataFormat === 'channels_first') {
-      x.tensor = x.tensor.transpose(1, 2, 0)
-    }
-
-    const channels = x.tensor.shape[2]
-    let y = new Tensor([], [channels])
-    for (let i = 0, len = channels; i < len; i++) {
-      y.tensor.set(i, ops.sup(x.tensor.pick(null, null, i)))
-    }
-    x.tensor = y.tensor
-    return x
+    this.poolingFunc = 'max'
   }
 }

@@ -1,11 +1,9 @@
-import Layer from '../../Layer'
-import Tensor from '../../Tensor'
-import ops from 'ndarray-ops'
+import _GlobalPooling3D from './_GlobalPooling3D'
 
 /**
- * GlobalAveragePooling3D layer class
+ * GlobalAveragePooling3D layer class, extends abstract _GlobalPooling3D class
  */
-export default class GlobalAveragePooling3D extends Layer {
+export default class GlobalAveragePooling3D extends _GlobalPooling3D {
   /**
    * Creates a GlobalAveragePooling3D layer
    */
@@ -13,27 +11,6 @@ export default class GlobalAveragePooling3D extends Layer {
     super(attrs)
     this.layerClass = 'GlobalAveragePooling3D'
 
-    const { data_format = 'channels_last' } = attrs
-    this.dataFormat = data_format
-  }
-
-  /**
-   * Method for layer computational logic
-   * @param {Tensor} x
-   * @returns {Tensor} x
-   */
-  call(x) {
-    // convert to channels_last ordering
-    if (this.dataFormat === 'channels_first') {
-      x.tensor = x.tensor.transpose(1, 2, 3, 0)
-    }
-
-    const [dim1, dim2, dim3, channels] = x.tensor.shape
-    let y = new Tensor([], [channels])
-    for (let i = 0, len = channels; i < len; i++) {
-      y.tensor.set(i, ops.sum(x.tensor.pick(null, null, null, i)) / (dim1 * dim2 * dim3))
-    }
-    x.tensor = y.tensor
-    return x
+    this.poolingFunc = 'average'
   }
 }
