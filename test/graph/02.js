@@ -1,4 +1,4 @@
-describe('pipeline_17', function() {
+describe('graph_02', function() {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -44,7 +44,7 @@ describe('pipeline_17', function() {
       },
       {
         branch: [0, 1],
-        layerClass: 'Concatenate',
+        layerClass: 'Average',
         attrs: { name: 'layer_1' },
         inbound: ['layer_0_0', 'layer_1_0'],
         outbound: []
@@ -52,7 +52,7 @@ describe('pipeline_17', function() {
     ]
   }
 
-  const key = 'pipeline_17'
+  const key = 'graph_02'
 
   before(function() {
     console.log(`\n%c${key}`, styles.h1)

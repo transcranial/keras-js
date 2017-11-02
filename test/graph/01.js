@@ -1,4 +1,4 @@
-describe('pipeline_16', function() {
+describe('graph_01', function() {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
@@ -44,7 +44,7 @@ describe('pipeline_16', function() {
       },
       {
         branch: [0, 1],
-        layerClass: 'Maximum',
+        layerClass: 'Add',
         attrs: { name: 'layer_1' },
         inbound: ['layer_0_0', 'layer_1_0'],
         outbound: []
@@ -52,7 +52,7 @@ describe('pipeline_16', function() {
     ]
   }
 
-  const key = 'pipeline_16'
+  const key = 'graph_01'
 
   before(function() {
     console.log(`\n%c${key}`, styles.h1)

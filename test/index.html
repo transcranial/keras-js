@@ -92,12 +92,13 @@ var dataFiles = [
   'data/pipeline/10.json',
   'data/pipeline/11.json',
   'data/pipeline/12.json',
-  'data/pipeline/13.json',
-  'data/pipeline/14.json',
-  'data/pipeline/15.json',
-  'data/pipeline/16.json',
-  'data/pipeline/17.json',
-  'data/pipeline/18.json'
+  'data/graph/00.json',
+  'data/graph/01.json',
+  'data/graph/02.json',
+  'data/graph/03.json',
+  'data/graph/04.json',
+  'data/graph/05.json',
+  'data/graph/06.json'
 ]
 
 window.TEST_DATA = {}
@@ -204,12 +205,15 @@ Promise.all(dataFiles.map(f => fetchJSON(f))).then(jsonArr => {
 <script src="pipeline/10.js"></script>
 <script src="pipeline/11.js"></script>
 <script src="pipeline/12.js"></script>
-<script src="pipeline/13.js"></script>
-<script src="pipeline/14.js"></script>
-<script src="pipeline/15.js"></script>
-<script src="pipeline/16.js"></script>
-<script src="pipeline/17.js"></script>
-<script src="pipeline/18.js"></script>
+
+<!-- graph -->
+<script src="graph/00.js"></script>
+<script src="graph/01.js"></script>
+<script src="graph/02.js"></script>
+<script src="graph/03.js"></script>
+<script src="graph/04.js"></script>
+<script src="graph/05.js"></script>
+<script src="graph/06.js"></script>
 
 <script>
 // mocha.checkLeaks()
