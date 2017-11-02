@@ -8,21 +8,21 @@ import Layer from '../../Layer'
 export default class Dropout extends Layer {
   /**
    * Creates an Dropout layer
-   * @param {number} attrs.p - fraction of the input units to drop (between 0 and 1)
+   * @param {number} attrs.rate - fraction of the input units to drop (between 0 and 1)
    */
   constructor(attrs = {}) {
     super(attrs)
     this.layerClass = 'Dropout'
 
-    const { p = 0.5 } = attrs
+    const { rate = 0.5 } = attrs
 
-    this.p = Math.min(Math.max(0, p), 1)
+    this.rate = Math.min(Math.max(0, rate), 1)
   }
 
   /**
    * Method for layer computational logic
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     return x

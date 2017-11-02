@@ -8,13 +8,13 @@ import Layer from '../../Layer'
 export default class GaussianNoise extends Layer {
   /**
    * Creates a GaussianNoise layer
-   * @param {number} attrs.p - fraction of the input units to drop (between 0 and 1)
+   * @param {number} attrs.stddev - standard deviation of the noise distribution
    */
   constructor(attrs = {}) {
     super(attrs)
     this.layerClass = 'GaussianNoise'
 
-    const { sigma = 0 } = attrs
+    const { stddev = 0 } = attrs
   }
 
   /**
