@@ -3,6 +3,7 @@
     "node": {
       "presets": [["env", { "targets": { "node": 4 } }]],
       "plugins": [
+        "lodash",
         "transform-class-properties",
         "transform-object-rest-spread",
         ["transform-async-to-module-method", { "module": "bluebird", "method": "coroutine" }]
@@ -11,6 +12,7 @@
     "browser": {
       "presets": [["env", { "targets": { "browsers": [">0.5%"] } }]],
       "plugins": [
+        "lodash",
         "transform-class-properties",
         "transform-object-rest-spread",
         ["transform-async-to-module-method", { "module": "bluebird", "method": "coroutine" }]
