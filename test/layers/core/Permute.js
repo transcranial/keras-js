@@ -10,6 +10,29 @@ describe('core layer: Permute', function() {
     console.log('\n%ccore layer: Permute', styles.h1)
   })
 
+  const testParams = [
+    {
+      inputShape: [3, 2],
+      expectedOutputShape: [2, 3],
+      dims: [2, 1]
+    },
+    {
+      inputShape: [2, 3, 4],
+      expectedOutputShape: [4, 3, 2],
+      dims: [3, 2, 1]
+    },
+    {
+      inputShape: [1, 6, 4],
+      expectedOutputShape: [6, 1, 4],
+      dims: [2, 1, 3]
+    },
+    {
+      inputShape: [1, 3, 4, 2],
+      expectedOutputShape: [4, 1, 3, 2],
+      dims: [3, 1, 2, 4]
+    }
+  ]
+
   /*********************************************************
   * CPU
   *********************************************************/
@@ -18,38 +41,25 @@ describe('core layer: Permute', function() {
       console.log('\n%cCPU', styles.h2)
     })
 
-    it('[core.Permute.0] should be able to go from shape [3, 2] -> [2, 3]', function() {
-      const key = 'core.Permute.0'
-      console.log(`\n%c[${key}] [CPU] shape [3, 2] -> [2, 3]`, styles.h3)
-      let testLayer = new layers.Permute({ dims: [2, 1] })
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
+    testParams.forEach(({ inputShape, expectedOutputShape, dims }, i) => {
+      const key = `core.Permute.${i}`
+      const title = `[${key}] should be able to go from shape [${inputShape}] -> [${expectedOutputShape}]`
 
-    it('[core.Permute.1] should be able to go from shape [2, 3, 4] -> [4, 3, 2]', function() {
-      const key = 'core.Permute.1'
-      console.log(`\n%c[${key}] [CPU] shape [2, 3, 4] -> [4, 3, 2]`, styles.h3)
-      let testLayer = new layers.Permute({ dims: [3, 2, 1] })
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
+      it(title, function() {
+        console.log(`\n%c[${key}] [CPU] shape [${inputShape}] -> [${expectedOutputShape}]`, styles.h3)
+        let testLayer = new layers.Permute({ dims })
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+        console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+        const startTime = performance.now()
+        t = testLayer.call(t)
+        const endTime = performance.now()
+        console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+        logTime(startTime, endTime)
+        const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
+        const shapeExpected = TEST_DATA[key].expected.shape
+        assert.deepEqual(t.tensor.shape, shapeExpected)
+        assert.isTrue(approxEquals(t.tensor, dataExpected))
+      })
     })
   })
 
@@ -61,38 +71,25 @@ describe('core layer: Permute', function() {
       console.log('\n%cGPU', styles.h2)
     })
 
-    it('[core.Permute.0] should be able to go from shape [3, 2] -> [2, 3]', function() {
-      const key = 'core.Permute.0'
-      console.log(`\n%c[${key}] [GPU] shape [3, 2] -> [2, 3]`, styles.h3)
-      let testLayer = new layers.Permute({ dims: [2, 1], gpu: true })
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
-    })
+    testParams.forEach(({ inputShape, expectedOutputShape, dims }, i) => {
+      const key = `core.Permute.${i}`
+      const title = `[${key}] should be able to go from shape [${inputShape}] -> [${expectedOutputShape}]`
 
-    it('[core.Permute.1] should be able to go from shape [2, 3, 4] -> [4, 3, 2]', function() {
-      const key = 'core.Permute.1'
-      console.log(`\n%c[${key}] [GPU] shape [2, 3, 4] -> [4, 3, 2]`, styles.h3)
-      let testLayer = new layers.Permute({ dims: [3, 2, 1], gpu: true })
-      let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-      console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-      const startTime = performance.now()
-      t = testLayer.call(t)
-      const endTime = performance.now()
-      console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-      logTime(startTime, endTime)
-      const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-      const shapeExpected = TEST_DATA[key].expected.shape
-      assert.deepEqual(t.tensor.shape, shapeExpected)
-      assert.isTrue(approxEquals(t.tensor, dataExpected))
+      it(title, function() {
+        console.log(`\n%c[${key}] [CPU] shape [${inputShape}] -> [${expectedOutputShape}]`, styles.h3)
+        let testLayer = new layers.Permute({ dims, gpu: true })
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+        console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+        const startTime = performance.now()
+        t = testLayer.call(t)
+        const endTime = performance.now()
+        console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+        logTime(startTime, endTime)
+        const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
+        const shapeExpected = TEST_DATA[key].expected.shape
+        assert.deepEqual(t.tensor.shape, shapeExpected)
+        assert.isTrue(approxEquals(t.tensor, dataExpected))
+      })
     })
   })
 })
