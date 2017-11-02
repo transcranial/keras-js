@@ -51,13 +51,11 @@
     "ndarray-unsqueeze": "^1.0.3"
   },
   "devDependencies": {
-    "arraybuffer-loader": "^0.2.2",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.1",
     "babel-loader": "^7.1.2",
     "babel-plugin-lodash": "^3.2.11",
-    "babel-plugin-transform-async-to-module-method": "^6.24.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
@@ -72,7 +70,6 @@
     "postcss-import": "^11.0.0",
     "postcss-loader": "^2.0.8",
     "raw-loader": "^0.5.1",
-    "script-loader": "^0.7.2",
     "vue": "^2.5.2",
     "vue-loader": "^13.3.0",
     "vue-mdl": "^1.1.1",

@@ -1,22 +1,30 @@
 {
   "env": {
     "node": {
-      "presets": [["env", { "targets": { "node": 4 } }]],
-      "plugins": [
-        "lodash",
-        "transform-class-properties",
-        "transform-object-rest-spread",
-        ["transform-async-to-module-method", { "module": "bluebird", "method": "coroutine" }]
-      ]
+      "presets": [
+        [
+          "env",
+          {
+            "targets": { "node": 8 },
+            "modules": false,
+            "useBuiltIns": true
+          }
+        ]
+      ],
+      "plugins": ["lodash", "transform-class-properties", "transform-object-rest-spread"]
     },
     "browser": {
-      "presets": [["env", { "targets": { "browsers": [">0.5%"] } }]],
-      "plugins": [
-        "lodash",
-        "transform-class-properties",
-        "transform-object-rest-spread",
-        ["transform-async-to-module-method", { "module": "bluebird", "method": "coroutine" }]
-      ]
+      "presets": [
+        [
+          "env",
+          {
+            "targets": { "browsers": [">0.5%"] },
+            "modules": false,
+            "useBuiltIns": true
+          }
+        ]
+      ],
+      "plugins": ["lodash", "transform-class-properties", "transform-object-rest-spread"]
     }
   }
 }
