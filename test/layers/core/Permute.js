@@ -10,22 +10,30 @@ describe('core layer: Permute', function() {
     {
       inputShape: [3, 2],
       expectedOutputShape: [2, 3],
-      dims: [2, 1]
+      attrs: {
+        dims: [2, 1]
+      }
     },
     {
       inputShape: [2, 3, 4],
       expectedOutputShape: [4, 3, 2],
-      dims: [3, 2, 1]
+      attrs: {
+        dims: [3, 2, 1]
+      }
     },
     {
       inputShape: [1, 6, 4],
       expectedOutputShape: [6, 1, 4],
-      dims: [2, 1, 3]
+      attrs: {
+        dims: [2, 1, 3]
+      }
     },
     {
       inputShape: [1, 3, 4, 2],
       expectedOutputShape: [4, 1, 3, 2],
-      dims: [3, 1, 2, 4]
+      attrs: {
+        dims: [3, 1, 2, 4]
+      }
     }
   ]
 
@@ -41,13 +49,13 @@ describe('core layer: Permute', function() {
       console.log('\n%cCPU', styles.h2)
     })
 
-    testParams.forEach(({ inputShape, expectedOutputShape, dims }, i) => {
+    testParams.forEach(({ inputShape, expectedOutputShape, attrs }, i) => {
       const key = `core.Permute.${i}`
       const title = `[${key}] [CPU] should be able to go from shape [${inputShape}] -> [${expectedOutputShape}]`
 
       it(title, function() {
         console.log(`\n%c[${key}] [CPU] shape [${inputShape}] -> [${expectedOutputShape}]`, styles.h3)
-        let testLayer = new layers.Permute({ dims })
+        let testLayer = new layers.Permute(attrs)
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
         const startTime = performance.now()
@@ -71,13 +79,13 @@ describe('core layer: Permute', function() {
       console.log('\n%cGPU', styles.h2)
     })
 
-    testParams.forEach(({ inputShape, expectedOutputShape, dims }, i) => {
+    testParams.forEach(({ inputShape, expectedOutputShape, attrs }, i) => {
       const key = `core.Permute.${i}`
       const title = `[${key}] [GPU] should be able to go from shape [${inputShape}] -> [${expectedOutputShape}]`
 
       it(title, function() {
         console.log(`\n%c[${key}] [CPU] shape [${inputShape}] -> [${expectedOutputShape}]`, styles.h3)
-        let testLayer = new layers.Permute({ dims, gpu: true })
+        let testLayer = new layers.Permute(Object.assign(attrs, { gpu: true }))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
         const startTime = performance.now()
