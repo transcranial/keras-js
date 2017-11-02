@@ -275,7 +275,6 @@ export default class SeparableConv2D extends Layer {
    */
   _call_cpu(x) {
     this._depthwiseConv._call_cpu(x)
-    console.log(this._depthwiseConv.output)
     this._pointwiseConv._call_cpu(this._depthwiseConv.output)
     this.output = this._pointwiseConv.output
     this.activationFunc(this.output)
@@ -291,17 +290,26 @@ export default class SeparableConv2D extends Layer {
 
     this._depthwiseConv._call_gpu(x)
     this._pointwiseConv._call_gpu(this._depthwiseConv.outputReshaped)
-    this.outputPreactiv = this._pointwiseConv.outputPreactiv
-    this.output = this._pointwiseConv.output
 
     // Activation
-    webgl2.selectProgram(this.activationProgram)
-    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    const textures = [this.outputPreactiv.glTexture]
-    const textureTypes = ['2d']
-    const textureNames = ['x']
-    webgl2.bindInputTextures(this.activationProgram, textures, textureTypes, textureNames)
-    webgl2.runProgram()
+    if (this.activation === 'linear') {
+      this.output = this._pointwiseConv.output
+    } else {
+      if (!this.output) {
+        this.output = new Tensor([], this._pointwiseConv.output.glTextureShape)
+        this.output.createGLTexture()
+        this.output.glTextureIsTiled = true
+        this.output.untiledShape = this._pointwiseConv.output.untiledShape
+      }
+      this.outputPreactiv = this._pointwiseConv.output
+      webgl2.selectProgram(this.activationProgram)
+      webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
+      const textures = [this.outputPreactiv.glTexture]
+      const textureTypes = ['2d']
+      const textureNames = ['x']
+      webgl2.bindInputTextures(this.activationProgram, textures, textureTypes, textureNames)
+      webgl2.runProgram()
+    }
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {

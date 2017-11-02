@@ -33,6 +33,10 @@ export default class Activation extends Layer {
    * @returns {Tensor}
    */
   call(x) {
+    if (this.activation === 'linear') {
+      return x
+    }
+
     if (this.gpu) {
       this._call_gpu(x)
     } else {

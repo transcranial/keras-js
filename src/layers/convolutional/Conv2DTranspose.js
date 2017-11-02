@@ -397,6 +397,8 @@ export default class Conv2DTranspose extends Layer {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
       this.outputPreactiv = new Tensor([], outputTextureShape)
       this.outputPreactiv.createGLTexture()
+      this.outputPreactiv.glTextureIsTiled = true
+      this.outputPreactiv.untiledShape = this.outputShape
     }
     if (!this.output) {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
@@ -450,13 +452,17 @@ export default class Conv2DTranspose extends Layer {
     webgl2.runProgram()
 
     // Activation
-    webgl2.selectProgram(this.activationProgram)
-    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    textures = [this.outputPreactiv.glTexture]
-    textureTypes = ['2d']
-    textureNames = ['x']
-    webgl2.bindInputTextures(this.activationProgram, textures, textureTypes, textureNames)
-    webgl2.runProgram()
+    if (this.activation === 'linear') {
+      this.output = this.outputPreactiv
+    } else {
+      webgl2.selectProgram(this.activationProgram)
+      webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
+      textures = [this.outputPreactiv.glTexture]
+      textureTypes = ['2d']
+      textureNames = ['x']
+      webgl2.bindInputTextures(this.activationProgram, textures, textureTypes, textureNames)
+      webgl2.runProgram()
+    }
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
