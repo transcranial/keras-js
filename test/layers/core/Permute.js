@@ -6,10 +6,6 @@ describe('core layer: Permute', function() {
   const approxEquals = KerasJS.testUtils.approxEquals
   const layers = KerasJS.layers
 
-  before(function() {
-    console.log('\n%ccore layer: Permute', styles.h1)
-  })
-
   const testParams = [
     {
       inputShape: [3, 2],
@@ -33,6 +29,10 @@ describe('core layer: Permute', function() {
     }
   ]
 
+  before(function() {
+    console.log('\n%ccore layer: Permute', styles.h1)
+  })
+
   /*********************************************************
   * CPU
   *********************************************************/
@@ -43,7 +43,7 @@ describe('core layer: Permute', function() {
 
     testParams.forEach(({ inputShape, expectedOutputShape, dims }, i) => {
       const key = `core.Permute.${i}`
-      const title = `[${key}] should be able to go from shape [${inputShape}] -> [${expectedOutputShape}]`
+      const title = `[${key}] [CPU] should be able to go from shape [${inputShape}] -> [${expectedOutputShape}]`
 
       it(title, function() {
         console.log(`\n%c[${key}] [CPU] shape [${inputShape}] -> [${expectedOutputShape}]`, styles.h3)
@@ -73,7 +73,7 @@ describe('core layer: Permute', function() {
 
     testParams.forEach(({ inputShape, expectedOutputShape, dims }, i) => {
       const key = `core.Permute.${i}`
-      const title = `[${key}] should be able to go from shape [${inputShape}] -> [${expectedOutputShape}]`
+      const title = `[${key}] [GPU] should be able to go from shape [${inputShape}] -> [${expectedOutputShape}]`
 
       it(title, function() {
         console.log(`\n%c[${key}] [CPU] shape [${inputShape}] -> [${expectedOutputShape}]`, styles.h3)

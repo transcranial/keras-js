@@ -18,7 +18,7 @@ describe('core layer: Flatten', function() {
       console.log('\n%cCPU', styles.h2)
     })
 
-    it('[core.Flatten.0] should do nothing for 1D', function() {
+    it('[core.Flatten.0] [CPU] should do nothing for 1D', function() {
       const key = 'core.Flatten.0'
       console.log(`\n%c[${key}] [CPU] 1D`, styles.h3)
       let testLayer = new layers.Flatten()
@@ -35,7 +35,7 @@ describe('core layer: Flatten', function() {
       assert.isTrue(approxEquals(t.tensor, dataExpected))
     })
 
-    it('[core.Flatten.1] should flatten 2D', function() {
+    it('[core.Flatten.1] [CPU] should flatten 2D', function() {
       const key = 'core.Flatten.1'
       console.log(`\n%c[${key}] [CPU] 2D`, styles.h3)
       let testLayer = new layers.Flatten()
@@ -52,7 +52,7 @@ describe('core layer: Flatten', function() {
       assert.isTrue(approxEquals(t.tensor, dataExpected))
     })
 
-    it('[core.Flatten.2] should flatten 3D', function() {
+    it('[core.Flatten.2] [CPU] should flatten 3D', function() {
       const key = 'core.Flatten.2'
       console.log(`\n%c[${key}] [CPU] 3D`, styles.h3)
       let testLayer = new layers.Flatten()
@@ -78,7 +78,7 @@ describe('core layer: Flatten', function() {
       console.log('\n%cGPU', styles.h2)
     })
 
-    it('[core.Flatten.0] should do nothing for 1D', function() {
+    it('[core.Flatten.0] [GPU] should do nothing for 1D', function() {
       const key = 'core.Flatten.0'
       console.log(`\n%c[${key}] [GPU] 1D`, styles.h3)
       let testLayer = new layers.Flatten({ gpu: true })
@@ -95,7 +95,7 @@ describe('core layer: Flatten', function() {
       assert.isTrue(approxEquals(t.tensor, dataExpected))
     })
 
-    it('[core.Flatten.1] should flatten 2D', function() {
+    it('[core.Flatten.1] [GPU] should flatten 2D', function() {
       const key = 'core.Flatten.1'
       console.log(`\n%c[${key}] [GPU] 2D`, styles.h3)
       let testLayer = new layers.Flatten({ gpu: true })
@@ -112,7 +112,7 @@ describe('core layer: Flatten', function() {
       assert.isTrue(approxEquals(t.tensor, dataExpected))
     })
 
-    it('[core.Flatten.2] should flatten 3D', function() {
+    it('[core.Flatten.2] [GPU] should flatten 3D', function() {
       const key = 'core.Flatten.2'
       console.log(`\n%c[${key}] [GPU] 3D`, styles.h3)
       let testLayer = new layers.Flatten({ gpu: true })
