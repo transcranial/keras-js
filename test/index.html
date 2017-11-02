@@ -34,9 +34,11 @@ var dataFiles = [
   'data/layers/core/Permute.json',
   'data/layers/core/RepeatVector.json',
   'data/layers/merge/Add.json',
+  'data/layers/merge/Subtract.json',
   'data/layers/merge/Multiply.json',
   'data/layers/merge/Average.json',
   'data/layers/merge/Maximum.json',
+  'data/layers/merge/Minimum.json',
   'data/layers/merge/Concatenate.json',
   'data/layers/merge/Dot.json',
   'data/layers/convolutional/Conv1D.json',
@@ -125,9 +127,11 @@ Promise.all(dataFiles.map(f => fetchJSON(f))).then(jsonArr => {
 
 <!-- layers: merge -->
 <script src="layers/merge/Add.js"></script>
+<script src="layers/merge/Subtract.js"></script>
 <script src="layers/merge/Multiply.js"></script>
 <script src="layers/merge/Average.js"></script>
 <script src="layers/merge/Maximum.js"></script>
+<script src="layers/merge/Minimum.js"></script>
 <script src="layers/merge/Concatenate.js"></script>
 <script src="layers/merge/Dot.js"></script>
 

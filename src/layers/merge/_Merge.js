@@ -53,7 +53,7 @@ export default class _Merge extends Layer {
    */
   _validateInputs(inputs) {
     const shapes = inputs.map(x => x.tensor.shape.slice())
-    if (['sum', 'mul', 'ave', 'max'].indexOf(this.mode) > -1) {
+    if (['sum', 'diff', 'mul', 'ave', 'max', 'min'].indexOf(this.mode) > -1) {
       if (!shapes.every(shape => isEqual(shape, shapes[0]))) {
         throw new Error(
           `${this.name} [${this.layerClass} layer] All input shapes must be the same for mode ${this.mode}.`
