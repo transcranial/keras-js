@@ -30,7 +30,6 @@ export default {
   created: function() {
     const canvas = document.createElement('canvas')
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
-    // Report the result.
     if (gl && gl instanceof WebGLRenderingContext) {
       this.hasWebgl = true
     } else {

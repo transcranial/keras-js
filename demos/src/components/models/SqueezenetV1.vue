@@ -63,7 +63,7 @@
           <div
             v-if="layer.className"
             class="layer"
-            :class="{ 'has-result': layersWithResults.includes(layer.name) }"
+            :class="{ 'has-output': finishedLayerNames.includes(layer.name) }"
             :id="layer.name"
           >
             <div class="layer-class-name">{{ layer.className }}</div>
@@ -147,9 +147,9 @@ export default {
       }
       return rows
     },
-    layersWithResults: function() {
+    finishedLayerNames: function() {
       // store as computed property for reactivity
-      return this.model.layersWithResults
+      return this.model.finishedLayerNames
     },
     outputClasses: function() {
       if (!this.output) {
@@ -268,7 +268,7 @@ export default {
       this.imageLoadingError = false
       this.output = null
 
-      this.model.layersWithResults = []
+      this.model.finishedLayerNames = []
 
       const ctx = document.getElementById('input-canvas').getContext('2d')
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
@@ -471,7 +471,7 @@ export default {
           }
         }
 
-        & .layer.has-result {
+        & .layer.has-output {
           border-color: var(--color-green);
         }
       }

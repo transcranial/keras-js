@@ -47,30 +47,30 @@
         </div>
       </div>
     </div>
-    <div class="layer-results-container" v-if="!modelLoading">
+    <div class="layer-outputs-container" v-if="!modelLoading">
       <div class="bg-line"></div>
       <div
-        v-for="(layerResult, layerIndex)  in layerResultImages"
-        :key="`intermediate-result-${layerIndex}`"
-        class="layer-result"
+        v-for="(layerOutput, layerIndex)  in layerOutputImages"
+        :key="`intermediate-output-${layerIndex}`"
+        class="layer-output"
       >
-        <div class="layer-result-heading">
-          <span class="layer-class">{{ layerResult.layerClass }}</span>
-          <span> {{ layerDisplayConfig[layerResult.name].heading }}</span>
+        <div class="layer-output-heading">
+          <span class="layer-class">{{ layerOutput.layerClass }}</span>
+          <span> {{ layerDisplayConfig[layerOutput.name].heading }}</span>
         </div>
-        <div class="layer-result-canvas-container">
-          <canvas v-for="(image, index) in layerResult.images"
-            :key="`intermediate-result-${layerIndex}-${index}`"
-            :id="`intermediate-result-${layerIndex}-${index}`"
+        <div class="layer-output-canvas-container">
+          <canvas v-for="(image, index) in layerOutput.images"
+            :key="`intermediate-output-${layerIndex}-${index}`"
+            :id="`intermediate-output-${layerIndex}-${index}`"
             :width="image.width"
             :height="image.height"
             style="display:none;"
           ></canvas>
-          <canvas v-for="(image, index) in layerResult.images"
-            :key="`intermediate-result-${layerIndex}-${index}-scaled`"
-            :id="`intermediate-result-${layerIndex}-${index}-scaled`"
-            :width="layerDisplayConfig[layerResult.name].scalingFactor * image.width"
-            :height="layerDisplayConfig[layerResult.name].scalingFactor * image.height"
+          <canvas v-for="(image, index) in layerOutput.images"
+            :key="`intermediate-output-${layerIndex}-${index}-scaled`"
+            :id="`intermediate-output-${layerIndex}-${index}-scaled`"
+            :width="layerDisplayConfig[layerOutput.name].scalingFactor * image.width"
+            :height="layerDisplayConfig[layerOutput.name].scalingFactor * image.height"
           ></canvas>
         </div>
       </div>
@@ -115,7 +115,7 @@ export default {
       crosshairsActivated: false,
       inputCoordinates: [-0.3, -0.6],
       position: [35, 20],
-      layerResultImages: [],
+      layerOutputImages: [],
       layerDisplayConfig: LAYER_DISPLAY_CONFIG
     }
   },
@@ -137,7 +137,7 @@ export default {
       this.modelLoading = false
       this.$nextTick(() => {
         this.drawPosition()
-        this.getIntermediateResults()
+        this.getIntermediateOutputs()
         this.runModel()
       })
     })
@@ -206,7 +206,7 @@ export default {
       this.model.predict(inputData).then(outputData => {
         this.output = outputData['conv2d_15']
         this.drawOutput()
-        this.getIntermediateResults()
+        this.getIntermediateOutputs()
       })
     },
     drawOutput: function() {
@@ -222,50 +222,50 @@ export default {
       ctxScaled.drawImage(document.getElementById('output-canvas'), 0, 0)
       ctxScaled.restore()
     },
-    getIntermediateResults: function() {
-      let results = []
+    getIntermediateOutputs: function() {
+      let outputs = []
       for (let [name, layer] of this.model.modelLayersMap.entries()) {
         const layerClass = layer.layerClass || ''
         if (layerClass === 'InputLayer') continue
 
         let images = []
-        if (layer.result && layer.result.tensor.shape.length === 3) {
-          images = utils.unroll3Dtensor(layer.result.tensor)
-        } else if (layer.result && layer.result.tensor.shape.length === 2) {
-          images = [utils.image2Dtensor(layer.result.tensor)]
-        } else if (layer.result && layer.result.tensor.shape.length === 1) {
-          images = [utils.image1Dtensor(layer.result.tensor)]
+        if (layer.output && layer.output.tensor.shape.length === 3) {
+          images = utils.unroll3Dtensor(layer.output.tensor)
+        } else if (layer.output && layer.output.tensor.shape.length === 2) {
+          images = [utils.image2Dtensor(layer.output.tensor)]
+        } else if (layer.output && layer.output.tensor.shape.length === 1) {
+          images = [utils.image1Dtensor(layer.output.tensor)]
         }
-        results.push({ name, layerClass, images })
+        outputs.push({ name, layerClass, images })
       }
-      this.layerResultImages = results
+      this.layerOutputImages = outputs
       setTimeout(() => {
-        this.showIntermediateResults()
+        this.showIntermediateOutputs()
       }, 0)
     },
-    showIntermediateResults: function() {
-      this.layerResultImages.forEach((result, layerNum) => {
-        const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor
-        result.images.forEach((image, imageNum) => {
-          const ctx = document.getElementById(`intermediate-result-${layerNum}-${imageNum}`).getContext('2d')
+    showIntermediateOutputs: function() {
+      this.layerOutputImages.forEach((output, layerNum) => {
+        const scalingFactor = this.layerDisplayConfig[output.name].scalingFactor
+        output.images.forEach((image, imageNum) => {
+          const ctx = document.getElementById(`intermediate-output-${layerNum}-${imageNum}`).getContext('2d')
           ctx.putImageData(image, 0, 0)
           const ctxScaled = document
-            .getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`)
+            .getElementById(`intermediate-output-${layerNum}-${imageNum}-scaled`)
             .getContext('2d')
           ctxScaled.save()
           ctxScaled.scale(scalingFactor, scalingFactor)
           ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
-          ctxScaled.drawImage(document.getElementById(`intermediate-result-${layerNum}-${imageNum}`), 0, 0)
+          ctxScaled.drawImage(document.getElementById(`intermediate-output-${layerNum}-${imageNum}`), 0, 0)
           ctxScaled.restore()
         })
       })
     },
-    clearIntermediateResults: function() {
-      this.layerResultImages.forEach((result, layerNum) => {
-        const scalingFactor = this.layerDisplayConfig[result.name].scalingFactor
-        result.images.forEach((image, imageNum) => {
+    clearIntermediateOutputs: function() {
+      this.layerOutputImages.forEach((output, layerNum) => {
+        const scalingFactor = this.layerDisplayConfig[output.name].scalingFactor
+        output.images.forEach((image, imageNum) => {
           const ctxScaled = document
-            .getElementById(`intermediate-result-${layerNum}-${imageNum}-scaled`)
+            .getElementById(`intermediate-output-${layerNum}-${imageNum}-scaled`)
             .getContext('2d')
           ctxScaled.save()
           ctxScaled.scale(scalingFactor, scalingFactor)
@@ -394,7 +394,7 @@ export default {
     }
   }
 
-  & .layer-results-container {
+  & .layer-outputs-container {
     position: relative;
 
     & .bg-line {
@@ -407,7 +407,7 @@ export default {
       height: 100%;
     }
 
-    & .layer-result {
+    & .layer-output {
       position: relative;
       z-index: 1;
       margin: 30px 20px;
@@ -416,7 +416,7 @@ export default {
       padding: 20px;
       overflow-x: auto;
 
-      & .layer-result-heading {
+      & .layer-output-heading {
         font-size: 1rem;
         color: #999999;
         margin-bottom: 10px;
@@ -431,7 +431,7 @@ export default {
         }
       }
 
-      & .layer-result-canvas-container {
+      & .layer-output-canvas-container {
         display: inline-flex;
         flex-wrap: wrap;
         background: whitesmoke;
