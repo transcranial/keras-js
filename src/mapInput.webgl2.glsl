@@ -1,6 +1,6 @@
 #version 300 es
-precision mediump float;
-precision mediump isampler2D;
+precision highp float;
+precision highp isampler2D;
 
 in vec2 outTex;
 uniform sampler2D x;

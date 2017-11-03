@@ -1,5 +1,5 @@
 #version 300 es
-precision mediump float;
+precision highp float;
 
 in vec2 outTex;
 uniform sampler2D x;
@@ -13,7 +13,7 @@ void main() {
   int out_y = int(float(size[1]) * outTex.y);
 
   if (isMaxPooling) {
-    // GlobalMaxPooling1D
+    // GlobalMaxPooling
     float maxval = 0.0;
     for (int j = 0; j < size[1]; ++j) {
       float val = texelFetch(x, ivec2(out_x, j), 0).r;
@@ -23,7 +23,7 @@ void main() {
     }
     outColor = vec4(maxval);
   } else {
-    // GlobalAveragePooling1D
+    // GlobalAveragePooling
     float sum = 0.0;
     for (int j = 0; j < size[1]; ++j) {
       float val = texelFetch(x, ivec2(out_x, j), 0).r;

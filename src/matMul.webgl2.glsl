@@ -1,5 +1,5 @@
 #version 300 es
-precision mediump float;
+precision highp float;
 
 in vec2 outTex;
 uniform sampler2D A;
@@ -24,8 +24,7 @@ void main() {
 
   if (addC) {
     sum += texelFetch(C, ivec2(out_x, 0), 0).r;
-    outColor = vec4(sum);
-  } else {
-    outColor = vec4(sum);
   }
+
+  outColor = vec4(sum);
 }

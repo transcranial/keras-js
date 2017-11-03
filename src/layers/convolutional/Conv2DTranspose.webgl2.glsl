@@ -1,7 +1,7 @@
 #version 300 es
-precision mediump float;
-precision mediump int;
-precision mediump isampler2DArray;
+precision highp float;
+precision highp int;
+precision highp isampler2DArray;
 
 in vec2 outTex;
 uniform sampler2D matMulOutput;
