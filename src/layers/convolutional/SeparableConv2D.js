@@ -90,7 +90,7 @@ class _DepthwiseConv2D extends Conv2D {
   /**
    * @param {Tensor} x
    */
-  _call_cpu(x) {
+  _callCPU(x) {
     this.inputShape = x.tensor.shape
     this._calcOutputShape(this.inputShape)
     this._padInput(x)
@@ -146,8 +146,8 @@ class _DepthwiseConv2D extends Conv2D {
   /**
    * @param {Tensor} x
    */
-  _call_gpu(x) {
-    super._call_gpu(x)
+  _callGPU(x) {
+    super._callGPU(x)
 
     this._createOutputReshapeMap()
     if (!this.outputReshaped) {
@@ -284,9 +284,9 @@ export default class SeparableConv2D extends Layer {
    */
   call(x) {
     if (this.gpu) {
-      this._call_gpu(x)
+      this._callGPU(x)
     } else {
-      this._call_cpu(x)
+      this._callCPU(x)
     }
     return this.output
   }
@@ -296,9 +296,9 @@ export default class SeparableConv2D extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_cpu(x) {
-    this._depthwiseConv._call_cpu(x)
-    this._pointwiseConv._call_cpu(this._depthwiseConv.output)
+  _callCPU(x) {
+    this._depthwiseConv._callCPU(x)
+    this._pointwiseConv._callCPU(this._depthwiseConv.output)
     this.output = this._pointwiseConv.output
     this.activationFunc(this.output)
   }
@@ -308,13 +308,13 @@ export default class SeparableConv2D extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_gpu(x) {
+  _callGPU(x) {
     // prevent GPU -> CPU data transfer by specifying non-empty outbound nodes array on these internal Conv2D layers
     this._depthwiseConv.outbound = [null]
     this._pointwiseConv.outbound = [null]
 
-    this._depthwiseConv._call_gpu(x)
-    this._pointwiseConv._call_gpu(this._depthwiseConv.outputReshaped)
+    this._depthwiseConv._callGPU(x)
+    this._pointwiseConv._callGPU(this._depthwiseConv.outputReshaped)
 
     // Activation
     if (this.activation === 'linear') {

@@ -37,9 +37,9 @@ export default class _GlobalPooling1D extends Layer {
    */
   call(x) {
     if (this.gpu) {
-      this._call_gpu(x)
+      this._callGPU(x)
     } else {
-      this._call_cpu(x)
+      this._callCPU(x)
     }
     return this.output
   }
@@ -49,7 +49,7 @@ export default class _GlobalPooling1D extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_cpu(x) {
+  _callCPU(x) {
     const [steps, features] = x.tensor.shape
     this.output = new Tensor([], [features])
     for (let i = 0, len = features; i < len; i++) {
@@ -66,7 +66,7 @@ export default class _GlobalPooling1D extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_gpu(x) {
+  _callGPU(x) {
     if (!x.glTexture) {
       x.createGLTexture()
     }

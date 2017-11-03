@@ -46,18 +46,18 @@ export default class Highway extends Layer {
    * @returns {Tensor}
    */
   call(x) {
-    let y = new Tensor([], [this.weights.W.tensor.shape[1]])
+    let y = new Tensor([], [this.weights['W'].tensor.shape[1]])
     if (this.bias) {
-      ops.assign(y.tensor, this.weights.b.tensor)
+      ops.assign(y.tensor, this.weights['b'].tensor)
     }
-    gemv(1.0, this.weights.W.tensor.transpose(1, 0), x.tensor, 1.0, y.tensor)
+    gemv(1.0, this.weights['W'].tensor.transpose(1, 0), x.tensor, 1.0, y.tensor)
     this.activationFunc(y)
 
-    let transform = new Tensor([], [this.weights.W_carry.tensor.shape[1]])
+    let transform = new Tensor([], [this.weights['W_carry'].tensor.shape[1]])
     if (this.bias) {
-      ops.assign(transform.tensor, this.weights.b_carry.tensor)
+      ops.assign(transform.tensor, this.weights['b_carry'].tensor)
     }
-    gemv(1.0, this.weights.W_carry.tensor.transpose(1, 0), x.tensor, 1.0, transform.tensor)
+    gemv(1.0, this.weights['W_carry'].tensor.transpose(1, 0), x.tensor, 1.0, transform.tensor)
     activations.sigmoid(transform)
 
     this._computeOutput(x.tensor, y.tensor, transform.tensor)

@@ -29,7 +29,7 @@ export default class Multiply extends _Merge {
    *
    * @param {Tensor[]} inputs
    */
-  _call_cpu(inputs) {
+  _callCPU(inputs) {
     const outputShape = inputs[0].tensor.shape.slice()
     this.output = new Tensor([], outputShape)
 

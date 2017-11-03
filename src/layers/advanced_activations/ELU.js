@@ -42,9 +42,9 @@ export default class ELU extends Layer {
    */
   call(x) {
     if (this.gpu) {
-      this._call_gpu(x)
+      this._callGPU(x)
     } else {
-      this._call_cpu(x)
+      this._callCPU(x)
     }
     return this.output
   }
@@ -54,7 +54,7 @@ export default class ELU extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_cpu(x) {
+  _callCPU(x) {
     this.output = x
     this._compute(this.output.tensor, this.alpha)
   }
@@ -64,7 +64,7 @@ export default class ELU extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_gpu(x) {
+  _callGPU(x) {
     if (!x.glTexture) {
       x.createGLTexture()
     }

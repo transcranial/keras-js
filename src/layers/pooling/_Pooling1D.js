@@ -40,9 +40,9 @@ export default class _Pooling1D extends Layer {
    */
   call(x) {
     if (this.gpu) {
-      this._call_gpu(x)
+      this._callGPU(x)
     } else {
-      this._call_cpu(x)
+      this._callCPU(x)
     }
     return this.output
   }
@@ -52,7 +52,7 @@ export default class _Pooling1D extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_cpu(x) {
+  _callCPU(x) {
     const stepsNew =
       this.padding === 'valid'
         ? Math.floor((x.tensor.shape[0] - this.poolSize + this.strides) / this.strides)
@@ -147,7 +147,7 @@ export default class _Pooling1D extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_gpu(x) {
+  _callGPU(x) {
     if (!x.glTexture) {
       x.createGLTexture()
     }

@@ -37,9 +37,9 @@ export default class RepeatVector extends Layer {
    */
   call(x) {
     if (this.gpu) {
-      this._call_gpu(x)
+      this._callGPU(x)
     } else {
-      this._call_cpu(x)
+      this._callCPU(x)
     }
     return this.output
   }
@@ -49,7 +49,7 @@ export default class RepeatVector extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_cpu(x) {
+  _callCPU(x) {
     if (x.tensor.shape.length !== 1) {
       throw new Error(`${this.name} [RepeatVector layer] Only 1D tensor inputs allowed.`)
     }
@@ -62,7 +62,7 @@ export default class RepeatVector extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_gpu(x) {
+  _callGPU(x) {
     if (!x.glTexture) {
       x.createGLTexture()
     }

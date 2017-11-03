@@ -37,15 +37,15 @@ export default class MaxoutDense extends Layer {
    * @returns {Tensor}
    */
   call(x) {
-    const nbFeature = this.weights.W.tensor.shape[0]
+    const nbFeature = this.weights['W'].tensor.shape[0]
 
     let featMax = new Tensor([], [this.outputDim])
     for (let i = 0; i < nbFeature; i++) {
       let y = new Tensor([], [this.outputDim])
       if (this.bias) {
-        ops.assign(y.tensor, this.weights.b.tensor.pick(i, null))
+        ops.assign(y.tensor, this.weights['b'].tensor.pick(i, null))
       }
-      gemv(1.0, this.weights.W.tensor.pick(i, null, null).transpose(1, 0), x.tensor, 1.0, y.tensor)
+      gemv(1.0, this.weights['W'].tensor.pick(i, null, null).transpose(1, 0), x.tensor, 1.0, y.tensor)
       ops.maxeq(featMax.tensor, y.tensor)
     }
 

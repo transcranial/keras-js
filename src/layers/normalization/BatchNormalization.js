@@ -55,9 +55,9 @@ export default class BatchNormalization extends Layer {
    */
   call(x) {
     if (this.gpu) {
-      this._call_gpu(x)
+      this._callGPU(x)
     } else {
-      this._call_cpu(x)
+      this._callCPU(x)
     }
     return this.output
   }
@@ -67,7 +67,7 @@ export default class BatchNormalization extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_cpu(x) {
+  _callCPU(x) {
     if (!this.axisNormalized) {
       this.axis = this.axis < 0 ? x.tensor.shape.length + this.axis : this.axis - 1
       this.axisNormalized = true
@@ -85,10 +85,10 @@ export default class BatchNormalization extends Layer {
     for (let i = 0; i < x.tensor.shape[this.axis]; i++) {
       broadcast[this.axis] = i
       if (this.scale) {
-        ops.assigns(_gamma.tensor.pick(...broadcast), this.weights.gamma.tensor.get(i))
+        ops.assigns(_gamma.tensor.pick(...broadcast), this.weights['gamma'].tensor.get(i))
       }
       if (this.center) {
-        ops.assigns(_beta.tensor.pick(...broadcast), this.weights.beta.tensor.get(i))
+        ops.assigns(_beta.tensor.pick(...broadcast), this.weights['beta'].tensor.get(i))
       }
     }
 
@@ -98,8 +98,8 @@ export default class BatchNormalization extends Layer {
     // feature-wise normalization
     for (let i = 0; i < x.tensor.shape[this.axis]; i++) {
       broadcast[this.axis] = i
-      ops.assigns(_mean.tensor.pick(...broadcast), this.weights.moving_mean.tensor.get(i))
-      ops.assigns(_std.tensor.pick(...broadcast), this.weights.moving_variance.tensor.get(i) + this.epsilon)
+      ops.assigns(_mean.tensor.pick(...broadcast), this.weights['moving_mean'].tensor.get(i))
+      ops.assigns(_std.tensor.pick(...broadcast), this.weights['moving_variance'].tensor.get(i) + this.epsilon)
     }
     ops.sqrteq(_std.tensor)
 
@@ -121,7 +121,7 @@ export default class BatchNormalization extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_gpu(x) {
+  _callGPU(x) {
     if (!this.axisNormalized) {
       if (x.glTextureIsTiled) {
         this.inputShape = x.untiledShape

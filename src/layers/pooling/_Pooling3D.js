@@ -53,9 +53,9 @@ export default class _Pooling3D extends Layer {
    */
   call(x) {
     if (this.gpu) {
-      this._call_gpu(x)
+      this._callGPU(x)
     } else {
-      this._call_cpu(x)
+      this._callCPU(x)
     }
     return this.output
   }
@@ -164,7 +164,7 @@ export default class _Pooling3D extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_cpu(x) {
+  _callCPU(x) {
     // convert to channels_last ordering
     if (this.dataFormat === 'channels_first') {
       x.tensor = x.tensor.transpose(1, 2, 3, 0)
@@ -337,7 +337,7 @@ export default class _Pooling3D extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_gpu(x) {
+  _callGPU(x) {
     if (x.glTextureIsTiled) {
       this.inputShape = x.untiledShape
     } else {

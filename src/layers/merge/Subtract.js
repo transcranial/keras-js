@@ -29,7 +29,7 @@ export default class Subtract extends _Merge {
    *
    * @param {Tensor[]} inputs
    */
-  _call_cpu(inputs) {
+  _callCPU(inputs) {
     if (inputs.length !== 2) {
       throw new Error(`${this.name} [Subtract layer] Inputs should be an array of 2 Tensors.`)
     }

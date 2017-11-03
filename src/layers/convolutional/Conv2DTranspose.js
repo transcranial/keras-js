@@ -108,9 +108,9 @@ export default class Conv2DTranspose extends Layer {
    */
   call(x) {
     if (this.gpu) {
-      this._call_gpu(x)
+      this._callGPU(x)
     } else {
-      this._call_cpu(x)
+      this._callCPU(x)
     }
     return this.output
   }
@@ -216,7 +216,7 @@ export default class Conv2DTranspose extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_cpu(x) {
+  _callCPU(x) {
     this.inputShape = x.tensor.shape
     this._calcOutputShape(this.inputShape)
     this._im2col(x)
@@ -395,7 +395,7 @@ export default class Conv2DTranspose extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_gpu(x) {
+  _callGPU(x) {
     if (x.glTextureIsTiled) {
       this.inputShape = x.untiledShape
       this._calcOutputShape(this.inputShape)
@@ -408,10 +408,10 @@ export default class Conv2DTranspose extends Layer {
     }
 
     // create output textures if doesn't already exist
-    if (!this.output_matmul) {
+    if (!this.outputMatmul) {
       const outputTextureShape = [x.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
-      this.output_matmul = new Tensor([], outputTextureShape)
-      this.output_matmul.createGLTexture()
+      this.outputMatmul = new Tensor([], outputTextureShape)
+      this.outputMatmul.createGLTexture()
     }
     if (!this.outputPreactiv) {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
@@ -430,7 +430,7 @@ export default class Conv2DTranspose extends Layer {
 
     // Matrix Multiply with kernel
     webgl2.selectProgram(this.matMulProgram)
-    webgl2.bindOutputTexture(this.output_matmul.glTexture, this.output_matmul.glTextureShape)
+    webgl2.bindOutputTexture(this.outputMatmul.glTexture, this.outputMatmul.glTextureShape)
     let textures = [x.glTexture, this.weights['kernel'].glTexture]
     let textureTypes = ['2d', '2d']
     let textureNames = ['A', 'B']
@@ -448,7 +448,7 @@ export default class Conv2DTranspose extends Layer {
     webgl2.selectProgram(this.convTransposeProgram)
     webgl2.bindOutputTexture(this.outputPreactiv.glTexture, this.outputPreactiv.glTextureShape)
     textures = [
-      this.output_matmul.glTexture,
+      this.outputMatmul.glTexture,
       this._tiledOutputRowIndicesMap.glTexture,
       this._tiledOutputColIndicesMap.glTexture
     ]

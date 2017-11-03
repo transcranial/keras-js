@@ -41,9 +41,9 @@ export default class Permute extends Layer {
     }
 
     if (this.gpu) {
-      this._call_gpu(x)
+      this._callGPU(x)
     } else {
-      this._call_cpu(x)
+      this._callCPU(x)
     }
     return this.output
   }
@@ -53,7 +53,7 @@ export default class Permute extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_cpu(x) {
+  _callCPU(x) {
     if (this.dims.length !== x.tensor.shape.length) {
       throw new Error(
         `${this.name} [Permute layer] The specified dims permutation must match the number of dimensions.`
@@ -125,7 +125,7 @@ export default class Permute extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_gpu(x) {
+  _callGPU(x) {
     if (!x.glTexture) {
       this.inputShape = x.tensor.shape
       if (x.tensor.shape.length <= 2) {

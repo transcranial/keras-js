@@ -35,7 +35,7 @@ export default class Concatenate extends _Merge {
    *
    * @param {Tensor[]} inputs
    */
-  _call_cpu(inputs) {
+  _callCPU(inputs) {
     const outputShape = inputs[0].tensor.shape.slice()
     const _concatAxis = this.concatAxis < 0 ? outputShape.length + this.concatAxis : this.concatAxis
     inputs.slice(1, inputs.length).forEach(x => {
@@ -63,7 +63,7 @@ export default class Concatenate extends _Merge {
    *
    * @param {Tensor[]} inputs
    */
-  _call_gpu(inputs) {
+  _callGPU(inputs) {
     const outputShape = inputs[0].glTextureShape.slice()
     let _concatAxis = 1
     if (inputs[0].glTextureIsTiled) {

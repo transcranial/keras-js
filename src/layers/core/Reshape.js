@@ -36,9 +36,9 @@ export default class Reshape extends Layer {
    */
   call(x) {
     if (this.gpu) {
-      this._call_gpu(x)
+      this._callGPU(x)
     } else {
-      this._call_cpu(x)
+      this._callCPU(x)
     }
     return this.output
   }
@@ -48,7 +48,7 @@ export default class Reshape extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_cpu(x) {
+  _callCPU(x) {
     if (this.targetShape.reduce((a, b) => a * b, 1) !== x.tensor.size) {
       throw new Error(`${this.name} [Reshape layer] The total size of new array must be unchanged in reshape layer.`)
     }
@@ -115,7 +115,7 @@ export default class Reshape extends Layer {
    *
    * @param {Tensor} x
    */
-  _call_gpu(x) {
+  _callGPU(x) {
     if (!x.glTexture) {
       this.inputShape = x.tensor.shape
       if (x.tensor.shape.length <= 2) {

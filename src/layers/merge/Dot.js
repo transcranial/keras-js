@@ -57,7 +57,7 @@ export default class Dot extends _Merge {
    *
    * @param {Tensor[]} inputs
    */
-  _call_cpu(inputs) {
+  _callCPU(inputs) {
     this._calcOutputShape([inputs[0].tensor.shape, inputs[1].tensor.shape])
     this.output = new Tensor([], this.outputShape)
 
@@ -93,7 +93,7 @@ export default class Dot extends _Merge {
    *
    * @param {Tensor[]} inputs
    */
-  _call_gpu(inputs) {
+  _callGPU(inputs) {
     this._calcOutputShape([inputs[0].glTextureShape, inputs[1].glTextureShape])
 
     // create output textures if doesn't already exist

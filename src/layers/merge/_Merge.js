@@ -37,13 +37,13 @@ export default class _Merge extends Layer {
           input.createGLTexture()
         }
       })
-      this._call_gpu(inputs)
+      this._callGPU(inputs)
     } else {
       const valid = this._validateInputs(inputs)
       if (!valid) {
         throw new Error(`${this.name} [${this.layerClass} layer] Invalid inputs to call method.`)
       }
-      this._call_cpu(inputs)
+      this._callCPU(inputs)
     }
     return this.output
   }
@@ -100,7 +100,7 @@ export default class _Merge extends Layer {
    *
    * @param {Tensor[]} inputs
    */
-  _call_cpu(inputs) {}
+  _callCPU(inputs) {}
 
   /**
    * GPU call
@@ -111,7 +111,7 @@ export default class _Merge extends Layer {
    *
    * @param {Tensor[]} inputs
    */
-  _call_gpu(inputs) {
+  _callGPU(inputs) {
     // create output textures if doesn't already exist
     if (!this.output) {
       this.output = new Tensor([], inputs[0].glTextureShape)
