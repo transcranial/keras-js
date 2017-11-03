@@ -66,7 +66,7 @@ export default class Model {
     this.inputLayerNames = []
     this.outputLayerNames = []
     // array of model layer names with result
-    this.layersWithResults = []
+    this.finishedLayerNames = []
     // flag while computations are being performed
     this.isRunning = false
 
@@ -95,21 +95,37 @@ export default class Model {
    *
    * @returns {Promise}
    */
-  _initialize() {
+  async _initialize() {
     const dataTypes = ['model', 'weights', 'metadata']
-    return Promise.all(
-      dataTypes.map(type => {
-        return this.filesystem ? this._dataRequestFS(type) : this._dataRequestHTTP(type, this.headers)
-      })
-    )
-      .then(() => {
-        this._buildDAG()
-        return Promise.resolve()
-      })
-      .catch(err => {
-        console.log(err)
-        this._interrupt()
-      })
+    const dataRequests = dataTypes.map(type => {
+      return this.filesystem ? this._dataRequestFS(type) : this._dataRequestHTTP(type, this.headers)
+    })
+
+    try {
+      await Promise.all(dataRequests)
+    } catch (err) {
+      console.log(err)
+      this._interrupt()
+    }
+
+    // build directed acyclic graph
+    this._buildDAG()
+    console.log(this.modelLayersMap)
+
+    // run predict once with initial empty input tensors to cache variables such as shape inference
+    // make sure layerCallPauses is turned off during this step
+    this.inputLayerNames.forEach(name => {
+      const inputLayer = this.modelLayersMap.get(name)
+      inputLayer.call(this.inputTensorsMap.get(name))
+      inputLayer.hasOutput = true
+      inputLayer.visited = true
+    })
+    const _layerCallPauses = this.layerCallPauses
+    this.layerCallPauses = false
+    await this._traverseDAG(this.inputLayerNames)
+    this.layerCallPauses = _layerCallPauses
+
+    return true
   }
 
   /**
@@ -118,24 +134,24 @@ export default class Model {
    * @param {string} type - type of requested data, one of `model`, `weights`, or `metadata`.
    * @returns {Promise}
    */
-  _dataRequestFS(type) {
+  async _dataRequestFS(type) {
     const readFile = Promise.promisify(require('fs').readFile)
     const filetype = this.filetypes[type]
     const encoding = filetype === 'json' ? 'utf8' : undefined
-    return readFile(this.filepaths[type], encoding)
-      .then(data => {
-        if (filetype === 'json') {
-          this.data[type] = JSON.parse(data)
-        } else if (filetype === 'arraybuffer') {
-          this.data[type] = data.buffer
-        } else {
-          throw new Error(`Invalid file type: ${filetype}`)
-        }
-        this.dataRequestProgress[type] = 100
-      })
-      .catch(err => {
-        throw err
-      })
+
+    try {
+      const data = await readFile(this.filepaths[type], encoding)
+      if (filetype === 'json') {
+        this.data[type] = JSON.parse(data)
+      } else if (filetype === 'arraybuffer') {
+        this.data[type] = data.buffer
+      } else {
+        throw new Error(`Invalid file type: ${filetype}`)
+      }
+    } catch (err) {
+      throw err
+    }
+    this.dataRequestProgress[type] = 100
   }
 
   /**
@@ -145,9 +161,9 @@ export default class Model {
    * @param {Object} [headers] - any headers to be passed along with request
    * @returns {Promise}
    */
-  _dataRequestHTTP(type, headers = {}) {
-    return axios
-      .get(this.filepaths[type], {
+  async _dataRequestHTTP(type, headers = {}) {
+    try {
+      const res = await axios.get(this.filepaths[type], {
         responseType: this.filetypes[type],
         headers,
         onDownloadProgress: e => {
@@ -158,17 +174,15 @@ export default class Model {
         },
         cancelToken: axiosSource.token
       })
-      .then(res => {
-        this.data[type] = res.data
-        this.dataRequestProgress[type] = 100
-      })
-      .catch(err => {
-        if (axios.isCancel(err)) {
-          console.log('Data request canceled', err.message)
-        } else {
-          throw err
-        }
-      })
+      this.data[type] = res.data
+    } catch (err) {
+      if (axios.isCancel(err)) {
+        console.log('Data request canceled', err.message)
+      } else {
+        throw err
+      }
+    }
+    this.dataRequestProgress[type] = 100
   }
 
   /**
@@ -355,8 +369,8 @@ export default class Model {
       return true
     } else if (nodes.length === 1) {
       // Where computational logic lives for a given layer node
-      // - Makes sure results are available from inbound layer nodes
-      // - Keeps async function going until results are available from inbound layer nodes
+      // - Makes sure outputs are available from inbound layer nodes
+      // - Keeps async function going until outputs are available from inbound layer nodes
       //   (important for merge layer nodes where multiple inbound nodes may complete asynchronously)
       // - Runs computation for current layer node: .call()
       // - Starts new async function for outbound nodes
@@ -364,7 +378,7 @@ export default class Model {
       const currentLayer = this.modelLayersMap.get(node)
 
       if (currentLayer.layerClass === 'InputLayer') {
-        this.layersWithResults.push(this.modelLayersMap.get(node).name)
+        this.finishedLayerNames.push(this.modelLayersMap.get(node).name)
       } else {
         const currentLayer = this.modelLayersMap.get(node)
         if (currentLayer.visited) {
@@ -372,7 +386,7 @@ export default class Model {
         }
 
         const inboundLayers = currentLayer.inbound.map(n => this.modelLayersMap.get(n))
-        if (!_.every(_.map(inboundLayers, 'hasResult'))) {
+        if (!_.every(_.map(inboundLayers, 'hasOutput'))) {
           return false
         }
 
@@ -380,15 +394,15 @@ export default class Model {
         // const copyBeforeCall = numSiblingNodes >= 1
         let start = performance.now()
         if (currentLayer.isMergeLayer) {
-          currentLayer.result = currentLayer.call(_.map(inboundLayers, 'result'))
+          currentLayer.call(_.map(inboundLayers, 'output'))
         } else {
-          currentLayer.result = currentLayer.call(inboundLayers[0].result)
+          currentLayer.call(inboundLayers[0].output)
         }
         console.log(currentLayer.layerClass, currentLayer.name, performance.now() - start)
 
-        currentLayer.hasResult = true
+        currentLayer.hasOutput = true
         currentLayer.visited = true
-        this.layersWithResults.push(currentLayer.name)
+        this.finishedLayerNames.push(currentLayer.name)
 
         if (this.layerCallPauses) {
           // temporarily pause 0 ms
@@ -401,6 +415,22 @@ export default class Model {
     } else {
       await Promise.all(nodes.map(node => this._traverseDAG([node])))
     }
+  }
+
+  /**
+   * Load data to input layer nodes
+   *
+   * @param {Object} inputData - object where the keys are the named inputs of the model,
+   * and values the TypedArray numeric data
+   */
+  loadData(inputData) {
+    this.inputLayerNames.forEach(name => {
+      const inputLayer = this.modelLayersMap.get(name)
+      this.inputTensorsMap.get(name).replaceTensorData(inputData[name])
+      inputLayer.call(this.inputTensorsMap.get(name))
+      inputLayer.hasOutput = true
+      inputLayer.visited = true
+    })
   }
 
   /**
@@ -425,35 +455,31 @@ export default class Model {
       throw new Error('predict() must take an object where the values are the flattened data as Float32Array.')
     }
 
-    // reset hasResult and visited flags in all layers
-    this.layersWithResults = []
+    // reset hasOutput and visited flags in all layers
+    this.finishedLayerNames = []
     this.modelLayersMap.forEach(layer => {
-      layer.hasResult = false
+      layer.hasOutput = false
       layer.visited = false
     })
 
     // load data to input tensors
-    this.inputLayerNames.forEach(name => {
-      const inputLayer = this.modelLayersMap.get(name)
-      this.inputTensorsMap.get(name).replaceTensorData(inputData[name])
-      inputLayer.result = inputLayer.call(this.inputTensorsMap.get(name))
-      inputLayer.hasResult = true
-      inputLayer.visited = true
-    })
+    this.loadData(inputData)
 
-    // start traversing DAG at input
+    // start traversing DAG at inputs
+    let start = performance.now()
     await this._traverseDAG(this.inputLayerNames)
+    console.log('TOTAL', performance.now() - start)
 
     // outputs are layers with no outbound nodes
     const modelClass = this.data.model.class_name
     const outputData = {}
     if (modelClass === 'Sequential') {
-      const { result } = this.modelLayersMap.get(this.outputLayerNames[0])
-      outputData['output'] = result.tensor.data
+      const outputLayer = this.modelLayersMap.get(this.outputLayerNames[0])
+      outputData['output'] = outputLayer.output.tensor.data
     } else if (modelClass === 'Model') {
       this.outputLayerNames.forEach(layerName => {
-        const { result } = this.modelLayersMap.get(layerName)
-        outputData[layerName] = result.tensor.data
+        const outputLayer = this.modelLayersMap.get(layerName)
+        outputData[layerName] = outputLayer.output.tensor.data
       })
     }
 
