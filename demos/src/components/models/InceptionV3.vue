@@ -108,9 +108,7 @@ export default {
     return {
       useGpu: this.hasWebgl,
       showComputationFlow: true,
-      model: new KerasJS.Model( // eslint-disable-line
-        Object.assign({ gpu: this.hasWebgl, pipeline: false, layerCallPauses: true }, MODEL_CONFIG)
-      ),
+      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl, layerCallPauses: true }, MODEL_CONFIG)),
       modelLoading: true,
       modelRunning: false,
       imageURLInput: '',
@@ -131,7 +129,7 @@ export default {
       this.loadImageToCanvas(value)
     },
     useGpu: function(value) {
-      this.model.toggleGpu(value)
+      this.model.toggleGPU(value)
     },
     showComputationFlow: function(value) {
       this.model.layerCallPauses = value
@@ -203,7 +201,8 @@ export default {
         } else if (conn.corner === 'top-left') {
           path = `M${xFrom},${yFrom} L${xTo + 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
         } else if (conn.corner === 'bottom-right') {
-          path = `M${xFrom},${yFrom} L${xFrom},${yFrom + 20} Q${xFrom},${yFrom + 30} ${xFrom - 10},${yFrom + 30} L${xTo + 10},${yFrom + 30} Q${xTo},${yFrom + 30} ${xTo},${yFrom + 40} L${xTo},${yTo}`
+          path = `M${xFrom},${yFrom} L${xFrom},${yFrom + 20} Q${xFrom},${yFrom + 30} ${xFrom - 10},${yFrom +
+            30} L${xTo + 10},${yFrom + 30} Q${xTo},${yFrom + 30} ${xTo},${yFrom + 40} L${xTo},${yTo}`
         }
 
         this.architectureDiagramPaths.push(path)

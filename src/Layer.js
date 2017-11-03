@@ -54,7 +54,7 @@ export default class Layer {
    *
    * @param {boolean} mode - on/off
    */
-  toggleGpu(mode) {
+  toggleGPU(mode) {
     const newMode = typeof mode === 'undefined' ? !this.gpu : mode
     if (webgl2.isSupported && newMode) {
       this.gpu = true

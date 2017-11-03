@@ -87,7 +87,7 @@ export default {
 
   watch: {
     useGpu: function(value) {
-      this.model.toggleGpu(value)
+      this.model.toggleGPU(value)
     }
   },
 

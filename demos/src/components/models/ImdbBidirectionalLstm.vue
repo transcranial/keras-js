@@ -70,8 +70,10 @@ const MODEL_FILEPATHS_DEV = {
 }
 const MODEL_FILEPATHS_PROD = {
   model: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm.json',
-  weights: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm_weights.buf',
-  metadata: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm_metadata.json'
+  weights:
+    'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm_weights.buf',
+  metadata:
+    'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm_metadata.json'
 }
 const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
@@ -81,13 +83,14 @@ const ADDITIONAL_DATA_FILEPATHS_DEV = {
   testSamples: '/demos/data/imdb_bidirectional_lstm/imdb_dataset_test.json'
 }
 const ADDITIONAL_DATA_FILEPATHS_PROD = {
-  wordIndex: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_dataset_word_index_top20000.json',
-  wordDict: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_dataset_word_dict_top20000.json',
+  wordIndex:
+    'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_dataset_word_index_top20000.json',
+  wordDict:
+    'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_dataset_word_dict_top20000.json',
   testSamples: 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_dataset_test.json'
 }
-const ADDITIONAL_DATA_FILEPATHS = process.env.NODE_ENV === 'production'
-  ? ADDITIONAL_DATA_FILEPATHS_PROD
-  : ADDITIONAL_DATA_FILEPATHS_DEV
+const ADDITIONAL_DATA_FILEPATHS =
+  process.env.NODE_ENV === 'production' ? ADDITIONAL_DATA_FILEPATHS_PROD : ADDITIONAL_DATA_FILEPATHS_DEV
 
 const MAXLEN = 200
 
@@ -221,7 +224,10 @@ export default {
       this.modelRunning = true
       this.isSampleText = false
 
-      this.inputTextParsed = this.inputText.trim().toLowerCase().split(/[\s\.,!?]+/gi)
+      this.inputTextParsed = this.inputText
+        .trim()
+        .toLowerCase()
+        .split(/[\s.,!?]+/gi)
 
       this.input = new Float32Array(MAXLEN)
       // by convention, use 2 as OOV word

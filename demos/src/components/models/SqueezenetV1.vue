@@ -108,9 +108,7 @@ export default {
     return {
       useGpu: this.hasWebgl,
       showComputationFlow: true,
-      model: new KerasJS.Model(
-        Object.assign({ gpu: this.hasWebgl, pipeline: false, layerCallPauses: true }, MODEL_CONFIG)
-      ), // eslint-disable-line
+      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl, layerCallPauses: true }, MODEL_CONFIG)),
       modelLoading: true,
       modelRunning: false,
       imageURLInput: '',
@@ -131,7 +129,7 @@ export default {
       this.loadImageToCanvas(value)
     },
     useGpu: function(value) {
-      this.model.toggleGpu(value)
+      this.model.toggleGPU(value)
     },
     showComputationFlow: function(value) {
       this.model.layerCallPauses = value
