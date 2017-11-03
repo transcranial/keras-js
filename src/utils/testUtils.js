@@ -7,6 +7,10 @@ import isFinite from 'lodash/isFinite'
  * within a certain tolerance. We unpack the ndarray first since
  * stride/offset prevents us from comparing the array data
  * element-wise directly.
+ *
+ * @param {Object} ndarrayOut
+ * @param {number[]} dataExpected
+ * @param {number} tol
  */
 export function approxEquals(ndarrayOut, dataExpected, tol = 0.0001) {
   const a = flattenDeep(unpack(ndarrayOut))

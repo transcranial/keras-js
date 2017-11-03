@@ -17,11 +17,10 @@ const _hard_sigmoid = cwise({
 })
 
 /**
- * Hard-sigmoid activation function. In-place operation.
+ * In-place operation: hard sigmoid activation function
+ *
  * @param {Tensor} x
- * @returns {Tensor} `this`
  */
 export default function hard_sigmoid(x) {
   _hard_sigmoid(x.tensor)
-  return this
 }

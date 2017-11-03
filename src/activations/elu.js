@@ -10,13 +10,12 @@ const _elu = cwise({
 })
 
 /**
- * ELU activation function. In-place operation.
+ * In-place operation: ELU activation function
+ *
  * @param {Tensor} x
- * @param {Number} opts.alpha
- * @returns {Tensor} `this`
+ * @param {{alpha: number}} [opts]
  */
 export default function elu(x, opts = {}) {
   const { alpha = 1.0 } = opts
   _elu(x.tensor, alpha)
-  return this
 }

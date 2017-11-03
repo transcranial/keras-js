@@ -11,7 +11,9 @@ import ops from 'ndarray-ops'
 export default class Reshape extends Layer {
   /**
    * Creates a Reshape layer
-   * @param {number[]} attrs.target_shape
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number[]} [attrs.target_shape]
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -43,6 +45,8 @@ export default class Reshape extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     if (this.targetShape.reduce((a, b) => a * b, 1) !== x.tensor.size) {
@@ -52,6 +56,11 @@ export default class Reshape extends Layer {
     this.output.replaceTensorData(x.tensor.data)
   }
 
+  /**
+   * Creates row/col index mappings to map input texture to output texture
+   *
+   * @param {number[]} inputShape
+   */
   _createIndexMap(inputShape) {
     if (this.rowIndexMap && this.colIndexMap) {
       return
@@ -103,6 +112,8 @@ export default class Reshape extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (!x.glTexture) {

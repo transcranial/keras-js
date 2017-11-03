@@ -8,7 +8,8 @@ import ops from 'ndarray-ops'
 export default class TimeDistributed extends Layer {
   /**
    * Creates a TimeDistributed wrapper layer
-   * @param {Layer} attrs.layer
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -32,8 +33,9 @@ export default class TimeDistributed extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     const xStepShape = [...x.tensor.shape.slice(1)]

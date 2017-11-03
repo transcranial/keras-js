@@ -12,7 +12,9 @@ import ops from 'ndarray-ops'
 export default class Permute extends Layer {
   /**
    * Creates a Permute layer
-   * @param {number[]} attrs.dims
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number[]} [attrs.dims]
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -48,6 +50,8 @@ export default class Permute extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     if (this.dims.length !== x.tensor.shape.length) {
@@ -61,6 +65,11 @@ export default class Permute extends Layer {
     ops.assign(this.output.tensor, x.tensor.transpose(...this.dims))
   }
 
+  /**
+   * Creates row/col index mappings to map input texture to output texture
+   *
+   * @param {number[]} inputShape
+   */
   _createIndexMap(inputShape) {
     if (this.rowIndexMap && this.colIndexMap) {
       return
@@ -113,6 +122,8 @@ export default class Permute extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (!x.glTexture) {

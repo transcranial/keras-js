@@ -11,8 +11,9 @@ import ops from 'ndarray-ops'
 export default class Dense extends Layer {
   /**
    * Creates a Dense layer
-   * @param {Number} attrs.units - output dimension size
-   * @param {Object} [attrs] - layer attributes
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.units] - output dimension size
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -64,6 +65,8 @@ export default class Dense extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     if (this.use_bias) {
@@ -75,6 +78,8 @@ export default class Dense extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (!x.glTexture) {

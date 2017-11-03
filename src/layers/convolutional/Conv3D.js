@@ -11,9 +11,10 @@ import gemm from 'ndarray-gemm'
 export default class Conv3D extends Layer {
   /**
    * Creates a Conv3D layer
-   * @param {Number} attrs.filters - Number of convolution filters to use.
-   * @param {Array<Number>|Number} attrs.kernel_size - Size of the convolution kernel.
-   * @param {Object} [attrs] - layer attributes
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.filters] - Number of convolution filters to use
+   * @param {number|number[]} [attrs.kernel_size] - Size of the convolution kernel
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -86,9 +87,13 @@ export default class Conv3D extends Layer {
 
   /**
    * Method for setting layer weights. Extends `super` method.
+   *
    * W weight tensor is converted to `channels_last` mode if in `channels_first` mode.
+   *
    * In `channels_last` mode, W weight tensor has shape [kernelDim1, kernelDim2, kernelDim3, inputChannels, nbFilter]
+   *
    * In `channels_first` mode, W weight tensor has shape [nbFilter, inputChannels, kernelDim1, kernelDim2, kernelDim3]
+   *
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights(weightsArr) {
@@ -124,10 +129,11 @@ export default class Conv3D extends Layer {
   }
 
   /**
-   * Method for computing output dimensions and padding, based on input
-   * dimensions, kernel size, and padding mode.
+   * Method for computing output dimensions and padding, based on input dimensions, kernel size, and padding mode.
+   *
    * For tensorflow implementation of padding, see:
    * https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/common_shape_fns.cc
+   *
    * @param {number[]} inputShape
    */
   _calcOutputShape(inputShape) {
@@ -187,6 +193,7 @@ export default class Conv3D extends Layer {
 
   /**
    * Pad input tensor if necessary, for padding='same'
+   *
    * @param {Tensor} x
    * @param {number} [padValue]
    * @returns {Tensor}
@@ -224,6 +231,7 @@ export default class Conv3D extends Layer {
 
   /**
    * Convert input volume to column matrix
+   *
    * @param {Tensor} x
    * @returns {Tensor}
    */
@@ -288,6 +296,7 @@ export default class Conv3D extends Layer {
 
   /**
    * Convert filter weights to row matrix
+   *
    * @returns {Tensor}
    */
   _w2row() {
@@ -310,6 +319,8 @@ export default class Conv3D extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     this.inputShape = x.tensor.shape
@@ -350,10 +361,12 @@ export default class Conv3D extends Layer {
   }
 
   /**
-   * Creates a index mapping from the 2D-tiled input tensor with associated
-   * 3D tensor shape to the representation required prior to the matrix multiply.
-   * This allows us to work directly on the 2D tiled tensor representations rather
-   * than needing to reshape to the 3D reprentation and calling im2col.
+   * Creates a index mapping from the 2D-tiled input tensor with associated 3D tensor shape to the representation
+   * required prior to the matrix multiply.
+   *
+   * This allows us to work directly on the 2D tiled tensor representations rather than needing to reshape to the 3D
+   * reprentation and calling im2col.
+   *
    * @param {number[]} inputShape
    */
   _createIndexMap(inputShape) {
@@ -446,6 +459,8 @@ export default class Conv3D extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (x.glTextureIsTiled) {

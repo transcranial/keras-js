@@ -12,7 +12,9 @@ import tile from 'ndarray-tile'
 export default class RepeatVector extends Layer {
   /**
    * Creates a RepeatVector layer
-   * @param {number} attrs.n
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.n]
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -44,6 +46,8 @@ export default class RepeatVector extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     if (x.tensor.shape.length !== 1) {
@@ -55,6 +59,8 @@ export default class RepeatVector extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (!x.glTexture) {

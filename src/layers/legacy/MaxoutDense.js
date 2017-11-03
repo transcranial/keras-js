@@ -13,8 +13,9 @@ import ops from 'ndarray-ops'
 export default class MaxoutDense extends Layer {
   /**
    * Creates a MaxoutDense layer
+   *
+   * @param {Object} [attrs] - layer config attributes
    * @param {number} attrs.output_dim - output dimension size
-   * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -31,8 +32,9 @@ export default class MaxoutDense extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     const nbFeature = this.weights.W.tensor.shape[0]

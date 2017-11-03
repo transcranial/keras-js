@@ -8,6 +8,8 @@ import ops from 'ndarray-ops'
 export default class Embedding extends Layer {
   /**
    * Creates a Embedding layer
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -28,8 +30,9 @@ export default class Embedding extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     let y = new Tensor([], [x.tensor.shape[0], this.weights['embeddings'].tensor.shape[1]])

@@ -3,11 +3,10 @@ import cwise from 'cwise'
 import Tensor from '../Tensor'
 
 /**
- * ReLU activation function. In-place operation.
+ * In-place operation: ReLU activation function
+ *
  * @param {Tensor} x
- * @param {Number} opts.alpha
- * @param {Number} opts.maxValue
- * @returns {Tensor} `this`
+ * @param {{alpha: number, maxValue: number}} [opts]
  */
 export default function relu(x, opts = {}) {
   const { alpha = 0, maxValue = null } = opts
@@ -24,5 +23,4 @@ export default function relu(x, opts = {}) {
   if (neg) {
     ops.addeq(x.tensor, neg.tensor)
   }
-  return this
 }

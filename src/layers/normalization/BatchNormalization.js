@@ -12,6 +12,8 @@ import flattenDeep from 'lodash/flattenDeep'
 export default class BatchNormalization extends Layer {
   /**
    * Creates an BatchNormalization layer
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -62,6 +64,8 @@ export default class BatchNormalization extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     if (!this.axisNormalized) {
@@ -113,7 +117,9 @@ export default class BatchNormalization extends Layer {
 
   /**
    * GPU call
-   * Will only work on the 2D-tiled representation for post-convolutional BN
+   * (will only work on the 2D-tiled representation for post-convolutional BN)
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (!this.axisNormalized) {

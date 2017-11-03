@@ -9,6 +9,8 @@ import { webgl2 } from '../../WebGL2'
 export default class Flatten extends Layer {
   /**
    * Creates a Flatten layer
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -37,6 +39,8 @@ export default class Flatten extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     if (x.tensor.shape.length <= 1) {
@@ -49,6 +53,8 @@ export default class Flatten extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (!x.glTexture) {

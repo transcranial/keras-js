@@ -10,10 +10,16 @@ import Conv2D from './Conv2D'
  * _DepthwiseConv2D layer class
  */
 class _DepthwiseConv2D extends Conv2D {
+  /**
+   * @param {Object} [attrs]
+   */
   constructor(attrs = {}) {
     super(attrs)
   }
 
+  /**
+   * @param {number[]} inputShape
+   */
   _calcOutputShape(inputShape) {
     super._calcOutputShape(inputShape)
     const nbFilter = this.kernelShape[0]
@@ -21,6 +27,10 @@ class _DepthwiseConv2D extends Conv2D {
     this.outputShape[2] = nbFilter * inputChannels
   }
 
+  /**
+   * @param {Tensor} x
+   * @returns {Tensor}
+   */
   _im2col(x) {
     const [inputRows, inputCols, inputChannels] = x.tensor.shape
     const nbRow = this.kernelShape[1]
@@ -52,6 +62,9 @@ class _DepthwiseConv2D extends Conv2D {
     return this._imColsMat
   }
 
+  /**
+   * @returns {Tensor}
+   */
   _w2row() {
     const inputChannels = this.weights['kernel'].tensor.shape[2]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
@@ -74,6 +87,9 @@ class _DepthwiseConv2D extends Conv2D {
     return this._wRowsMat
   }
 
+  /**
+   * @param {Tensor} x
+   */
   _call_cpu(x) {
     this.inputShape = x.tensor.shape
     this._calcOutputShape(this.inputShape)
@@ -127,6 +143,9 @@ class _DepthwiseConv2D extends Conv2D {
     }
   }
 
+  /**
+   * @param {Tensor} x
+   */
   _call_gpu(x) {
     super._call_gpu(x)
 
@@ -155,9 +174,10 @@ class _DepthwiseConv2D extends Conv2D {
 export default class SeparableConv2D extends Layer {
   /**
    * Creates a SeparableConv2D layer
-   * @param {Number} attrs.filters - Number of convolution filters to use.
-   * @param {Array<Number>|Number} attrs.kernel_size - Size of the convolution kernel.
-   * @param {Object} [attrs] - layer attributes
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.filters] - Number of convolution filters to use
+   * @param {number|number[]} [attrs.kernel_size] - Size of the convolution kernel
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -245,8 +265,8 @@ export default class SeparableConv2D extends Layer {
   }
 
   /**
-   * Method for setting layer weights
-   * Override `super` method since weights must be set in component Conv2D layers
+   * Method for setting layer weights. Override `super` method since weights must be set in component Conv2D layers.
+   *
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights(weightsArr) {
@@ -258,6 +278,7 @@ export default class SeparableConv2D extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
    * @returns {Tensor}
    */
@@ -272,6 +293,8 @@ export default class SeparableConv2D extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     this._depthwiseConv._call_cpu(x)
@@ -282,6 +305,8 @@ export default class SeparableConv2D extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     // prevent GPU -> CPU data transfer by specifying non-empty outbound nodes array on these internal Conv2D layers

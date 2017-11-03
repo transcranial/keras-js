@@ -5,6 +5,7 @@ import cwise from 'cwise'
 
 /**
  * PReLU advanced activation layer class
+ *
  * reference code:
  * ```
  * pos = K.relu(x)
@@ -15,6 +16,8 @@ import cwise from 'cwise'
 export default class PReLU extends Layer {
   /**
    * Creates a PReLU activation layer
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -53,6 +56,8 @@ export default class PReLU extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     this.output = x
@@ -61,6 +66,8 @@ export default class PReLU extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (!x.glTexture) {

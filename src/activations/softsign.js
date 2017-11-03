@@ -10,11 +10,10 @@ const _softsign = cwise({
 })
 
 /**
- * Softsign activation function. In-place operation.
+ * In-place operation: softsign activation function
+ *
  * @param {Tensor} x
- * @returns {Tensor} `this`
  */
 export default function softsign(x) {
   _softsign(x.tensor)
-  return this
 }

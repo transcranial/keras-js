@@ -9,6 +9,8 @@ import ops from 'ndarray-ops'
 export default class _Pooling3D extends Layer {
   /**
    * Creates a _Pooling3D layer
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -59,10 +61,11 @@ export default class _Pooling3D extends Layer {
   }
 
   /**
-   * Method for computing output dimensions and padding, based on input
-   * dimensions, kernel size, and padding mode.
+   * Method for computing output dimensions and padding, based on input dimensions, kernel size, and padding mode.
+   *
    * For tensorflow implementation of padding, see:
    * https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/common_shape_fns.cc
+   *
    * @param {number[]} inputShape
    */
   _calcOutputShape(inputShape) {
@@ -107,10 +110,12 @@ export default class _Pooling3D extends Layer {
   }
 
   /**
-   * Pad input tensor if necessary, for padding='same'.
-   * See above for notes on calculating padding.
+   * Pad input tensor if necessary, for padding='same'. See above for notes on calculating padding.
+   *
    * For max, we pad with -infinity.
+   *
    * For average we pad with zero.
+   *
    * @param {Tensor} x
    * @returns {Tensor}
    */
@@ -152,6 +157,8 @@ export default class _Pooling3D extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     // convert to channels_last ordering
@@ -223,6 +230,7 @@ export default class _Pooling3D extends Layer {
 
   /**
    * Convert input tensor to column matrix
+   *
    * @param {Tensor} x
    * @returns {Tensor}
    */
@@ -322,6 +330,8 @@ export default class _Pooling3D extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (x.glTextureIsTiled) {

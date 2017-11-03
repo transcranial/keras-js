@@ -13,7 +13,8 @@ import range from 'lodash/range'
 export default class Merge extends Layer {
   /**
    * Creates a Merge layer
-   * @param {Object} [attrs] - layer attributes
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -42,8 +43,9 @@ export default class Merge extends Layer {
 
   /**
    * Internal method for validating inputs
+   *
    * @param {Tensor[]} inputs
-   * @returns {boolean} valid
+   * @returns {boolean}
    */
   _validateInputs(inputs) {
     const shapes = inputs.map(x => x.tensor.shape.slice())
@@ -83,8 +85,9 @@ export default class Merge extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor[]} inputs
-   * @returns {Tensor} `this`
+   * @returns {Tensor}
    */
   call(inputs) {
     const valid = this._validateInputs(inputs)

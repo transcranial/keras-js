@@ -9,7 +9,9 @@ import { relu } from '../../activations'
 export default class LeakyReLU extends Layer {
   /**
    * Creates a LeakyReLU activation layer
-   * @param {number} attrs.alpha - negative slope coefficient
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.alpha] - negative slope coefficient
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -42,6 +44,8 @@ export default class LeakyReLU extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     this.output = x
@@ -50,6 +54,8 @@ export default class LeakyReLU extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (!x.glTexture) {

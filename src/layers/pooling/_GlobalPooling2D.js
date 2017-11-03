@@ -9,6 +9,8 @@ import ops from 'ndarray-ops'
 export default class _GlobalPooling2D extends Layer {
   /**
    * Creates a _GlobalPooling2D layer
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -44,6 +46,8 @@ export default class _GlobalPooling2D extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     // convert to channels_last ordering
@@ -64,6 +68,8 @@ export default class _GlobalPooling2D extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (x.glTextureIsTiled) {

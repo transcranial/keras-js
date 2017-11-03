@@ -10,11 +10,10 @@ const _softplus = cwise({
 })
 
 /**
- * Softplus activation function. In-place operation.
+ * In-place operation: softplus activation function
+ *
  * @param {Tensor} x
- * @returns {Tensor} `this`
  */
 export default function softplus(x) {
   _softplus(x.tensor)
-  return this
 }

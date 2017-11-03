@@ -10,11 +10,10 @@ const _tanh = cwise({
 })
 
 /**
- * Tanh activation function. In-place operation.
+ * In-place operation: tanh activation function
+ *
  * @param {Tensor} x
- * @returns {Tensor} `this`
  */
 export default function tanh(x) {
   _tanh(x.tensor)
-  return this
 }

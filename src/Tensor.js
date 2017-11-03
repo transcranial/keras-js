@@ -3,6 +3,13 @@ import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
 import squeeze from 'ndarray-squeeze'
 
+/**
+ * Function to throw error if specified shape is incompatible with data
+ *
+ * @param {number[]} data
+ * @param {number[]} shape
+ */
+
 const checkShape = (data, shape) => {
   if (data.length && shape.length && data.length !== shape.reduce((a, b) => a * b, 1)) {
     throw new Error('Specified shape incompatible with data.')
@@ -15,8 +22,9 @@ const checkShape = (data, shape) => {
 export default class Tensor {
   /**
    * Creates a tensor
+   *
    * @param {(TypedArray|Array)} data
-   * @param {Array} shape
+   * @param {number[]} shape
    * @param {Object} [options]
    */
   constructor(data, shape, options = {}) {
@@ -35,7 +43,9 @@ export default class Tensor {
   }
 
   /**
-   * Replaces data in the underlying ndarray.
+   * Replaces data in the underlying ndarray
+   *
+   * @param {number[]} data
    */
   replaceTensorData(data) {
     if (data && data.length && data instanceof this._type) {
@@ -49,7 +59,11 @@ export default class Tensor {
 
   /**
    * Creates WebGL2 texture
+   *
    * Without args, defaults to gl.TEXTURE_2D and gl.R32F
+   *
+   * @param {string} type
+   * @param {string} format
    */
   createGLTexture(type = '2d', format = 'float') {
     let shape = []
@@ -139,6 +153,9 @@ export default class Tensor {
     gl.texParameteri(targetMap[type], gl.TEXTURE_MIN_FILTER, gl.NEAREST)
   }
 
+  /**
+   * Deletes WebGLTexture
+   */
   deleteGLTexture() {
     if (this.glTexture) {
       const gl = webgl2.context
@@ -160,8 +177,9 @@ export default class Tensor {
   }
 
   /**
-   * Reshapes data into tiled form.
-   * @param {Number} axis
+   * Reshapes data into tiled form
+   *
+   * @param {number} axis
    */
   reshapeTensorToTiled(axis = -1) {
     if (axis < 0) {
@@ -188,9 +206,11 @@ export default class Tensor {
   }
 
   /**
-   * Reshapes tiled data into untiled form.
+   * Reshapes tiled data into untiled form
+   *
    * Called at the end when data is read back from GPU (which is in tiled 2D format from texture)
-   * @param {Number} axis
+   *
+   * @param {number} axis
    */
   reshapeTensorFromTiled(axis = -1) {
     if (!this.glTextureIsTiled) {

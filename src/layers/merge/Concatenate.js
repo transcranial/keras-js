@@ -10,6 +10,8 @@ import sum from 'lodash/sum'
 export default class Concatenate extends _Merge {
   /**
    * Creates a Concatenate merge layer
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -30,6 +32,7 @@ export default class Concatenate extends _Merge {
 
   /**
    * CPU call
+   *
    * @param {Tensor[]} inputs
    */
   _call_cpu(inputs) {
@@ -57,6 +60,7 @@ export default class Concatenate extends _Merge {
 
   /**
    * GPU call
+   *
    * @param {Tensor[]} inputs
    */
   _call_gpu(inputs) {

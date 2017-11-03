@@ -8,7 +8,9 @@ import ops from 'ndarray-ops'
 export default class ZeroPadding1D extends Layer {
   /**
    * Creates a ZeroPadding1D layer
-   * @param {Number|Array<Number>} attrs.padding - int or tuple of int (length 2)
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number|number[]} [attrs.padding] - int or tuple of int (length 2)
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -25,8 +27,9 @@ export default class ZeroPadding1D extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     const inputShape = x.tensor.shape

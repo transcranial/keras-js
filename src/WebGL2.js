@@ -58,7 +58,7 @@ class WebGL2 {
    * Compiles fragment shader from source and creates program from it,
    * using our passthrough vertex shader.
    *
-   * @param {String} source - fragment shader GLSL source code
+   * @param {string} source - fragment shader GLSL source code
    * @returns {WebGLProgram}
    */
   compileProgram(source) {
@@ -139,8 +139,8 @@ class WebGL2 {
    *
    * @param {WebGLProgram} program
    * @param {*[]} values
-   * @param {String[]} types
-   * @param {String[]} names
+   * @param {string[]} types
+   * @param {string[]} names
    */
   bindUniforms(program, values, types, names) {
     const gl = webgl2.context
@@ -160,8 +160,8 @@ class WebGL2 {
    *
    * @param {WebGLProgram} program
    * @param {WebGLTexture[]} textures
-   * @param {String[]} types
-   * @param {String[]} names
+   * @param {string[]} types
+   * @param {string[]} names
    */
   bindInputTextures(program, textures, types, names) {
     const gl = webgl2.context
@@ -183,7 +183,7 @@ class WebGL2 {
    * Bind output texture
    *
    * @param {WebGLTexture} outputTexture
-   * @param {Number[]} shape
+   * @param {number[]} shape
    */
   bindOutputTexture(outputTexture, shape) {
     const gl = this.context
@@ -213,7 +213,8 @@ class WebGL2 {
   /**
    * Reads pixel data from framebuffer
    *
-   * @param {Number[]} shape
+   * @param {number[]} shape
+   * @returns {Float32Array}
    */
   readData(shape) {
     const gl = this.context

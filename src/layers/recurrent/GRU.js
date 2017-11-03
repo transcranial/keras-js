@@ -11,14 +11,15 @@ import cwise from 'cwise'
 export default class GRU extends Layer {
   /**
    * Creates a GRU layer
-   * @param {number} attrs.units - output dimensionality
+   *
+   * @param {Object} [attrs] - layer attributes
+   * @param {number} [attrs.units] - output dimensionality
    * @param {number} [attrs.activation] - activation function
    * @param {number} [attrs.recurrent_activation] - inner activation function
    * @param {number} [attrs.use_bias] - use bias
    * @param {number} [attrs.return_sequences] - return the last output in the output sequence or the full sequence
    * @param {number} [attrs.go_backwards] - process the input sequence backwards
    * @param {number} [attrs.stateful] - whether to save the last state as the initial state for the next pass
-   * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -54,9 +55,13 @@ export default class GRU extends Layer {
 
   /**
    * Method for setting layer weights. Extends `super` method.
+   *
    * W weight tensor is split into W_z, W_r, W_h
+   *
    * U weight tensor is split into U_z, U_r, U_h
+   *
    * b weight tensor is split into b_z, b_r, b_h (or create empty bias if this.use_bias is false)
+   *
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights(weightsArr) {
@@ -116,8 +121,9 @@ export default class GRU extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     let currentX = new Tensor([], [x.tensor.shape[1]])
@@ -134,9 +140,8 @@ export default class GRU extends Layer {
     let tempXR = new Tensor([], [dimResetGate])
     let tempHR = new Tensor([], [dimResetGate])
 
-    let currentHiddenState = this.stateful && this.currentHiddenState
-      ? this.currentHiddenState
-      : new Tensor([], [dimHiddenState])
+    let currentHiddenState =
+      this.stateful && this.currentHiddenState ? this.currentHiddenState : new Tensor([], [dimHiddenState])
     let tempXH = new Tensor([], [dimHiddenState])
     let tempHH = new Tensor([], [dimHiddenState])
     let previousHiddenState = new Tensor([], [dimHiddenState])

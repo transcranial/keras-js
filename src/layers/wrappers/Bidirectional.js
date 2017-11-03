@@ -10,8 +10,8 @@ import * as recurrentLayers from '../recurrent'
 export default class Bidirectional extends Layer {
   /**
    * Creates a Bidirectional wrapper layer
-   * @param {Layer} attrs.layer
-   * @param {String} [attrs.merge_mode] - one of concat, mul, sum, ave
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -37,8 +37,8 @@ export default class Bidirectional extends Layer {
   }
 
   /**
-   * Method for setting layer weights
-   * Passes weights to the wrapped layer
+   * Method for setting layer weights - passes weights to the wrapped layer
+   *
    * Here, the weights array is concatenated from the forward layer and the backward layer
    *
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
@@ -50,8 +50,9 @@ export default class Bidirectional extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     let xForward = new Tensor(x.tensor.data, x.tensor.shape)

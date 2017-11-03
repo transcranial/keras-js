@@ -8,8 +8,10 @@ import ops from 'ndarray-ops'
 export default class Cropping3D extends Layer {
   /**
    * Creates a Cropping3D layer
-   * @param {Number|Array<Number>|Array<Array<Number>>} attrs.cropping - int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints
-   * @param {String} attrs.data_format - either 'channels_last' or 'channels_first'
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number|number[]|number[][]} [attrs.cropping] - int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints
+   * @param {string} [attrs.data_format] - either 'channels_last' or 'channels_first'
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -35,8 +37,9 @@ export default class Cropping3D extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     // convert to channels_last ordering

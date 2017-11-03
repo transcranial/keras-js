@@ -9,6 +9,8 @@ import ops from 'ndarray-ops'
 export default class _GlobalPooling1D extends Layer {
   /**
    * Creates a _GlobalPooling1D layer
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -44,6 +46,8 @@ export default class _GlobalPooling1D extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     const [steps, features] = x.tensor.shape
@@ -59,6 +63,8 @@ export default class _GlobalPooling1D extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (!x.glTexture) {

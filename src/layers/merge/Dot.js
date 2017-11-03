@@ -10,6 +10,8 @@ import ops from 'ndarray-ops'
 export default class Dot extends _Merge {
   /**
    * Creates a Dot merge layer
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -36,7 +38,8 @@ export default class Dot extends _Merge {
 
   /**
    * Calculate output shape
-   * @param {Number[][]} inputShapes
+   *
+   * @param {number[][]} inputShapes
    */
   _calcOutputShape(inputShapes) {
     let shape1 = inputShapes[0].slice()
@@ -51,6 +54,7 @@ export default class Dot extends _Merge {
 
   /**
    * CPU call
+   *
    * @param {Tensor[]} inputs
    */
   _call_cpu(inputs) {
@@ -86,6 +90,7 @@ export default class Dot extends _Merge {
 
   /**
    * GPU call
+   *
    * @param {Tensor[]} inputs
    */
   _call_gpu(inputs) {

@@ -12,11 +12,10 @@ const _selu = cwise({
 })
 
 /**
- * SELU activation function. In-place operation.
+ * In-place operation: SELU activation function
+ *
  * @param {Tensor} x
- * @returns {Tensor} `this`
  */
 export default function selu(x) {
   _selu(x.tensor)
-  return this
 }

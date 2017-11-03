@@ -10,7 +10,8 @@ import range from 'lodash/range'
 export default class _Merge extends Layer {
   /**
    * Creates a _Merge layer
-   * @param {Object} [attrs] - layer attributes
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -26,7 +27,7 @@ export default class _Merge extends Layer {
    * Layer computational logic
    *
    * @param {Tensor[]} inputs
-   * @returns
+   * @returns {Tensor}
    */
   call(inputs) {
     if (this.gpu) {
@@ -48,8 +49,9 @@ export default class _Merge extends Layer {
 
   /**
    * Internal method for validating inputs
+   *
    * @param {Tensor[]} inputs
-   * @returns {Boolean} valid
+   * @returns {boolean}
    */
   _validateInputs(inputs) {
     const shapes = inputs.map(x => x.tensor.shape.slice())
@@ -92,16 +94,20 @@ export default class _Merge extends Layer {
 
   /**
    * CPU call
+   *
+   * implemented in child classes
+   *
    * @param {Tensor[]} inputs
    */
-  _call_cpu(inputs) {
-    // implemented in child classes
-  }
+  _call_cpu(inputs) {}
 
   /**
    * GPU call
-   * mode: sum, mul, ave, max
+   *
+   * mode: sum, diff, mul, ave, max, min
+   *
    * method for mode concat/dot implemented in child class
+   *
    * @param {Tensor[]} inputs
    */
   _call_gpu(inputs) {

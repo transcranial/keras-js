@@ -8,8 +8,10 @@ import Layer from '../../Layer'
 export default class SpatialDropout2D extends Layer {
   /**
    * Creates an SpatialDropout2D layer
-   * @param {number} attrs.rate - fraction of the input units to drop (between 0 and 1)
-   * @param {string} [attrs.data_format] - channels_firsttf` or `channels_last`
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.rate] - fraction of the input units to drop (between 0 and 1)
+   * @param {string} [attrs.data_format] - channels_first` or `channels_last`
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -23,6 +25,7 @@ export default class SpatialDropout2D extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
    * @returns {Tensor}
    */

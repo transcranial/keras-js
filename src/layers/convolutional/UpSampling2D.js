@@ -8,8 +8,10 @@ import ops from 'ndarray-ops'
 export default class UpSampling2D extends Layer {
   /**
    * Creates a UpSampling2D layer
-   * @param {Number|Array<Number>} attrs.size - upsampling factor, int or tuple of int (length 2)
-   * @param {String} attrs.data_format - either 'channels_last' or 'channels_first'
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number|number[]} [attrs.size] - upsampling factor, int or tuple of int (length 2)
+   * @param {string} [attrs.data_format] - either 'channels_last' or 'channels_first'
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -28,8 +30,9 @@ export default class UpSampling2D extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     // convert to channels_last ordering

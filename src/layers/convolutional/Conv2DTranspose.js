@@ -11,9 +11,10 @@ import gemm from 'ndarray-gemm'
 export default class Conv2DTranspose extends Layer {
   /**
    * Creates a Conv2DTranspose layer
-   * @param {Number} attrs.filters - Number of convolution filters to use.
-   * @param {Array<Number>|Number} attrs.kernel_size - Size of the convolution kernel.
-   * @param {Object} [attrs] - layer attributes
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.filters] - Number of convolution filters to use.
+   * @param {number|number[]} [attrs.kernel_size] - Size of the convolution kernel.
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -73,9 +74,13 @@ export default class Conv2DTranspose extends Layer {
 
   /**
    * Method for setting layer weights. Extends `super` method.
+   *
    * W weight tensor is converted to `channels_last` mode if in `channels_first` mode.
+   *
    * In `channels_last` mode, W weight tensor has shape [nbRow, nbCol, inputChannels, nbFilter]
+   *
    * In `channels_first` mode, W weight tensor has shape [nbFilter, inputChannels, nbRow, nbCol]
+   *
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights(weightsArr) {
@@ -111,14 +116,16 @@ export default class Conv2DTranspose extends Layer {
   }
 
   /**
-   * Method for computing output dimensions and padding, based on input
-   * dimensions, kernel size, and padding mode.
+   * Method for computing output dimensions and padding, based on input dimensions, kernel size, and padding mode.
+   *
    * For tensorflow implementation of padding, see:
    * https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/common_shape_fns.cc
-   * For deconvolution, we will "take away" padding from the output rather than add padding
-   * to the input.
-   * For more details on calculating output shapes and padding for transposed convolutions
-   * (deconvolution here), see: https://arxiv.org/pdf/1603.07285v1.pdf
+   *
+   * For deconvolution, we will "take away" padding from the output rather than add padding to the input.
+   *
+   * For more details on calculating output shapes and padding for transposed convolutions (deconvolution here), see:
+   * https://arxiv.org/pdf/1603.07285v1.pdf
+   *
    * @param {number[]} inputShape
    */
   _calcOutputShape(inputShape) {
@@ -151,7 +158,9 @@ export default class Conv2DTranspose extends Layer {
 
   /**
    * Convert input image to column matrix, along channels axis
+   *
    * shape: [inputRows, inputCols, inputChannels] -> [inputRows * inputCols, inputChannels]
+   *
    * @param {Tensor} x
    * @returns {Tensor}
    */
@@ -177,7 +186,9 @@ export default class Conv2DTranspose extends Layer {
 
   /**
    * Convert filter weights to row matrix, along channels axis
+   *
    * shape: [nbRow, nbCol, nbFilter, inputChannels] -> [inputChannels, nbRow * nbCol * nbFilter]
+   *
    * @returns {Tensor}
    */
   _w2row() {
@@ -197,11 +208,82 @@ export default class Conv2DTranspose extends Layer {
   }
 
   /**
-   * In GPU mode, we work directly on 2D-tiled representations of the tensors.
-   * After the matrix multiply step produce matrix Y, the final output Z at coordinate [i,j]
-   * will be the summation of a number of elements of the matrix Y. Here, we calculate the
-   * indices of matrix Y for each coordinate [i,j] of Z, and encode these index maps as
-   * texture arrays.
+   * CPU call
+   *
+   * @param {Tensor} x
+   */
+  _call_cpu(x) {
+    this.inputShape = x.tensor.shape
+    this._calcOutputShape(this.inputShape)
+    this._im2col(x)
+
+    const inputRows = x.tensor.shape[0]
+    const inputCols = x.tensor.shape[1]
+    const [nbFilter, nbRow, nbCol] = this.kernelShape
+    const matMul = new Tensor([], [inputRows * inputCols, nbRow * nbCol * nbFilter])
+
+    gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
+
+    // add padding which we will take away later
+    const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.outputPadding
+    this.output = new Tensor([], this.outputShape)
+    let outputPadded = new Tensor(
+      [],
+      [
+        this.outputShape[0] + paddingRowBefore + paddingRowAfter,
+        this.outputShape[1] + paddingColBefore + paddingColAfter,
+        this.outputShape[2]
+      ]
+    )
+
+    const patchShape = [nbRow, nbCol, nbFilter]
+    let patch = new Tensor([], patchShape)
+    let patchRaveled = new Tensor([], [nbRow * nbCol * nbFilter])
+    let index = 0
+    for (let i = 0; i < inputRows; i++) {
+      for (let j = 0; j < inputCols; j++) {
+        ops.assign(patchRaveled.tensor, matMul.tensor.pick(index, null))
+        patch.replaceTensorData(patchRaveled.tensor.data)
+        const iOutPos = i * this.strides[0]
+        const jOutPos = j * this.strides[1]
+        ops.addeq(
+          outputPadded.tensor.hi(iOutPos + nbRow, jOutPos + nbCol, this.outputShape[2]).lo(iOutPos, jOutPos, 0),
+          patch.tensor
+        )
+        index += 1
+      }
+    }
+
+    // remove padding
+    ops.assign(
+      this.output.tensor,
+      outputPadded.tensor
+        .hi(this.outputShape[0] + paddingRowBefore, this.outputShape[1] + paddingColBefore, this.outputShape[2])
+        .lo(paddingRowBefore, paddingColBefore, 0)
+    )
+
+    // bias
+    if (this.use_bias) {
+      for (let n = 0; n < nbFilter; n++) {
+        ops.addseq(this.output.tensor.pick(null, null, n), this.weights['bias'].tensor.get(n))
+      }
+    }
+
+    this.activationFunc(this.output)
+
+    // convert back to channels_first ordering if necessary
+    if (this.dataFormat === 'channels_first') {
+      this.output.tensor = this.output.tensor.transpose(2, 0, 1)
+    }
+  }
+
+  /**
+   * In GPU mode, we work directly on 2D-tiled representations of the tensors. After the matrix multiply step produce
+   * matrix Y, the final output Z at coordinate [i,j] will be the summation of a number of elements of the matrix Y.
+   * Here, we calculate the indices of matrix Y for each coordinate [i,j] of Z, and encode these index maps as texture
+   * arrays.
+   *
+   * @param {number[]} inputShape
    */
   _createIndexMaps(inputShape) {
     if (this._tiledOutputRowIndicesMap && this._tiledOutputColIndicesMap) {
@@ -305,75 +387,9 @@ export default class Conv2DTranspose extends Layer {
   }
 
   /**
-   * CPU call
-   */
-  _call_cpu(x) {
-    this.inputShape = x.tensor.shape
-    this._calcOutputShape(this.inputShape)
-    this._im2col(x)
-
-    const inputRows = x.tensor.shape[0]
-    const inputCols = x.tensor.shape[1]
-    const [nbFilter, nbRow, nbCol] = this.kernelShape
-    const matMul = new Tensor([], [inputRows * inputCols, nbRow * nbCol * nbFilter])
-
-    gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
-
-    // add padding which we will take away later
-    const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.outputPadding
-    this.output = new Tensor([], this.outputShape)
-    let outputPadded = new Tensor(
-      [],
-      [
-        this.outputShape[0] + paddingRowBefore + paddingRowAfter,
-        this.outputShape[1] + paddingColBefore + paddingColAfter,
-        this.outputShape[2]
-      ]
-    )
-
-    const patchShape = [nbRow, nbCol, nbFilter]
-    let patch = new Tensor([], patchShape)
-    let patchRaveled = new Tensor([], [nbRow * nbCol * nbFilter])
-    let index = 0
-    for (let i = 0; i < inputRows; i++) {
-      for (let j = 0; j < inputCols; j++) {
-        ops.assign(patchRaveled.tensor, matMul.tensor.pick(index, null))
-        patch.replaceTensorData(patchRaveled.tensor.data)
-        const iOutPos = i * this.strides[0]
-        const jOutPos = j * this.strides[1]
-        ops.addeq(
-          outputPadded.tensor.hi(iOutPos + nbRow, jOutPos + nbCol, this.outputShape[2]).lo(iOutPos, jOutPos, 0),
-          patch.tensor
-        )
-        index += 1
-      }
-    }
-
-    // remove padding
-    ops.assign(
-      this.output.tensor,
-      outputPadded.tensor
-        .hi(this.outputShape[0] + paddingRowBefore, this.outputShape[1] + paddingColBefore, this.outputShape[2])
-        .lo(paddingRowBefore, paddingColBefore, 0)
-    )
-
-    // bias
-    if (this.use_bias) {
-      for (let n = 0; n < nbFilter; n++) {
-        ops.addseq(this.output.tensor.pick(null, null, n), this.weights['bias'].tensor.get(n))
-      }
-    }
-
-    this.activationFunc(this.output)
-
-    // convert back to channels_first ordering if necessary
-    if (this.dataFormat === 'channels_first') {
-      this.output.tensor = this.output.tensor.transpose(2, 0, 1)
-    }
-  }
-
-  /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (x.glTextureIsTiled) {

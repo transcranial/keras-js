@@ -8,6 +8,7 @@ import ops from 'ndarray-ops'
 export default class Layer {
   /**
    * Creates a layer
+   *
    * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
@@ -26,6 +27,7 @@ export default class Layer {
    * Set layer weights
    *
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
+   * @param {boolean} createGLTexture
    */
   setWeights(weightsArr, createGLTexture = true) {
     this.params.forEach((p, i) => {
@@ -39,8 +41,9 @@ export default class Layer {
 
   /**
    * Layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     return x
@@ -49,7 +52,7 @@ export default class Layer {
   /**
    * Toggle GPU mode on/off
    *
-   * @param {Boolean} mode - on/off
+   * @param {boolean} mode - on/off
    */
   toggleGpu(mode) {
     const newMode = typeof mode === 'undefined' ? !this.gpu : mode

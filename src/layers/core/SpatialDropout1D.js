@@ -8,7 +8,9 @@ import Layer from '../../Layer'
 export default class SpatialDropout1D extends Layer {
   /**
    * Creates an SpatialDropout1D layer
-   * @param {number} attrs.p - fraction of the input units to drop (between 0 and 1)
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.p] - fraction of the input units to drop (between 0 and 1)
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -21,6 +23,7 @@ export default class SpatialDropout1D extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
    * @returns {Tensor}
    */

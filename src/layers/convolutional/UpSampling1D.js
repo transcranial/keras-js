@@ -8,7 +8,9 @@ import ops from 'ndarray-ops'
 export default class UpSampling1D extends Layer {
   /**
    * Creates a UpSampling1D layer
-   * @param {Number} attrs.size - upsampling factor
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.size] - upsampling factor
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -20,8 +22,9 @@ export default class UpSampling1D extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     const inputShape = x.tensor.shape

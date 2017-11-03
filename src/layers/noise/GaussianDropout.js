@@ -8,7 +8,9 @@ import Layer from '../../Layer'
 export default class GaussianDropout extends Layer {
   /**
    * Creates a GaussianDropout layer
-   * @param {number} attrs.rate - fraction of the input units to drop (between 0 and 1)
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.rate] - fraction of the input units to drop (between 0 and 1)
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -21,6 +23,7 @@ export default class GaussianDropout extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
    * @returns {Tensor}
    */

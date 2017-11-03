@@ -9,7 +9,9 @@ import cwise from 'cwise'
 export default class ELU extends Layer {
   /**
    * Creates a ELU activation layer
-   * @param {number} attrs.alpha - scale for the negative factor
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.alpha] - scale for the negative factor
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -49,6 +51,8 @@ export default class ELU extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     this.output = x
@@ -57,6 +61,8 @@ export default class ELU extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (!x.glTexture) {

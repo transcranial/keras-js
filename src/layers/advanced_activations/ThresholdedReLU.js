@@ -9,7 +9,9 @@ import cwise from 'cwise'
 export default class ThresholdedReLU extends Layer {
   /**
    * Creates a ThresholdedReLU activation layer
-   * @param {number} attrs.theta - float >= 0. Threshold location of activation.
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.theta] - float >= 0. Threshold location of activation.
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -49,6 +51,8 @@ export default class ThresholdedReLU extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     this.output = x
@@ -57,6 +61,8 @@ export default class ThresholdedReLU extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (!x.glTexture) {

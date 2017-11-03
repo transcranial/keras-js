@@ -1,12 +1,6 @@
-import ops from 'ndarray-ops'
-import cwise from 'cwise'
-import Tensor from '../Tensor'
-
 /**
- * Linear activation function. In-place operation.
+ * In-place operation: linear activation function
+ *
  * @param {Tensor} x
- * @returns {Tensor} `this`
  */
-export default function linear(x) {
-  return this
-}
+export default function linear(x) {}

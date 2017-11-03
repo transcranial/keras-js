@@ -9,7 +9,9 @@ import * as activations from '../../activations'
 export default class Activation extends Layer {
   /**
    * Creates an Activation layer
-   * @param {String} attrs.activation - name of activation function
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {String} [attrs.activation] - name of activation function
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -47,6 +49,8 @@ export default class Activation extends Layer {
 
   /**
    * CPU call
+   *
+   * @param {Tensor} x
    */
   _call_cpu(x) {
     this.output = x
@@ -55,6 +59,8 @@ export default class Activation extends Layer {
 
   /**
    * GPU call
+   *
+   * @param {Tensor} x
    */
   _call_gpu(x) {
     if (!x.glTexture) {

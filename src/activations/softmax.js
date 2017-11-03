@@ -3,9 +3,9 @@ import cwise from 'cwise'
 import Tensor from '../Tensor'
 
 /**
- * Softmax activation function. In-place operation.
+ * In-place operation: softmax activation function
+ *
  * @param {Tensor} x
- * @returns {Tensor} `this`
  */
 export default function softmax(x) {
   if (x.tensor.shape.length === 1) {
@@ -25,5 +25,4 @@ export default function softmax(x) {
   } else {
     throw new Error(`[activations.softmax] tensor shape ${x.tensor.shape} not supported.`)
   }
-  return this
 }

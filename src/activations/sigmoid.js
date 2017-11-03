@@ -10,11 +10,10 @@ const _sigmoid = cwise({
 })
 
 /**
- * Sigmoid activation function. In-place operation.
+ * In-place operation: sigmoid activation function
+ *
  * @param {Tensor} x
- * @returns {Tensor} `this`
  */
 export default function sigmoid(x) {
   _sigmoid(x.tensor)
-  return this
 }

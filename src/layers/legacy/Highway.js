@@ -12,8 +12,8 @@ import cwise from 'cwise'
 export default class Highway extends Layer {
   /**
    * Creates a Highway layer
-   * @param {number} outputDim - output dimension size
-   * @param {Object} [attrs] - layer attributes
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -41,8 +41,9 @@ export default class Highway extends Layer {
 
   /**
    * Method for layer computational logic
+   *
    * @param {Tensor} x
-   * @returns {Tensor} x
+   * @returns {Tensor}
    */
   call(x) {
     let y = new Tensor([], [this.weights.W.tensor.shape[1]])

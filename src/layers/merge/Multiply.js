@@ -9,6 +9,8 @@ import ops from 'ndarray-ops'
 export default class Multiply extends _Merge {
   /**
    * Creates a Multiply merge layer
+   *
+   * @param {Object} [attrs] - layer config attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -24,6 +26,7 @@ export default class Multiply extends _Merge {
 
   /**
    * CPU call
+   *
    * @param {Tensor[]} inputs
    */
   _call_cpu(inputs) {

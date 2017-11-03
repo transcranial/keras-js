@@ -9,9 +9,10 @@ import unsqueeze from 'ndarray-unsqueeze'
 export default class Conv1D extends Layer {
   /**
    * Creates a Conv1D layer
-   * @param {Number} attrs.filters - Number of convolution filters to use.
-   * @param {Number} attrs.kernel_size - Length of 1D convolution kernel.
-   * @param {Object} [attrs] - layer attributes
+   *
+   * @param {Object} [attrs] - layer config attributes
+   * @param {number} [attrs.filters] - Number of convolution filters to use
+   * @param {number} [attrs.kernel_size] - Length of 1D convolution kernel
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -62,7 +63,9 @@ export default class Conv1D extends Layer {
 
   /**
    * Method for setting layer weights
+   *
    * Override `super` method since weights must be set in `this._conv2d`
+   *
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
    */
   setWeights(weightsArr) {

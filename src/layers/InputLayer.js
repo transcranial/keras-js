@@ -7,6 +7,8 @@ import isEqual from 'lodash/isEqual'
 export default class InputLayer extends Layer {
   /**
    * Creates an InputLayer layer
+   *
+   * @param {Object} [attrs] - layer attributes
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -17,6 +19,12 @@ export default class InputLayer extends Layer {
     this.shape = attrs.batch_input_shape && attrs.batch_input_shape.length ? attrs.batch_input_shape.slice(1) : shape
   }
 
+  /**
+   * Layer computational logic
+   *
+   * @param {Tensor} x
+   * @returns {Tensor}
+   */
   call(x) {
     if (!isEqual(x.tensor.shape, this.shape)) {
       throw new Error(`[InputLayer] input tensor shape ${x.tensor.shape} does not match specified shape ${this.shape}.`)
