@@ -65,7 +65,22 @@ export default class Concatenate extends _Merge {
    */
   _call_gpu(inputs) {
     const outputShape = inputs[0].glTextureShape.slice()
-    const _concatAxis = this.concatAxis < 0 ? outputShape.length + this.concatAxis : this.concatAxis
+    let _concatAxis = 1
+    if (inputs[0].glTextureIsTiled) {
+      if (this.concatAxis === -1 || this.concatAxis === inputs[0].untiledShape.length - 1) {
+        _concatAxis = 1
+      } else {
+        throw new Error(`${this.name} [Concatenate layer] specified axis not supported for now.`)
+      }
+    } else {
+      if (this.concatAxis === -1 || this.concatAxis === 1) {
+        _concatAxis = 1
+      } else if (this.concatAxis === -2 || this.concatAxis === 0) {
+        _concatAxis = 0
+      } else {
+        throw new Error(`${this.name} [Concatenate layer] specified axis not supported for now.`)
+      }
+    }
 
     // create output textures if doesn't already exist
     if (!this.output) {

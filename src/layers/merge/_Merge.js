@@ -16,6 +16,7 @@ export default class _Merge extends Layer {
   constructor(attrs = {}) {
     super(attrs)
     this.layerClass = '_Merge'
+    this.isMergeLayer = true
 
     // GPU setup
     if (this.gpu) {
