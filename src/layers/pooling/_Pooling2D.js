@@ -69,6 +69,10 @@ export default class _Pooling2D extends Layer {
    * @param {number[]} inputShape
    */
   _calcOutputShape(inputShape) {
+    if (this.outputShape && this.inputPadding) {
+      return
+    }
+
     const [inputRows, inputCols, inputChannels] = inputShape
     const [nbRow, nbCol] = this.poolSize
 

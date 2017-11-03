@@ -137,6 +137,10 @@ export default class Conv3D extends Layer {
    * @param {number[]} inputShape
    */
   _calcOutputShape(inputShape) {
+    if (this.outputShape && this.inputPadding) {
+      return
+    }
+
     const inputDim1 = inputShape[0]
     const inputDim2 = inputShape[1]
     const inputDim3 = inputShape[2]

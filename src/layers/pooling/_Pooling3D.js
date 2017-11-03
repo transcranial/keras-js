@@ -69,6 +69,10 @@ export default class _Pooling3D extends Layer {
    * @param {number[]} inputShape
    */
   _calcOutputShape(inputShape) {
+    if (this.outputShape && this.inputPadding) {
+      return
+    }
+
     const [inputDim1, inputDim2, inputDim3, inputChannels] = inputShape
     const [poolDim1, poolDim2, poolDim3] = this.poolSize
 

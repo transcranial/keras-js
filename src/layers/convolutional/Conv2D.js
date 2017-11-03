@@ -137,6 +137,10 @@ export default class Conv2D extends Layer {
    * @param {number[]} inputShape
    */
   _calcOutputShape(inputShape) {
+    if (this.outputShape && this.inputPadding) {
+      return
+    }
+
     const inputRows = inputShape[0]
     const inputCols = inputShape[1]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
