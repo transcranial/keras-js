@@ -88,6 +88,7 @@ class WebGL2 {
       this.isSupported = false
     }
 
+    this.setupVertices(program)
     return program
   }
 
@@ -131,7 +132,6 @@ class WebGL2 {
   selectProgram(program) {
     const gl = webgl2.context
     gl.useProgram(program)
-    this.setupVertices(program)
   }
 
   /**
@@ -188,18 +188,12 @@ class WebGL2 {
   bindOutputTexture(outputTexture, shape) {
     const gl = this.context
 
-    this.canvas.height = shape[0]
-    this.canvas.width = shape[1]
     gl.viewport(0, 0, shape[1], shape[0])
 
     this.framebuffer = this.framebuffer || gl.createFramebuffer()
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer)
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, outputTexture, 0)
-    const success = gl.checkFramebufferStatus(gl.FRAMEBUFFER) == gl.FRAMEBUFFER_COMPLETE
-    if (!success) {
-      throw new Error('Error binding output framebuffer.')
-    }
   }
 
   /**
