@@ -117,14 +117,14 @@ export default class BatchNormalization extends Layer {
 
   /**
    * GPU call
-   * (will only work on the 2D-tiled representation for post-convolutional BN)
+   * (will only work on the 2D-reshaped representation for post-convolutional BN)
    *
    * @param {Tensor} x
    */
   _callGPU(x) {
     if (!this.axisNormalized) {
-      if (x.glTextureIsTiled) {
-        this.inputShape = x.untiledShape
+      if (x.is2DReshaped) {
+        this.inputShape = x.originalShape
       } else {
         this.inputShape = x.tensor.shape
       }
@@ -135,8 +135,8 @@ export default class BatchNormalization extends Layer {
     if (!x.glTexture) {
       if (x.tensor.shape.length <= 2) {
         x.createGLTexture()
-      } else if (x.tensor.shape.length > 2 && !x.glTextureIsTiled) {
-        x.reshapeTensorToTiled(this.axis)
+      } else if (x.tensor.shape.length > 2 && !x.is2DReshaped) {
+        x.reshapeTo2D(this.axis)
         x.createGLTexture()
       }
     }
@@ -145,9 +145,9 @@ export default class BatchNormalization extends Layer {
     if (!this.output) {
       this.output = new Tensor([], x.glTextureShape)
       this.output.createGLTexture()
-      if (x.glTextureIsTiled) {
-        this.output.glTextureIsTiled = x.glTextureIsTiled
-        this.output.untiledShape = x.untiledShape
+      if (x.is2DReshaped) {
+        this.output.is2DReshaped = x.is2DReshaped
+        this.output.originalShape = x.originalShape
       }
     }
 
@@ -185,8 +185,8 @@ export default class BatchNormalization extends Layer {
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
-      if (this.output.glTextureIsTiled) {
-        this.output.reshapeTensorFromTiled(this.axis)
+      if (this.output.is2DReshaped) {
+        this.output.reshapeFrom2D(this.axis)
       }
     }
   }

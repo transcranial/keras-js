@@ -60,8 +60,8 @@ export default class Flatten extends Layer {
     if (!x.glTexture) {
       if (x.tensor.shape.length <= 2) {
         x.createGLTexture()
-      } else if (x.tensor.shape.length > 2 && !x.glTextureIsTiled) {
-        x.reshapeTensorToTiled()
+      } else if (x.tensor.shape.length > 2 && !x.is2DReshaped) {
+        x.reshapeTo2D()
         x.createGLTexture()
       }
     }

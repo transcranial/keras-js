@@ -4,9 +4,9 @@ precision highp int;
 precision highp isampler2DArray;
 
 in vec2 outTex;
-uniform sampler2D matMulOutput;
-uniform isampler2DArray rowIndicesMap;
-uniform isampler2DArray colIndicesMap;
+uniform sampler2D outputMatmul;
+uniform isampler2DArray rowIndexMap;
+uniform isampler2DArray colIndexMap;
 uniform sampler2D bias;
 uniform bool use_bias;
 uniform int rows;
@@ -20,10 +20,10 @@ void main() {
 
   float sum = 0.;
   for (int n = 0; n < summationLength; ++n) {
-    int i = texelFetch(rowIndicesMap, ivec3(out_x, out_y, n), 0).r;
-    int j = texelFetch(colIndicesMap, ivec3(out_x, out_y, n), 0).r;
+    int i = texelFetch(rowIndexMap, ivec3(out_x, out_y, n), 0).r;
+    int j = texelFetch(colIndexMap, ivec3(out_x, out_y, n), 0).r;
     if (i >= 0 && j >= 0) {
-      sum += texelFetch(matMulOutput, ivec2(j, i), 0).r;
+      sum += texelFetch(outputMatmul, ivec2(j, i), 0).r;
     }
   }
 

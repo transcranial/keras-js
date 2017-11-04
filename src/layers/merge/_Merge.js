@@ -116,9 +116,9 @@ export default class _Merge extends Layer {
     if (!this.output) {
       this.output = new Tensor([], inputs[0].glTextureShape)
       this.output.createGLTexture()
-      if (inputs[0].glTextureIsTiled) {
-        this.output.glTextureIsTiled = inputs[0].glTextureIsTiled
-        this.output.untiledShape = inputs[0].untiledShape
+      if (inputs[0].is2DReshaped) {
+        this.output.is2DReshaped = inputs[0].is2DReshaped
+        this.output.originalShape = inputs[0].originalShape
       }
     }
 
@@ -165,8 +165,8 @@ export default class _Merge extends Layer {
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
-      if (this.output.glTextureIsTiled) {
-        this.output.reshapeTensorFromTiled()
+      if (this.output.is2DReshaped) {
+        this.output.reshapeFrom2D()
       }
     }
   }

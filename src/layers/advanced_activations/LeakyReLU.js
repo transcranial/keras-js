@@ -65,9 +65,9 @@ export default class LeakyReLU extends Layer {
     if (!this.output) {
       this.output = new Tensor([], x.glTextureShape)
       this.output.createGLTexture()
-      if (x.glTextureIsTiled) {
-        this.output.glTextureIsTiled = x.glTextureIsTiled
-        this.output.untiledShape = x.untiledShape
+      if (x.is2DReshaped) {
+        this.output.is2DReshaped = x.is2DReshaped
+        this.output.originalShape = x.originalShape
       }
     }
 
@@ -86,8 +86,8 @@ export default class LeakyReLU extends Layer {
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
-      if (this.output.glTextureIsTiled) {
-        this.output.reshapeTensorFromTiled()
+      if (this.output.is2DReshaped) {
+        this.output.reshapeFrom2D()
       }
     }
   }

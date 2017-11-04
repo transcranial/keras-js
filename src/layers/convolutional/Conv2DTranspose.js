@@ -92,7 +92,7 @@ export default class Conv2DTranspose extends Layer {
     this._w2row()
 
     if (this.gpu) {
-      this.weights['kernel'] = this._wRowsMat
+      this.weights['kernel'] = this.wRowsMat
       this.weights['kernel'].createGLTexture()
       if (this.use_bias) {
         this.weights['bias'].createGLTexture()
@@ -171,8 +171,8 @@ export default class Conv2DTranspose extends Layer {
   _im2col(x) {
     const [inputRows, inputCols, inputChannels] = x.tensor.shape
 
-    if (!this._imColsMat) {
-      this._imColsMat = new Tensor([], [inputRows * inputCols, inputChannels])
+    if (!this.imColsMat) {
+      this.imColsMat = new Tensor([], [inputRows * inputCols, inputChannels])
     }
 
     let channelRaveled = new Tensor([], [inputRows * inputCols])
@@ -180,12 +180,12 @@ export default class Conv2DTranspose extends Layer {
     for (let c = 0; c < inputChannels; c++) {
       ops.assign(channel.tensor, x.tensor.pick(null, null, c))
       channelRaveled.replaceTensorData(channel.tensor.data)
-      ops.assign(this._imColsMat.tensor.pick(null, c), channelRaveled.tensor)
+      ops.assign(this.imColsMat.tensor.pick(null, c), channelRaveled.tensor)
     }
     if (this.gpu) {
-      this._imColsMat.createGLTexture()
+      this.imColsMat.createGLTexture()
     }
-    return this._imColsMat
+    return this.imColsMat
   }
 
   /**
@@ -198,17 +198,17 @@ export default class Conv2DTranspose extends Layer {
   _w2row() {
     const [nbRow, nbCol, nbFilter, inputChannels] = this.weights['kernel'].tensor.shape
 
-    this._wRowsMat = new Tensor([], [inputChannels, nbRow * nbCol * nbFilter])
+    this.wRowsMat = new Tensor([], [inputChannels, nbRow * nbCol * nbFilter])
 
     let channelRaveled = new Tensor([], [nbRow * nbCol * nbFilter])
     let channel = new Tensor([], [nbRow, nbCol, nbFilter])
     for (let c = 0; c < inputChannels; c++) {
       ops.assign(channel.tensor, this.weights['kernel'].tensor.pick(null, null, null, c))
       channelRaveled.replaceTensorData(channel.tensor.data)
-      ops.assign(this._wRowsMat.tensor.pick(c, null), channelRaveled.tensor)
+      ops.assign(this.wRowsMat.tensor.pick(c, null), channelRaveled.tensor)
     }
 
-    return this._wRowsMat
+    return this.wRowsMat
   }
 
   /**
@@ -226,7 +226,7 @@ export default class Conv2DTranspose extends Layer {
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const matMul = new Tensor([], [inputRows * inputCols, nbRow * nbCol * nbFilter])
 
-    gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
+    gemm(matMul.tensor, this.imColsMat.tensor, this.wRowsMat.tensor, 1, 1)
 
     // add padding which we will take away later
     const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.outputPadding
@@ -282,15 +282,15 @@ export default class Conv2DTranspose extends Layer {
   }
 
   /**
-   * In GPU mode, we work directly on 2D-tiled representations of the tensors. After the matrix multiply step produce
+   * In GPU mode, we work directly on 2D-reshaped representations of the tensors. After the matrix multiply step produce
    * matrix Y, the final output Z at coordinate [i,j] will be the summation of a number of elements of the matrix Y.
    * Here, we calculate the indices of matrix Y for each coordinate [i,j] of Z, and encode these index maps as texture
    * arrays.
    *
    * @param {number[]} inputShape
    */
-  _createIndexMaps(inputShape) {
-    if (this._tiledOutputRowIndicesMap && this._tiledOutputColIndicesMap) {
+  _createIndexMap(inputShape) {
+    if (this.rowIndexMap && this.colIndexMap) {
       return
     }
 
@@ -366,27 +366,21 @@ export default class Conv2DTranspose extends Layer {
     )
     // combine first two dimensions
     const tiledIndicesMapShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2], inputRows * inputCols]
-    this._tiledOutputRowIndicesMap = new Tensor([], tiledIndicesMapShape, { type: Int32Array })
-    this._tiledOutputColIndicesMap = new Tensor([], tiledIndicesMapShape, { type: Int32Array })
+    this.rowIndexMap = new Tensor([], tiledIndicesMapShape, { type: Int32Array })
+    this.colIndexMap = new Tensor([], tiledIndicesMapShape, { type: Int32Array })
     const channelData = new Tensor([], [this.outputShape[2], inputRows * inputCols], { type: Int32Array })
     for (let i = 0; i < this.outputShape[0]; i++) {
       for (let j = 0; j < this.outputShape[1]; j++) {
         ops.assign(channelData.tensor, outputRowIndicesMap.tensor.pick(i, j, null, null))
-        ops.assign(
-          this._tiledOutputRowIndicesMap.tensor.pick(i * this.outputShape[1] + j, null, null),
-          channelData.tensor
-        )
+        ops.assign(this.rowIndexMap.tensor.pick(i * this.outputShape[1] + j, null, null), channelData.tensor)
         ops.assign(channelData.tensor, outputColIndicesMap.tensor.pick(i, j, null, null))
-        ops.assign(
-          this._tiledOutputColIndicesMap.tensor.pick(i * this.outputShape[1] + j, null, null),
-          channelData.tensor
-        )
+        ops.assign(this.colIndexMap.tensor.pick(i * this.outputShape[1] + j, null, null), channelData.tensor)
       }
     }
 
     if (this.gpu) {
-      this._tiledOutputRowIndicesMap.createGLTexture('2d_array', 'int')
-      this._tiledOutputColIndicesMap.createGLTexture('2d_array', 'int')
+      this.rowIndexMap.createGLTexture('2d_array', 'int')
+      this.colIndexMap.createGLTexture('2d_array', 'int')
     }
   }
 
@@ -396,15 +390,15 @@ export default class Conv2DTranspose extends Layer {
    * @param {Tensor} x
    */
   _callGPU(x) {
-    if (x.glTextureIsTiled) {
-      this.inputShape = x.untiledShape
+    if (x.is2DReshaped) {
+      this.inputShape = x.originalShape
       this._calcOutputShape(this.inputShape)
     } else {
       this.inputShape = x.tensor.shape
       this._calcOutputShape(this.inputShape)
       this._im2col(x)
-      x.glTexture = this._imColsMat.glTexture
-      x.glTextureShape = this._imColsMat.glTextureShape
+      x.glTexture = this.imColsMat.glTexture
+      x.glTextureShape = this.imColsMat.glTextureShape
     }
 
     // create output textures if doesn't already exist
@@ -417,15 +411,15 @@ export default class Conv2DTranspose extends Layer {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
       this.outputPreactiv = new Tensor([], outputTextureShape)
       this.outputPreactiv.createGLTexture()
-      this.outputPreactiv.glTextureIsTiled = true
-      this.outputPreactiv.untiledShape = this.outputShape
+      this.outputPreactiv.is2DReshaped = true
+      this.outputPreactiv.originalShape = this.outputShape
     }
     if (!this.output) {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
       this.output = new Tensor([], outputTextureShape)
       this.output.createGLTexture()
-      this.output.glTextureIsTiled = true
-      this.output.untiledShape = this.outputShape
+      this.output.is2DReshaped = true
+      this.output.originalShape = this.outputShape
     }
 
     // Matrix Multiply with kernel
@@ -442,18 +436,14 @@ export default class Conv2DTranspose extends Layer {
     webgl2.runProgram()
 
     // Tranposed Convolution
-    this._createIndexMaps(this.inputShape)
+    this._createIndexMap(this.inputShape)
     const test = new Tensor([], [this.outputShape[0] * this.outputShape[1], this.outputShape[2]])
-    ops.assign(test.tensor, this._tiledOutputRowIndicesMap.tensor.pick(null, null, 0))
+    ops.assign(test.tensor, this.rowIndexMap.tensor.pick(null, null, 0))
     webgl2.selectProgram(this.convTransposeProgram)
     webgl2.bindOutputTexture(this.outputPreactiv.glTexture, this.outputPreactiv.glTextureShape)
-    textures = [
-      this.outputMatmul.glTexture,
-      this._tiledOutputRowIndicesMap.glTexture,
-      this._tiledOutputColIndicesMap.glTexture
-    ]
+    textures = [this.outputMatmul.glTexture, this.rowIndexMap.glTexture, this.colIndexMap.glTexture]
     textureTypes = ['2d', '2d_array', '2d_array']
-    textureNames = ['matMulOutput', 'rowIndicesMap', 'colIndicesMap']
+    textureNames = ['outputMatmul', 'rowIndexMap', 'colIndexMap']
     if (this.use_bias) {
       textures.push(this.weights['bias'].glTexture)
       textureTypes.push('2d')
@@ -487,7 +477,7 @@ export default class Conv2DTranspose extends Layer {
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
-      this.output.reshapeTensorFromTiled()
+      this.output.reshapeFrom2D()
 
       // convert back to channels_first ordering if necessary
       if (this.dataFormat === 'channels_first') {

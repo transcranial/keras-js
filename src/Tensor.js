@@ -150,74 +150,78 @@ export default class Tensor {
   transferFromGLTexture() {
     this.tensor = ndarray(new this._type([]), this.glTextureShape)
     this.tensor.data = webgl2.readData(this.glTextureShape)
-    if (!this.glTextureIsTiled && this.glTextureShape[0] === 1) {
+    if (!this.is2DReshaped && this.glTextureShape[0] === 1) {
       // collapse to 1D
       this.tensor = squeeze(this.tensor, [0])
     }
   }
 
   /**
-   * Reshapes data into tiled form
+   * Reshapes data into 2D representation preserving single axis
    *
    * @param {number} axis
    */
-  reshapeTensorToTiled(axis = -1) {
+  reshapeTo2D(axis = -1) {
     if (axis < 0) {
       axis = this.tensor.shape.length + axis
     }
 
-    const normAxisLength = this.tensor.shape[axis]
+    const preservedAxisLength = this.tensor.shape[axis]
     const otherAxes = [...this.tensor.shape.slice(0, axis), ...this.tensor.shape.slice(axis + 1)]
     const otherAxesSize = otherAxes.reduce((a, b) => a * b, 1)
-    const tiled = ndarray(new this._type(otherAxesSize * normAxisLength), [otherAxesSize, normAxisLength])
+    const reshaped = ndarray(new this._type(otherAxesSize * preservedAxisLength), [otherAxesSize, preservedAxisLength])
     const otherAxesData = ndarray(new this._type(otherAxesSize), otherAxes)
     const otherAxesDataRaveled = ndarray(new this._type(otherAxesSize), [otherAxesSize])
     const axisSlices = Array(this.tensor.shape.length).fill(null)
-    for (let n = 0; n < normAxisLength; n++) {
+    for (let n = 0; n < preservedAxisLength; n++) {
       axisSlices[axis] = n
       ops.assign(otherAxesData, this.tensor.pick(...axisSlices))
       otherAxesDataRaveled.data = otherAxesData.data
-      ops.assign(tiled.pick(null, n), otherAxesDataRaveled)
+      ops.assign(reshaped.pick(null, n), otherAxesDataRaveled)
     }
 
-    this.untiledShape = this.tensor.shape
-    this.tensor = tiled
-    this.glTextureIsTiled = true
+    this.originalShape = this.tensor.shape
+    this.tensor = reshaped
+    this.is2DReshaped = true
+    this.preservedAxis = axis
   }
 
   /**
-   * Reshapes tiled data into untiled form
+   * Reshapes tensor in 2D representation back to original
    *
-   * Called at the end when data is read back from GPU (which is in tiled 2D format from texture)
+   * Typically called at the end when data is read back from GPU
    *
    * @param {number} axis
    */
-  reshapeTensorFromTiled(axis = -1) {
-    if (!this.glTextureIsTiled) {
-      throw new Error('Tensor is not in tiled format.')
+  reshapeFrom2D(axis = -1) {
+    if (!this.is2DReshaped) {
+      throw new Error('Tensor is not in reshaped 2D representation.')
     }
-    if (!this.untiledShape) {
-      throw new Error('Tensor does not contain untiledShape.')
+    if (!this.originalShape) {
+      throw new Error('Tensor does not contain originalShape.')
     }
 
     if (axis < 0) {
-      axis = this.untiledShape.length + axis
+      axis = this.originalShape.length + axis
     }
 
     // second axis is the channel, or common, axis
     const channelDataSize = this.tensor.shape[0]
     const channels = this.tensor.shape[1]
 
-    const reshaped = ndarray(new this._type(this.untiledShape.reduce((a, b) => a * b, 1)), this.untiledShape)
+    const reshaped = ndarray(new this._type(this.originalShape.reduce((a, b) => a * b, 1)), this.originalShape)
     const channelDataRaveled = ndarray(new this._type(channelDataSize), [channelDataSize])
-    const untiledChannelShape = [...this.untiledShape.slice(0, axis), ...this.untiledShape.slice(axis + 1)]
-    const untiledChannel = ndarray(new this._type(untiledChannelShape.reduce((a, b) => a * b, 1)), untiledChannelShape)
-    const axisSlices = Array(this.untiledShape.length).fill(null)
+    const unraveledChannelShape = [...this.originalShape.slice(0, axis), ...this.originalShape.slice(axis + 1)]
+    const unraveledChannel = ndarray(
+      new this._type(unraveledChannelShape.reduce((a, b) => a * b, 1)),
+      unraveledChannelShape
+    )
+    const axisSlices = Array(this.originalShape.length).fill(null)
     for (let n = 0; n < channels; n++) {
       ops.assign(channelDataRaveled, this.tensor.pick(null, n))
-      untiledChannel.data = channelDataRaveled.data
+      unraveledChannel.data = channelDataRaveled.data
       axisSlices[axis] = n
-      ops.assign(reshaped.pick(...axisSlices), untiledChannel)
+      ops.assign(reshaped.pick(...axisSlices), unraveledChannel)
     }
 
     this.tensor = reshaped

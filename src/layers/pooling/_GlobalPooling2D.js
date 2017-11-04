@@ -72,15 +72,15 @@ export default class _GlobalPooling2D extends Layer {
    * @param {Tensor} x
    */
   _callGPU(x) {
-    if (x.glTextureIsTiled) {
-      this.inputShape = x.untiledShape
+    if (x.is2DReshaped) {
+      this.inputShape = x.originalShape
     } else {
       // convert to channels_last ordering
       if (this.dataFormat === 'channels_first') {
         x.tensor = x.tensor.transpose(1, 2, 0)
       }
       this.inputShape = x.tensor.shape
-      x.reshapeTensorToTiled()
+      x.reshapeTo2D()
       x.createGLTexture()
     }
 

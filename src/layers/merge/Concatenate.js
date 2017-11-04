@@ -66,8 +66,8 @@ export default class Concatenate extends _Merge {
   _callGPU(inputs) {
     const outputShape = inputs[0].glTextureShape.slice()
     let _concatAxis = 1
-    if (inputs[0].glTextureIsTiled) {
-      if (this.concatAxis === -1 || this.concatAxis === inputs[0].untiledShape.length - 1) {
+    if (inputs[0].is2DReshaped) {
+      if (this.concatAxis === -1 || this.concatAxis === inputs[0].originalShape.length - 1) {
         _concatAxis = 1
       } else {
         throw new Error(`${this.name} [Concatenate layer] specified axis not supported for now.`)
@@ -87,11 +87,11 @@ export default class Concatenate extends _Merge {
       outputShape[_concatAxis] = sum(inputs.map(input => input.glTextureShape[_concatAxis]))
       this.output = new Tensor([], outputShape)
       this.output.createGLTexture()
-      if (inputs[0].glTextureIsTiled) {
-        this.output.glTextureIsTiled = inputs[0].glTextureIsTiled
-        this.output.untiledShape = inputs[0].untiledShape
-        const _concatAxis = this.concatAxis < 0 ? this.output.untiledShape.length + this.concatAxis : this.concatAxis
-        this.output.untiledShape[_concatAxis] = sum(inputs.map(input => input.untiledShape[_concatAxis]))
+      if (inputs[0].is2DReshaped) {
+        this.output.is2DReshaped = inputs[0].is2DReshaped
+        this.output.originalShape = inputs[0].originalShape
+        const _concatAxis = this.concatAxis < 0 ? this.output.originalShape.length + this.concatAxis : this.concatAxis
+        this.output.originalShape[_concatAxis] = sum(inputs.map(input => input.originalShape[_concatAxis]))
       }
     }
     if (!this.runningOutput) {
@@ -132,8 +132,8 @@ export default class Concatenate extends _Merge {
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
-      if (this.output.glTextureIsTiled) {
-        this.output.reshapeTensorFromTiled()
+      if (this.output.is2DReshaped) {
+        this.output.reshapeFrom2D()
       }
     }
   }

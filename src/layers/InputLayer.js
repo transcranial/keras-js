@@ -56,7 +56,7 @@ export default class InputLayer extends Layer {
     if (!x.glTexture) {
       this.inputShape = x.tensor.shape
     } else {
-      this.inputShape = x.untiledShape
+      this.inputShape = x.originalShape
     }
 
     if (!isEqual(this.inputShape, this.shape)) {
@@ -67,7 +67,7 @@ export default class InputLayer extends Layer {
       if (x.tensor.shape.length <= 2) {
         x.createGLTexture()
       } else if (x.tensor.shape.length > 2) {
-        x.reshapeTensorToTiled()
+        x.reshapeTo2D()
         x.createGLTexture()
       }
     }

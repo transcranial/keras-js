@@ -240,8 +240,8 @@ export default class _Pooling3D extends Layer {
    */
   _im2col(x) {
     const [inputDim1, inputDim2, inputDim3, inputChannels] = x.tensor.shape
-    if (!this._tiledInput) {
-      this._tiledInput = new Tensor([], [inputDim1 * inputDim2 * inputDim3, inputChannels])
+    if (!this.tiledInput) {
+      this.tiledInput = new Tensor([], [inputDim1 * inputDim2 * inputDim3, inputChannels])
     }
 
     const patch = new Tensor([], [inputDim1, inputDim2, inputDim3])
@@ -249,13 +249,13 @@ export default class _Pooling3D extends Layer {
     for (let c = 0; c < inputChannels; c++) {
       ops.assign(patch.tensor, x.tensor.pick(null, null, null, c))
       patchRaveled.replaceTensorData(patch.tensor.data)
-      ops.assign(this._tiledInput.tensor.pick(null, c), patchRaveled.tensor)
+      ops.assign(this.tiledInput.tensor.pick(null, c), patchRaveled.tensor)
     }
 
     if (this.gpu) {
-      this._tiledInput.createGLTexture()
+      this.tiledInput.createGLTexture()
     }
-    return this._tiledInput
+    return this.tiledInput
   }
 
   /**
@@ -338,8 +338,8 @@ export default class _Pooling3D extends Layer {
    * @param {Tensor} x
    */
   _callGPU(x) {
-    if (x.glTextureIsTiled) {
-      this.inputShape = x.untiledShape
+    if (x.is2DReshaped) {
+      this.inputShape = x.originalShape
     } else {
       // convert to channels_last ordering
       if (this.dataFormat === 'channels_first') {
@@ -347,8 +347,8 @@ export default class _Pooling3D extends Layer {
       }
       this.inputShape = x.tensor.shape
       this._im2col(x)
-      x.glTexture = this._tiledInput.glTexture
-      x.glTextureShape = this._tiledInput.glTextureShape
+      x.glTexture = this.tiledInput.glTexture
+      x.glTextureShape = this.tiledInput.glTextureShape
     }
     this._calcOutputShape(this.inputShape)
     this._createIndexMap(this.inputShape)
@@ -359,8 +359,8 @@ export default class _Pooling3D extends Layer {
       const outputTextureShape = [outputDim1 * outputDim2 * outputDim3, inputChannels]
       this.output = new Tensor([], outputTextureShape)
       this.output.createGLTexture()
-      this.output.glTextureIsTiled = true
-      this.output.untiledShape = this.outputShape
+      this.output.is2DReshaped = true
+      this.output.originalShape = this.outputShape
     }
 
     const poolSize = this.poolSize[0] * this.poolSize[1] * this.poolSize[2]
@@ -382,7 +382,7 @@ export default class _Pooling3D extends Layer {
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
-      this.output.reshapeTensorFromTiled()
+      this.output.reshapeFrom2D()
 
       // convert back to channels_first ordering if necessary
       if (this.dataFormat === 'channels_first') {

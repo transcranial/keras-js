@@ -100,8 +100,8 @@ export default class Reshape extends Layer {
     this.rowIndexMap.replaceTensorData(new Int32Array(indicesRow.tensor.data))
     this.colIndexMap.replaceTensorData(new Int32Array(indicesCol.tensor.data))
     if (this.targetShape.length > 2) {
-      this.rowIndexMap.reshapeTensorToTiled()
-      this.colIndexMap.reshapeTensorToTiled()
+      this.rowIndexMap.reshapeTo2D()
+      this.colIndexMap.reshapeTo2D()
     }
 
     if (this.gpu) {
@@ -120,12 +120,12 @@ export default class Reshape extends Layer {
       this.inputShape = x.tensor.shape
       if (x.tensor.shape.length <= 2) {
         x.createGLTexture()
-      } else if (x.tensor.shape.length > 2 && !x.glTextureIsTiled) {
-        x.reshapeTensorToTiled()
+      } else if (x.tensor.shape.length > 2 && !x.is2DReshaped) {
+        x.reshapeTo2D()
         x.createGLTexture()
       }
-    } else if (x.glTextureIsTiled) {
-      this.inputShape = x.untiledShape
+    } else if (x.is2DReshaped) {
+      this.inputShape = x.originalShape
     } else {
       this.inputShape = x.tensor.shape
     }
@@ -134,7 +134,7 @@ export default class Reshape extends Layer {
     if (!this.output) {
       this.output = new Tensor([], this.targetShape)
       if (this.targetShape.length > 2) {
-        this.output.reshapeTensorToTiled()
+        this.output.reshapeTo2D()
       }
       this.output.createGLTexture()
     }
@@ -150,8 +150,8 @@ export default class Reshape extends Layer {
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
-      if (this.output.glTextureIsTiled) {
-        this.output.reshapeTensorFromTiled(this.axis)
+      if (this.output.is2DReshaped) {
+        this.output.reshapeFrom2D(this.axis)
       }
     }
   }

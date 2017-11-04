@@ -365,11 +365,9 @@ export default class Conv3D extends Layer {
   }
 
   /**
-   * Creates a index mapping from the 2D-tiled input tensor with associated 3D tensor shape to the representation
-   * required prior to the matrix multiply.
-   *
-   * This allows us to work directly on the 2D tiled tensor representations rather than needing to reshape to the 3D
-   * reprentation and calling im2col.
+   * Creates a index mapping from the 2D-reshaped input tensor with associated 3D tensor shape to the representation
+   * required prior to the matrix multiply. This allows us to work directly on the 2D reshaped tensor representations
+   * rather than needing to reshape to the 3D reprentation and calling im2col.
    *
    * @param {number[]} inputShape
    */
@@ -467,8 +465,8 @@ export default class Conv3D extends Layer {
    * @param {Tensor} x
    */
   _callGPU(x) {
-    if (x.glTextureIsTiled) {
-      this.inputShape = x.untiledShape
+    if (x.is2DReshaped) {
+      this.inputShape = x.originalShape
       this._calcOutputShape(this.inputShape)
       this._createIndexMap(this.inputShape)
       if (!this.mappedInput) {
@@ -482,8 +480,8 @@ export default class Conv3D extends Layer {
       this._vol2col(x)
     }
 
-    // remap tiled input
-    if (x.glTextureIsTiled) {
+    // map from 2d-reshaped input
+    if (x.is2DReshaped) {
       webgl2.selectProgram(this.mapInputProgram)
       webgl2.bindOutputTexture(this.mappedInput.glTexture, this.mappedInput.glTextureShape)
       let textures = [x.glTexture, this.rowIndexMap.glTexture, this.colIndexMap.glTexture]
@@ -493,21 +491,21 @@ export default class Conv3D extends Layer {
       webgl2.runProgram()
     }
 
-    const input = x.glTextureIsTiled ? this.mappedInput : this.volColsMat
+    const input = x.is2DReshaped ? this.mappedInput : this.volColsMat
     const outputTextureShape = [input.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
 
     // create output textures if doesn't already exist
     if (!this.outputPreactiv) {
       this.outputPreactiv = new Tensor([], outputTextureShape)
       this.outputPreactiv.createGLTexture()
-      this.outputPreactiv.glTextureIsTiled = true
-      this.outputPreactiv.untiledShape = this.outputShape
+      this.outputPreactiv.is2DReshaped = true
+      this.outputPreactiv.originalShape = this.outputShape
     }
     if (!this.output) {
       this.output = new Tensor([], outputTextureShape)
       this.output.createGLTexture()
-      this.output.glTextureIsTiled = true
-      this.output.untiledShape = this.outputShape
+      this.output.is2DReshaped = true
+      this.output.originalShape = this.outputShape
     }
 
     // Matrix Multiply
@@ -544,7 +542,7 @@ export default class Conv3D extends Layer {
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
-      this.output.reshapeTensorFromTiled()
+      this.output.reshapeFrom2D()
 
       // convert back to channels_first ordering if necessary
       if (this.dataFormat === 'channels_first') {

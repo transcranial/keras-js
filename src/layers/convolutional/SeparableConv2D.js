@@ -40,8 +40,8 @@ class _DepthwiseConv2D extends Conv2D {
     const nbPatches = outputRows * outputCols
     const patchLen = nbRow * nbCol
 
-    if (!this._imColsMat) {
-      this._imColsMat = new Tensor([], [nbPatches * inputChannels, patchLen])
+    if (!this.imColsMat) {
+      this.imColsMat = new Tensor([], [nbPatches * inputChannels, patchLen])
     }
 
     let patch = new Tensor([], [nbRow, nbCol, 1])
@@ -50,16 +50,16 @@ class _DepthwiseConv2D extends Conv2D {
       for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.strides[0]) {
         for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.strides[1]) {
           ops.assign(patch.tensor, x.tensor.hi(i + nbRow, j + nbCol, c + 1).lo(i, j, c))
-          this._imColsMat.tensor.data.set(patch.tensor.data, offset)
+          this.imColsMat.tensor.data.set(patch.tensor.data, offset)
           offset += patchLen
         }
       }
     }
 
     if (this.gpu) {
-      this._imColsMat.createGLTexture()
+      this.imColsMat.createGLTexture()
     }
-    return this._imColsMat
+    return this.imColsMat
   }
 
   /**
@@ -70,7 +70,7 @@ class _DepthwiseConv2D extends Conv2D {
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const patchLen = nbRow * nbCol
 
-    this._wRowsMat = new Tensor([], [patchLen, nbFilter * inputChannels])
+    this.wRowsMat = new Tensor([], [patchLen, nbFilter * inputChannels])
 
     let patch = new Tensor([], [nbRow, nbCol])
     let patchRaveled = new Tensor([], [patchLen])
@@ -79,12 +79,12 @@ class _DepthwiseConv2D extends Conv2D {
       for (let n = 0; n < nbFilter; n++) {
         ops.assign(patch.tensor, this.weights['kernel'].tensor.pick(null, null, c, n))
         patchRaveled.replaceTensorData(patch.tensor.data)
-        ops.assign(this._wRowsMat.tensor.pick(null, p), patchRaveled.tensor)
+        ops.assign(this.wRowsMat.tensor.pick(null, p), patchRaveled.tensor)
         p += 1
       }
     }
 
-    return this._wRowsMat
+    return this.wRowsMat
   }
 
   /**
@@ -103,7 +103,7 @@ class _DepthwiseConv2D extends Conv2D {
     const inputChannels = this.inputShape[2]
     const matMul = new Tensor([], [nbPatches * inputChannels, nbFilter * inputChannels])
 
-    gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
+    gemm(matMul.tensor, this.imColsMat.tensor, this.wRowsMat.tensor, 1, 1)
 
     this.output = new Tensor([], this.outputShape)
 
@@ -154,8 +154,8 @@ class _DepthwiseConv2D extends Conv2D {
       const reshape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
       this.outputReshaped = new Tensor([], reshape)
       this.outputReshaped.createGLTexture()
-      this.outputReshaped.glTextureIsTiled = true
-      this.outputReshaped.untiledShape = this.outputShape
+      this.outputReshaped.is2DReshaped = true
+      this.outputReshaped.originalShape = this.outputShape
     }
 
     webgl2.selectProgram(this.mapInputProgram)
@@ -323,8 +323,8 @@ export default class SeparableConv2D extends Layer {
       if (!this.output) {
         this.output = new Tensor([], this._pointwiseConv.output.glTextureShape)
         this.output.createGLTexture()
-        this.output.glTextureIsTiled = true
-        this.output.untiledShape = this._pointwiseConv.output.untiledShape
+        this.output.is2DReshaped = true
+        this.output.originalShape = this._pointwiseConv.output.originalShape
       }
       this.outputPreactiv = this._pointwiseConv.output
       webgl2.selectProgram(this.activationProgram)
@@ -339,7 +339,7 @@ export default class SeparableConv2D extends Layer {
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
-      this.output.reshapeTensorFromTiled()
+      this.output.reshapeFrom2D()
 
       // convert back to channels_first ordering if necessary
       if (this.dataFormat === 'channels_first') {
