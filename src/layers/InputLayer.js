@@ -26,9 +26,52 @@ export default class InputLayer extends Layer {
    * @returns {Tensor}
    */
   call(x) {
-    if (!isEqual(x.tensor.shape, this.shape)) {
+    if (this.gpu) {
+      this._callGPU(x)
+    } else {
+      this._callCPU(x)
+    }
+    return this.output
+  }
+
+  /**
+   * CPU call
+   *
+   * @param {Tensor} x
+   */
+  _callCPU(x) {
+    this.inputShape = x.tensor.shape
+    if (!isEqual(this.inputShape, this.shape)) {
       throw new Error(`[InputLayer] input tensor shape ${x.tensor.shape} does not match specified shape ${this.shape}.`)
     }
-    return x
+    this.output = x
+  }
+
+  /**
+ * GPU call
+ *
+ * @param {Tensor} x
+ */
+  _callGPU(x) {
+    if (!x.glTexture) {
+      this.inputShape = x.tensor.shape
+    } else {
+      this.inputShape = x.untiledShape
+    }
+
+    if (!isEqual(this.inputShape, this.shape)) {
+      throw new Error(`[InputLayer] input tensor shape ${x.tensor.shape} does not match specified shape ${this.shape}.`)
+    }
+
+    if (!x.glTexture) {
+      if (x.tensor.shape.length <= 2) {
+        x.createGLTexture()
+      } else if (x.tensor.shape.length > 2) {
+        x.reshapeTensorToTiled()
+        x.createGLTexture()
+      }
+    }
+
+    this.output = x
   }
 }

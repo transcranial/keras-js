@@ -65,7 +65,7 @@ export default class Model {
     // names of input and output layers
     this.inputLayerNames = []
     this.outputLayerNames = []
-    // array of model layer names with result
+    // array of model layer names with finished output
     this.finishedLayerNames = []
     // flag while computations are being performed
     this.isRunning = false
@@ -110,7 +110,6 @@ export default class Model {
 
     // build directed acyclic graph
     this._buildDAG()
-    console.log(this.modelLayersMap)
 
     // run predict once with initial empty input tensors to cache variables such as shape inference
     // make sure layerCallPauses is turned off during this step
@@ -257,7 +256,7 @@ export default class Model {
         if (modelClass === 'Sequential' && index === 0) {
           const inputName = 'input'
           const inputShape = layerConfig.batch_input_shape.slice(1)
-          const layer = new layers.InputLayer({ name: inputName, shape: inputShape })
+          const layer = new layers.InputLayer({ name: inputName, shape: inputShape, gpu: this.gpu })
           this.modelLayersMap.set(inputName, layer)
           this.inputTensorsMap.set(inputName, new Tensor([], inputShape))
           this.inputLayerNames.push(inputName)
@@ -390,15 +389,11 @@ export default class Model {
           return false
         }
 
-        // const numSiblingNodes = _.sum(currentLayer.inbound.map(n => this.modelLayersMap.get(n).outbound.length))
-        // const copyBeforeCall = numSiblingNodes >= 1
-        let start = performance.now()
         if (currentLayer.isMergeLayer) {
           currentLayer.call(_.map(inboundLayers, 'output'))
         } else {
           currentLayer.call(inboundLayers[0].output)
         }
-        console.log(currentLayer.layerClass, currentLayer.name, performance.now() - start)
 
         currentLayer.hasOutput = true
         currentLayer.visited = true
@@ -466,9 +461,7 @@ export default class Model {
     this.loadData(inputData)
 
     // start traversing DAG at inputs
-    let start = performance.now()
     await this._traverseDAG(this.inputLayerNames)
-    console.log('TOTAL', performance.now() - start)
 
     // outputs are layers with no outbound nodes
     const modelClass = this.data.model.class_name
