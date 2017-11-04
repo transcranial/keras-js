@@ -70,11 +70,11 @@
     "postcss-import": "^11.0.0",
     "postcss-loader": "^2.0.8",
     "raw-loader": "^0.5.1",
-    "vue": "^2.5.2",
-    "vue-loader": "^13.3.0",
+    "vue": "^2.5.3",
+    "vue-loader": "^13.4.0",
     "vue-mdl": "^1.1.1",
     "vue-router": "^3.0.1",
-    "vue-template-compiler": "^2.3.3",
+    "vue-template-compiler": "^2.5.3",
     "webpack": "^3.8.1"
   }
 }
