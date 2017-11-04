@@ -105,7 +105,7 @@ export default class Conv3D extends Layer {
     this._w2row()
 
     if (this.gpu) {
-      this.weights['kernel'] = this._wRowsMat
+      this.weights['kernel'] = this.wRowsMat
       this.weights['kernel'].createGLTexture()
       if (this.use_bias) {
         this.weights['bias'].createGLTexture()
@@ -255,8 +255,8 @@ export default class Conv3D extends Layer {
     const kernelDim2Dilated = kernelDim2 + (kernelDim2 - 1) * (this.dilationRate[1] - 1)
     const kernelDim3Dilated = kernelDim3 + (kernelDim3 - 1) * (this.dilationRate[2] - 1)
 
-    if (!this._volColsMat) {
-      this._volColsMat = new Tensor([], [nbPatches, patchLen])
+    if (!this.volColsMat) {
+      this.volColsMat = new Tensor([], [nbPatches, patchLen])
     }
 
     if (
@@ -267,11 +267,11 @@ export default class Conv3D extends Layer {
       this.strides[1] === 1 &&
       this.strides[2] === 1
     ) {
-      this._volColsMat.replaceTensorData(x.tensor.data)
+      this.volColsMat.replaceTensorData(x.tensor.data)
       if (this.gpu) {
-        this._volColsMat.createGLTexture()
+        this.volColsMat.createGLTexture()
       }
-      return this._volColsMat
+      return this.volColsMat
     }
 
     let patch = new Tensor([], [kernelDim1, kernelDim2, kernelDim3, inputChannels])
@@ -286,16 +286,16 @@ export default class Conv3D extends Layer {
               .lo(i, j, k, 0)
               .step(this.dilationRate[0], this.dilationRate[1], this.dilationRate[2], 1)
           )
-          this._volColsMat.tensor.data.set(patch.tensor.data, offset)
+          this.volColsMat.tensor.data.set(patch.tensor.data, offset)
           offset += patchLen
         }
       }
     }
 
     if (this.gpu) {
-      this._volColsMat.createGLTexture()
+      this.volColsMat.createGLTexture()
     }
-    return this._volColsMat
+    return this.volColsMat
   }
 
   /**
@@ -308,17 +308,17 @@ export default class Conv3D extends Layer {
     const [nbFilter, kernelDim1, kernelDim2, kernelDim3] = this.kernelShape
     const patchLen = kernelDim1 * kernelDim2 * kernelDim3 * inputChannels
 
-    this._wRowsMat = new Tensor([], [patchLen, nbFilter])
+    this.wRowsMat = new Tensor([], [patchLen, nbFilter])
 
     let patch = new Tensor([], [kernelDim1, kernelDim2, kernelDim3, inputChannels])
     let patchRaveled = new Tensor([], [patchLen])
     for (let n = 0; n < nbFilter; n++) {
       ops.assign(patch.tensor, this.weights['kernel'].tensor.pick(null, null, null, null, n))
       patchRaveled.replaceTensorData(patch.tensor.data)
-      ops.assign(this._wRowsMat.tensor.pick(null, n), patchRaveled.tensor)
+      ops.assign(this.wRowsMat.tensor.pick(null, n), patchRaveled.tensor)
     }
 
-    return this._wRowsMat
+    return this.wRowsMat
   }
 
   /**
@@ -344,7 +344,7 @@ export default class Conv3D extends Layer {
         ops.assigns(matMul.tensor.pick(null, n), this.weights['bias'].tensor.get(n))
       }
     }
-    gemm(matMul.tensor, this._volColsMat.tensor, this._wRowsMat.tensor, 1, 1)
+    gemm(matMul.tensor, this.volColsMat.tensor, this.wRowsMat.tensor, 1, 1)
 
     this.output = new Tensor([], this.outputShape)
 
@@ -471,9 +471,9 @@ export default class Conv3D extends Layer {
       this.inputShape = x.untiledShape
       this._calcOutputShape(this.inputShape)
       this._createIndexMap(this.inputShape)
-      if (!this._mappedInput) {
-        this._mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
-        this._mappedInput.createGLTexture()
+      if (!this.mappedInput) {
+        this.mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
+        this.mappedInput.createGLTexture()
       }
     } else {
       this.inputShape = x.tensor.shape
@@ -485,7 +485,7 @@ export default class Conv3D extends Layer {
     // remap tiled input
     if (x.glTextureIsTiled) {
       webgl2.selectProgram(this.mapInputProgram)
-      webgl2.bindOutputTexture(this._mappedInput.glTexture, this._mappedInput.glTextureShape)
+      webgl2.bindOutputTexture(this.mappedInput.glTexture, this.mappedInput.glTextureShape)
       let textures = [x.glTexture, this.rowIndexMap.glTexture, this.colIndexMap.glTexture]
       let textureTypes = ['2d', '2d', '2d']
       let textureNames = ['x', 'rowIndexMap', 'colIndexMap']
@@ -493,7 +493,7 @@ export default class Conv3D extends Layer {
       webgl2.runProgram()
     }
 
-    const input = x.glTextureIsTiled ? this._mappedInput : this._volColsMat
+    const input = x.glTextureIsTiled ? this.mappedInput : this.volColsMat
     const outputTextureShape = [input.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
 
     // create output textures if doesn't already exist

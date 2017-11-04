@@ -105,7 +105,7 @@ export default class Conv2D extends Layer {
     this._w2row()
 
     if (this.gpu) {
-      this.weights['kernel'] = this._wRowsMat
+      this.weights['kernel'] = this.wRowsMat
       this.weights['kernel'].createGLTexture()
       if (this.use_bias) {
         this.weights['bias'].createGLTexture()
@@ -223,16 +223,16 @@ export default class Conv2D extends Layer {
     const nbRowDilated = nbRow + (nbRow - 1) * (this.dilationRate[0] - 1)
     const nbColDilated = nbCol + (nbCol - 1) * (this.dilationRate[1] - 1)
 
-    if (!this._imColsMat) {
-      this._imColsMat = new Tensor([], [nbPatches, patchLen])
+    if (!this.imColsMat) {
+      this.imColsMat = new Tensor([], [nbPatches, patchLen])
     }
 
     if (nbRowDilated === 1 && nbColDilated === 1 && this.strides[0] === 1 && this.strides[1] === 1) {
-      this._imColsMat.replaceTensorData(x.tensor.data)
+      this.imColsMat.replaceTensorData(x.tensor.data)
       if (this.gpu) {
-        this._imColsMat.createGLTexture()
+        this.imColsMat.createGLTexture()
       }
-      return this._imColsMat
+      return this.imColsMat
     }
 
     let patch = new Tensor([], [nbRow, nbCol, inputChannels])
@@ -246,15 +246,15 @@ export default class Conv2D extends Layer {
             .lo(i, j, 0)
             .step(this.dilationRate[0], this.dilationRate[1], 1)
         )
-        this._imColsMat.tensor.data.set(patch.tensor.data, offset)
+        this.imColsMat.tensor.data.set(patch.tensor.data, offset)
         offset += patchLen
       }
     }
 
     if (this.gpu) {
-      this._imColsMat.createGLTexture()
+      this.imColsMat.createGLTexture()
     }
-    return this._imColsMat
+    return this.imColsMat
   }
 
   /**
@@ -267,17 +267,17 @@ export default class Conv2D extends Layer {
     const [nbFilter, nbRow, nbCol] = this.kernelShape
     const patchLen = nbRow * nbCol * inputChannels
 
-    this._wRowsMat = new Tensor([], [patchLen, nbFilter])
+    this.wRowsMat = new Tensor([], [patchLen, nbFilter])
 
     let patch = new Tensor([], [nbRow, nbCol, inputChannels])
     let patchRaveled = new Tensor([], [patchLen])
     for (let n = 0; n < nbFilter; n++) {
       ops.assign(patch.tensor, this.weights['kernel'].tensor.pick(null, null, null, n))
       patchRaveled.replaceTensorData(patch.tensor.data)
-      ops.assign(this._wRowsMat.tensor.pick(null, n), patchRaveled.tensor)
+      ops.assign(this.wRowsMat.tensor.pick(null, n), patchRaveled.tensor)
     }
 
-    return this._wRowsMat
+    return this.wRowsMat
   }
 
   /**
@@ -302,7 +302,7 @@ export default class Conv2D extends Layer {
         ops.assigns(matMul.tensor.pick(null, n), this.weights['bias'].tensor.get(n))
       }
     }
-    gemm(matMul.tensor, this._imColsMat.tensor, this._wRowsMat.tensor, 1, 1)
+    gemm(matMul.tensor, this.imColsMat.tensor, this.wRowsMat.tensor, 1, 1)
 
     this.output = new Tensor([], this.outputShape)
 
@@ -412,9 +412,9 @@ export default class Conv2D extends Layer {
       this.inputShape = x.untiledShape
       this._calcOutputShape(this.inputShape)
       this._createIndexMap(this.inputShape)
-      if (!this._mappedInput) {
-        this._mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
-        this._mappedInput.createGLTexture()
+      if (!this.mappedInput) {
+        this.mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
+        this.mappedInput.createGLTexture()
       }
     } else {
       this.inputShape = x.tensor.shape
@@ -426,7 +426,7 @@ export default class Conv2D extends Layer {
     // remap tiled input
     if (x.glTextureIsTiled) {
       webgl2.selectProgram(this.mapInputProgram)
-      webgl2.bindOutputTexture(this._mappedInput.glTexture, this._mappedInput.glTextureShape)
+      webgl2.bindOutputTexture(this.mappedInput.glTexture, this.mappedInput.glTextureShape)
       let textures = [x.glTexture, this.rowIndexMap.glTexture, this.colIndexMap.glTexture]
       let textureTypes = ['2d', '2d', '2d']
       let textureNames = ['x', 'rowIndexMap', 'colIndexMap']
@@ -434,7 +434,7 @@ export default class Conv2D extends Layer {
       webgl2.runProgram()
     }
 
-    const input = x.glTextureIsTiled ? this._mappedInput : this._imColsMat
+    const input = x.glTextureIsTiled ? this.mappedInput : this.imColsMat
     const outputTextureShape = [input.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
 
     // create output textures if doesn't already exist
