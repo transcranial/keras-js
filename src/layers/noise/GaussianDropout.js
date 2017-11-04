@@ -28,6 +28,7 @@ export default class GaussianDropout extends Layer {
    * @returns {Tensor}
    */
   call(x) {
-    return x
+    this.output = x
+    return this.output
   }
 }

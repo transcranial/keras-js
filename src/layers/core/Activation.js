@@ -36,7 +36,8 @@ export default class Activation extends Layer {
    */
   call(x) {
     if (this.activation === 'linear') {
-      return x
+      this.output = x
+      return this.output
     }
 
     if (this.gpu) {

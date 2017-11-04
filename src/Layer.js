@@ -46,7 +46,8 @@ export default class Layer {
    * @returns {Tensor}
    */
   call(x) {
-    return x
+    this.output = x
+    return this.output
   }
 
   /**

@@ -26,6 +26,7 @@ export default class GaussianNoise extends Layer {
    * @returns {Tensor}
    */
   call(x) {
-    return x
+    this.output = x
+    return this.output
   }
 }

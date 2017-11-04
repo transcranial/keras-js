@@ -30,6 +30,7 @@ export default class SpatialDropout3D extends Layer {
    * @returns {Tensor}
    */
   call(x) {
-    return x
+    this.output = x
+    return this.output
   }
 }

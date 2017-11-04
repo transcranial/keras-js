@@ -37,7 +37,8 @@ export default class Permute extends Layer {
    */
   call(x) {
     if (x.tensor.shape.length <= 1 || _.isEqual(_.range(x.tensor.shape.length), this.dims)) {
-      return x
+      this.output = x
+      return this.output
     }
 
     if (this.gpu) {
