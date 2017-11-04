@@ -1,4 +1,5 @@
 import { webgl2, MAX_TEXTURE_SIZE } from './WebGL2'
+import * as tensorUtils from './utils/tensorUtils'
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
 import squeeze from 'ndarray-squeeze'
@@ -43,21 +44,6 @@ export default class Tensor {
   }
 
   /**
-   * Replaces data in the underlying ndarray
-   *
-   * @param {number[]} data
-   */
-  replaceTensorData(data) {
-    if (data && data.length && data instanceof this._type) {
-      this.tensor.data = data
-    } else if (data && data.length && data instanceof Array) {
-      this.tensor.data = new this._type(data)
-    } else {
-      throw new Error('[Tensor] invalid input for replaceTensorData method.')
-    }
-  }
-
-  /**
    * Creates WebGL2 texture
    *
    * Without args, defaults to gl.TEXTURE_2D and gl.R32F
@@ -79,78 +65,40 @@ export default class Tensor {
 
     const gl = webgl2.context
 
-    const targetMap = {
-      '2d': gl.TEXTURE_2D,
-      '2d_array': gl.TEXTURE_2D_ARRAY,
-      '3d': gl.TEXTURE_3D
-    }
-
-    const internalFormatMap = {
-      float: gl.R32F,
-      int: gl.R32I
-    }
-
-    const formatMap = {
-      float: gl.RED,
-      int: gl.RED_INTEGER
-    }
-
-    const typeMap = {
-      float: gl.FLOAT,
-      int: gl.INT
-    }
+    const options = webgl2.getWebGLTextureOptions({ type, format })
+    const { textureTarget, textureInternalFormat, textureFormat, textureType } = options
 
     this.glTexture = gl.createTexture()
-    gl.bindTexture(targetMap[type], this.glTexture)
+    gl.bindTexture(textureTarget, this.glTexture)
     if (type === '2d') {
       const data = this.tensor.data
-
-      gl.texImage2D(
-        targetMap[type],
-        0,
-        internalFormatMap[format],
-        shape[1],
-        shape[0],
-        0,
-        formatMap[format],
-        typeMap[format],
-        data
-      )
+      gl.texImage2D(textureTarget, 0, textureInternalFormat, shape[1], shape[0], 0, textureFormat, textureType, data)
     } else if (type === '2d_array' || type === '3d') {
-      // must shuffle data layout for webgl
-      // data for TEXTURE_2D_ARRAY or TEXTURE_3D laid out sequentially per-slice
-      const data = new this._type(this.tensor.data.length)
-      const slice = ndarray(new this._type(shape[0] * shape[1]), [shape[0], shape[1]])
-      let offset = 0
-      for (let i = 0; i < shape[2]; i++) {
-        ops.assign(slice, this.tensor.pick(null, null, i))
-        data.set(slice.data, offset)
-        offset += shape[0] * shape[1]
-      }
-
+      const data = tensorUtils.data3DLayoutForGL(this._type, this.tensor, shape)
       gl.texImage3D(
-        targetMap[type],
+        textureTarget,
         0,
-        internalFormatMap[format],
+        textureInternalFormat,
         shape[1],
         shape[0],
         shape[2],
         0,
-        formatMap[format],
-        typeMap[format],
+        textureFormat,
+        textureType,
         data
       )
     }
 
     this.glTextureShape = shape
+    this.glTextureConfig = { type, format }
 
     // clamp to edge
-    gl.texParameteri(targetMap[type], gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-    gl.texParameteri(targetMap[type], gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 
     // no interpolation
-    gl.texParameteri(targetMap[type], gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-    gl.texParameteri(targetMap[type], gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+    gl.texParameteri(textureTarget, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    gl.texParameteri(textureTarget, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
   }
 
   /**
@@ -161,6 +109,38 @@ export default class Tensor {
       const gl = webgl2.context
       gl.deleteTexture(this.glTexture)
       delete this.glTexture
+    }
+  }
+
+  /**
+   * Replaces data in the underlying ndarray, and the corresponding WebGLTexture if glTexture is present
+   *
+   * @param {number[]} data
+   */
+  replaceTensorData(data) {
+    if (data && data.length && data instanceof this._type) {
+      this.tensor.data = data
+    } else if (data && data.length && data instanceof Array) {
+      this.tensor.data = new this._type(data)
+    } else {
+      throw new Error('[Tensor] invalid input for replaceTensorData method.')
+    }
+
+    if (this.glTexture) {
+      const gl = webgl2.context
+      const { type, format } = this.glTextureConfig
+      const options = webgl2.getWebGLTextureOptions({ type, format })
+      const { textureTarget, textureInternalFormat, textureFormat, textureType } = options
+      gl.bindTexture(textureTarget, this.glTexture)
+
+      const shape = this.tensor.shape
+      if (type === '2d') {
+        const data = this.tensor.data
+        gl.texSubImage2D(textureTarget, 0, 0, 0, shape[1], shape[0], textureFormat, textureType, data, 0)
+      } else if (type === '2d_array' || type === '3d') {
+        const data = tensorUtils.data3DLayoutForGL(this._type, this.tensor, shape)
+        gl.texSubImage3D(textureTarget, 0, 0, 0, 0, shape[1], shape[0], shape[2], textureFormat, textureType, data, 0)
+      }
     }
   }
 

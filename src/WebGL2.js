@@ -221,6 +221,41 @@ class WebGL2 {
     }
     return new Float32Array(out)
   }
+
+  /**
+   * Gets WebGLTexture options constants
+   */
+  getWebGLTextureOptions({ type, format }) {
+    const gl = this.context
+
+    const targetMap = {
+      '2d': gl.TEXTURE_2D,
+      '2d_array': gl.TEXTURE_2D_ARRAY,
+      '3d': gl.TEXTURE_3D
+    }
+
+    const internalFormatMap = {
+      float: gl.R32F,
+      int: gl.R32I
+    }
+
+    const formatMap = {
+      float: gl.RED,
+      int: gl.RED_INTEGER
+    }
+
+    const typeMap = {
+      float: gl.FLOAT,
+      int: gl.INT
+    }
+
+    const textureTarget = targetMap[type]
+    const textureInternalFormat = internalFormatMap[format]
+    const textureFormat = formatMap[format]
+    const textureType = typeMap[format]
+
+    return { textureTarget, textureInternalFormat, textureFormat, textureType }
+  }
 }
 
 const webgl2 = new WebGL2()
