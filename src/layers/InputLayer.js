@@ -1,5 +1,5 @@
 import Layer from '../Layer'
-import isEqual from 'lodash/isEqual'
+import _ from 'lodash'
 
 /**
  * InputLayer layer class
@@ -41,7 +41,7 @@ export default class InputLayer extends Layer {
    */
   _callCPU(x) {
     this.inputShape = x.tensor.shape
-    if (!isEqual(this.inputShape, this.shape)) {
+    if (!_.isEqual(this.inputShape, this.shape)) {
       throw new Error(`[InputLayer] input tensor shape ${x.tensor.shape} does not match specified shape ${this.shape}.`)
     }
     this.output = x
@@ -59,16 +59,16 @@ export default class InputLayer extends Layer {
       this.inputShape = x.originalShape
     }
 
-    if (!isEqual(this.inputShape, this.shape)) {
+    if (!_.isEqual(this.inputShape, this.shape)) {
       throw new Error(`[InputLayer] input tensor shape ${x.tensor.shape} does not match specified shape ${this.shape}.`)
     }
 
     if (!x.glTexture) {
       if (x.tensor.shape.length <= 2) {
-        x.createGLTexture()
+        x.createGLTexture('2d', 'float')
       } else if (x.tensor.shape.length > 2) {
-        x.reshapeTo2D()
-        x.createGLTexture()
+        x.reshapeTo2DSquare()
+        x.createGLTexture('2d', 'float')
       }
     }
 

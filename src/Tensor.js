@@ -3,19 +3,7 @@ import * as tensorUtils from './utils/tensorUtils'
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
 import squeeze from 'ndarray-squeeze'
-
-/**
- * Function to throw error if specified shape is incompatible with data
- *
- * @param {number[]} data
- * @param {number[]} shape
- */
-
-const checkShape = (data, shape) => {
-  if (data.length && shape.length && data.length !== shape.reduce((a, b) => a * b, 1)) {
-    throw new Error('Specified shape incompatible with data.')
-  }
-}
+import _ from 'lodash'
 
 /**
  * Tensor class
@@ -29,17 +17,20 @@ export default class Tensor {
    * @param {Object} [options]
    */
   constructor(data, shape, options = {}) {
-    this._type = options.type || Float32Array
+    this.arrayType = options.type || Float32Array
 
-    if (data && data.length && (data instanceof this._type || data instanceof Array)) {
-      checkShape(data, shape)
-      this.tensor = ndarray(data, shape)
-      this.tensor = ndarray(new this._type(data), shape)
+    if (data && data.length && (data instanceof this.arrayType || data instanceof Array)) {
+      tensorUtils.checkShape(data, shape)
+      if (data instanceof this.arrayType) {
+        this.tensor = ndarray(data, shape)
+      } else if (data instanceof Array) {
+        this.tensor = ndarray(new this.arrayType(data), shape)
+      }
     } else if (!data.length && shape.length) {
       // if shape present but data not provided, initialize with 0s
-      this.tensor = ndarray(new this._type(shape.reduce((a, b) => a * b, 1)), shape)
+      this.tensor = ndarray(new this.arrayType(shape.reduce((a, b) => a * b, 1)), shape)
     } else {
-      this.tensor = ndarray(new this._type([]), [])
+      this.tensor = ndarray(new this.arrayType([]), [])
     }
   }
 
@@ -74,7 +65,7 @@ export default class Tensor {
       const data = this.tensor.data
       gl.texImage2D(textureTarget, 0, textureInternalFormat, shape[1], shape[0], 0, textureFormat, textureType, data)
     } else if (type === '2d_array' || type === '3d') {
-      const data = tensorUtils.data3DLayoutForGL(this._type, this.tensor, shape)
+      const data = tensorUtils.data3DLayoutForGL(this.arrayType, this.tensor, shape)
       gl.texImage3D(
         textureTarget,
         0,
@@ -118,10 +109,10 @@ export default class Tensor {
    * @param {number[]} data
    */
   replaceTensorData(data) {
-    if (data && data.length && data instanceof this._type) {
-      this.tensor.data = data
+    if (data && data.length && data instanceof this.arrayType) {
+      this.tensor.data.set(data)
     } else if (data && data.length && data instanceof Array) {
-      this.tensor.data = new this._type(data)
+      this.tensor.data.set(new this.arrayType(data))
     } else {
       throw new Error('[Tensor] invalid input for replaceTensorData method.')
     }
@@ -138,7 +129,7 @@ export default class Tensor {
         const data = this.tensor.data
         gl.texSubImage2D(textureTarget, 0, 0, 0, shape[1], shape[0], textureFormat, textureType, data, 0)
       } else if (type === '2d_array' || type === '3d') {
-        const data = tensorUtils.data3DLayoutForGL(this._type, this.tensor, shape)
+        const data = tensorUtils.data3DLayoutForGL(this.arrayType, this.tensor, shape)
         gl.texSubImage3D(textureTarget, 0, 0, 0, 0, shape[1], shape[0], shape[2], textureFormat, textureType, data, 0)
       }
     }
@@ -148,7 +139,7 @@ export default class Tensor {
    * Transfer data from webgl texture on GPU to ndarray on CPU
    */
   transferFromGLTexture() {
-    this.tensor = ndarray(new this._type([]), this.glTextureShape)
+    this.tensor = ndarray(new this.arrayType([]), this.glTextureShape)
     this.tensor.data = webgl2.readData(this.glTextureShape)
     if (!this.is2DReshaped && this.glTextureShape[0] === 1) {
       // collapse to 1D
@@ -166,24 +157,31 @@ export default class Tensor {
       axis = this.tensor.shape.length + axis
     }
 
-    const preservedAxisLength = this.tensor.shape[axis]
+    const axisSize = this.tensor.shape[axis]
     const otherAxes = [...this.tensor.shape.slice(0, axis), ...this.tensor.shape.slice(axis + 1)]
     const otherAxesSize = otherAxes.reduce((a, b) => a * b, 1)
-    const reshaped = ndarray(new this._type(otherAxesSize * preservedAxisLength), [otherAxesSize, preservedAxisLength])
-    const otherAxesData = ndarray(new this._type(otherAxesSize), otherAxes)
-    const otherAxesDataRaveled = ndarray(new this._type(otherAxesSize), [otherAxesSize])
+
+    const reshaped = ndarray(new this.arrayType(otherAxesSize * axisSize), [otherAxesSize, axisSize])
+    const indicesRowArr = ndarray(new Int32Array(this.tensor.size), this.tensor.shape)
+    const indicesColArr = ndarray(new Int32Array(this.tensor.size), this.tensor.shape)
+
+    const otherAxesData = ndarray(new this.arrayType(otherAxesSize), otherAxes)
+    const otherAxesDataRaveled = ndarray(new this.arrayType(otherAxesSize), [otherAxesSize])
+    const indicesRowArrSlice = ndarray(new Int32Array(_.range(otherAxesSize)), otherAxes)
     const axisSlices = Array(this.tensor.shape.length).fill(null)
-    for (let n = 0; n < preservedAxisLength; n++) {
+    for (let n = 0; n < axisSize; n++) {
       axisSlices[axis] = n
       ops.assign(otherAxesData, this.tensor.pick(...axisSlices))
       otherAxesDataRaveled.data = otherAxesData.data
       ops.assign(reshaped.pick(null, n), otherAxesDataRaveled)
+      ops.assign(indicesRowArr.pick(...axisSlices), indicesRowArrSlice)
+      ops.assigns(indicesColArr.pick(...axisSlices), n)
     }
 
     this.originalShape = this.tensor.shape
     this.tensor = reshaped
     this.is2DReshaped = true
-    this.preservedAxis = axis
+    this.indicesForReshaped = { row: indicesRowArr, col: indicesColArr }
   }
 
   /**
@@ -209,11 +207,11 @@ export default class Tensor {
     const channelDataSize = this.tensor.shape[0]
     const channels = this.tensor.shape[1]
 
-    const reshaped = ndarray(new this._type(this.originalShape.reduce((a, b) => a * b, 1)), this.originalShape)
-    const channelDataRaveled = ndarray(new this._type(channelDataSize), [channelDataSize])
+    const reshaped = ndarray(new this.arrayType(this.originalShape.reduce((a, b) => a * b, 1)), this.originalShape)
+    const channelDataRaveled = ndarray(new this.arrayType(channelDataSize), [channelDataSize])
     const unraveledChannelShape = [...this.originalShape.slice(0, axis), ...this.originalShape.slice(axis + 1)]
     const unraveledChannel = ndarray(
-      new this._type(unraveledChannelShape.reduce((a, b) => a * b, 1)),
+      new this.arrayType(unraveledChannelShape.reduce((a, b) => a * b, 1)),
       unraveledChannelShape
     )
     const axisSlices = Array(this.originalShape.length).fill(null)
@@ -223,6 +221,51 @@ export default class Tensor {
       axisSlices[axis] = n
       ops.assign(reshaped.pick(...axisSlices), unraveledChannel)
     }
+
+    this.tensor = reshaped
+  }
+
+  /**
+   * Reshapes data into 2D square representation (underlying data remaining contiguous)
+   */
+  reshapeTo2DSquare() {
+    const squareDim = Math.ceil(Math.sqrt(this.tensor.size))
+    const reshaped = ndarray(new this.arrayType(squareDim ** 2), [squareDim, squareDim])
+    reshaped.data.set(this.tensor.data)
+
+    const indicesRowArr = ndarray(new Int32Array(this.tensor.size), this.tensor.shape)
+    const indicesColArr = ndarray(new Int32Array(this.tensor.size), this.tensor.shape)
+    const indicesRowArrReshaped = ndarray(new Int32Array(squareDim ** 2), [squareDim, squareDim])
+    const indicesColArrReshaped = ndarray(new Int32Array(squareDim ** 2), [squareDim, squareDim])
+    for (let i = 0; i < squareDim; i++) {
+      ops.assigns(indicesRowArrReshaped.pick(i, null), i)
+    }
+    for (let j = 0; j < squareDim; j++) {
+      ops.assigns(indicesColArrReshaped.pick(null, j), j)
+    }
+    indicesRowArr.data.set(indicesRowArrReshaped.data.subarray(0, indicesRowArr.size))
+    indicesColArr.data.set(indicesColArrReshaped.data.subarray(0, indicesColArr.size))
+
+    this.originalShape = this.tensor.shape
+    this.tensor = reshaped
+    this.is2DReshaped = true
+    this.indicesForReshaped = { row: indicesRowArr, col: indicesColArr }
+  }
+
+  /**
+   * Reshapes tensor in 2D square representation back to original (underlying data remains contiguous)
+   */
+  reshapeFrom2DSquare() {
+    if (!this.is2DReshaped || this.tensor.shape.length !== 2 || this.tensor.shape[0] !== this.tensor.shape[1]) {
+      throw new Error('Tensor is not in reshaped 2D square representation.')
+    }
+    if (!this.originalShape) {
+      throw new Error('Tensor does not contain originalShape.')
+    }
+
+    const size = this.originalShape.reduce((a, b) => a * b, 1)
+    const reshaped = ndarray(new this.arrayType(size), this.originalShape)
+    reshaped.data.set(this.tensor.data.subarray(0, size))
 
     this.tensor = reshaped
   }

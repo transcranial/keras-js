@@ -2,6 +2,19 @@ import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
 
 /**
+ * Function to throw error if specified shape is incompatible with data
+ *
+ * @param {number[]} data
+ * @param {number[]} shape
+ */
+
+export function checkShape(data, shape) {
+  if (data.length && shape.length && data.length !== shape.reduce((a, b) => a * b, 1)) {
+    throw new Error('Specified shape incompatible with data.')
+  }
+}
+
+/**
  * Shuffle ndarray data layout for WebGL
  * - data for TEXTURE_2D_ARRAY or TEXTURE_3D laid out sequentially per-slice
  *
