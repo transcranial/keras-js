@@ -28,7 +28,7 @@ export default class PReLU extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./PReLU.webgl2.glsl'))
+      this.program = webgl2.compileProgram(require('./PReLU.glsl'))
     }
   }
 

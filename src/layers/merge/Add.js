@@ -20,7 +20,7 @@ export default class Add extends _Merge {
 
     // GPU setup
     if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(require('./Add.webgl2.glsl'))
+      this.mergeProgram = webgl2.compileProgram(require('./Add.glsl'))
     }
   }
 

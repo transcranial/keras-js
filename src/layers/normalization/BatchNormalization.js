@@ -43,7 +43,7 @@ export default class BatchNormalization extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./BatchNormalization.webgl2.glsl'))
+      this.program = webgl2.compileProgram(require('./BatchNormalization.glsl'))
     }
   }
 

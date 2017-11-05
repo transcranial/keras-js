@@ -20,7 +20,7 @@ export default class Average extends _Merge {
 
     // GPU setup
     if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(require('./Average.webgl2.glsl'))
+      this.mergeProgram = webgl2.compileProgram(require('./Average.glsl'))
     }
   }
 

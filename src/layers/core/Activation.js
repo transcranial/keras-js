@@ -24,7 +24,7 @@ export default class Activation extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require(`../../activations/${this.activation}.webgl2.glsl`))
+      this.program = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
     }
   }
 

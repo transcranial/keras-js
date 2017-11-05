@@ -66,9 +66,9 @@ export default class Conv2DTranspose extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.matMulProgram = webgl2.compileProgram(require('../../matMul.webgl2.glsl'))
-      this.convTransposeProgram = webgl2.compileProgram(require('./Conv2DTranspose.webgl2.glsl'))
-      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.webgl2.glsl`))
+      this.matMulProgram = webgl2.compileProgram(require('../../matMul.glsl'))
+      this.convTransposeProgram = webgl2.compileProgram(require('./Conv2DTranspose.glsl'))
+      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
     }
   }
 

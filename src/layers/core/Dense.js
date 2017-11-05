@@ -41,8 +41,8 @@ export default class Dense extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.matMulProgram = webgl2.compileProgram(require('../../matMul.webgl2.glsl'))
-      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.webgl2.glsl`))
+      this.matMulProgram = webgl2.compileProgram(require('../../matMul.glsl'))
+      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
       this.outputPreactiv.createGLTexture()
       this.output.createGLTexture()
     }

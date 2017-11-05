@@ -20,7 +20,7 @@ export default class Multiply extends _Merge {
 
     // GPU setup
     if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(require('./Multiply.webgl2.glsl'))
+      this.mergeProgram = webgl2.compileProgram(require('./Multiply.glsl'))
     }
   }
 

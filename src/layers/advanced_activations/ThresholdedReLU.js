@@ -23,7 +23,7 @@ export default class ThresholdedReLU extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./ThresholdedReLU.webgl2.glsl'))
+      this.program = webgl2.compileProgram(require('./ThresholdedReLU.glsl'))
     }
   }
 

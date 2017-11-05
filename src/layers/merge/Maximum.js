@@ -20,7 +20,7 @@ export default class Maximum extends _Merge {
 
     // GPU setup
     if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(require('./Maximum.webgl2.glsl'))
+      this.mergeProgram = webgl2.compileProgram(require('./Maximum.glsl'))
     }
   }
 

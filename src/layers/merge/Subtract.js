@@ -20,7 +20,7 @@ export default class Subtract extends _Merge {
 
     // GPU setup
     if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(require('./Subtract.webgl2.glsl'))
+      this.mergeProgram = webgl2.compileProgram(require('./Subtract.glsl'))
     }
   }
 

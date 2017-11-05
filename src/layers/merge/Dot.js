@@ -32,7 +32,7 @@ export default class Dot extends _Merge {
 
     // GPU setup
     if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(require('./Dot.webgl2.glsl'))
+      this.mergeProgram = webgl2.compileProgram(require('./Dot.glsl'))
     }
   }
 

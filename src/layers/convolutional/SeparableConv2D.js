@@ -260,7 +260,7 @@ export default class SeparableConv2D extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.webgl2.glsl`))
+      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
     }
   }
 

@@ -30,7 +30,7 @@ export default class Embedding extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./Embedding.webgl2.glsl'))
+      this.program = webgl2.compileProgram(require('./Embedding.glsl'))
     }
   }
 

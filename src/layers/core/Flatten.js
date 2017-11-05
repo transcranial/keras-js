@@ -18,7 +18,7 @@ export default class Flatten extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./Flatten.webgl2.glsl'))
+      this.program = webgl2.compileProgram(require('./Flatten.glsl'))
     }
   }
 

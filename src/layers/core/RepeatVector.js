@@ -25,7 +25,7 @@ export default class RepeatVector extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./RepeatVector.webgl2.glsl'))
+      this.program = webgl2.compileProgram(require('./RepeatVector.glsl'))
     }
   }
 

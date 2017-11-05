@@ -20,7 +20,7 @@ export default class Minimum extends _Merge {
 
     // GPU setup
     if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(require('./Minimum.webgl2.glsl'))
+      this.mergeProgram = webgl2.compileProgram(require('./Minimum.glsl'))
     }
   }
 

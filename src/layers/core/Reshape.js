@@ -24,7 +24,7 @@ export default class Reshape extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.mapInputProgram = webgl2.compileProgram(require('../../mapInput.webgl2.glsl'))
+      this.mapInputProgram = webgl2.compileProgram(require('../../mapInput.glsl'))
     }
   }
 

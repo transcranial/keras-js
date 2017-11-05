@@ -23,7 +23,7 @@ export default class LeakyReLU extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./LeakyReLU.webgl2.glsl'))
+      this.program = webgl2.compileProgram(require('./LeakyReLU.glsl'))
     }
   }
 

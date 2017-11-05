@@ -79,9 +79,9 @@ export default class Conv3D extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.mapInputProgram = webgl2.compileProgram(require('../../mapInput.webgl2.glsl'))
-      this.matMulProgram = webgl2.compileProgram(require('../../matMul.webgl2.glsl'))
-      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.webgl2.glsl`))
+      this.mapInputProgram = webgl2.compileProgram(require('../../mapInput.glsl'))
+      this.matMulProgram = webgl2.compileProgram(require('../../matMul.glsl'))
+      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
     }
   }
 

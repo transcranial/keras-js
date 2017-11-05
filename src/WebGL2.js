@@ -38,7 +38,7 @@ class WebGL2 {
   createCommonVertexShader() {
     const gl = this.context
 
-    const source = require('./vertexShader.webgl2.glsl')
+    const source = require('./vertexShader.glsl')
 
     const vertexShader = gl.createShader(gl.VERTEX_SHADER)
     gl.shaderSource(vertexShader, source)

@@ -41,7 +41,7 @@ export default class _Pooling2D extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.poolingProgram = webgl2.compileProgram(require('./_Pooling.webgl2.glsl'))
+      this.poolingProgram = webgl2.compileProgram(require('./_Pooling.glsl'))
     }
   }
 
