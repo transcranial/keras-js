@@ -1,5 +1,6 @@
 import Layer from '../../Layer'
 import Tensor from '../../Tensor'
+import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
 
 /**
@@ -26,22 +27,67 @@ export default class Embedding extends Layer {
 
     // Layer weights specification
     this.params = ['embeddings']
+
+    // GPU setup
+    if (this.gpu) {
+      this.program = webgl2.compileProgram(require('./Embedding.webgl2.glsl'))
+    }
   }
 
   /**
-   * Method for layer computational logic
+   * Layer computational logic
    *
    * @param {Tensor} x
    * @returns {Tensor}
    */
   call(x) {
-    let y = new Tensor([], [x.tensor.shape[0], this.weights['embeddings'].tensor.shape[1]])
+    if (this.gpu) {
+      this._callGPU(x)
+    } else {
+      this._callCPU(x)
+    }
+    return this.output
+  }
+
+  /**
+   * CPU call
+   *
+   * @param {Tensor} x
+   */
+  _callCPU(x) {
+    this.output = new Tensor([], [x.tensor.shape[0], this.weights['embeddings'].tensor.shape[1]])
 
     for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
-      ops.assign(y.tensor.pick(i, null), this.weights['embeddings'].tensor.pick(x.tensor.get(i), null))
+      ops.assign(this.output.tensor.pick(i, null), this.weights['embeddings'].tensor.pick(x.tensor.get(i), null))
+    }
+  }
+
+  /**
+   * GPU call
+   *
+   * @param {Tensor} x
+   */
+  _callGPU(x) {
+    if (!x.glTexture) {
+      x.createGLTexture()
     }
 
-    x.tensor = y.tensor
-    return x
+    if (!this.output) {
+      this.output = new Tensor([], [x.glTextureShape[1], this.weights['embeddings'].glTextureShape[1]])
+      this.output.createGLTexture()
+    }
+
+    webgl2.selectProgram(this.program)
+    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
+    const textures = [x.glTexture, this.weights['embeddings'].glTexture]
+    const textureTypes = ['2d', '2d']
+    const textureNames = ['x', 'embeddings']
+    webgl2.bindInputTextures(this.program, textures, textureTypes, textureNames)
+    webgl2.runProgram()
+
+    // GPU -> CPU data transfer
+    if (this.outbound.length === 0) {
+      this.output.transferFromGLTexture()
+    }
   }
 }
