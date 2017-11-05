@@ -9,7 +9,7 @@
     </div>
     <div class="columns input-output" v-if="!modelLoading">
       <div class="column is-3 controls-column">
-        <mdl-switch v-model="useGpu" :disabled="modelLoading || !hasWebgl">use GPU</mdl-switch>
+        <mdl-switch v-model="useGPU" :disabled="modelLoading || !hasWebGL">use GPU</mdl-switch>
         <div class="coordinates">
           <div class="coordinates-x">x: {{ inputCoordinates[0] < 0 ? inputCoordinates[0].toFixed(2) : inputCoordinates[0].toFixed(3) }}</div>
           <div class="coordinates-y">y: {{ inputCoordinates[1] < 0 ? inputCoordinates[1].toFixed(2) : inputCoordinates[1].toFixed(3) }}</div>
@@ -17,13 +17,13 @@
       </div>
       <div class="column input-column">
         <div class="input-container">
-          <div class="input-label">Click around the latent space <span class="arrow">⤸</span></div>
+          <div class="input-label">Move around the latent space <span class="arrow">⤸</span></div>
           <div class="canvas-container">
             <canvas
               id="input-canvas" width="200" height="200"
               @mouseenter="activateCrosshairs"
               @mouseleave="deactivateCrosshairs"
-              @mousemove="draw"
+              @mousemove="selectCoordinates"
               @click="selectCoordinates"
               @touchend="selectCoordinates"
             ></canvas>
@@ -42,7 +42,7 @@
       </div>
       <div class="column output-column">
         <div class="output">
-          <canvas id="output-canvas-scaled" width="180" height="180"></canvas>
+          <canvas id="output-canvas-scaled" width="140" height="140"></canvas>
           <canvas id="output-canvas" width="28" height="28" style="display:none;"></canvas>
         </div>
       </div>
@@ -79,6 +79,7 @@
 </template>
 
 <script>
+import _ from 'lodash'
 import * as utils from '../../utils'
 
 const MODEL_FILEPATHS_DEV = {
@@ -104,12 +105,12 @@ const LAYER_DISPLAY_CONFIG = {
 }
 
 export default {
-  props: ['hasWebgl'],
+  props: ['hasWebGL'],
 
   data: function() {
     return {
-      useGpu: this.hasWebgl,
-      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)), // eslint-disable-line
+      useGPU: this.hasWebGL,
+      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebGL, transferLayerOutputs: true }, MODEL_CONFIG)),
       modelLoading: true,
       output: new Float32Array(28 * 28),
       crosshairsActivated: false,
@@ -121,7 +122,7 @@ export default {
   },
 
   watch: {
-    useGpu: function(value) {
+    useGPU: function(value) {
       this.model.toggleGPU(value)
     }
   },
@@ -173,7 +174,7 @@ export default {
     drawPosition: function() {
       const ctx = document.getElementById('input-canvas').getContext('2d')
       ctx.clearRect(0, 0, 200, 200)
-      ctx.fillStyle = 'rgb(57, 62, 70)'
+      ctx.fillStyle = 'rgb(0, 0, 0)'
       ctx.beginPath()
       ctx.arc(...this.position, 5, 0, Math.PI * 2, true)
       ctx.closePath()
@@ -192,15 +193,19 @@ export default {
       const [x, y] = [clientX - left, clientY - top]
       return [x, y]
     },
-    selectCoordinates: function(e) {
-      const [x, y] = this.getEventCanvasCoordinates(e)
-      if (!this.model.isRunning) {
-        this.position = [x, y]
-        this.inputCoordinates = [x * 2 / 200 - 1, y * 2 / 200 - 1]
+    selectCoordinates: _.throttle(
+      function(e) {
         this.draw(e)
-        this.runModel()
-      }
-    },
+        const [x, y] = this.getEventCanvasCoordinates(e)
+        if (!this.model.isRunning) {
+          this.position = [x, y]
+          this.inputCoordinates = [x * 2 / 200 - 1, y * 2 / 200 - 1]
+          this.runModel()
+        }
+      },
+      16,
+      { leading: true, trailing: true }
+    ),
     runModel: function() {
       const inputData = { input_7: new Float32Array(this.inputCoordinates) }
       this.model.predict(inputData).then(outputData => {
@@ -211,33 +216,31 @@ export default {
     },
     drawOutput: function() {
       const ctx = document.getElementById('output-canvas').getContext('2d')
-      const image = utils.image2Darray(this.output, 28, 28, [57, 62, 70])
+      const image = utils.image2Darray(this.output, 28, 28, [0, 0, 0])
       ctx.putImageData(image, 0, 0)
 
       // scale up
       const ctxScaled = document.getElementById('output-canvas-scaled').getContext('2d')
       ctxScaled.save()
-      ctxScaled.scale(180 / 28, 180 / 28)
+      ctxScaled.scale(140 / 28, 140 / 28)
       ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
       ctxScaled.drawImage(document.getElementById('output-canvas'), 0, 0)
       ctxScaled.restore()
     },
     getIntermediateOutputs: function() {
-      let outputs = []
-      for (let [name, layer] of this.model.modelLayersMap.entries()) {
-        const layerClass = layer.layerClass || ''
-        if (layerClass === 'InputLayer') continue
-
+      const outputs = []
+      this.model.modelLayersMap.forEach((layer, name) => {
+        if (layer.layerClass === 'InputLayer') return
         let images = []
-        if (layer.output && layer.output.tensor.shape.length === 3) {
+        if (layer.hasOutput && layer.output && layer.output.tensor.shape.length === 3) {
           images = utils.unroll3Dtensor(layer.output.tensor)
-        } else if (layer.output && layer.output.tensor.shape.length === 2) {
+        } else if (layer.hasOutput && layer.output && layer.output.tensor.shape.length === 2) {
           images = [utils.image2Dtensor(layer.output.tensor)]
-        } else if (layer.output && layer.output.tensor.shape.length === 1) {
+        } else if (layer.hasOutput && layer.output && layer.output.tensor.shape.length === 1) {
           images = [utils.image1Dtensor(layer.output.tensor)]
         }
-        outputs.push({ name, layerClass, images })
-      }
+        outputs.push({ layerClass: layer.layerClass || '', name, images })
+      })
       this.layerOutputImages = outputs
       setTimeout(() => {
         this.showIntermediateOutputs()
@@ -386,6 +389,7 @@ export default {
 
     & .output {
       border-radius: 10px;
+      border: 1px solid gray;
       overflow: hidden;
 
       & canvas {

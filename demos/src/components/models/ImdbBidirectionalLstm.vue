@@ -113,12 +113,12 @@ const ARCHITECTURE_DIAGRAM_LAYERS = [
 ]
 
 export default {
-  props: ['hasWebgl'],
+  props: ['hasWebGL'],
 
   data: function() {
     return {
-      useGpu: false,
-      model: new KerasJS.Model(Object.assign({ gpu: false }, MODEL_CONFIG)), // eslint-disable-line
+      useGPU: false,
+      model: new KerasJS.Model(Object.assign({ gpu: false }, MODEL_CONFIG)),
       modelLoading: true,
       modelRunning: false,
       input: new Float32Array(MAXLEN),

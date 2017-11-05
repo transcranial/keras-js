@@ -30,7 +30,7 @@
         </div>
       </div>
       <div class="column controls-column">
-        <mdl-switch v-model="useGpu" :disabled="modelLoading || !hasWebgl">use GPU</mdl-switch>
+        <mdl-switch v-model="useGPU" :disabled="modelLoading || !hasWebGL">use GPU</mdl-switch>
       </div>
     </div>
     <div class="architecture-container" v-if="!modelLoading">
@@ -69,14 +69,14 @@ const MODEL_FILEPATHS_PROD = {
 const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
 export default {
-  props: ['hasWebgl'],
+  props: ['hasWebGL'],
 
   data: function() {
     return {
-      useGpu: this.hasWebgl,
+      useGPU: this.hasWebGL,
       digit: 6,
       noiseVector: [],
-      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)), // eslint-disable-line
+      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebGL }, MODEL_CONFIG)),
       modelLoading: true,
       output: new Float32Array(28 * 28),
       architectureDiagram: ARCHITECTURE_DIAGRAM,
@@ -86,7 +86,7 @@ export default {
   },
 
   watch: {
-    useGpu: function(value) {
+    useGPU: function(value) {
       this.model.toggleGPU(value)
     }
   },
@@ -181,7 +181,7 @@ export default {
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
       for (let x = 0; x < 10; x++) {
         for (let y = 0; y < 10; y++) {
-          ctx.fillStyle = `rgba(57, 62, 70, ${(this.noiseVector[10 * x + y] + 1) / 2})`
+          ctx.fillStyle = `rgba(0, 0, 0, ${(this.noiseVector[10 * x + y] + 1) / 2})`
           // scale 12x
           ctx.fillRect(12 * x, 12 * y, 12, 12)
         }
@@ -189,7 +189,7 @@ export default {
     },
     drawOutput: function() {
       const ctx = document.getElementById('output-canvas').getContext('2d')
-      const image = utils.image2Darray(this.output, 28, 28, [57, 62, 70])
+      const image = utils.image2Darray(this.output, 28, 28, [0, 0, 0])
       ctx.putImageData(image, 0, 0)
 
       // scale up
@@ -292,6 +292,7 @@ export default {
   & .column.output-column {
     & .output {
       border-radius: 10px;
+      border: 1px solid gray;
       overflow: hidden;
 
       & canvas {
@@ -337,17 +338,17 @@ export default {
           background: whitesmoke;
           border: 2px solid var(--color-green);
           border-radius: 5px;
-          padding: 2px 10px 0px;
+          padding: 2px 5px 0px;
 
           & .layer-class-name {
             color: var(--color-green);
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
           }
 
           & .layer-details {
             color: #999999;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
           }
         }

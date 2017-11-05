@@ -31,7 +31,7 @@
         </div>
       </div>
       <div class="column is-2 controls-column">
-        <mdl-switch v-model="useGpu" :disabled="modelLoading || !hasWebgl">use GPU</mdl-switch>
+        <mdl-switch v-model="useGPU" :disabled="modelLoading || !hasWebGL">use GPU</mdl-switch>
       </div>
       <div class="column output-column">
         <div class="output">
@@ -112,12 +112,12 @@ const LAYER_DISPLAY_CONFIG = {
 }
 
 export default {
-  props: ['hasWebgl'],
+  props: ['hasWebGL'],
 
   data: function() {
     return {
-      useGpu: this.hasWebgl,
-      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl }, MODEL_CONFIG)), // eslint-disable-line
+      useGPU: this.hasWebGL,
+      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebGL, transferLayerOutputs: true }, MODEL_CONFIG)),
       modelLoading: true,
       input: new Float32Array(784),
       output: new Float32Array(10),
@@ -130,7 +130,7 @@ export default {
   },
 
   watch: {
-    useGpu: function(value) {
+    useGPU: function(value) {
       this.model.toggleGPU(value)
     }
   },
@@ -248,22 +248,19 @@ export default {
       { leading: true, trailing: true }
     ),
     getIntermediateOutputs: function() {
-      let outputs = []
-      for (let [name, layer] of this.model.modelLayersMap.entries()) {
-        if (name === 'input') continue
-
-        const layerClass = layer.layerClass || ''
-
+      const outputs = []
+      this.model.modelLayersMap.forEach((layer, name) => {
+        if (name === 'input') return
         let images = []
-        if (layer.output && layer.output.tensor.shape.length === 3) {
+        if (layer.hasOutput && layer.output && layer.output.tensor.shape.length === 3) {
           images = utils.unroll3Dtensor(layer.output.tensor)
-        } else if (layer.output && layer.output.tensor.shape.length === 2) {
+        } else if (layer.hasOutput && layer.output && layer.output.tensor.shape.length === 2) {
           images = [utils.image2Dtensor(layer.output.tensor)]
-        } else if (layer.output && layer.output.tensor.shape.length === 1) {
+        } else if (layer.hasOutput && layer.output && layer.output.tensor.shape.length === 1) {
           images = [utils.image1Dtensor(layer.output.tensor)]
         }
-        outputs.push({ name, layerClass, images })
-      }
+        outputs.push({ layerClass: layer.layerClass || '', name, images })
+      })
       this.layerOutputImages = outputs
       setTimeout(() => {
         this.showIntermediateOutputs()

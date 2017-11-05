@@ -2,11 +2,11 @@
   <div id="app" class="container">
     <div class="columns">
       <div class="column is-3" style="min-width: 350px; max-width: 450px;">
-        <main-menu :current-view="currentView"></main-menu>
-        <info-panel :current-view="currentView"></info-panel>
+        <main-menu :currentView="currentView"></main-menu>
+        <info-panel :currentView="currentView"></info-panel>
       </div>
       <div class="column is-9">
-        <router-view :has-webgl="hasWebgl"></router-view>
+        <router-view :hasWebGL="hasWebGL"></router-view>
       </div>
     </div>
   </div>
@@ -19,7 +19,7 @@ import InfoPanel from './components/InfoPanel'
 export default {
   components: { MainMenu, InfoPanel },
   data: function() {
-    return { hasWebgl: true }
+    return { hasWebGL: true }
   },
   computed: {
     currentView: function() {
@@ -31,9 +31,9 @@ export default {
     const canvas = document.createElement('canvas')
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
     if (gl && gl instanceof WebGLRenderingContext) {
-      this.hasWebgl = true
+      this.hasWebGL = true
     } else {
-      this.hasWebgl = false
+      this.hasWebGL = false
     }
   }
 }

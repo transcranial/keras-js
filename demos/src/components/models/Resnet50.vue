@@ -28,7 +28,7 @@
         </div>
       </div>
       <div class="controls">
-        <mdl-switch v-model="useGpu" :disabled="modelLoading || modelRunning || !hasWebgl">Use GPU</mdl-switch>
+        <mdl-switch v-model="useGPU" :disabled="modelLoading || modelRunning || !hasWebGL">Use GPU</mdl-switch>
         <mdl-switch v-model="showComputationFlow" :disabled="modelLoading || modelRunning">Show computation flow</mdl-switch>
       </div>
     </div>
@@ -102,13 +102,13 @@ const MODEL_FILEPATHS_PROD = {
 const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
 export default {
-  props: ['hasWebgl'],
+  props: ['hasWebGL'],
 
   data: function() {
     return {
-      useGpu: this.hasWebgl,
-      showComputationFlow: true,
-      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebgl, layerCallPauses: true }, MODEL_CONFIG)),
+      useGPU: this.hasWebGL,
+      showComputationFlow: false,
+      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebGL, layerCallPauses: false }, MODEL_CONFIG)),
       modelLoading: true,
       modelRunning: false,
       imageURLInput: '',
@@ -128,7 +128,7 @@ export default {
       this.imageURLInput = value
       this.loadImageToCanvas(value)
     },
-    useGpu: function(value) {
+    useGPU: function(value) {
       this.model.toggleGPU(value)
     },
     showComputationFlow: function(value) {
@@ -458,17 +458,17 @@ export default {
           background: whitesmoke;
           border: 2px solid whitesmoke;
           border-radius: 5px;
-          padding: 2px 10px 0px;
+          padding: 2px 5px 0px;
 
           & .layer-class-name {
             color: var(--color-green);
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
           }
 
           & .layer-details {
             color: #999999;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
           }
         }

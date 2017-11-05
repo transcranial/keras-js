@@ -1411,13 +1411,12 @@ export const ARCHITECTURE_DIAGRAM = [
   // final
   {
     name: 'avg_pool',
-    className: 'AveragePooling2D',
-    details: '8x8 pool size, 8x8 strides, padding valid',
+    className: 'GlobalAveragePooling2D',
+    details: 'along channel axis',
     row: 109,
     col: 3
   },
-  { name: 'flatten', className: 'Flatten', details: '', row: 110, col: 3 },
-  { name: 'predictions', className: 'Dense', details: 'output dimensions 1000, softmax activation', row: 111, col: 3 }
+  { name: 'predictions', className: 'Dense', details: 'output dimensions 1000, softmax activation', row: 110, col: 3 }
 ]
 
 export const ARCHITECTURE_CONNECTIONS = [
