@@ -66,8 +66,8 @@ export default class Reshape extends Layer {
       return
     }
 
-    const indicesRow = new Tensor([], inputShape)
-    const indicesCol = new Tensor([], inputShape)
+    const indicesRow = new Tensor([], inputShape, { type: Int32Array })
+    const indicesCol = new Tensor([], inputShape, { type: Int32Array })
 
     if (inputShape.length === 2) {
       for (let i = 0; i < inputShape[0]; i++) {
