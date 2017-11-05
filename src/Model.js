@@ -3,6 +3,7 @@ import axios from 'axios'
 import _ from 'lodash'
 import * as layers from './layers'
 import Tensor from './Tensor'
+import { webgl2 } from './WebGL2'
 
 const axiosSource = axios.CancelToken.source()
 
@@ -22,7 +23,14 @@ export default class Model {
    * @param {boolean} [config.layerCallPauses] - force next tick after each layer call
    */
   constructor(config = {}) {
-    const { filepaths = {}, headers = {}, filesystem = false, gpu = false, layerCallPauses = false } = config
+    const {
+      filepaths = {},
+      headers = {},
+      filesystem = false,
+      gpu = false,
+      transferLayerOutputs = false,
+      layerCallPauses = false
+    } = config
 
     if (!filepaths.model || !filepaths.weights || !filepaths.metadata) {
       throw new Error('File paths must be declared for model, weights, and metadata.')
@@ -36,11 +44,6 @@ export default class Model {
     // specifies that data files are from local file system
     // only in node
     this.filesystem = typeof window !== 'undefined' ? false : filesystem
-
-    // flag to enable GPU where possible (disable in node environment)
-    this.gpu = typeof window !== 'undefined' ? gpu : false
-    // flag to enable 0 ms pauses after layer computation calls
-    this.layerCallPauses = layerCallPauses
 
     this.data = {
       // object representing the model architecture configuration,
@@ -58,15 +61,28 @@ export default class Model {
     // data request progress
     this.dataRequestProgress = { model: 0, weights: 0, metadata: 0 }
 
+    // flag to enable GPU where possible (disable in node environment)
+    this.gpu = typeof window !== 'undefined' ? gpu : false
+
+    // in GPU mode, transfer intermediate outputs of each layer from GPU->CPU (warning: decreases performance)
+    this.transferLayerOutputs = transferLayerOutputs
+
+    // flag to enable 0 ms pauses after layer computation calls
+    this.layerCallPauses = layerCallPauses
+
     // map of model layers
     this.modelLayersMap = new Map()
+
     // map of input tensors
     this.inputTensorsMap = new Map()
+
     // names of input and output layers
     this.inputLayerNames = []
     this.outputLayerNames = []
+
     // array of model layer names with finished output
     this.finishedLayerNames = []
+
     // flag while computations are being performed
     this.isRunning = false
 
@@ -123,6 +139,13 @@ export default class Model {
     this.layerCallPauses = false
     await this._traverseDAG(this.inputLayerNames)
     this.layerCallPauses = _layerCallPauses
+
+    // reset hasOutput and visited flags in all layers
+    this.finishedLayerNames = []
+    this.modelLayersMap.forEach(layer => {
+      layer.hasOutput = false
+      layer.visited = false
+    })
 
     return true
   }
@@ -206,6 +229,17 @@ export default class Model {
     }
     this.modelLayersMap.forEach(layer => {
       layer.toggleGPU(this.gpu)
+    })
+    this.resetInputTensors()
+  }
+
+  /**
+   * Resets input tensors
+   */
+  resetInputTensors() {
+    this.inputLayerNames.forEach(name => {
+      const inputLayer = this.modelLayersMap.get(name)
+      this.inputTensorsMap.set(name, new Tensor([], inputLayer.shape))
     })
   }
 
@@ -304,9 +338,8 @@ export default class Model {
     let layer
     if (layerClass === 'Bidirectional' || layerClass === 'TimeDistributed') {
       // create wrapper layers
-      const wrappedLayerConfig = layerConfig.layer.config
       const wrappedLayerClass = layerConfig.layer.class_name
-      wrappedLayerConfig.gpu = this.gpu
+      const wrappedLayerConfig = Object.assign({}, layerConfig.layer.config, { gpu: this.gpu })
       layer = new layers[layerClass](
         Object.assign({}, layerConfig, { layer: new layers[wrappedLayerClass](wrappedLayerConfig) })
       )
@@ -413,6 +446,23 @@ export default class Model {
   }
 
   /**
+   * Transfer intermediate outputs if specified, only in GPU mode and if transferLayerOutputs is set to true
+   */
+  _maybeTransferIntermediateOutputs() {
+    if (this.gpu && this.transferLayerOutputs) {
+      this.modelLayersMap.forEach(layer => {
+        if (layer.output && layer.output.glTexture) {
+          webgl2.bindOutputTexture(layer.output.glTexture, layer.output.glTextureShape)
+          layer.output.transferFromGLTexture()
+          if (layer.output.is2DReshaped) {
+            layer.output.reshapeFrom2D()
+          }
+        }
+      })
+    }
+  }
+
+  /**
    * Load data to input layer nodes
    *
    * @param {Object} inputData - object where the keys are the named inputs of the model,
@@ -462,6 +512,9 @@ export default class Model {
 
     // start traversing DAG at inputs
     await this._traverseDAG(this.inputLayerNames)
+
+    // transfer intermediate outputs if specified
+    this._maybeTransferIntermediateOutputs()
 
     // outputs are layers with no outbound nodes
     const modelClass = this.data.model.class_name
