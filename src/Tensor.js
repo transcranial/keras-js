@@ -124,7 +124,7 @@ export default class Tensor {
       const { textureTarget, textureInternalFormat, textureFormat, textureType } = options
       gl.bindTexture(textureTarget, this.glTexture)
 
-      const shape = this.tensor.shape
+      const shape = this.glTextureShape
       if (type === '2d') {
         const data = this.tensor.data
         gl.texSubImage2D(textureTarget, 0, 0, 0, shape[1], shape[0], textureFormat, textureType, data, 0)
