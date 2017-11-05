@@ -76,8 +76,8 @@ export default class Permute extends Layer {
       return
     }
 
-    let indicesRow = new Tensor([], inputShape)
-    let indicesCol = new Tensor([], inputShape)
+    const indicesRow = new Tensor([], inputShape)
+    const indicesCol = new Tensor([], inputShape)
 
     if (inputShape.length === 2) {
       for (let i = 0; i < inputShape[0]; i++) {

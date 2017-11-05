@@ -328,23 +328,30 @@ export default class Conv2D extends Layer {
    * than needing to reshape to the 3D reprentation and calling im2col.
    *
    * @param {number[]} inputShape
+   * @param {Object} indicesForReshaped
    */
-  _createIndexMap(inputShape) {
+  _createIndexMap(inputShape, indicesForReshaped = {}) {
     if (this.rowIndexMap && this.colIndexMap) {
       return
     }
 
     let [inputRows, inputCols, inputChannels] = inputShape
 
-    let indicesRow = new Tensor([], inputShape)
-    let indicesCol = new Tensor([], inputShape)
-    for (let i = 0; i < inputRows; i++) {
-      for (let j = 0; j < inputCols; j++) {
-        ops.assigns(indicesRow.tensor.pick(i, j, null), i * inputCols + j)
+    let indicesRow, indicesCol
+    if (indicesForReshaped.row && indicesForReshaped.col) {
+      indicesRow = new Tensor(indicesForReshaped.row.data, indicesForReshaped.row.shape, { type: Int32Array })
+      indicesCol = new Tensor(indicesForReshaped.col.data, indicesForReshaped.col.shape, { type: Int32Array })
+    } else {
+      indicesRow = new Tensor([], inputShape, { type: Int32Array })
+      indicesCol = new Tensor([], inputShape, { type: Int32Array })
+      for (let i = 0; i < inputRows; i++) {
+        for (let j = 0; j < inputCols; j++) {
+          ops.assigns(indicesRow.tensor.pick(i, j, null), i * inputCols + j)
+        }
       }
-    }
-    for (let c = 0; c < inputChannels; c++) {
-      ops.assigns(indicesCol.tensor.pick(null, null, c), c)
+      for (let c = 0; c < inputChannels; c++) {
+        ops.assigns(indicesCol.tensor.pick(null, null, c), c)
+      }
     }
 
     // padding for border mode 'same'
@@ -411,7 +418,7 @@ export default class Conv2D extends Layer {
     if (x.is2DReshaped) {
       this.inputShape = x.originalShape
       this._calcOutputShape(this.inputShape)
-      this._createIndexMap(this.inputShape)
+      this._createIndexMap(this.inputShape, x.indicesForReshaped)
       if (!this.mappedInput) {
         this.mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
         this.mappedInput.createGLTexture()
