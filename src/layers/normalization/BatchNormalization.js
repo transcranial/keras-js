@@ -150,6 +150,7 @@ export default class BatchNormalization extends Layer {
       } else if (x.is2DReshaped) {
         this.output.is2DReshaped = x.is2DReshaped
         this.output.originalShape = x.originalShape
+        this.output.indicesForReshaped = x.indicesForReshaped
       }
     }
 

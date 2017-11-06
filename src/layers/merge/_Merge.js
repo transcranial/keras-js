@@ -121,6 +121,7 @@ export default class _Merge extends Layer {
       } else if (inputs[0].is2DReshaped) {
         this.output.is2DReshaped = inputs[0].is2DReshaped
         this.output.originalShape = inputs[0].originalShape
+        this.output.indicesForReshaped = inputs[0].indicesForReshaped
       }
     }
 
