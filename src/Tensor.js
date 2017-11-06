@@ -46,6 +46,7 @@ export default class Tensor {
     let shape = []
     if (this.tensor.shape.length === 1) {
       shape = [1, this.tensor.shape[0]]
+      this.is1D = true
     } else if (this.tensor.shape.length === 2) {
       shape = this.tensor.shape
     } else if (this.tensor.shape.length === 3 && ['2d_array', '3d'].includes(type)) {
@@ -141,7 +142,7 @@ export default class Tensor {
   transferFromGLTexture() {
     this.tensor = ndarray(new this.arrayType([]), this.glTextureShape)
     this.tensor.data = webgl2.readData(this.glTextureShape)
-    if (!this.is2DReshaped && this.glTextureShape[0] === 1) {
+    if (this.is1D && this.glTextureShape[0] === 1) {
       // collapse to 1D
       this.tensor = squeeze(this.tensor, [0])
     }
