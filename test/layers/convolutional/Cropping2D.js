@@ -6,109 +6,80 @@ describe('convolutional layer: Cropping2D', function() {
   const approxEquals = KerasJS.testUtils.approxEquals
   const layers = KerasJS.layers
 
+  const testParams = [
+    { inputShape: [3, 5, 4], attrs: { cropping: [[1, 1], [1, 1]], data_format: 'channels_last' } },
+    { inputShape: [3, 5, 4], attrs: { cropping: [[1, 1], [1, 1]], data_format: 'channels_first' } },
+    { inputShape: [8, 7, 6], attrs: { cropping: [[4, 2], [3, 1]], data_format: 'channels_last' } },
+    { inputShape: [8, 7, 6], attrs: { cropping: [[4, 2], [3, 1]], data_format: 'channels_first' } },
+    { inputShape: [8, 7, 6], attrs: { cropping: [2, 3], data_format: 'channels_last' } },
+    { inputShape: [8, 7, 6], attrs: { cropping: 1, data_format: 'channels_last' } }
+  ]
+
   before(function() {
     console.log('\n%cconvolutional layer: Cropping2D', styles.h1)
   })
 
-  it(`[convolutional.Cropping2D.0] cropping ((1,1),(1,1)) on 3x5x4 input, data_format='channels_last'`, function() {
-    const key = `convolutional.Cropping2D.0`
-    console.log(`\n%c[${key}] cropping ((1,1),(1,1)) on 3x5x4 input, data_format='channels_last'`, styles.h3)
-    let testLayer = new layers.Cropping2D({ cropping: [[1, 1], [1, 1]], data_format: 'channels_last' })
-    let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-    console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-    const startTime = performance.now()
-    t = testLayer.call(t)
-    const endTime = performance.now()
-    console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-    logTime(startTime, endTime)
-    const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-    const shapeExpected = TEST_DATA[key].expected.shape
-    assert.deepEqual(t.tensor.shape, shapeExpected)
-    assert.isTrue(approxEquals(t.tensor, dataExpected))
+  /*********************************************************
+  * CPU
+  *********************************************************/
+  describe('CPU', function() {
+    before(function() {
+      console.log('\n%cCPU', styles.h2)
+    })
+
+    testParams.forEach(({ inputShape, attrs }, i) => {
+      const key = `convolutional.Cropping2D.${i}`
+      const title = `[${key}] [CPU] cropping ${JSON.stringify(attrs.cropping)} on ${JSON.stringify(
+        inputShape
+      )} input, data_format='${attrs.data_format}'`
+
+      it(title, function() {
+        console.log(`\n%c${title}`, styles.h3)
+        let testLayer = new layers.Cropping2D(attrs)
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+        console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+        const startTime = performance.now()
+        t = testLayer.call(t)
+        const endTime = performance.now()
+        console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+        logTime(startTime, endTime)
+        const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
+        const shapeExpected = TEST_DATA[key].expected.shape
+        assert.deepEqual(t.tensor.shape, shapeExpected)
+        assert.isTrue(approxEquals(t.tensor, dataExpected))
+      })
+    })
   })
 
-  it(`[convolutional.Cropping2D.1] cropping ((1,1),(1,1)) on 3x5x4 input, data_format='channels_first'`, function() {
-    const key = `convolutional.Cropping2D.1`
-    console.log(`\n%c[${key}] cropping ((1,1),(1,1)) on 3x5x4 input, data_format='channels_first'`, styles.h3)
-    let testLayer = new layers.Cropping2D({ cropping: [[1, 1], [1, 1]], data_format: 'channels_first' })
-    let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-    console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-    const startTime = performance.now()
-    t = testLayer.call(t)
-    const endTime = performance.now()
-    console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-    logTime(startTime, endTime)
-    const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-    const shapeExpected = TEST_DATA[key].expected.shape
-    assert.deepEqual(t.tensor.shape, shapeExpected)
-    assert.isTrue(approxEquals(t.tensor, dataExpected))
-  })
+  /*********************************************************
+  * GPU
+  *********************************************************/
+  describe('GPU', function() {
+    before(function() {
+      console.log('\n%cGPU', styles.h2)
+    })
 
-  it(`[convolutional.Cropping2D.2] cropping ((4,2),(3,1)) on 8x7x6 input, data_format='channels_last'`, function() {
-    const key = `convolutional.Cropping2D.2`
-    console.log(`\n%c[${key}] cropping ((4,2),(3,1)) on 8x7x6 input, data_format='channels_last'`, styles.h3)
-    let testLayer = new layers.Cropping2D({ cropping: [[4, 2], [3, 1]], data_format: 'channels_last' })
-    let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-    console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-    const startTime = performance.now()
-    t = testLayer.call(t)
-    const endTime = performance.now()
-    console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-    logTime(startTime, endTime)
-    const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-    const shapeExpected = TEST_DATA[key].expected.shape
-    assert.deepEqual(t.tensor.shape, shapeExpected)
-    assert.isTrue(approxEquals(t.tensor, dataExpected))
-  })
+    testParams.forEach(({ inputShape, attrs }, i) => {
+      const key = `convolutional.Cropping2D.${i}`
+      const title = `[${key}] [GPU] cropping ${JSON.stringify(attrs.cropping)} on ${JSON.stringify(
+        inputShape
+      )} input, data_format='${attrs.data_format}'`
 
-  it(`[convolutional.Cropping2D.3] cropping ((4,2),(3,1)) on 8x7x6 input, data_format='channels_first'`, function() {
-    const key = `convolutional.Cropping2D.3`
-    console.log(`\n%c[${key}] cropping ((4,2),(3,1)) on 8x7x6 input, data_format='channels_first'`, styles.h3)
-    let testLayer = new layers.Cropping2D({ cropping: [[4, 2], [3, 1]], data_format: 'channels_first' })
-    let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-    console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-    const startTime = performance.now()
-    t = testLayer.call(t)
-    const endTime = performance.now()
-    console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-    logTime(startTime, endTime)
-    const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-    const shapeExpected = TEST_DATA[key].expected.shape
-    assert.deepEqual(t.tensor.shape, shapeExpected)
-    assert.isTrue(approxEquals(t.tensor, dataExpected))
-  })
-
-  it(`[convolutional.Cropping2D.4] cropping (2,3) on 8x7x6 input, data_format='channels_last'`, function() {
-    const key = `convolutional.Cropping2D.4`
-    console.log(`\n%c[${key}] cropping (2,3) on 8x7x6 input, data_format='channels_last'`, styles.h3)
-    let testLayer = new layers.Cropping2D({ cropping: [2, 3], data_format: 'channels_last' })
-    let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-    console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-    const startTime = performance.now()
-    t = testLayer.call(t)
-    const endTime = performance.now()
-    console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-    logTime(startTime, endTime)
-    const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-    const shapeExpected = TEST_DATA[key].expected.shape
-    assert.deepEqual(t.tensor.shape, shapeExpected)
-    assert.isTrue(approxEquals(t.tensor, dataExpected))
-  })
-
-  it(`[convolutional.Cropping2D.5] cropping 1 on 8x7x6 input, data_format='channels_last'`, function() {
-    const key = `convolutional.Cropping2D.5`
-    console.log(`\n%c[${key}] cropping 1 on 8x7x6 input, data_format='channels_last'`, styles.h3)
-    let testLayer = new layers.Cropping2D({ cropping: 1, data_format: 'channels_last' })
-    let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
-    console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
-    const startTime = performance.now()
-    t = testLayer.call(t)
-    const endTime = performance.now()
-    console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
-    logTime(startTime, endTime)
-    const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
-    const shapeExpected = TEST_DATA[key].expected.shape
-    assert.deepEqual(t.tensor.shape, shapeExpected)
-    assert.isTrue(approxEquals(t.tensor, dataExpected))
+      it(title, function() {
+        console.log(`\n%c${title}`, styles.h3)
+        let testLayer = new layers.Cropping2D(Object.assign(attrs, { gpu: true }))
+        let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
+        console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
+        const startTime = performance.now()
+        t = testLayer.call(t)
+        const endTime = performance.now()
+        console.log('%cout', styles.h4, stringifyCondensed(t.tensor))
+        logTime(startTime, endTime)
+        const dataExpected = new Float32Array(TEST_DATA[key].expected.data)
+        const shapeExpected = TEST_DATA[key].expected.shape
+        assert.deepEqual(t.tensor.shape, shapeExpected)
+        assert.isTrue(approxEquals(t.tensor, dataExpected))
+      })
+    })
   })
 })
