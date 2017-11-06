@@ -163,26 +163,21 @@ export default class Tensor {
     const otherAxesSize = otherAxes.reduce((a, b) => a * b, 1)
 
     const reshaped = ndarray(new this.arrayType(otherAxesSize * axisSize), [otherAxesSize, axisSize])
-    const indicesRowArr = ndarray(new Int32Array(this.tensor.size), this.tensor.shape)
-    const indicesColArr = ndarray(new Int32Array(this.tensor.size), this.tensor.shape)
 
     const otherAxesData = ndarray(new this.arrayType(otherAxesSize), otherAxes)
     const otherAxesDataRaveled = ndarray(new this.arrayType(otherAxesSize), [otherAxesSize])
-    const indicesRowArrSlice = ndarray(new Int32Array(_.range(otherAxesSize)), otherAxes)
     const axisSlices = Array(this.tensor.shape.length).fill(null)
     for (let n = 0; n < axisSize; n++) {
       axisSlices[axis] = n
       ops.assign(otherAxesData, this.tensor.pick(...axisSlices))
       otherAxesDataRaveled.data = otherAxesData.data
       ops.assign(reshaped.pick(null, n), otherAxesDataRaveled)
-      ops.assign(indicesRowArr.pick(...axisSlices), indicesRowArrSlice)
-      ops.assigns(indicesColArr.pick(...axisSlices), n)
     }
 
     this.originalShape = this.tensor.shape
+    this.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.tensor.shape, false, axis)
     this.tensor = reshaped
     this.is2DReshaped = true
-    this.indicesForReshaped = { row: indicesRowArr, col: indicesColArr }
   }
 
   /**
@@ -248,9 +243,9 @@ export default class Tensor {
     indicesColArr.data.set(indicesColArrReshaped.data.subarray(0, indicesColArr.size))
 
     this.originalShape = this.tensor.shape
+    this.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.tensor.shape, true)
     this.tensor = reshaped
     this.is2DReshaped = true
-    this.indicesForReshaped = { row: indicesRowArr, col: indicesColArr }
   }
 
   /**
