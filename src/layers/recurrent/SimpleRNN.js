@@ -61,6 +61,21 @@ export default class SimpleRNN extends Layer {
     }
   }
 
+  /**
+   * Layer computational logic
+   *
+   * @param {Tensor} x
+   * @returns {Tensor}
+   */
+  call(x) {
+    if (this.gpu) {
+      this._callGPU(x)
+    } else {
+      this._callCPU(x)
+    }
+    return this.output
+  }
+
   _combine = cwise({
     args: ['array', 'array', 'array', 'array'],
     body: function(_y, _x1, _x2, _b) {
@@ -69,32 +84,26 @@ export default class SimpleRNN extends Layer {
   })
 
   /**
-   * Method for layer computational logic
+   * CPU call
    *
    * @param {Tensor} x
-   * @returns {Tensor}
    */
-  call(x) {
-    let currentX = new Tensor([], [x.tensor.shape[1]])
-
+  _callCPU(x) {
     const dimHiddenState = this.units
-    let currentHiddenState =
+    const currentHiddenState =
       this.stateful && this.currentHiddenState ? this.currentHiddenState : new Tensor([], [dimHiddenState])
-    let tempXH = new Tensor([], [dimHiddenState])
-    let tempHH = new Tensor([], [dimHiddenState])
-    let previousHiddenState = new Tensor([], [dimHiddenState])
+    const tempXH = new Tensor([], [dimHiddenState])
+    const tempHH = new Tensor([], [dimHiddenState])
+    const previousHiddenState = new Tensor([], [dimHiddenState])
 
     this.hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimHiddenState])
 
-    const _clearTemp = () => {
-      const tempTensors = [tempXH, tempHH]
-      tempTensors.forEach(temp => ops.assigns(temp.tensor, 0))
-    }
+    const current = new Tensor([], [x.tensor.shape[1]])
 
     const _step = () => {
       ops.assign(previousHiddenState.tensor, currentHiddenState.tensor)
 
-      gemv(1, this.weights['kernel'].tensor.transpose(1, 0), currentX.tensor, 1, tempXH.tensor)
+      gemv(1, this.weights['kernel'].tensor.transpose(1, 0), current.tensor, 1, tempXH.tensor)
       gemv(1, this.weights['recurrent_kernel'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHH.tensor)
       this._combine(currentHiddenState.tensor, tempXH.tensor, tempHH.tensor, this.weights['bias'].tensor)
       this.activationFunc(currentHiddenState)
@@ -102,8 +111,13 @@ export default class SimpleRNN extends Layer {
 
     for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
       const inputIndex = this.goBackwards ? len - i - 1 : i
-      ops.assign(currentX.tensor, x.tensor.pick(inputIndex, null))
-      _clearTemp()
+      ops.assign(current.tensor, x.tensor.pick(inputIndex, null))
+
+      // clear temp tensors
+      const tempTensors = [tempXH, tempHH]
+      tempTensors.forEach(temp => ops.assigns(temp.tensor, 0))
+
+      // advance timestep
       _step()
 
       if (this.returnSequences) {
@@ -112,15 +126,20 @@ export default class SimpleRNN extends Layer {
     }
 
     if (this.returnSequences) {
-      x.tensor = this.hiddenStateSequence.tensor
+      this.output = this.hiddenStateSequence
     } else {
-      x.tensor = currentHiddenState.tensor
+      this.output = currentHiddenState
     }
 
     if (this.stateful) {
       this.currentHiddenState = currentHiddenState
     }
-
-    return x
   }
+
+  /**
+   * GPU call
+   *
+   * @param {Tensor} x
+   */
+  _callGPU(x) {}
 }

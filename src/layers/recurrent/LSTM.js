@@ -117,6 +117,21 @@ export default class LSTM extends Layer {
     }
   }
 
+  /**
+   * Layer computational logic
+   *
+   * @param {Tensor} x
+   * @returns {Tensor}
+   */
+  call(x) {
+    if (this.gpu) {
+      this._callGPU(x)
+    } else {
+      this._callCPU(x)
+    }
+    return this.output
+  }
+
   _combine = cwise({
     args: ['array', 'array', 'array', 'array'],
     body: function(_y, _x1, _x2, _b) {
@@ -132,67 +147,61 @@ export default class LSTM extends Layer {
   })
 
   /**
-   * Method for layer computational logic
+   * CPU call
    *
    * @param {Tensor} x
-   * @returns {Tensor}
    */
-  call(x) {
-    let currentX = new Tensor([], [x.tensor.shape[1]])
-
+  _callCPU(x) {
     const dimInputGate = this.weights['b_i'].tensor.shape[0]
     const dimCandidate = this.weights['b_c'].tensor.shape[0]
     const dimForgetGate = this.weights['b_f'].tensor.shape[0]
     const dimOutputGate = this.weights['b_o'].tensor.shape[0]
 
-    let currentInputGateState = new Tensor([], [dimInputGate])
-    let tempXI = new Tensor([], [dimInputGate])
-    let tempHI = new Tensor([], [dimInputGate])
+    const currentInputGateState = new Tensor([], [dimInputGate])
+    const tempXI = new Tensor([], [dimInputGate])
+    const tempHI = new Tensor([], [dimInputGate])
 
-    let currentForgetGateState = new Tensor([], [dimForgetGate])
-    let tempXF = new Tensor([], [dimForgetGate])
-    let tempHF = new Tensor([], [dimForgetGate])
+    const currentForgetGateState = new Tensor([], [dimForgetGate])
+    const tempXF = new Tensor([], [dimForgetGate])
+    const tempHF = new Tensor([], [dimForgetGate])
 
-    let currentOutputGateState = new Tensor([], [dimOutputGate])
-    let tempXO = new Tensor([], [dimOutputGate])
-    let tempHO = new Tensor([], [dimOutputGate])
+    const currentOutputGateState = new Tensor([], [dimOutputGate])
+    const tempXO = new Tensor([], [dimOutputGate])
+    const tempHO = new Tensor([], [dimOutputGate])
 
-    let currentCandidate = new Tensor([], [dimCandidate])
-    let tempXC = new Tensor([], [dimCandidate])
-    let tempHC = new Tensor([], [dimCandidate])
-    let previousCandidate =
+    const currentCandidate = new Tensor([], [dimCandidate])
+    const tempXC = new Tensor([], [dimCandidate])
+    const tempHC = new Tensor([], [dimCandidate])
+    const previousCandidate =
       this.stateful && this.previousCandidate ? this.previousCandidate : new Tensor([], [dimCandidate])
 
-    let currentHiddenState =
+    const currentHiddenState =
       this.stateful && this.currentHiddenState ? this.currentHiddenState : new Tensor([], [dimCandidate])
-    let previousHiddenState = new Tensor([], [dimCandidate])
+    const previousHiddenState = new Tensor([], [dimCandidate])
 
     this.hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimCandidate])
 
-    const _clearTemp = () => {
-      const tempTensors = [tempXI, tempHI, tempXF, tempHF, tempXO, tempHO, tempXC, tempHC]
-      tempTensors.forEach(temp => ops.assigns(temp.tensor, 0))
-    }
+    const current = new Tensor([], [x.tensor.shape[1]])
 
     const _step = () => {
       ops.assign(previousHiddenState.tensor, currentHiddenState.tensor)
 
-      gemv(1, this.weights['W_i'].tensor.transpose(1, 0), currentX.tensor, 1, tempXI.tensor)
+      gemv(1, this.weights['W_i'].tensor.transpose(1, 0), current.tensor, 1, tempXI.tensor)
       gemv(1, this.weights['U_i'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHI.tensor)
       this._combine(currentInputGateState.tensor, tempXI.tensor, tempHI.tensor, this.weights['b_i'].tensor)
       this.recurrentActivationFunc(currentInputGateState)
 
-      gemv(1, this.weights['W_f'].tensor.transpose(1, 0), currentX.tensor, 1, tempXF.tensor)
+      gemv(1, this.weights['W_f'].tensor.transpose(1, 0), current.tensor, 1, tempXF.tensor)
       gemv(1, this.weights['U_f'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHF.tensor)
       this._combine(currentForgetGateState.tensor, tempXF.tensor, tempHF.tensor, this.weights['b_f'].tensor)
       this.recurrentActivationFunc(currentForgetGateState)
 
-      gemv(1, this.weights['W_o'].tensor.transpose(1, 0), currentX.tensor, 1, tempXO.tensor)
+      gemv(1, this.weights['W_o'].tensor.transpose(1, 0), current.tensor, 1, tempXO.tensor)
       gemv(1, this.weights['U_o'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHO.tensor)
       this._combine(currentOutputGateState.tensor, tempXO.tensor, tempHO.tensor, this.weights['b_o'].tensor)
       this.recurrentActivationFunc(currentOutputGateState)
 
-      gemv(1, this.weights['W_c'].tensor.transpose(1, 0), currentX.tensor, 1, tempXC.tensor)
+      gemv(1, this.weights['W_c'].tensor.transpose(1, 0), current.tensor, 1, tempXC.tensor)
       gemv(1, this.weights['U_c'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHC.tensor)
       this._combine(currentCandidate.tensor, tempXC.tensor, tempHC.tensor, this.weights['b_c'].tensor)
       this.activationFunc(currentCandidate)
@@ -212,24 +221,34 @@ export default class LSTM extends Layer {
 
     for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
       const inputIndex = this.goBackwards ? len - i - 1 : i
-      ops.assign(currentX.tensor, x.tensor.pick(inputIndex, null))
-      _clearTemp()
+      ops.assign(current.tensor, x.tensor.pick(inputIndex, null))
+
+      // clear temp tensors
+      const tempTensors = [tempXI, tempHI, tempXF, tempHF, tempXO, tempHO, tempXC, tempHC]
+      tempTensors.forEach(temp => ops.assigns(temp.tensor, 0))
+
+      // advance timestep
       _step()
 
       ops.assign(this.hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
     }
 
     if (this.returnSequences) {
-      x.tensor = this.hiddenStateSequence.tensor
+      this.output = this.hiddenStateSequence
     } else {
-      x.tensor = currentHiddenState.tensor
+      this.output = currentHiddenState
     }
 
     if (this.stateful) {
       this.previousCandidate = previousCandidate
       this.currentHiddenState = currentHiddenState
     }
-
-    return x
   }
+
+  /**
+   * GPU call
+   *
+   * @param {Tensor} x
+   */
+  _callGPU(x) {}
 }
