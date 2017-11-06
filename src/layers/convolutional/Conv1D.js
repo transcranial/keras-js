@@ -1,5 +1,8 @@
 import Layer from '../../Layer'
+import Tensor from '../../Tensor'
 import Conv2D from './Conv2D'
+import * as tensorUtils from '../../utils/tensorUtils'
+import ops from 'ndarray-ops'
 import squeeze from 'ndarray-squeeze'
 import unsqueeze from 'ndarray-unsqueeze'
 
@@ -80,9 +83,50 @@ export default class Conv1D extends Layer {
    * @returns {Tensor}
    */
   call(x) {
-    x.tensor = unsqueeze(x.tensor).transpose(0, 2, 1)
-    const conv2dOutput = this._conv2d.call(x)
-    x.tensor = squeeze(conv2dOutput.tensor).transpose(1, 0, 2)
-    return x
+    if (this.gpu) {
+      this._callGPU(x)
+    } else {
+      this._callCPU(x)
+    }
+    return this.output
+  }
+
+  /**
+   * CPU call
+   *
+   * @param {Tensor} x
+   */
+  _callCPU(x) {
+    const input = new Tensor(x.tensor.data, x.tensor.shape)
+    input.tensor = unsqueeze(input.tensor).transpose(0, 2, 1)
+    const conv2dOutput = this._conv2d.call(input)
+    this.outputShape = [0, 2].map(i => this._conv2d.outputShape[i])
+    this.output = new Tensor([], this.outputShape)
+    ops.assign(this.output.tensor, squeeze(conv2dOutput.tensor).transpose(1, 0, 2))
+  }
+
+  /**
+   * GPU call
+   *
+   * @param {Tensor} x
+   */
+  _callGPU(x) {
+    if (!x.glTexture) {
+      x.createGLTexture()
+    }
+    const inputShape = x.tensor.shape
+    const input = new Tensor([], inputShape)
+    input.glTexture = x.glTexture
+    input.glTextureShape = inputShape
+    input.is2DReshaped = true
+    input.originalShape = [inputShape[0], 1, inputShape[1]]
+    input.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(input.originalShape, false, -1)
+
+    this.output = this._conv2d.call(input)
+
+    // GPU -> CPU data transfer
+    if (this.outbound.length === 0) {
+      this.output.transferFromGLTexture()
+    }
   }
 }
