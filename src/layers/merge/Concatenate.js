@@ -113,23 +113,28 @@ export default class Concatenate extends _Merge {
     let offsetEnd = inputs[0].glTextureShape[_concatAxis]
     for (let i = 0; i < numInputs; i++) {
       // copy output texture to intermediate output
-      webgl2.selectProgram(this.copyTextureProgram)
-      webgl2.bindOutputTexture(this.runningOutput.glTexture, this.runningOutput.glTextureShape)
-      webgl2.bindInputTextures(this.copyTextureProgram, [this.output.glTexture], ['2d'], ['source'])
-      webgl2.runProgram()
+      webgl2.runProgram({
+        program: this.copyTextureProgram,
+        output: this.runningOutput,
+        inputs: [{ texture: this.output.glTexture, type: '2d', name: 'source' }]
+      })
 
       // run merge program
-      webgl2.selectProgram(this.mergeProgram)
-      webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-      const uniforms = [...this.output.glTextureShape, _concatAxis, offsetStart, offsetEnd]
-      const uniformTypes = ['int', 'int', 'int', 'int', 'int']
-      const uniformNames = ['rows', 'cols', 'concatAxis', 'offsetStart', 'offsetEnd']
-      webgl2.bindUniforms(this.mergeProgram, uniforms, uniformTypes, uniformNames)
-      const textures = [this.runningOutput.glTexture, inputs[i].glTexture]
-      const textureTypes = ['2d', '2d']
-      const textureNames = ['runningOutput', 'input1']
-      webgl2.bindInputTextures(this.mergeProgram, textures, textureTypes, textureNames)
-      webgl2.runProgram()
+      webgl2.runProgram({
+        program: this.mergeProgram,
+        output: this.output,
+        inputs: [
+          { texture: this.runningOutput.glTexture, type: '2d', name: 'runningOutput' },
+          { texture: inputs[i].glTexture, type: '2d', name: 'input1' }
+        ],
+        uniforms: [
+          { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
+          { value: this.output.glTextureShape[1], type: 'int', name: 'cols' },
+          { value: _concatAxis, type: 'int', name: 'concatAxis' },
+          { value: offsetStart, type: 'int', name: 'offsetStart' },
+          { value: offsetEnd, type: 'int', name: 'offsetEnd' }
+        ]
+      })
 
       if (i < numInputs - 1) {
         offsetStart += inputs[i].glTextureShape[_concatAxis]

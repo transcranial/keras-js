@@ -138,19 +138,17 @@ class WebGL2 {
    * Bind uniforms within program
    *
    * @param {WebGLProgram} program
-   * @param {*[]} values
-   * @param {string[]} types
-   * @param {string[]} names
+   * @param {Object[]} uniforms
    */
-  bindUniforms(program, values, types, names) {
+  bindUniforms(program, uniforms) {
     const gl = webgl2.context
 
-    values.forEach((val, i) => {
-      const loc = gl.getUniformLocation(program, names[i])
-      if (types[i] === 'float') {
-        gl.uniform1f(loc, val)
-      } else if (types[i] === 'int' || types[i] === 'bool') {
-        gl.uniform1i(loc, val)
+    uniforms.forEach(({ value, type, name }) => {
+      const loc = gl.getUniformLocation(program, name)
+      if (type === 'float') {
+        gl.uniform1f(loc, value)
+      } else if (type === 'int' || type === 'bool') {
+        gl.uniform1i(loc, value)
       }
     })
   }
@@ -159,23 +157,16 @@ class WebGL2 {
    * Bind input textures within program
    *
    * @param {WebGLProgram} program
-   * @param {WebGLTexture[]} textures
-   * @param {string[]} types
-   * @param {string[]} names
+   * @param {Object[]} inputs
    */
-  bindInputTextures(program, textures, types, names) {
+  bindInputTextures(program, inputs) {
     const gl = webgl2.context
 
-    const targetMap = {
-      '2d': gl.TEXTURE_2D,
-      '2d_array': gl.TEXTURE_2D_ARRAY,
-      '3d': gl.TEXTURE_3D
-    }
-
-    textures.forEach((tex, i) => {
+    inputs.forEach(({ texture, type, name }, i) => {
       gl.activeTexture(gl.TEXTURE0 + i)
-      gl.bindTexture(targetMap[types[i]], tex)
-      gl.uniform1i(gl.getUniformLocation(program, names[i]), i)
+      const { textureTarget } = this.getWebGLTextureOptions({ type })
+      gl.bindTexture(textureTarget, texture)
+      gl.uniform1i(gl.getUniformLocation(program, name), i)
     })
   }
 
@@ -197,10 +188,25 @@ class WebGL2 {
   }
 
   /**
-   * Runs fragment shader program
+   * Runs fragment shader program, after binding output, inputs, and uniforms
+   *
+   * @param {WebGLProgram} options.program
+   * @param {Tensor} options.output
+   * @param {Object[]} options.inputs
+   * @param {Object[]} options.uniforms
    */
-  runProgram() {
+  runProgram({ program, output, inputs, uniforms }) {
+    if (!program) throw new Error('WebGL2.runProgram: missing program')
+    if (!output) throw new Error('WebGL2.runProgram: missing output')
+    if (!inputs) throw new Error('WebGL2.runProgram: missing inputs')
+
     const gl = this.context
+    webgl2.selectProgram(program)
+    webgl2.bindOutputTexture(output.glTexture, output.glTextureShape)
+    webgl2.bindInputTextures(program, inputs)
+    if (uniforms && Array.isArray(uniforms)) {
+      webgl2.bindUniforms(program, uniforms)
+    }
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
   }
 

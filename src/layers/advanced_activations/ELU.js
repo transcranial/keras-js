@@ -81,17 +81,12 @@ export default class ELU extends Layer {
       }
     }
 
-    webgl2.selectProgram(this.program)
-    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    const textures = [x.glTexture]
-    const textureTypes = ['2d']
-    const textureNames = ['x']
-    webgl2.bindInputTextures(this.program, textures, textureTypes, textureNames)
-    const uniforms = [this.alpha]
-    const uniformTypes = ['float']
-    const uniformNames = ['alpha']
-    webgl2.bindUniforms(this.program, uniforms, uniformTypes, uniformNames)
-    webgl2.runProgram()
+    webgl2.runProgram({
+      program: this.program,
+      output: this.output,
+      inputs: [{ texture: x.glTexture, type: '2d', name: 'x' }],
+      uniforms: [{ value: this.alpha, type: 'float', name: 'alpha' }]
+    })
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {

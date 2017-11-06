@@ -77,13 +77,14 @@ export default class Embedding extends Layer {
       this.output.createGLTexture()
     }
 
-    webgl2.selectProgram(this.program)
-    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    const textures = [x.glTexture, this.weights['embeddings'].glTexture]
-    const textureTypes = ['2d', '2d']
-    const textureNames = ['x', 'embeddings']
-    webgl2.bindInputTextures(this.program, textures, textureTypes, textureNames)
-    webgl2.runProgram()
+    webgl2.runProgram({
+      program: this.program,
+      output: this.output,
+      inputs: [
+        { texture: x.glTexture, type: '2d', name: 'x' },
+        { texture: this.weights['embeddings'].glTexture, type: '2d', name: 'embeddings' }
+      ]
+    })
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {

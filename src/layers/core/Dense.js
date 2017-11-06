@@ -87,34 +87,34 @@ export default class Dense extends Layer {
     }
 
     // Matrix Multiply
-    webgl2.selectProgram(this.matMulProgram)
-    webgl2.bindOutputTexture(this.outputPreactiv.glTexture, this.outputPreactiv.glTextureShape)
-    let textures = [x.glTexture, this.weights['kernel'].glTexture]
-    let textureTypes = ['2d', '2d']
-    let textureNames = ['A', 'B']
+    const matMulInputs = [
+      { texture: x.glTexture, type: '2d', name: 'A' },
+      { texture: this.weights['kernel'].glTexture, type: '2d', name: 'B' }
+    ]
     if (this.use_bias) {
-      textures.push(this.weights['bias'].glTexture)
-      textureTypes.push('2d')
-      textureNames.push('C')
+      matMulInputs.push({ texture: this.weights['bias'].glTexture, type: '2d', name: 'C' })
     }
-    webgl2.bindInputTextures(this.matMulProgram, textures, textureTypes, textureNames)
-    const uniforms = [this.use_bias ? 1 : 0, x.glTextureShape[0], ...this.weights['kernel'].glTextureShape]
-    const uniformTypes = ['bool', 'int', 'int', 'int']
-    const uniformNames = ['addC', 'M', 'K', 'N']
-    webgl2.bindUniforms(this.matMulProgram, uniforms, uniformTypes, uniformNames)
-    webgl2.runProgram()
+    webgl2.runProgram({
+      program: this.matMulProgram,
+      output: this.outputPreactiv,
+      inputs: matMulInputs,
+      uniforms: [
+        { value: this.use_bias ? 1 : 0, type: 'bool', name: 'addC' },
+        { value: x.glTextureShape[0], type: 'int', name: 'M' },
+        { value: this.weights['kernel'].glTextureShape[0], type: 'int', name: 'K' },
+        { value: this.weights['kernel'].glTextureShape[1], type: 'int', name: 'N' }
+      ]
+    })
 
     // Activation
     if (this.activation === 'linear') {
       this.output = this.outputPreactiv
     } else {
-      webgl2.selectProgram(this.activationProgram)
-      webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-      textures = [this.outputPreactiv.glTexture]
-      textureTypes = ['2d']
-      textureNames = ['x']
-      webgl2.bindInputTextures(this.activationProgram, textures, textureTypes, textureNames)
-      webgl2.runProgram()
+      webgl2.runProgram({
+        program: this.activationProgram,
+        output: this.output,
+        inputs: [{ texture: this.outputPreactiv.glTexture, type: '2d', name: 'x' }]
+      })
     }
 
     // GPU -> CPU data transfer

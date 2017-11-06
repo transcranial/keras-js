@@ -81,17 +81,15 @@ export default class _GlobalPooling1D extends Layer {
     // `true` if max pooling, `false` if average pooling
     const isMaxPooling = this.poolingFunc === 'max'
 
-    webgl2.selectProgram(this.poolingProgram)
-    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    const uniforms = [this.inputShape[0], +isMaxPooling]
-    const uniformTypes = ['int', 'bool']
-    const uniformNames = ['channelDataSize', 'isMaxPooling']
-    webgl2.bindUniforms(this.poolingProgram, uniforms, uniformTypes, uniformNames)
-    const textures = [x.glTexture]
-    const textureTypes = ['2d']
-    const textureNames = ['x']
-    webgl2.bindInputTextures(this.poolingProgram, textures, textureTypes, textureNames)
-    webgl2.runProgram()
+    webgl2.runProgram({
+      program: this.poolingProgram,
+      output: this.output,
+      inputs: [{ texture: x.glTexture, type: '2d', name: 'x' }],
+      uniforms: [
+        { value: this.inputShape[0], type: 'int', name: 'channelDataSize' },
+        { value: +isMaxPooling, type: 'bool', name: 'isMaxPooling' }
+      ]
+    })
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {

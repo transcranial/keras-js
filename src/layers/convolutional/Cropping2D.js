@@ -154,13 +154,15 @@ export default class Cropping2D extends Layer {
       this.output.createGLTexture()
     }
 
-    webgl2.selectProgram(this.mapInputProgram)
-    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    let textures = [x.glTexture, this.rowIndexMap.glTexture, this.colIndexMap.glTexture]
-    let textureTypes = ['2d', '2d', '2d']
-    let textureNames = ['x', 'rowIndexMap', 'colIndexMap']
-    webgl2.bindInputTextures(this.mapInputProgram, textures, textureTypes, textureNames)
-    webgl2.runProgram()
+    webgl2.runProgram({
+      program: this.mapInputProgram,
+      output: this.output,
+      inputs: [
+        { texture: x.glTexture, type: '2d', name: 'x' },
+        { texture: this.rowIndexMap.glTexture, type: '2d', name: 'rowIndexMap' },
+        { texture: this.colIndexMap.glTexture, type: '2d', name: 'colIndexMap' }
+      ]
+    })
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {

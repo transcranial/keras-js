@@ -424,55 +424,54 @@ export default class Conv2DTranspose extends Layer {
     }
 
     // Matrix Multiply with kernel
-    webgl2.selectProgram(this.matMulProgram)
-    webgl2.bindOutputTexture(this.outputMatmul.glTexture, this.outputMatmul.glTextureShape)
-    let textures = [x.glTexture, this.weights['kernel'].glTexture]
-    let textureTypes = ['2d', '2d']
-    let textureNames = ['A', 'B']
-    webgl2.bindInputTextures(this.matMulProgram, textures, textureTypes, textureNames)
-    let uniforms = [0, x.glTextureShape[0], ...this.weights['kernel'].glTextureShape]
-    let uniformTypes = ['bool', 'int', 'int', 'int']
-    let uniformNames = ['addC', 'M', 'K', 'N']
-    webgl2.bindUniforms(this.matMulProgram, uniforms, uniformTypes, uniformNames)
-    webgl2.runProgram()
+    webgl2.runProgram({
+      program: this.matMulProgram,
+      output: this.outputMatmul,
+      inputs: [
+        { texture: x.glTexture, type: '2d', name: 'A' },
+        { texture: this.weights['kernel'].glTexture, type: '2d', name: 'B' }
+      ],
+      uniforms: [
+        { value: 0, type: 'bool', name: 'addC' },
+        { value: x.glTextureShape[0], type: 'int', name: 'M' },
+        { value: this.weights['kernel'].glTextureShape[0], type: 'int', name: 'K' },
+        { value: this.weights['kernel'].glTextureShape[1], type: 'int', name: 'N' }
+      ]
+    })
 
     // Tranposed Convolution
     this._createIndexMap()
     const test = new Tensor([], [this.outputShape[0] * this.outputShape[1], this.outputShape[2]])
     ops.assign(test.tensor, this.rowIndexMap.tensor.pick(null, null, 0))
-    webgl2.selectProgram(this.convTransposeProgram)
-    webgl2.bindOutputTexture(this.outputPreactiv.glTexture, this.outputPreactiv.glTextureShape)
-    textures = [this.outputMatmul.glTexture, this.rowIndexMap.glTexture, this.colIndexMap.glTexture]
-    textureTypes = ['2d', '2d_array', '2d_array']
-    textureNames = ['outputMatmul', 'rowIndexMap', 'colIndexMap']
-    if (this.use_bias) {
-      textures.push(this.weights['bias'].glTexture)
-      textureTypes.push('2d')
-      textureNames.push('bias')
-    }
-    webgl2.bindInputTextures(this.convTransposeProgram, textures, textureTypes, textureNames)
-    uniforms = [
-      this.use_bias ? 1 : 0,
-      this.outputShape[0] * this.outputShape[1],
-      this.outputShape[2],
-      this.inputShape[0] * this.inputShape[1]
+    const convTransposeInputs = [
+      { texture: this.outputMatmul.glTexture, type: '2d', name: 'outputMatmul' },
+      { texture: this.rowIndexMap.glTexture, type: '2d_array', name: 'rowIndexMap' },
+      { texture: this.colIndexMap.glTexture, type: '2d_array', name: 'colIndexMap' }
     ]
-    uniformTypes = ['bool', 'int', 'int', 'int']
-    uniformNames = ['use_bias', 'rows', 'cols', 'summationLength']
-    webgl2.bindUniforms(this.convTransposeProgram, uniforms, uniformTypes, uniformNames)
-    webgl2.runProgram()
+    if (this.use_bias) {
+      convTransposeInputs.push({ texture: this.weights['bias'].glTexture, type: '2d', name: 'bias' })
+    }
+    webgl2.runProgram({
+      program: this.convTransposeProgram,
+      output: this.outputPreactiv,
+      inputs: convTransposeInputs,
+      uniforms: [
+        { value: this.use_bias ? 1 : 0, type: 'bool', name: 'use_bias' },
+        { value: this.outputShape[0] * this.outputShape[1], type: 'int', name: 'rows' },
+        { value: this.outputShape[2], type: 'int', name: 'cols' },
+        { value: this.inputShape[0] * this.inputShape[1], type: 'int', name: 'summationLength' }
+      ]
+    })
 
     // Activation
     if (this.activation === 'linear') {
       this.output = this.outputPreactiv
     } else {
-      webgl2.selectProgram(this.activationProgram)
-      webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-      textures = [this.outputPreactiv.glTexture]
-      textureTypes = ['2d']
-      textureNames = ['x']
-      webgl2.bindInputTextures(this.activationProgram, textures, textureTypes, textureNames)
-      webgl2.runProgram()
+      webgl2.runProgram({
+        program: this.activationProgram,
+        output: this.output,
+        inputs: [{ texture: this.outputPreactiv.glTexture, type: '2d', name: 'x' }]
+      })
     }
 
     // GPU -> CPU data transfer

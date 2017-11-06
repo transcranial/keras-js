@@ -104,17 +104,22 @@ export default class Dot extends _Merge {
 
     const commonDim = inputs[0].glTextureShape[this.dotAxes[0]]
 
-    webgl2.selectProgram(this.mergeProgram)
-    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    const uniforms = [...this.output.glTextureShape, ...this.dotAxes, commonDim, +this.normalize]
-    const uniformTypes = ['int', 'int', 'int', 'int', 'int', 'bool']
-    const uniformNames = ['rows', 'cols', 'dotAxis1', 'dotAxis2', 'commonDim', 'normalize']
-    webgl2.bindUniforms(this.mergeProgram, uniforms, uniformTypes, uniformNames)
-    const textures = [inputs[0].glTexture, inputs[1].glTexture]
-    const textureTypes = ['2d', '2d']
-    const textureNames = ['input1', 'input2']
-    webgl2.bindInputTextures(this.mergeProgram, textures, textureTypes, textureNames)
-    webgl2.runProgram()
+    webgl2.runProgram({
+      program: this.mergeProgram,
+      output: this.output,
+      inputs: [
+        { texture: inputs[0].glTexture, type: '2d', name: 'input1' },
+        { texture: inputs[1].glTexture, type: '2d', name: 'input2' }
+      ],
+      uniforms: [
+        { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
+        { value: this.output.glTextureShape[1], type: 'int', name: 'cols' },
+        { value: this.dotAxes[0], type: 'int', name: 'dotAxis1' },
+        { value: this.dotAxes[1], type: 'int', name: 'dotAxis2' },
+        { value: commonDim, type: 'int', name: 'commonDim' },
+        { value: +this.normalize, type: 'bool', name: 'normalize' }
+      ]
+    })
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {

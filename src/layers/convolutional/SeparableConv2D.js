@@ -159,13 +159,15 @@ class _DepthwiseConv2D extends Conv2D {
       this.outputReshaped.originalShape = this.outputShape
     }
 
-    webgl2.selectProgram(this.mapInputProgram)
-    webgl2.bindOutputTexture(this.outputReshaped.glTexture, this.outputReshaped.glTextureShape)
-    let textures = [this.output.glTexture, this.reshapeRowIndexMap.glTexture, this.reshapeColIndexMap.glTexture]
-    let textureTypes = ['2d', '2d', '2d']
-    let textureNames = ['x', 'rowIndexMap', 'colIndexMap']
-    webgl2.bindInputTextures(this.mapInputProgram, textures, textureTypes, textureNames)
-    webgl2.runProgram()
+    webgl2.runProgram({
+      program: this.mapInputProgram,
+      output: this.outputReshaped,
+      inputs: [
+        { texture: this.output.glTexture, type: '2d', name: 'x' },
+        { texture: this.reshapeRowIndexMap.glTexture, type: '2d', name: 'rowIndexMap' },
+        { texture: this.reshapeColIndexMap.glTexture, type: '2d', name: 'colIndexMap' }
+      ]
+    })
   }
 }
 
@@ -333,13 +335,11 @@ export default class SeparableConv2D extends Layer {
         )
       }
       this.outputPreactiv = this._pointwiseConv.output
-      webgl2.selectProgram(this.activationProgram)
-      webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-      const textures = [this.outputPreactiv.glTexture]
-      const textureTypes = ['2d']
-      const textureNames = ['x']
-      webgl2.bindInputTextures(this.activationProgram, textures, textureTypes, textureNames)
-      webgl2.runProgram()
+      webgl2.runProgram({
+        program: this.activationProgram,
+        output: this.output,
+        inputs: [{ texture: this.outputPreactiv.glTexture, type: '2d', name: 'x' }]
+      })
     }
 
     // GPU -> CPU data transfer

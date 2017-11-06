@@ -151,36 +151,28 @@ export default class BatchNormalization extends Layer {
       }
     }
 
-    webgl2.selectProgram(this.program)
-    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    const textures = [x.glTexture]
-    const textureTypes = ['2d']
-    const textureNames = ['X']
+    const programInputs = [{ texture: x.glTexture, type: '2d', name: 'X' }]
     if (this.scale) {
-      textures.push(this.weights['gamma'].glTexture)
-      textureTypes.push('2d')
-      textureNames.push('gamma')
+      programInputs.push({ texture: this.weights['gamma'].glTexture, type: '2d', name: 'gamma' })
     }
     if (this.center) {
-      textures.push(this.weights['beta'].glTexture)
-      textureTypes.push('2d')
-      textureNames.push('beta')
+      programInputs.push({ texture: this.weights['beta'].glTexture, type: '2d', name: 'beta' })
     }
-    textures.push(this.weights['moving_mean'].glTexture, this.weights['moving_variance'].glTexture)
-    textureTypes.push('2d', '2d')
-    textureNames.push('mean', 'std')
-    webgl2.bindInputTextures(this.program, textures, textureTypes, textureNames)
-    const uniforms = [
-      this.epsilon,
-      this.output.glTextureShape[0],
-      this.output.glTextureShape[1],
-      +this.scale,
-      +this.center
+    programInputs.push({ texture: this.weights['moving_mean'].glTexture, type: '2d', name: 'mean' })
+    programInputs.push({ texture: this.weights['moving_variance'].glTexture, type: '2d', name: 'std' })
+    const programUniforms = [
+      { value: this.epsilon, type: 'float', name: 'epsilon' },
+      { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
+      { value: this.output.glTextureShape[1], type: 'int', name: 'cols' },
+      { value: +this.scale, type: 'bool', name: 'scale' },
+      { value: +this.center, type: 'bool', name: 'center' }
     ]
-    const uniformTypes = ['float', 'int', 'int', 'bool', 'bool']
-    const uniformNames = ['epsilon', 'rows', 'cols', 'scale', 'center']
-    webgl2.bindUniforms(this.program, uniforms, uniformTypes, uniformNames)
-    webgl2.runProgram()
+    webgl2.runProgram({
+      program: this.program,
+      output: this.output,
+      inputs: programInputs,
+      uniforms: programUniforms
+    })
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {

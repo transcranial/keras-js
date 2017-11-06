@@ -127,23 +127,22 @@ export default class _Merge extends Layer {
 
     const numInputs = inputs.length
 
-    webgl2.selectProgram(this.mergeProgram)
-    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
-    const uniforms = [...this.output.glTextureShape]
-    const uniformTypes = ['int', 'int']
-    const uniformNames = ['rows', 'cols']
+    const mergeUniforms = [
+      { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
+      { value: this.output.glTextureShape[1], type: 'int', name: 'cols' }
+    ]
     if (this.mode === 'ave') {
-      uniforms.push(numInputs)
-      uniformTypes.push('int')
-      uniformNames.push('numInputs')
+      mergeUniforms.push({ value: numInputs, type: 'int', name: 'numInputs' })
     }
-    webgl2.bindUniforms(this.mergeProgram, uniforms, uniformTypes, uniformNames)
-
-    const textures = [inputs[0].glTexture, inputs[1].glTexture]
-    const textureTypes = ['2d', '2d']
-    const textureNames = ['input1', 'input2']
-    webgl2.bindInputTextures(this.mergeProgram, textures, textureTypes, textureNames)
-    webgl2.runProgram()
+    webgl2.runProgram({
+      program: this.mergeProgram,
+      output: this.output,
+      inputs: [
+        { texture: inputs[0].glTexture, type: '2d', name: 'input1' },
+        { texture: inputs[1].glTexture, type: '2d', name: 'input2' }
+      ],
+      uniforms: mergeUniforms
+    })
 
     if (numInputs > 2) {
       if (!this.runningOutput) {
@@ -153,15 +152,21 @@ export default class _Merge extends Layer {
 
       for (let i = 2; i < numInputs; i++) {
         // copy output texture to intermediate output
-        webgl2.selectProgram(this.copyTextureProgram)
-        webgl2.bindOutputTexture(this.runningOutput.glTexture, this.runningOutput.glTextureShape)
-        webgl2.bindInputTextures(this.copyTextureProgram, [this.output.glTexture], ['2d'], ['source'])
-        webgl2.runProgram()
+        webgl2.runProgram({
+          program: this.copyTextureProgram,
+          output: this.runningOutput,
+          inputs: [{ texture: this.output.glTexture, type: '2d', name: 'source' }]
+        })
 
-        webgl2.bindUniforms(this.mergeProgram, [i], ['int'], ['i'])
-        const textures = [this.runningOutput.glTexture, inputs[i].glTexture]
-        webgl2.bindInputTextures(this.mergeProgram, textures, textureTypes, textureNames)
-        webgl2.runProgram()
+        webgl2.runProgram({
+          program: this.mergeProgram,
+          output: this.runningOutput,
+          inputs: [
+            { texture: this.runningOutput.glTexture, type: '2d', name: 'input1' },
+            { texture: inputs[i].glTexture, type: '2d', name: 'input2' }
+          ],
+          uniforms: [{ value: i, type: 'int', name: 'i' }]
+        })
       }
     }
 
