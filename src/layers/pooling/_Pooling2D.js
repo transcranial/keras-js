@@ -215,16 +215,14 @@ export default class _Pooling2D extends Layer {
 
   /**
    * Pre-compute index map for GPU pooling function
-   *
-   * @param {number[]} inputShape
    */
-  _createIndexMap(inputShape) {
+  _createIndexMap() {
     if (this.indexMap) {
       return
     }
 
-    let inputRows = inputShape[0]
-    let inputCols = inputShape[1]
+    let inputRows = this.inputShape[0]
+    let inputCols = this.inputShape[1]
     const rowIndices = new Tensor([], [inputRows, inputCols])
     let index = 0
     for (let i = 0; i < inputRows; i++) {
@@ -243,7 +241,7 @@ export default class _Pooling2D extends Layer {
       ops.assigns(_rowIndices.tensor, -1)
       ops.assign(
         _rowIndices.tensor
-          .hi(inputShape[0] + paddingRowBefore, inputShape[1] + paddingColBefore)
+          .hi(this.inputShape[0] + paddingRowBefore, this.inputShape[1] + paddingColBefore)
           .lo(paddingRowBefore, paddingColBefore),
         rowIndices.tensor
       )
@@ -266,9 +264,7 @@ export default class _Pooling2D extends Layer {
       }
     }
 
-    if (this.gpu) {
-      this.indexMap.createGLTexture('2d', 'int')
-    }
+    this.indexMap.createGLTexture('2d', 'int')
   }
 
   /**
@@ -290,7 +286,7 @@ export default class _Pooling2D extends Layer {
       x.glTextureShape = this.tiledInput.glTextureShape
     }
     this._calcOutputShape(this.inputShape)
-    this._createIndexMap(this.inputShape)
+    this._createIndexMap()
 
     // create output textures if doesn't already exist
     if (!this.output) {

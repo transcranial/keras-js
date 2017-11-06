@@ -260,17 +260,15 @@ export default class _Pooling3D extends Layer {
 
   /**
    * Pre-compute index map for GPU pooling function
-   *
-   * @param {number[]} inputShape
    */
-  _createIndexMap(inputShape) {
+  _createIndexMap() {
     if (this.indexMap) {
       return
     }
 
-    let inputDim1 = inputShape[0]
-    let inputDim2 = inputShape[1]
-    let inputDim3 = inputShape[2]
+    let inputDim1 = this.inputShape[0]
+    let inputDim2 = this.inputShape[1]
+    let inputDim3 = this.inputShape[2]
     const rowIndices = new Tensor([], [inputDim1, inputDim2, inputDim3])
     let index = 0
     for (let i = 0; i < inputDim1; i++) {
@@ -299,7 +297,11 @@ export default class _Pooling3D extends Layer {
       ops.assigns(_rowIndices.tensor, -1)
       ops.assign(
         _rowIndices.tensor
-          .hi(inputShape[0] + paddingDim1Before, inputShape[1] + paddingDim2Before, inputShape[2] + paddingDim3Before)
+          .hi(
+            this.inputShape[0] + paddingDim1Before,
+            this.inputShape[1] + paddingDim2Before,
+            this.inputShape[2] + paddingDim3Before
+          )
           .lo(paddingDim1Before, paddingDim2Before, paddingDim3Before),
         rowIndices.tensor
       )
@@ -327,9 +329,7 @@ export default class _Pooling3D extends Layer {
       }
     }
 
-    if (this.gpu) {
-      this.indexMap.createGLTexture('2d', 'int')
-    }
+    this.indexMap.createGLTexture('2d', 'int')
   }
 
   /**
@@ -351,7 +351,7 @@ export default class _Pooling3D extends Layer {
       x.glTextureShape = this.tiledInput.glTextureShape
     }
     this._calcOutputShape(this.inputShape)
-    this._createIndexMap(this.inputShape)
+    this._createIndexMap()
 
     // create output textures if doesn't already exist
     if (!this.output) {

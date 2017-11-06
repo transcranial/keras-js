@@ -68,44 +68,42 @@ export default class Permute extends Layer {
 
   /**
    * Creates row/col index mappings to map input texture to output texture
-   *
-   * @param {number[]} inputShape
    */
-  _createIndexMap(inputShape) {
+  _createIndexMap() {
     if (this.rowIndexMap && this.colIndexMap) {
       return
     }
 
-    const indicesRow = new Tensor([], inputShape, { type: Int32Array })
-    const indicesCol = new Tensor([], inputShape, { type: Int32Array })
+    const indicesRow = new Tensor([], this.inputShape, { type: Int32Array })
+    const indicesCol = new Tensor([], this.inputShape, { type: Int32Array })
 
-    if (inputShape.length === 2) {
-      for (let i = 0; i < inputShape[0]; i++) {
+    if (this.inputShape.length === 2) {
+      for (let i = 0; i < this.inputShape[0]; i++) {
         ops.assigns(indicesRow.tensor.pick(i, null), i)
       }
-    } else if (inputShape.length === 3) {
-      for (let i = 0; i < inputShape[0]; i++) {
-        for (let j = 0; j < inputShape[1]; j++) {
-          ops.assigns(indicesRow.tensor.pick(i, j, null), i * inputShape[1] + j)
+    } else if (this.inputShape.length === 3) {
+      for (let i = 0; i < this.inputShape[0]; i++) {
+        for (let j = 0; j < this.inputShape[1]; j++) {
+          ops.assigns(indicesRow.tensor.pick(i, j, null), i * this.inputShape[1] + j)
         }
       }
-    } else if (inputShape.length === 4) {
-      for (let i = 0; i < inputShape[0]; i++) {
-        for (let j = 0; j < inputShape[1]; j++) {
-          for (let k = 0; k < inputShape[2]; k++) {
+    } else if (this.inputShape.length === 4) {
+      for (let i = 0; i < this.inputShape[0]; i++) {
+        for (let j = 0; j < this.inputShape[1]; j++) {
+          for (let k = 0; k < this.inputShape[2]; k++) {
             ops.assigns(
               indicesRow.tensor.pick(i, j, k, null),
-              i * inputShape[1] * inputShape[2] + j * inputShape[2] + k
+              i * this.inputShape[1] * this.inputShape[2] + j * this.inputShape[2] + k
             )
           }
         }
       }
     }
-    for (let c = 0; c < _.last(inputShape); c++) {
-      ops.assigns(indicesCol.tensor.pick(...Array(inputShape.length - 1).fill(null), c), c)
+    for (let c = 0; c < _.last(this.inputShape); c++) {
+      ops.assigns(indicesCol.tensor.pick(...Array(this.inputShape.length - 1).fill(null), c), c)
     }
 
-    const outputShape = this.dims.map(i => inputShape[i])
+    const outputShape = this.dims.map(i => this.inputShape[i])
     this.rowIndexMap = new Tensor([], outputShape, { type: Int32Array })
     this.colIndexMap = new Tensor([], outputShape, { type: Int32Array })
     ops.assign(this.rowIndexMap.tensor, indicesRow.tensor.transpose(...this.dims))
@@ -115,10 +113,8 @@ export default class Permute extends Layer {
       this.colIndexMap.reshapeTo2D()
     }
 
-    if (this.gpu) {
-      this.rowIndexMap.createGLTexture('2d', 'int')
-      this.colIndexMap.createGLTexture('2d', 'int')
-    }
+    this.rowIndexMap.createGLTexture('2d', 'int')
+    this.colIndexMap.createGLTexture('2d', 'int')
   }
 
   /**
@@ -140,7 +136,7 @@ export default class Permute extends Layer {
     } else {
       this.inputShape = x.tensor.shape
     }
-    this._createIndexMap(this.inputShape)
+    this._createIndexMap()
 
     if (!this.output) {
       const outputShape = this.dims.map(i => this.inputShape[i])

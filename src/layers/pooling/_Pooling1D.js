@@ -96,20 +96,18 @@ export default class _Pooling1D extends Layer {
 
   /**
    * Pre-compute index map for GPU pooling function
-   *
-   * @param {number[]} inputShape
    */
-  _createIndexMap(inputShape) {
+  _createIndexMap() {
     if (this.indexMap) {
       return
     }
 
     const stepsNew =
       this.padding === 'valid'
-        ? Math.floor((inputShape[0] - this.poolSize + this.strides) / this.strides)
-        : Math.floor((inputShape[0] + this.strides - 1) / this.strides)
+        ? Math.floor((this.inputShape[0] - this.poolSize + this.strides) / this.strides)
+        : Math.floor((this.inputShape[0] + this.strides - 1) / this.strides)
 
-    this.outputShape = [stepsNew, inputShape[1]]
+    this.outputShape = [stepsNew, this.inputShape[1]]
 
     this.indexMap = new Tensor([], [stepsNew, this.poolSize], { type: Int32Array })
     ops.assigns(this.indexMap.tensor, -1)
@@ -118,7 +116,7 @@ export default class _Pooling1D extends Layer {
     let step =
       this.padding === 'valid'
         ? 0
-        : Math.min(0, Math.ceil((inputShape[0] - (stepsNew - 1) * this.strides - this.poolSize) / 2))
+        : Math.min(0, Math.ceil((this.inputShape[0] - (stepsNew - 1) * this.strides - this.poolSize) / 2))
 
     for (let i = 0; i < stepsNew; i++) {
       let _step = Math.max(0, step)
@@ -128,7 +126,7 @@ export default class _Pooling1D extends Layer {
       this.indexMap.tensor.set(i, 0, inputIndex)
       for (let j = 1; j < limit; j++) {
         inputIndex = _step + j
-        if (inputIndex <= inputShape[0] - 1) {
+        if (inputIndex <= this.inputShape[0] - 1) {
           this.indexMap.tensor.set(i, j, inputIndex)
         } else {
           break
@@ -137,9 +135,7 @@ export default class _Pooling1D extends Layer {
       step += this.strides
     }
 
-    if (this.gpu) {
-      this.indexMap.createGLTexture('2d', 'int')
-    }
+    this.indexMap.createGLTexture('2d', 'int')
   }
 
   /**
@@ -152,7 +148,7 @@ export default class _Pooling1D extends Layer {
       x.createGLTexture()
     }
     this.inputShape = x.tensor.shape
-    this._createIndexMap(this.inputShape)
+    this._createIndexMap()
 
     // create output textures if doesn't already exist
     if (!this.output) {
