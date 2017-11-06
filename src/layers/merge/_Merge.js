@@ -116,7 +116,9 @@ export default class _Merge extends Layer {
     if (!this.output) {
       this.output = new Tensor([], inputs[0].glTextureShape)
       this.output.createGLTexture()
-      if (inputs[0].is2DReshaped) {
+      if (inputs[0].is1D) {
+        this.output.is1D = inputs[0].is1D
+      } else if (inputs[0].is2DReshaped) {
         this.output.is2DReshaped = inputs[0].is2DReshaped
         this.output.originalShape = inputs[0].originalShape
       }

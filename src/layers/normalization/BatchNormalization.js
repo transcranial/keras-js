@@ -145,7 +145,9 @@ export default class BatchNormalization extends Layer {
     if (!this.output) {
       this.output = new Tensor([], x.glTextureShape)
       this.output.createGLTexture()
-      if (x.is2DReshaped) {
+      if (x.is1D) {
+        this.output.is1D = x.is1D
+      } else if (x.is2DReshaped) {
         this.output.is2DReshaped = x.is2DReshaped
         this.output.originalShape = x.originalShape
       }

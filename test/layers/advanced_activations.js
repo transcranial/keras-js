@@ -93,11 +93,11 @@ describe('advanced activation layers', function() {
   })
 
   /*********************************************************
-  * CPU
+  * GPU
   *********************************************************/
-  describe('CPU', function() {
+  describe('GPU', function() {
     before(function() {
-      console.log('\n%cCPU', styles.h2)
+      console.log('\n%cGPU', styles.h2)
     })
 
     // LeakyReLU

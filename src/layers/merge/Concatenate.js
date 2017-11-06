@@ -87,7 +87,9 @@ export default class Concatenate extends _Merge {
       outputShape[_concatAxis] = sum(inputs.map(input => input.glTextureShape[_concatAxis]))
       this.output = new Tensor([], outputShape)
       this.output.createGLTexture()
-      if (inputs[0].is2DReshaped) {
+      if (inputs[0].is1D) {
+        this.output.is1D = inputs[0].is1D
+      } else if (inputs[0].is2DReshaped) {
         this.output.is2DReshaped = inputs[0].is2DReshaped
         this.output.originalShape = inputs[0].originalShape
         const _concatAxis = this.concatAxis < 0 ? this.output.originalShape.length + this.concatAxis : this.concatAxis
