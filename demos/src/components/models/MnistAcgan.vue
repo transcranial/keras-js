@@ -25,7 +25,7 @@
       </div>
       <div class="column output-column">
         <div class="output">
-          <canvas id="output-canvas-scaled" width="180" height="180"></canvas>
+          <canvas id="output-canvas-scaled" width="140" height="140"></canvas>
           <canvas id="output-canvas" width="28" height="28" style="display:none;"></canvas>
         </div>
       </div>
@@ -195,7 +195,7 @@ export default {
       // scale up
       const ctxScaled = document.getElementById('output-canvas-scaled').getContext('2d')
       ctxScaled.save()
-      ctxScaled.scale(180 / 28, 180 / 28)
+      ctxScaled.scale(140 / 28, 140 / 28)
       ctxScaled.clearRect(0, 0, ctxScaled.canvas.width, ctxScaled.canvas.height)
       ctxScaled.drawImage(document.getElementById('output-canvas'), 0, 0)
       ctxScaled.restore()
