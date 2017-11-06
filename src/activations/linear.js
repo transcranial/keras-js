@@ -3,4 +3,6 @@
  *
  * @param {Tensor} x
  */
-export default function linear(x) {}
+export default function linear(x) {
+  return x
+}

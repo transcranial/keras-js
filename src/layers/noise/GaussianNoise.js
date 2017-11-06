@@ -17,6 +17,7 @@ export default class GaussianNoise extends Layer {
     this.layerClass = 'GaussianNoise'
 
     const { stddev = 0 } = attrs
+    this.stddev = stddev
   }
 
   /**

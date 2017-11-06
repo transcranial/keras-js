@@ -1,10 +1,7 @@
 import Layer from '../../Layer'
 import Tensor from '../../Tensor'
-import * as activations from '../../activations'
 import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
-import unpack from 'ndarray-unpack'
-import flattenDeep from 'lodash/flattenDeep'
 
 /**
  * BatchNormalization layer class

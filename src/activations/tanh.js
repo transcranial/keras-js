@@ -1,6 +1,4 @@
-import ops from 'ndarray-ops'
 import cwise from 'cwise'
-import Tensor from '../Tensor'
 
 const _tanh = cwise({
   args: ['array'],

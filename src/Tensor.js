@@ -1,4 +1,4 @@
-import { webgl2, MAX_TEXTURE_SIZE } from './WebGL2'
+import { webgl2 } from './WebGL2'
 import * as tensorUtils from './utils/tensorUtils'
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
@@ -122,7 +122,7 @@ export default class Tensor {
       const gl = webgl2.context
       const { type, format } = this.glTextureConfig
       const options = webgl2.getWebGLTextureOptions({ type, format })
-      const { textureTarget, textureInternalFormat, textureFormat, textureType } = options
+      const { textureTarget, textureFormat, textureType } = options
       gl.bindTexture(textureTarget, this.glTexture)
 
       const shape = this.glTextureShape

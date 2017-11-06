@@ -8,9 +8,7 @@ module.exports = {
   parser: 'babel-eslint',
   plugins: ['html'],
   rules: {
-    'no-console': 0,
-    'no-extra-semi': 0,
-    'no-unused-vars': 0
+    'no-console': 0
   },
   globals: {
     KerasJS: true,
