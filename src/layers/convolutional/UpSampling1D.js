@@ -1,5 +1,6 @@
 import Layer from '../../Layer'
 import Tensor from '../../Tensor'
+import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
 
 /**
@@ -18,22 +19,100 @@ export default class UpSampling1D extends Layer {
 
     const { size = 2 } = attrs
     this.size = size
+
+    // GPU setup
+    if (this.gpu) {
+      this.mapInputProgram = webgl2.compileProgram(require('../../mapInput.glsl'))
+    }
   }
 
   /**
-   * Method for layer computational logic
+   * Layer computational logic
    *
    * @param {Tensor} x
    * @returns {Tensor}
    */
   call(x) {
-    const inputShape = x.tensor.shape
-    const outputShape = [inputShape[0] * this.size, inputShape[1]]
-    let y = new Tensor([], outputShape)
-    for (let i = 0; i < this.size; i++) {
-      ops.assign(y.tensor.lo(i, 0).step(this.size, 1), x.tensor)
+    if (this.gpu) {
+      this._callGPU(x)
+    } else {
+      this._callCPU(x)
     }
-    x.tensor = y.tensor
-    return x
+    return this.output
+  }
+
+  /**
+   * CPU call
+   *
+   * @param {Tensor} x
+   */
+  _callCPU(x) {
+    this.inputShape = x.tensor.shape
+    this.outputShape = [this.inputShape[0] * this.size, this.inputShape[1]]
+    this.output = new Tensor([], this.outputShape)
+    for (let i = 0; i < this.size; i++) {
+      ops.assign(this.output.tensor.lo(i, 0).step(this.size, 1), x.tensor)
+    }
+  }
+
+  /**
+   * Creates row/col index mappings to map input texture to output texture
+   */
+  _createIndexMap() {
+    if (this.rowIndexMap && this.colIndexMap) {
+      return
+    }
+
+    const indicesRow = new Tensor([], this.inputShape, { type: Int32Array })
+    const indicesCol = new Tensor([], this.inputShape, { type: Int32Array })
+    for (let i = 0; i < this.inputShape[0]; i++) {
+      ops.assigns(indicesRow.tensor.pick(i, null), i)
+    }
+    for (let j = 0; j < this.inputShape[1]; j++) {
+      ops.assigns(indicesCol.tensor.pick(null, j), j)
+    }
+
+    this.rowIndexMap = new Tensor([], this.outputShape, { type: Int32Array })
+    this.colIndexMap = new Tensor([], this.outputShape, { type: Int32Array })
+    for (let i = 0; i < this.size; i++) {
+      ops.assign(this.rowIndexMap.tensor.lo(i, 0).step(this.size, 1), indicesRow.tensor)
+      ops.assign(this.colIndexMap.tensor.lo(i, 0).step(this.size, 1), indicesCol.tensor)
+    }
+
+    this.rowIndexMap.createGLTexture('2d', 'int')
+    this.colIndexMap.createGLTexture('2d', 'int')
+  }
+
+  /**
+   * GPU call
+   *
+   * @param {Tensor} x
+   */
+  _callGPU(x) {
+    if (!x.glTexture) {
+      x.createGLTexture()
+    }
+
+    this.inputShape = x.tensor.shape
+    this.outputShape = [this.inputShape[0] * this.size, this.inputShape[1]]
+    this._createIndexMap()
+
+    if (!this.output) {
+      this.output = new Tensor([], this.outputShape)
+      this.output.createGLTexture()
+    }
+
+    webgl2.selectProgram(this.mapInputProgram)
+    webgl2.bindOutputTexture(this.output.glTexture, this.output.glTextureShape)
+    let textures = [x.glTexture, this.rowIndexMap.glTexture, this.colIndexMap.glTexture]
+    let textureTypes = ['2d', '2d', '2d']
+    let textureNames = ['x', 'rowIndexMap', 'colIndexMap']
+    webgl2.bindInputTextures(this.mapInputProgram, textures, textureTypes, textureNames)
+    webgl2.runProgram()
+
+    // GPU -> CPU data transfer
+    if (this.outbound.length === 0) {
+      this.output.transferFromGLTexture()
+    }
   }
 }
