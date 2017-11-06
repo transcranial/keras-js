@@ -1,6 +1,7 @@
 import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
+import * as tensorUtils from '../../utils/tensorUtils'
 import ops from 'ndarray-ops'
 
 /**
@@ -238,7 +239,7 @@ export default class _Pooling3D extends Layer {
    * @param {Tensor} x
    * @returns {Tensor}
    */
-  _im2col(x) {
+  _vol2col(x) {
     const [inputDim1, inputDim2, inputDim3, inputChannels] = x.tensor.shape
     if (!this.tiledInput) {
       this.tiledInput = new Tensor([], [inputDim1 * inputDim2 * inputDim3, inputChannels])
@@ -346,7 +347,7 @@ export default class _Pooling3D extends Layer {
         x.tensor = x.tensor.transpose(1, 2, 3, 0)
       }
       this.inputShape = x.tensor.shape
-      this._im2col(x)
+      this._vol2col(x)
       x.glTexture = this.tiledInput.glTexture
       x.glTextureShape = this.tiledInput.glTextureShape
     }
@@ -361,6 +362,7 @@ export default class _Pooling3D extends Layer {
       this.output.createGLTexture()
       this.output.is2DReshaped = true
       this.output.originalShape = this.outputShape
+      this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
 
     const poolSize = this.poolSize[0] * this.poolSize[1] * this.poolSize[2]

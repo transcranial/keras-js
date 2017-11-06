@@ -3,7 +3,6 @@ import * as tensorUtils from './utils/tensorUtils'
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
 import squeeze from 'ndarray-squeeze'
-import _ from 'lodash'
 
 /**
  * Tensor class

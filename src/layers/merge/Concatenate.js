@@ -1,6 +1,7 @@
 import _Merge from './_Merge'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
+import * as tensorUtils from '../../utils/tensorUtils'
 import concatFirstAxis from 'ndarray-concat-rows'
 import sum from 'lodash/sum'
 
@@ -94,6 +95,11 @@ export default class Concatenate extends _Merge {
         this.output.originalShape = inputs[0].originalShape
         const _concatAxis = this.concatAxis < 0 ? this.output.originalShape.length + this.concatAxis : this.concatAxis
         this.output.originalShape[_concatAxis] = sum(inputs.map(input => input.originalShape[_concatAxis]))
+        this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(
+          this.output.originalShape,
+          false,
+          _concatAxis
+        )
       }
     }
     if (!this.runningOutput) {

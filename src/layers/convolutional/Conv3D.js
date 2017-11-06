@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import * as activations from '../../activations'
 import { webgl2 } from '../../WebGL2'
+import * as tensorUtils from '../../utils/tensorUtils'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 
@@ -217,6 +218,9 @@ export default class Conv3D extends Layer {
       const newDim2 = inputDim2 + paddingDim2Before + paddingDim2After
       const newDim3 = inputDim3 + paddingDim3Before + paddingDim3After
       let _x = new Tensor([], [newDim1, newDim2, newDim3, inputChannels])
+      if (padValue !== 0) {
+        ops.assigns(_x.tensor, padValue)
+      }
       ops.assign(
         _x.tensor
           .hi(
@@ -369,23 +373,22 @@ export default class Conv3D extends Layer {
    * required prior to the matrix multiply. This allows us to work directly on the 2D reshaped tensor representations
    * rather than needing to reshape to the 3D reprentation and calling im2col.
    *
-   * @param {number[]} inputShape
    * @param {Object} indicesForReshaped
    */
-  _createIndexMap(inputShape, indicesForReshaped = {}) {
+  _createIndexMap(indicesForReshaped = {}) {
     if (this.rowIndexMap && this.colIndexMap) {
       return
     }
 
-    let [inputDim1, inputDim2, inputDim3, inputChannels] = inputShape
+    let [inputDim1, inputDim2, inputDim3, inputChannels] = this.inputShape
 
     let indicesRow, indicesCol
     if (indicesForReshaped.row && indicesForReshaped.col) {
       indicesRow = new Tensor(indicesForReshaped.row.data, indicesForReshaped.row.shape, { type: Int32Array })
       indicesCol = new Tensor(indicesForReshaped.col.data, indicesForReshaped.col.shape, { type: Int32Array })
     } else {
-      indicesRow = new Tensor([], inputShape, { type: Int32Array })
-      indicesCol = new Tensor([], inputShape, { type: Int32Array })
+      indicesRow = new Tensor([], this.inputShape, { type: Int32Array })
+      indicesCol = new Tensor([], this.inputShape, { type: Int32Array })
       for (let i = 0; i < inputDim1; i++) {
         for (let j = 0; j < inputDim2; j++) {
           for (let k = 0; k < inputDim3; k++) {
@@ -408,9 +411,9 @@ export default class Conv3D extends Layer {
         paddingDim3Before,
         paddingDim3After
       ] = this.inputPadding
-      const newDim1 = inputDim1 + paddingDim1Before + paddingDim1After
-      const newDim2 = inputDim2 + paddingDim2Before + paddingDim2After
-      const newDim3 = inputDim3 + paddingDim3Before + paddingDim3After
+      inputDim1 = inputDim1 + paddingDim1Before + paddingDim1After
+      inputDim2 = inputDim2 + paddingDim2Before + paddingDim2After
+      inputDim3 = inputDim3 + paddingDim3Before + paddingDim3After
       const padValue = -1
       this._padInput(indicesRow, padValue)
       this._padInput(indicesCol, padValue)
@@ -475,7 +478,7 @@ export default class Conv3D extends Layer {
     if (x.is2DReshaped) {
       this.inputShape = x.originalShape
       this._calcOutputShape(this.inputShape)
-      this._createIndexMap(this.inputShape, x.indicesForReshaped)
+      this._createIndexMap(x.indicesForReshaped)
       if (!this.mappedInput) {
         this.mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
         this.mappedInput.createGLTexture()
@@ -507,12 +510,14 @@ export default class Conv3D extends Layer {
       this.outputPreactiv.createGLTexture()
       this.outputPreactiv.is2DReshaped = true
       this.outputPreactiv.originalShape = this.outputShape
+      this.outputPreactiv.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
     if (!this.output) {
       this.output = new Tensor([], outputTextureShape)
       this.output.createGLTexture()
       this.output.is2DReshaped = true
       this.output.originalShape = this.outputShape
+      this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
 
     // Matrix Multiply

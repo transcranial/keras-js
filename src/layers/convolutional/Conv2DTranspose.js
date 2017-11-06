@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import * as activations from '../../activations'
 import { webgl2 } from '../../WebGL2'
+import * as tensorUtils from '../../utils/tensorUtils'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 
@@ -286,16 +287,14 @@ export default class Conv2DTranspose extends Layer {
    * matrix Y, the final output Z at coordinate [i,j] will be the summation of a number of elements of the matrix Y.
    * Here, we calculate the indices of matrix Y for each coordinate [i,j] of Z, and encode these index maps as texture
    * arrays.
-   *
-   * @param {number[]} inputShape
    */
-  _createIndexMap(inputShape) {
+  _createIndexMap() {
     if (this.rowIndexMap && this.colIndexMap) {
       return
     }
 
-    const inputRows = inputShape[0]
-    const inputCols = inputShape[1]
+    const inputRows = this.inputShape[0]
+    const inputCols = this.inputShape[1]
     const [nbFilter, nbRow, nbCol] = this.kernelShape
 
     const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.outputPadding
@@ -413,6 +412,7 @@ export default class Conv2DTranspose extends Layer {
       this.outputPreactiv.createGLTexture()
       this.outputPreactiv.is2DReshaped = true
       this.outputPreactiv.originalShape = this.outputShape
+      this.outputPreactiv.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
     if (!this.output) {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
@@ -420,6 +420,7 @@ export default class Conv2DTranspose extends Layer {
       this.output.createGLTexture()
       this.output.is2DReshaped = true
       this.output.originalShape = this.outputShape
+      this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
 
     // Matrix Multiply with kernel
@@ -436,7 +437,7 @@ export default class Conv2DTranspose extends Layer {
     webgl2.runProgram()
 
     // Tranposed Convolution
-    this._createIndexMap(this.inputShape)
+    this._createIndexMap()
     const test = new Tensor([], [this.outputShape[0] * this.outputShape[1], this.outputShape[2]])
     ops.assign(test.tensor, this.rowIndexMap.tensor.pick(null, null, 0))
     webgl2.selectProgram(this.convTransposeProgram)

@@ -1,6 +1,7 @@
 import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
+import * as tensorUtils from '../../utils/tensorUtils'
 import ops from 'ndarray-ops'
 
 /**
@@ -296,6 +297,7 @@ export default class _Pooling2D extends Layer {
       this.output.createGLTexture()
       this.output.is2DReshaped = true
       this.output.originalShape = this.outputShape
+      this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
 
     const poolSize = this.poolSize[0] * this.poolSize[1]

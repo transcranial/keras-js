@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import * as activations from '../../activations'
 import { webgl2 } from '../../WebGL2'
+import * as tensorUtils from '../../utils/tensorUtils'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 import Conv2D from './Conv2D'
@@ -325,6 +326,11 @@ export default class SeparableConv2D extends Layer {
         this.output.createGLTexture()
         this.output.is2DReshaped = true
         this.output.originalShape = this._pointwiseConv.output.originalShape
+        this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(
+          this._pointwiseConv.output.originalShape,
+          false,
+          -1
+        )
       }
       this.outputPreactiv = this._pointwiseConv.output
       webgl2.selectProgram(this.activationProgram)
