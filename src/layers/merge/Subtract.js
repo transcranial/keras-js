@@ -31,7 +31,7 @@ export default class Subtract extends _Merge {
    */
   _callCPU(inputs) {
     if (inputs.length !== 2) {
-      throw new Error(`${this.name} [Subtract layer] Inputs should be an array of 2 Tensors.`)
+      this.throwError('Inputs should be an array of 2 Tensors.')
     }
 
     const outputShape = inputs[0].tensor.shape.slice()

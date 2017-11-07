@@ -11,7 +11,7 @@ import _ from 'lodash'
 
 export function checkShape(data, shape) {
   if (data.length && shape.length && data.length !== shape.reduce((a, b) => a * b, 1)) {
-    throw new Error('Specified shape incompatible with data.')
+    throw new Error('[Tensor] specified shape incompatible with data.')
   }
 }
 

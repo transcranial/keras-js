@@ -188,10 +188,10 @@ export default class Tensor {
    */
   reshapeFrom2D(axis = -1) {
     if (!this.is2DReshaped) {
-      throw new Error('Tensor is not in reshaped 2D representation.')
+      throw new Error('[Tensor] not in reshaped 2D representation.')
     }
     if (!this.originalShape) {
-      throw new Error('Tensor does not contain originalShape.')
+      throw new Error('[Tensor] does not contain originalShape.')
     }
 
     if (axis < 0) {
@@ -252,10 +252,10 @@ export default class Tensor {
    */
   reshapeFrom2DSquare() {
     if (!this.is2DReshaped || this.tensor.shape.length !== 2 || this.tensor.shape[0] !== this.tensor.shape[1]) {
-      throw new Error('Tensor is not in reshaped 2D square representation.')
+      throw new Error('[Tensor] not in reshaped 2D square representation.')
     }
     if (!this.originalShape) {
-      throw new Error('Tensor does not contain originalShape.')
+      throw new Error('[Tensor] does not contain originalShape.')
     }
 
     const size = this.originalShape.reduce((a, b) => a * b, 1)

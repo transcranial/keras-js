@@ -212,13 +212,13 @@ export default class SeparableConv2D extends Layer {
     if (padding === 'valid' || padding === 'same') {
       this.padding = padding
     } else {
-      throw new Error(`${this.name} [Conv2D layer] Invalid padding.`)
+      this.throwError('Invalid padding.')
     }
 
     if (data_format === 'channels_last' || data_format === 'channels_first') {
       this.dataFormat = data_format
     } else {
-      throw new Error(`${this.name} [Conv2D layer] Only channels_last and channels_first data formats are allowed.`)
+      this.throwError('Only channels_last and channels_first data formats are allowed.')
     }
 
     this.activation = activation
@@ -227,7 +227,7 @@ export default class SeparableConv2D extends Layer {
     if (padding === 'valid' || padding === 'same') {
       this.padding = padding
     } else {
-      throw new Error(`${this.name} [SeparableConv2D layer] Invalid padding.`)
+      this.throwError('Invalid padding.')
     }
 
     this.use_bias = use_bias

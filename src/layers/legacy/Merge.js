@@ -27,7 +27,7 @@ export default class Merge extends Layer {
     if (availableModes.indexOf(mode) > -1) {
       this.mode = mode
     } else {
-      throw new Error(`${this.name} [Merge layer] ${mode} not available.`)
+      this.throwError(`${mode} not available.`)
     }
 
     // no mini-batch axis here, so we subtract 1 if given axis > 0
@@ -52,12 +52,12 @@ export default class Merge extends Layer {
     const shapes = inputs.map(x => x.tensor.shape.slice())
     if (['sum', 'mul', 'ave', 'cos', 'max'].indexOf(this.mode) > -1) {
       if (!shapes.every(shape => isEqual(shape, shapes[0]))) {
-        throw new Error(`${this.name} [Merge layer] All input shapes must be the same for mode ${this.mode}.`)
+        this.throwError(`All input shapes must be the same for mode ${this.mode}.`)
       }
     }
     if (['cos', 'dot'].indexOf(this.mode) > -1) {
       if (inputs.length !== 2) {
-        throw new Error(`${this.name} [Merge layer] Exactly 2 inputs required for mode ${this.mode}.`)
+        this.throwError(`Exactly 2 inputs required for mode ${this.mode}.`)
       }
       if (this.dotAxes[0] < 0) {
         this.dotAxes[0] = shapes[0].length + this.dotAxes[0]
@@ -66,7 +66,7 @@ export default class Merge extends Layer {
         this.dotAxes[1] = shapes[1].length + this.dotAxes[1]
       }
       if (shapes[0][this.dotAxes[0]] !== shapes[1][this.dotAxes[1]]) {
-        throw new Error(`${this.name} [Merge layer] Dimensions incompatibility using dot mode.`)
+        this.throwError('Dimensions incompatibility using dot mode.')
       }
     } else if (this.mode === 'concat') {
       let nonConcatShapes = shapes.slice()
@@ -76,9 +76,7 @@ export default class Merge extends Layer {
         nonConcatShapes[i].splice(_concatAxis, 1)
       })
       if (!nonConcatShapes.every(shape => isEqual(shape, nonConcatShapes[0]))) {
-        throw new Error(
-          `${this.name} [Merge layer] In concat mode, all shapes must be the same except along the concat axis.`
-        )
+        this.throwError('In concat mode, all shapes must be the same except along the concat axis.')
       }
     }
     return true
@@ -93,7 +91,7 @@ export default class Merge extends Layer {
   call(inputs) {
     const valid = this._validateInputs(inputs)
     if (!valid) {
-      throw new Error(`${this.name} [Merge layer] Invalid inputs to call method.`)
+      this.throwError('Invalid inputs to call method.')
     }
 
     let output
@@ -161,7 +159,7 @@ export default class Merge extends Layer {
           gemm(output.tensor, inputs[0].tensor, inputs[1].tensor.transpose(1, 0))
         }
       } else {
-        throw new Error(`${this.name} [Merge layer] dot mode for 3+ dim tensors not yet implemented.`)
+        this.throwError('dot mode for 3+ dim tensors not yet implemented.')
       }
     } else if (this.mode === 'cos') {
       if (inputs[0].tensor.shape.length === 2 && inputs[1].tensor.shape.length === 2) {
@@ -181,7 +179,7 @@ export default class Merge extends Layer {
         ops.diveq(output.tensor, a.tensor)
         output.tensor = unsqueeze(output.tensor, 0)
       } else {
-        throw new Error(`${this.name} [Merge layer] cos mode for 3+ dim tensors not yet implemented.`)
+        this.throwError('cos mode for 3+ dim tensors not yet implemented.')
       }
     }
 

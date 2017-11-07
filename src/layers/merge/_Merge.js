@@ -41,7 +41,7 @@ export default class _Merge extends Layer {
     } else {
       const valid = this._validateInputs(inputs)
       if (!valid) {
-        throw new Error(`${this.name} [${this.layerClass} layer] Invalid inputs to call method.`)
+        this.throwError('Invalid inputs to call method.')
       }
       this._callCPU(inputs)
     }
@@ -58,14 +58,12 @@ export default class _Merge extends Layer {
     const shapes = inputs.map(x => x.tensor.shape.slice())
     if (['sum', 'diff', 'mul', 'ave', 'max', 'min'].indexOf(this.mode) > -1) {
       if (!shapes.every(shape => isEqual(shape, shapes[0]))) {
-        throw new Error(
-          `${this.name} [${this.layerClass} layer] All input shapes must be the same for mode ${this.mode}.`
-        )
+        this.throwError(`All input shapes must be the same for mode ${this.mode}.`)
       }
     }
     if (this.mode === 'dot') {
       if (inputs.length !== 2) {
-        throw new Error(`${this.name} [${this.layerClass} layer] Exactly 2 inputs required for mode ${this.mode}.`)
+        this.throwError(`Exactly 2 inputs required for mode ${this.mode}.`)
       }
       if (this.dotAxes[0] < 0) {
         this.dotAxes[0] = shapes[0].length + this.dotAxes[0]
@@ -74,7 +72,7 @@ export default class _Merge extends Layer {
         this.dotAxes[1] = shapes[1].length + this.dotAxes[1]
       }
       if (shapes[0][this.dotAxes[0]] !== shapes[1][this.dotAxes[1]]) {
-        throw new Error(`${this.name} [${this.layerClass} layer] Dimensions incompatibility using dot mode.`)
+        this.throwError('Dimensions incompatibility using dot mode.')
       }
     } else if (this.mode === 'concat') {
       let nonConcatShapes = shapes.slice()
@@ -84,10 +82,7 @@ export default class _Merge extends Layer {
         nonConcatShapes[i].splice(_concatAxis, 1)
       })
       if (!nonConcatShapes.every(shape => isEqual(shape, nonConcatShapes[0]))) {
-        throw new Error(
-          `${this.name} [${this
-            .layerClass} layer] In concat mode, all shapes must be the same except along the concat axis.`
-        )
+        this.throwError('In concat mode, all shapes must be the same except along the concat axis.')
       }
     }
     return true

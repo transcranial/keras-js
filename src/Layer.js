@@ -22,6 +22,15 @@ export default class Layer {
   }
 
   /**
+   * Throws Error, adding layer context info to message
+   *
+   * @param {string} message
+   */
+  throwError(message) {
+    throw new Error(`[${this.layerClass} layer: ${this.name || ''}] ${message}`)
+  }
+
+  /**
    * Set layer weights
    *
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor

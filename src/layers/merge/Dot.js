@@ -84,7 +84,7 @@ export default class Dot extends _Merge {
         gemm(this.output.tensor, inputs[0].tensor, inputs[1].tensor.transpose(1, 0))
       }
     } else {
-      throw new Error(`${this.name} [${this.layerClass} layer] dot mode for 3+ dim tensors not yet implemented.`)
+      this.throwError('dot mode for 3+ dim tensors not yet implemented.')
     }
   }
 

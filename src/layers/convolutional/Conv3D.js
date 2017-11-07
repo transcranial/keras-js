@@ -47,13 +47,13 @@ export default class Conv3D extends Layer {
     if (padding === 'valid' || padding === 'same') {
       this.padding = padding
     } else {
-      throw new Error(`${this.name} [Conv3D layer] Invalid padding.`)
+      this.throwError('Invalid padding.')
     }
 
     if (data_format === 'channels_last' || data_format === 'channels_first') {
       this.dataFormat = data_format
     } else {
-      throw new Error(`${this.name} [Conv3D layer] Only channels_last and channels_first data formats are allowed.`)
+      this.throwError('Only channels_last and channels_first data formats are allowed.')
     }
 
     if (Array.isArray(dilation_rate)) {
@@ -67,7 +67,7 @@ export default class Conv3D extends Layer {
     ) {
       // Currently, specifying any dilation_rate value != 1 is incompatible with specifying any stride value != 1
       // https://keras.io/layers/convolutional/#conv3d
-      throw new Error(`${this.name} [Conv3D layer] Incompatible combination of dilation_rate with strides.`)
+      this.throwError('Incompatible combination of dilation_rate with strides.')
     }
 
     this.activation = activation

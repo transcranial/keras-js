@@ -19,7 +19,7 @@ export default class Bidirectional extends Layer {
 
     const { layer, merge_mode = 'concat' } = attrs
 
-    if (!layer) throw new Error('[Bidirectional] wrapped layer is undefined.')
+    if (!layer) this.throwError('wrapped layer is undefined.')
 
     this.forwardLayer = layer
 

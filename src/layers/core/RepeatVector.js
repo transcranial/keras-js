@@ -51,7 +51,7 @@ export default class RepeatVector extends Layer {
    */
   _callCPU(x) {
     if (x.tensor.shape.length !== 1) {
-      throw new Error(`${this.name} [RepeatVector layer] Only 1D tensor inputs allowed.`)
+      this.throwError('Only 1D tensor inputs allowed.')
     }
     this.output = new Tensor([], [this.n, x.tensor.shape[1]])
     this.output.tensor = tile(unsqueeze(x.tensor, 0), [this.n, 1])

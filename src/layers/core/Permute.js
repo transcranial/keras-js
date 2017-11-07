@@ -56,9 +56,7 @@ export default class Permute extends Layer {
    */
   _callCPU(x) {
     if (this.dims.length !== x.tensor.shape.length) {
-      throw new Error(
-        `${this.name} [Permute layer] The specified dims permutation must match the number of dimensions.`
-      )
+      this.throwError('The specified dims permutation must match the number of dimensions.')
     }
 
     const outputShape = this.dims.map(i => x.tensor.shape[i])

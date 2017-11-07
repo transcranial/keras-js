@@ -46,15 +46,13 @@ export default class Conv2DTranspose extends Layer {
     if (padding === 'valid' || padding === 'same') {
       this.padding = padding
     } else {
-      throw new Error(`${this.name} [Conv2DTranspose layer] Invalid padding.`)
+      this.throwError('Invalid padding.')
     }
 
     if (data_format === 'channels_last' || data_format === 'channels_first') {
       this.dataFormat = data_format
     } else {
-      throw new Error(
-        `${this.name} [Conv2DTranspose layer] Only channels_last and channels_first data formats are allowed.`
-      )
+      this.throwError('Only channels_last and channels_first data formats are allowed.')
     }
 
     this.activation = activation

@@ -33,7 +33,7 @@ export default class Model {
     } = config
 
     if (!filepaths.model || !filepaths.weights || !filepaths.metadata) {
-      throw new Error('File paths must be declared for model, weights, and metadata.')
+      throw new Error('[Model] File paths must be declared for model, weights, and metadata.')
     }
     this.filepaths = filepaths
     this.filetypes = { model: 'json', weights: 'arraybuffer', metadata: 'json' }
@@ -168,7 +168,7 @@ export default class Model {
       } else if (filetype === 'arraybuffer') {
         this.data[type] = data.buffer
       } else {
-        throw new Error(`Invalid file type: ${filetype}`)
+        throw new Error(`[Model] Invalid file type: ${filetype}`)
       }
     } catch (err) {
       throw err
@@ -262,7 +262,7 @@ export default class Model {
     }
 
     if (!(Array.isArray(modelConfig) && modelConfig.length)) {
-      throw new Error('Model configuration does not contain any layers.')
+      throw new Error('[Model] Model configuration does not contain any layers.')
     }
 
     modelConfig.forEach((layerDef, index) => {
@@ -283,7 +283,7 @@ export default class Model {
           this._createLayer(branchLayerClass, branchLayerConfig, branchInboundLayerNames)
         })
       } else if (!(layerClass in layers)) {
-        throw new Error(`Layer ${layerClass} specified in model configuration is not implemented!`)
+        throw new Error(`[Model] Layer ${layerClass} specified in model configuration is not implemented!`)
       } else {
         // create InputLayer node for Sequential class (which is not explicitly defined in config)
         // create input tensor for InputLayer specified in Model class (layer itself created later)
@@ -492,12 +492,13 @@ export default class Model {
     if (!_.isEqual(_.keys(inputData).sort(), this.inputLayerNames)) {
       this.isRunning = false
       throw new Error(
-        `predict() must take an object where the keys are the named inputs of the model: ${this.inputLayerNames}.`
+        `[Model] predict() must take an object where the keys are the named inputs of the model: ${this
+          .inputLayerNames}.`
       )
     }
     if (!_.every(this.inputLayerNames, name => inputData[name] instanceof Float32Array)) {
       this.isRunning = false
-      throw new Error('predict() must take an object where the values are the flattened data as Float32Array.')
+      throw new Error('[Model] predict() must take an object where the values are the flattened data as Float32Array.')
     }
 
     // reset hasOutput and visited flags in all layers

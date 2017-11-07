@@ -196,9 +196,9 @@ class WebGL2 {
    * @param {Object[]} options.uniforms
    */
   runProgram({ program, output, inputs, uniforms }) {
-    if (!program) throw new Error('WebGL2.runProgram: missing program')
-    if (!output) throw new Error('WebGL2.runProgram: missing output')
-    if (!inputs) throw new Error('WebGL2.runProgram: missing inputs')
+    if (!program) throw new Error('[WebGL2] missing program')
+    if (!output) throw new Error('[WebGL2] missing output')
+    if (!inputs) throw new Error('[WebGL2] missing inputs')
 
     const gl = this.context
     webgl2.selectProgram(program)

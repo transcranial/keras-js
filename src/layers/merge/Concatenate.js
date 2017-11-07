@@ -71,7 +71,7 @@ export default class Concatenate extends _Merge {
       if (this.concatAxis === -1 || this.concatAxis === inputs[0].originalShape.length - 1) {
         _concatAxis = 1
       } else {
-        throw new Error(`${this.name} [Concatenate layer] specified axis not supported for now.`)
+        this.throwError('specified axis not supported for now.')
       }
     } else {
       if (this.concatAxis === -1 || this.concatAxis === 1) {
@@ -79,7 +79,7 @@ export default class Concatenate extends _Merge {
       } else if (this.concatAxis === -2 || this.concatAxis === 0) {
         _concatAxis = 0
       } else {
-        throw new Error(`${this.name} [Concatenate layer] specified axis not supported for now.`)
+        this.throwError('specified axis not supported for now.')
       }
     }
 

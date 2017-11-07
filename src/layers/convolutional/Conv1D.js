@@ -32,13 +32,13 @@ export default class Conv1D extends Layer {
     } = attrs
 
     if (padding !== 'valid' && padding !== 'same') {
-      throw new Error(`${this.name} [Conv1D layer] Invalid padding.`)
+      this.throwError('Invalid padding.')
     }
 
     if (dilation_rate !== 1 && strides !== 1) {
       // Currently, specifying any dilation_rate value != 1 is incompatible with specifying any stride value != 1
       // https://keras.io/layers/convolutional/#conv1d
-      throw new Error(`${this.name} [Conv1D layer] Incompatible combination of dilation_rate with strides.`)
+      this.throwError('Incompatible combination of dilation_rate with strides.')
     }
 
     this.use_bias = use_bias
