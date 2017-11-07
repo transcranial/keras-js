@@ -1,6 +1,7 @@
 import * as activations from '../../activations'
 import Tensor from '../../Tensor'
 import Layer from '../../Layer'
+import { webgl2 } from '../../WebGL2'
 import { gemv } from 'ndarray-blas-level2'
 import ops from 'ndarray-ops'
 import cwise from 'cwise'
@@ -51,6 +52,21 @@ export default class LSTM extends Layer {
 
     // Layer weights specification
     this.params = this.use_bias ? ['kernel', 'recurrent_kernel', 'bias'] : ['kernel', 'recurrent_kernel']
+
+    // GPU setup
+    if (this.gpu) {
+      this.copyTextureProgram = webgl2.compileProgram(require('../../copyTexture.glsl'))
+      this.matMulProgram = webgl2.compileProgram(require('../../matMul.glsl'))
+      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
+      this.recurrentActivationProgram = webgl2.compileProgram(
+        require(`../../activations/${this.recurrentActivation}.glsl`)
+      )
+      this.gateSummationProgram = webgl2.compileProgram(require('./gateSummation.glsl'))
+      this.gateProductProgram = webgl2.compileProgram(require('./gateProduct.glsl'))
+      this.timestepReadProgram = webgl2.compileProgram(require('./timestepRead.glsl'))
+      this.timestepWriteProgram = webgl2.compileProgram(require('./timestepWrite.glsl'))
+      this.updateProgram = webgl2.compileProgram(require('./LSTM.update.glsl'))
+    }
   }
 
   /**
@@ -114,6 +130,13 @@ export default class LSTM extends Layer {
       ops.assign(this.weights['b_f'].tensor, this.weights['bias'].tensor.hi(2 * this.units).lo(this.units))
       ops.assign(this.weights['b_c'].tensor, this.weights['bias'].tensor.hi(3 * this.units).lo(2 * this.units))
       ops.assign(this.weights['b_o'].tensor, this.weights['bias'].tensor.hi(4 * this.units).lo(3 * this.units))
+    }
+
+    if (this.gpu) {
+      const names = ['W_i', 'W_f', 'W_c', 'W_o', 'U_i', 'U_f', 'U_c', 'U_o', 'b_i', 'b_f', 'b_c', 'b_o']
+      names.forEach(name => {
+        this.weights[name].createGLTexture()
+      })
     }
   }
 
@@ -179,29 +202,29 @@ export default class LSTM extends Layer {
       this.stateful && this.currentHiddenState ? this.currentHiddenState : new Tensor([], [dimCandidate])
     const previousHiddenState = new Tensor([], [dimCandidate])
 
-    this.hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimCandidate])
+    const hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimCandidate])
 
-    const current = new Tensor([], [x.tensor.shape[1]])
+    const currentX = new Tensor([], [x.tensor.shape[1]])
 
     const _step = () => {
       ops.assign(previousHiddenState.tensor, currentHiddenState.tensor)
 
-      gemv(1, this.weights['W_i'].tensor.transpose(1, 0), current.tensor, 1, tempXI.tensor)
+      gemv(1, this.weights['W_i'].tensor.transpose(1, 0), currentX.tensor, 1, tempXI.tensor)
       gemv(1, this.weights['U_i'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHI.tensor)
       this._combine(currentInputGateState.tensor, tempXI.tensor, tempHI.tensor, this.weights['b_i'].tensor)
       this.recurrentActivationFunc(currentInputGateState)
 
-      gemv(1, this.weights['W_f'].tensor.transpose(1, 0), current.tensor, 1, tempXF.tensor)
+      gemv(1, this.weights['W_f'].tensor.transpose(1, 0), currentX.tensor, 1, tempXF.tensor)
       gemv(1, this.weights['U_f'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHF.tensor)
       this._combine(currentForgetGateState.tensor, tempXF.tensor, tempHF.tensor, this.weights['b_f'].tensor)
       this.recurrentActivationFunc(currentForgetGateState)
 
-      gemv(1, this.weights['W_o'].tensor.transpose(1, 0), current.tensor, 1, tempXO.tensor)
+      gemv(1, this.weights['W_o'].tensor.transpose(1, 0), currentX.tensor, 1, tempXO.tensor)
       gemv(1, this.weights['U_o'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHO.tensor)
       this._combine(currentOutputGateState.tensor, tempXO.tensor, tempHO.tensor, this.weights['b_o'].tensor)
       this.recurrentActivationFunc(currentOutputGateState)
 
-      gemv(1, this.weights['W_c'].tensor.transpose(1, 0), current.tensor, 1, tempXC.tensor)
+      gemv(1, this.weights['W_c'].tensor.transpose(1, 0), currentX.tensor, 1, tempXC.tensor)
       gemv(1, this.weights['U_c'].tensor.transpose(1, 0), previousHiddenState.tensor, 1, tempHC.tensor)
       this._combine(currentCandidate.tensor, tempXC.tensor, tempHC.tensor, this.weights['b_c'].tensor)
       this.activationFunc(currentCandidate)
@@ -221,7 +244,7 @@ export default class LSTM extends Layer {
 
     for (let i = 0, len = x.tensor.shape[0]; i < len; i++) {
       const inputIndex = this.goBackwards ? len - i - 1 : i
-      ops.assign(current.tensor, x.tensor.pick(inputIndex, null))
+      ops.assign(currentX.tensor, x.tensor.pick(inputIndex, null))
 
       // clear temp tensors
       const tempTensors = [tempXI, tempHI, tempXF, tempHF, tempXO, tempHO, tempXC, tempHC]
@@ -230,11 +253,11 @@ export default class LSTM extends Layer {
       // advance timestep
       _step()
 
-      ops.assign(this.hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
+      ops.assign(hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
     }
 
     if (this.returnSequences) {
-      this.output = this.hiddenStateSequence
+      this.output = hiddenStateSequence
     } else {
       this.output = currentHiddenState
     }
@@ -246,9 +269,425 @@ export default class LSTM extends Layer {
   }
 
   /**
+   * Advance time step in _callGPU
+   */
+  _stepGPU() {
+    webgl2.runProgram({
+      program: this.copyTextureProgram,
+      output: this.previousHiddenState,
+      inputs: [{ texture: this.currentHiddenState.glTexture, type: '2d', name: 'source' }]
+    })
+
+    // input gate
+
+    webgl2.runProgram({
+      program: this.matMulProgram,
+      output: this.tempXI,
+      inputs: [
+        { texture: this.currentX.glTexture, type: '2d', name: 'A' },
+        { texture: this.weights['W_i'].glTexture, type: '2d', name: 'B' }
+      ],
+      uniforms: [
+        { value: 0, type: 'bool', name: 'addC' },
+        { value: 1, type: 'int', name: 'M' },
+        { value: this.weights['W_i'].glTextureShape[0], type: 'int', name: 'K' },
+        { value: this.weights['W_i'].glTextureShape[1], type: 'int', name: 'N' }
+      ]
+    })
+
+    webgl2.runProgram({
+      program: this.matMulProgram,
+      output: this.tempHI,
+      inputs: [
+        { texture: this.previousHiddenState.glTexture, type: '2d', name: 'A' },
+        { texture: this.weights['U_i'].glTexture, type: '2d', name: 'B' }
+      ],
+      uniforms: [
+        { value: 0, type: 'bool', name: 'addC' },
+        { value: 1, type: 'int', name: 'M' },
+        { value: this.weights['U_i'].glTextureShape[0], type: 'int', name: 'K' },
+        { value: this.weights['U_i'].glTextureShape[1], type: 'int', name: 'N' }
+      ]
+    })
+
+    webgl2.runProgram({
+      program: this.gateSummationProgram,
+      output: this.currentInputGateStatePreactiv,
+      inputs: [
+        { texture: this.tempXI.glTexture, type: '2d', name: 't1' },
+        { texture: this.tempHI.glTexture, type: '2d', name: 't2' },
+        { texture: this.weights['b_i'].glTexture, type: '2d', name: 'bias' }
+      ]
+    })
+
+    if (this.recurrentActivation !== 'linear') {
+      webgl2.runProgram({
+        program: this.recurrentActivationProgram,
+        output: this.currentInputGateState,
+        inputs: [{ texture: this.currentInputGateStatePreactiv.glTexture, type: '2d', name: 'x' }]
+      })
+    } else {
+      this.currentInputGateState = this.currentInputGateStatePreactiv
+    }
+
+    // forget gate
+
+    webgl2.runProgram({
+      program: this.matMulProgram,
+      output: this.tempXF,
+      inputs: [
+        { texture: this.currentX.glTexture, type: '2d', name: 'A' },
+        { texture: this.weights['W_f'].glTexture, type: '2d', name: 'B' }
+      ],
+      uniforms: [
+        { value: 0, type: 'bool', name: 'addC' },
+        { value: 1, type: 'int', name: 'M' },
+        { value: this.weights['W_f'].glTextureShape[0], type: 'int', name: 'K' },
+        { value: this.weights['W_f'].glTextureShape[1], type: 'int', name: 'N' }
+      ]
+    })
+
+    webgl2.runProgram({
+      program: this.matMulProgram,
+      output: this.tempHF,
+      inputs: [
+        { texture: this.previousHiddenState.glTexture, type: '2d', name: 'A' },
+        { texture: this.weights['U_f'].glTexture, type: '2d', name: 'B' }
+      ],
+      uniforms: [
+        { value: 0, type: 'bool', name: 'addC' },
+        { value: 1, type: 'int', name: 'M' },
+        { value: this.weights['U_f'].glTextureShape[0], type: 'int', name: 'K' },
+        { value: this.weights['U_f'].glTextureShape[1], type: 'int', name: 'N' }
+      ]
+    })
+
+    webgl2.runProgram({
+      program: this.gateSummationProgram,
+      output: this.currentForgetGateStatePreactiv,
+      inputs: [
+        { texture: this.tempXF.glTexture, type: '2d', name: 't1' },
+        { texture: this.tempHF.glTexture, type: '2d', name: 't2' },
+        { texture: this.weights['b_f'].glTexture, type: '2d', name: 'bias' }
+      ]
+    })
+
+    if (this.recurrentActivation !== 'linear') {
+      webgl2.runProgram({
+        program: this.recurrentActivationProgram,
+        output: this.currentForgetGateState,
+        inputs: [{ texture: this.currentForgetGateStatePreactiv.glTexture, type: '2d', name: 'x' }]
+      })
+    } else {
+      this.currentForgetGateState = this.currentForgetGateStatePreactiv
+    }
+
+    // output gate
+
+    webgl2.runProgram({
+      program: this.matMulProgram,
+      output: this.tempXO,
+      inputs: [
+        { texture: this.currentX.glTexture, type: '2d', name: 'A' },
+        { texture: this.weights['W_o'].glTexture, type: '2d', name: 'B' }
+      ],
+      uniforms: [
+        { value: 0, type: 'bool', name: 'addC' },
+        { value: 1, type: 'int', name: 'M' },
+        { value: this.weights['W_o'].glTextureShape[0], type: 'int', name: 'K' },
+        { value: this.weights['W_o'].glTextureShape[1], type: 'int', name: 'N' }
+      ]
+    })
+
+    webgl2.runProgram({
+      program: this.matMulProgram,
+      output: this.tempHO,
+      inputs: [
+        { texture: this.previousHiddenState.glTexture, type: '2d', name: 'A' },
+        { texture: this.weights['U_o'].glTexture, type: '2d', name: 'B' }
+      ],
+      uniforms: [
+        { value: 0, type: 'bool', name: 'addC' },
+        { value: 1, type: 'int', name: 'M' },
+        { value: this.weights['U_o'].glTextureShape[0], type: 'int', name: 'K' },
+        { value: this.weights['U_o'].glTextureShape[1], type: 'int', name: 'N' }
+      ]
+    })
+
+    webgl2.runProgram({
+      program: this.gateSummationProgram,
+      output: this.currentOutputGateStatePreactiv,
+      inputs: [
+        { texture: this.tempXO.glTexture, type: '2d', name: 't1' },
+        { texture: this.tempHO.glTexture, type: '2d', name: 't2' },
+        { texture: this.weights['b_o'].glTexture, type: '2d', name: 'bias' }
+      ]
+    })
+
+    if (this.recurrentActivation !== 'linear') {
+      webgl2.runProgram({
+        program: this.recurrentActivationProgram,
+        output: this.currentOutputGateState,
+        inputs: [{ texture: this.currentOutputGateStatePreactiv.glTexture, type: '2d', name: 'x' }]
+      })
+    } else {
+      this.currentOutputGateState = this.currentOutputGateStatePreactiv
+    }
+
+    // candidate
+
+    webgl2.runProgram({
+      program: this.matMulProgram,
+      output: this.tempXC,
+      inputs: [
+        { texture: this.currentX.glTexture, type: '2d', name: 'A' },
+        { texture: this.weights['W_c'].glTexture, type: '2d', name: 'B' }
+      ],
+      uniforms: [
+        { value: 0, type: 'bool', name: 'addC' },
+        { value: 1, type: 'int', name: 'M' },
+        { value: this.weights['W_c'].glTextureShape[0], type: 'int', name: 'K' },
+        { value: this.weights['W_c'].glTextureShape[1], type: 'int', name: 'N' }
+      ]
+    })
+
+    webgl2.runProgram({
+      program: this.matMulProgram,
+      output: this.tempHC,
+      inputs: [
+        { texture: this.previousHiddenState.glTexture, type: '2d', name: 'A' },
+        { texture: this.weights['U_c'].glTexture, type: '2d', name: 'B' }
+      ],
+      uniforms: [
+        { value: 0, type: 'bool', name: 'addC' },
+        { value: 1, type: 'int', name: 'M' },
+        { value: this.weights['U_c'].glTextureShape[0], type: 'int', name: 'K' },
+        { value: this.weights['U_c'].glTextureShape[1], type: 'int', name: 'N' }
+      ]
+    })
+
+    webgl2.runProgram({
+      program: this.gateSummationProgram,
+      output: this.currentCandidatePreactiv,
+      inputs: [
+        { texture: this.tempXC.glTexture, type: '2d', name: 't1' },
+        { texture: this.tempHC.glTexture, type: '2d', name: 't2' },
+        { texture: this.weights['b_c'].glTexture, type: '2d', name: 'bias' }
+      ]
+    })
+
+    if (this.activation !== 'linear') {
+      webgl2.runProgram({
+        program: this.activationProgram,
+        output: this.currentCandidate,
+        inputs: [{ texture: this.currentCandidatePreactiv.glTexture, type: '2d', name: 'x' }]
+      })
+    } else {
+      this.currentCandidate = this.currentCandidatePreactiv
+    }
+
+    webgl2.runProgram({
+      program: this.copyTextureProgram,
+      output: this.currentCandidateCopy,
+      inputs: [{ texture: this.currentCandidate.glTexture, type: '2d', name: 'source' }]
+    })
+
+    webgl2.runProgram({
+      program: this.updateProgram,
+      output: this.currentCandidate,
+      inputs: [
+        { texture: this.currentCandidateCopy.glTexture, type: '2d', name: 'c' },
+        { texture: this.previousCandidate.glTexture, type: '2d', name: 'ctm1' },
+        { texture: this.currentInputGateState.glTexture, type: '2d', name: 'i' },
+        { texture: this.currentForgetGateState.glTexture, type: '2d', name: 'f' }
+      ]
+    })
+
+    webgl2.runProgram({
+      program: this.copyTextureProgram,
+      output: this.previousCandidate,
+      inputs: [{ texture: this.currentCandidate.glTexture, type: '2d', name: 'source' }]
+    })
+
+    webgl2.runProgram({
+      program: this.copyTextureProgram,
+      output: this.currentCandidatePreactiv,
+      inputs: [{ texture: this.currentCandidate.glTexture, type: '2d', name: 'source' }]
+    })
+
+    if (this.activation !== 'linear') {
+      webgl2.runProgram({
+        program: this.activationProgram,
+        output: this.currentCandidate,
+        inputs: [{ texture: this.currentCandidatePreactiv.glTexture, type: '2d', name: 'x' }]
+      })
+    } else {
+      this.currentCandidate = this.currentCandidatePreactiv
+    }
+
+    webgl2.runProgram({
+      program: this.gateProductProgram,
+      output: this.currentHiddenState,
+      inputs: [
+        { texture: this.currentOutputGateState.glTexture, type: '2d', name: 't1' },
+        { texture: this.currentCandidate.glTexture, type: '2d', name: 't2' }
+      ]
+    })
+  }
+
+  /**
    * GPU call
    *
    * @param {Tensor} x
    */
-  _callGPU(x) {}
+  _callGPU(x) {
+    if (!x.glTexture) {
+      x.createGLTexture()
+    }
+
+    const dimInputGate = this.weights['b_i'].glTextureShape[1]
+    const dimCandidate = this.weights['b_c'].glTextureShape[1]
+    const dimForgetGate = this.weights['b_f'].glTextureShape[1]
+    const dimOutputGate = this.weights['b_o'].glTextureShape[1]
+
+    if (!this.currentInputGateState) {
+      this.currentInputGateState = new Tensor([], [dimInputGate])
+      this.currentInputGateState.createGLTexture()
+    }
+    if (!this.currentInputGateStatePreactiv) {
+      this.currentInputGateStatePreactiv = new Tensor([], [dimInputGate])
+      this.currentInputGateStatePreactiv.createGLTexture()
+    }
+    if (!this.tempXI) {
+      this.tempXI = new Tensor([], [dimInputGate])
+      this.tempXI.createGLTexture()
+    }
+    if (!this.tempHI) {
+      this.tempHI = new Tensor([], [dimInputGate])
+      this.tempHI.createGLTexture()
+    }
+
+    if (!this.currentForgetGateState) {
+      this.currentForgetGateState = new Tensor([], [dimForgetGate])
+      this.currentForgetGateState.createGLTexture()
+    }
+    if (!this.currentForgetGateStatePreactiv) {
+      this.currentForgetGateStatePreactiv = new Tensor([], [dimForgetGate])
+      this.currentForgetGateStatePreactiv.createGLTexture()
+    }
+    if (!this.tempXF) {
+      this.tempXF = new Tensor([], [dimForgetGate])
+      this.tempXF.createGLTexture()
+    }
+    if (!this.tempHF) {
+      this.tempHF = new Tensor([], [dimForgetGate])
+      this.tempHF.createGLTexture()
+    }
+
+    if (!this.currentOutputGateState) {
+      this.currentOutputGateState = new Tensor([], [dimOutputGate])
+      this.currentOutputGateState.createGLTexture()
+    }
+    if (!this.currentOutputGateStatePreactiv) {
+      this.currentOutputGateStatePreactiv = new Tensor([], [dimOutputGate])
+      this.currentOutputGateStatePreactiv.createGLTexture()
+    }
+    if (!this.tempXO) {
+      this.tempXO = new Tensor([], [dimOutputGate])
+      this.tempXO.createGLTexture()
+    }
+    if (!this.tempHO) {
+      this.tempHO = new Tensor([], [dimOutputGate])
+      this.tempHO.createGLTexture()
+    }
+
+    if (!this.currentCandidate) {
+      this.currentCandidate = new Tensor([], [dimCandidate])
+      this.currentCandidate.createGLTexture()
+    }
+    if (!this.currentCandidateCopy) {
+      this.currentCandidateCopy = new Tensor([], [dimCandidate])
+      this.currentCandidateCopy.createGLTexture()
+    }
+    if (!this.currentCandidatePreactiv) {
+      this.currentCandidatePreactiv = new Tensor([], [dimCandidate])
+      this.currentCandidatePreactiv.createGLTexture()
+    }
+    if (!this.tempXC) {
+      this.tempXC = new Tensor([], [dimCandidate])
+      this.tempXC.createGLTexture()
+    }
+    if (!this.tempHC) {
+      this.tempHC = new Tensor([], [dimCandidate])
+      this.tempHC.createGLTexture()
+    }
+    if (!this.previousCandidate || !this.stateful) {
+      this.previousCandidate = new Tensor([], [dimCandidate])
+      this.previousCandidate.createGLTexture()
+    }
+
+    if (!this.currentHiddenState || !this.stateful) {
+      this.currentHiddenState = new Tensor([], [dimCandidate])
+      this.currentHiddenState.createGLTexture()
+    }
+    if (!this.previousHiddenState) {
+      this.previousHiddenState = new Tensor([], [dimCandidate])
+      this.previousHiddenState.createGLTexture()
+    }
+
+    if (!this.hiddenStateSequence) {
+      this.hiddenStateSequence = new Tensor([], [x.glTextureShape[0], dimCandidate])
+      this.hiddenStateSequence.createGLTexture()
+    }
+    if (!this.hiddenStateSequenceCopy) {
+      this.hiddenStateSequenceCopy = new Tensor([], [x.glTextureShape[0], dimCandidate])
+      this.hiddenStateSequenceCopy.createGLTexture()
+    }
+
+    if (!this.currentX) {
+      this.currentX = new Tensor([], [x.glTextureShape[1]])
+      this.currentX.createGLTexture()
+    }
+
+    for (let i = 0, len = x.glTextureShape[0]; i < len; i++) {
+      const inputIndex = this.goBackwards ? len - i - 1 : i
+
+      webgl2.runProgram({
+        program: this.timestepReadProgram,
+        output: this.currentX,
+        inputs: [{ texture: x.glTexture, type: '2d', name: 'x' }],
+        uniforms: [{ value: inputIndex, type: 'int', name: 'index' }]
+      })
+
+      this._stepGPU()
+
+      if (this.returnSequences) {
+        webgl2.runProgram({
+          program: this.copyTextureProgram,
+          output: this.hiddenStateSequenceCopy,
+          inputs: [{ texture: this.hiddenStateSequence.glTexture, type: '2d', name: 'source' }]
+        })
+        webgl2.runProgram({
+          program: this.timestepWriteProgram,
+          output: this.hiddenStateSequence,
+          inputs: [
+            { texture: this.currentHiddenState.glTexture, type: '2d', name: 'x' },
+            { texture: this.hiddenStateSequenceCopy.glTexture, type: '2d', name: 'y' }
+          ],
+          uniforms: [{ value: i, type: 'int', name: 'index' }]
+        })
+      }
+    }
+
+    if (this.returnSequences) {
+      this.output = this.hiddenStateSequence
+    } else {
+      this.output = this.currentHiddenState
+    }
+
+    // GPU -> CPU data transfer
+    if (this.outbound.length === 0) {
+      this.output.transferFromGLTexture()
+    }
+  }
 }
