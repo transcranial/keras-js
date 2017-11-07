@@ -111,7 +111,7 @@ export default class SimpleRNN extends Layer {
     const tempHH = new Tensor([], [dimHiddenState])
     const previousHiddenState = new Tensor([], [dimHiddenState])
 
-    const hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimHiddenState])
+    this.hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimHiddenState])
 
     const currentX = new Tensor([], [x.tensor.shape[1]])
 
@@ -136,12 +136,12 @@ export default class SimpleRNN extends Layer {
       _step()
 
       if (this.returnSequences) {
-        ops.assign(hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
+        ops.assign(this.hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
       }
     }
 
     if (this.returnSequences) {
-      this.output = hiddenStateSequence
+      this.output = this.hiddenStateSequence
     } else {
       this.output = currentHiddenState
     }

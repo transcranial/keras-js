@@ -202,7 +202,7 @@ export default class LSTM extends Layer {
       this.stateful && this.currentHiddenState ? this.currentHiddenState : new Tensor([], [dimCandidate])
     const previousHiddenState = new Tensor([], [dimCandidate])
 
-    const hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimCandidate])
+    this.hiddenStateSequence = new Tensor([], [x.tensor.shape[0], dimCandidate])
 
     const currentX = new Tensor([], [x.tensor.shape[1]])
 
@@ -253,11 +253,11 @@ export default class LSTM extends Layer {
       // advance timestep
       _step()
 
-      ops.assign(hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
+      ops.assign(this.hiddenStateSequence.tensor.pick(i, null), currentHiddenState.tensor)
     }
 
     if (this.returnSequences) {
-      this.output = hiddenStateSequence
+      this.output = this.hiddenStateSequence
     } else {
       this.output = currentHiddenState
     }
