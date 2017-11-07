@@ -335,18 +335,7 @@ export default class Model {
    * @param {string[]} inboundLayerNames
    */
   _createLayer(layerClass, layerConfig, inboundLayerNames) {
-    let layer
-    if (layerClass === 'Bidirectional' || layerClass === 'TimeDistributed') {
-      // create wrapper layers
-      const wrappedLayerClass = layerConfig.layer.class_name
-      const wrappedLayerConfig = Object.assign({}, layerConfig.layer.config, { gpu: this.gpu })
-      layer = new layers[layerClass](
-        Object.assign({}, layerConfig, { layer: new layers[wrappedLayerClass](wrappedLayerConfig) })
-      )
-    } else {
-      // create regular layers
-      layer = new layers[layerClass](Object.assign({}, layerConfig, { gpu: this.gpu }))
-    }
+    const layer = new layers[layerClass](Object.assign({}, layerConfig, { gpu: this.gpu }))
 
     // layer weights
     let weightNames = []
