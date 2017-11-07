@@ -7,6 +7,7 @@ uniform sampler2D input2;
 uniform int rows;
 uniform int cols;
 uniform int numInputs;
+uniform bool additional;
 out vec4 outColor;
 
 void main() {
@@ -16,5 +17,9 @@ void main() {
   float input1_val = texelFetch(input1, ivec2(out_x, out_y), 0).r;
   float input2_val = texelFetch(input2, ivec2(out_x, out_y), 0).r;
 
-  outColor = vec4(input1_val / float(numInputs) + input2_val / float(numInputs));
+  if (additional) {
+    outColor = vec4(input1_val + input2_val / float(numInputs));
+  } else {
+    outColor = vec4(input1_val / float(numInputs) + input2_val / float(numInputs));
+  }
 }

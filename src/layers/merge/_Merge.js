@@ -149,6 +149,9 @@ export default class _Merge extends Layer {
         this.runningOutput = new Tensor([], inputs[0].glTextureShape)
         this.runningOutput.createGLTexture()
       }
+      if (this.mode === 'ave') {
+        mergeUniforms.push({ value: 1, type: 'bool', name: 'additional' })
+      }
 
       for (let i = 2; i < numInputs; i++) {
         // copy output texture to intermediate output
@@ -160,12 +163,12 @@ export default class _Merge extends Layer {
 
         webgl2.runProgram({
           program: this.mergeProgram,
-          output: this.runningOutput,
+          output: this.output,
           inputs: [
             { texture: this.runningOutput.glTexture, type: '2d', name: 'input1' },
             { texture: inputs[i].glTexture, type: '2d', name: 'input2' }
           ],
-          uniforms: [{ value: i, type: 'int', name: 'i' }]
+          uniforms: mergeUniforms
         })
       }
     }
