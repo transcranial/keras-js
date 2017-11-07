@@ -122,10 +122,7 @@ export default class _Merge extends Layer {
 
     const numInputs = inputs.length
 
-    const mergeUniforms = [
-      { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
-      { value: this.output.glTextureShape[1], type: 'int', name: 'cols' }
-    ]
+    const mergeUniforms = []
     if (this.mode === 'ave') {
       mergeUniforms.push({ value: numInputs, type: 'int', name: 'numInputs' })
     }
