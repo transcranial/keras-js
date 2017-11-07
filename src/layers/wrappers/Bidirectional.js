@@ -1,7 +1,7 @@
 import Layer from '../../Layer'
 import Tensor from '../../Tensor'
+import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
-import pick from 'lodash/pick'
 import * as recurrentLayers from '../recurrent'
 
 /**
@@ -12,6 +12,7 @@ export default class Bidirectional extends Layer {
    * Creates a Bidirectional wrapper layer
    *
    * @param {Object} [attrs] - layer config attributes
+   * @param {string} [attrs.merge_mode] - merge mode of component layers
    */
   constructor(attrs = {}) {
     super(attrs)
@@ -19,21 +20,38 @@ export default class Bidirectional extends Layer {
 
     const { layer, merge_mode = 'concat' } = attrs
 
-    if (!layer) this.throwError('wrapped layer is undefined.')
-
-    this.forwardLayer = layer
-
-    let backwardLayerAttrs = {
-      units: this.forwardLayer.units,
-      activation: this.forwardLayer.activation,
-      recurrent_activation: this.forwardLayer.recurrentActivation,
-      return_sequences: this.forwardLayer.returnSequences,
-      go_backwards: !this.forwardLayer.goBackwards,
-      stateful: this.forwardLayer.stateful
+    if (!layer) {
+      this.throwError('wrapped layer is undefined.')
     }
-    this.backwardLayer = new recurrentLayers[layer.layerClass](backwardLayerAttrs)
+    if (!['SimpleRNN', 'GRU', 'LSTM'].includes(layer.class_name)) {
+      this.throwError(`cannot wrap ${layer.class_name} layer.`)
+    }
+    if (!['concat', 'sum', 'mul', 'ave'].includes(merge_mode)) {
+      this.throwError(`merge_mode ${merge_mode} not supported.`)
+    }
+
+    const forwardLayerAttrs = Object.assign({}, layer.config, { gpu: attrs.gpu })
+    const backwardLayerAttrs = Object.assign({}, layer.config, { gpu: attrs.gpu })
+    backwardLayerAttrs.go_backwards = !backwardLayerAttrs.go_backwards
+    this.forwardLayer = new recurrentLayers[layer.class_name](forwardLayerAttrs)
+    this.backwardLayer = new recurrentLayers[layer.class_name](backwardLayerAttrs)
 
     this.mergeMode = merge_mode
+    this.returnSequences = layer.config.return_sequences
+
+    // GPU setup
+    if (this.gpu) {
+      this.copyTextureProgram = webgl2.compileProgram(require('../../copyTexture.glsl'))
+      if (this.mergeMode === 'concat') {
+        this.mergeProgram = webgl2.compileProgram(require('./Bidirectional.concat.glsl'))
+      } else if (this.mergeMode === 'sum') {
+        this.mergeProgram = webgl2.compileProgram(require('./Bidirectional.sum.glsl'))
+      } else if (this.mergeMode === 'mul') {
+        this.mergeProgram = webgl2.compileProgram(require('./Bidirectional.mul.glsl'))
+      } else if (this.mergeMode === 'ave') {
+        this.mergeProgram = webgl2.compileProgram(require('./Bidirectional.ave.glsl'))
+      }
+    }
   }
 
   /**
@@ -49,56 +67,117 @@ export default class Bidirectional extends Layer {
   }
 
   /**
-   * Method for layer computational logic
+   * Layer computational logic
    *
    * @param {Tensor} x
    * @returns {Tensor}
    */
   call(x) {
-    let xForward = new Tensor(x.tensor.data, x.tensor.shape)
-    let xBackward = new Tensor(x.tensor.data, x.tensor.shape)
-    let yForward = this.forwardLayer.call(xForward)
-    let yBackward = this.backwardLayer.call(xBackward)
+    if (this.gpu) {
+      this._callGPU(x)
+    } else {
+      this._callCPU(x)
+    }
+    return this.output
+  }
+
+  /**
+   * CPU call
+   *
+   * @param {Tensor} x
+   */
+  _callCPU(x) {
+    this.forwardLayer._callCPU(new Tensor(x.tensor.data, x.tensor.shape))
+    this.backwardLayer._callCPU(new Tensor(x.tensor.data, x.tensor.shape))
+    const forwardOutput = this.forwardLayer.output
+    const backwardOutput = this.backwardLayer.output
 
     // when returnSequences = true, reverse results of backwardLayer
-    if (this.forwardLayer.returnSequences) {
-      yBackward.tensor = yBackward.tensor.step(-1)
+    if (this.returnSequences) {
+      backwardOutput.tensor = backwardOutput.tensor.step(-1)
     }
+
+    const outShape = forwardOutput.tensor.shape.slice()
+    if (this.mergeMode === 'concat') {
+      outShape[outShape.length - 1] += backwardOutput.tensor.shape[outShape.length - 1]
+    }
+    this.output = new Tensor([], outShape)
 
     if (this.mergeMode === 'concat') {
-      let outShape = yForward.tensor.shape.slice()
-      outShape[outShape.length - 1] += yBackward.tensor.shape[outShape.length - 1]
-      let y = new Tensor([], outShape)
-      if (this.forwardLayer.returnSequences) {
-        ops.assign(y.tensor.hi(outShape[0], yForward.tensor.shape[1]).lo(0, 0), yForward.tensor)
-        ops.assign(y.tensor.hi(outShape[0], outShape[1]).lo(0, yForward.tensor.shape[1]), yBackward.tensor)
+      if (this.returnSequences) {
+        ops.assign(this.output.tensor.hi(outShape[0], forwardOutput.tensor.shape[1]).lo(0, 0), forwardOutput.tensor)
+        ops.assign(
+          this.output.tensor.hi(outShape[0], outShape[1]).lo(0, forwardOutput.tensor.shape[1]),
+          backwardOutput.tensor
+        )
       } else {
-        ops.assign(y.tensor.hi(yForward.tensor.shape[0]).lo(0), yForward.tensor)
-        ops.assign(y.tensor.hi(outShape[0]).lo(yForward.tensor.shape[0]), yBackward.tensor)
+        ops.assign(this.output.tensor.hi(forwardOutput.tensor.shape[0]).lo(0), forwardOutput.tensor)
+        ops.assign(this.output.tensor.hi(outShape[0]).lo(forwardOutput.tensor.shape[0]), backwardOutput.tensor)
       }
-      x.tensor = y.tensor
     } else if (this.mergeMode === 'sum') {
-      let outShape = yForward.tensor.shape.slice()
-      let y = new Tensor([], outShape)
-      ops.addeq(y.tensor, yForward.tensor)
-      ops.addeq(y.tensor, yBackward.tensor)
-      x.tensor = y.tensor
+      ops.addeq(this.output.tensor, forwardOutput.tensor)
+      ops.addeq(this.output.tensor, backwardOutput.tensor)
     } else if (this.mergeMode === 'mul') {
-      let outShape = yForward.tensor.shape.slice()
-      let y = new Tensor([], outShape)
-      ops.assigns(y.tensor, 1)
-      ops.muleq(y.tensor, yForward.tensor)
-      ops.muleq(y.tensor, yBackward.tensor)
-      x.tensor = y.tensor
+      ops.assigns(this.output.tensor, 1)
+      ops.muleq(this.output.tensor, forwardOutput.tensor)
+      ops.muleq(this.output.tensor, backwardOutput.tensor)
     } else if (this.mergeMode === 'ave') {
-      let outShape = yForward.tensor.shape.slice()
-      let y = new Tensor([], outShape)
-      ops.addeq(y.tensor, yForward.tensor)
-      ops.addeq(y.tensor, yBackward.tensor)
-      ops.divseq(y.tensor, 2)
-      x.tensor = y.tensor
+      ops.addeq(this.output.tensor, forwardOutput.tensor)
+      ops.addeq(this.output.tensor, backwardOutput.tensor)
+      ops.divseq(this.output.tensor, 2)
+    }
+  }
+
+  /**
+   * GPU call
+   *
+   * @param {Tensor} x
+   */
+  _callGPU(x) {
+    if (!x.glTexture) {
+      x.createGLTexture()
+    }
+    if (!this.inputCopy) {
+      this.inputCopy = new Tensor([], x.glTextureShape)
+      this.inputCopy.createGLTexture()
     }
 
-    return x
+    webgl2.runProgram({
+      program: this.copyTextureProgram,
+      output: this.inputCopy,
+      inputs: [{ texture: x.glTexture, type: '2d', name: 'source' }]
+    })
+
+    this.forwardLayer._callGPU(x)
+    this.backwardLayer._callGPU(this.inputCopy)
+    const forwardOutput = this.forwardLayer.output
+    const backwardOutput = this.backwardLayer.output
+
+    const outShape = forwardOutput.glTextureShape.slice()
+    if (this.mergeMode === 'concat') {
+      outShape[1] += backwardOutput.glTextureShape[1]
+    }
+    if (!this.output) {
+      this.output = new Tensor([], outShape)
+      this.output.createGLTexture()
+      if (!this.returnSequences) {
+        this.output.is1D = true
+      }
+    }
+
+    // merge forward and backward outputs
+    webgl2.runProgram({
+      program: this.mergeProgram,
+      output: this.output,
+      inputs: [
+        { texture: forwardOutput.glTexture, type: '2d', name: 'forward' },
+        { texture: backwardOutput.glTexture, type: '2d', name: 'backward' }
+      ]
+    })
+
+    // GPU -> CPU data transfer
+    if (this.outbound.length === 0) {
+      this.output.transferFromGLTexture()
+    }
   }
 }

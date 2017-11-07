@@ -8,52 +8,66 @@ describe('wrappers layer: Bidirectional', function() {
 
   const testParams = [
     {
-      wrappedLayer: 'SimpleRNN',
       inputShape: [3, 6],
-      attrs: { merge_mode: 'sum' },
-      wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: false }
+      attrs: {
+        layer: { class_name: 'SimpleRNN', config: { units: 4, activation: 'tanh', return_sequences: false } },
+        merge_mode: 'sum'
+      }
     },
     {
-      wrappedLayer: 'SimpleRNN',
       inputShape: [3, 6],
-      attrs: { merge_mode: 'mul' },
-      wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: false }
+      attrs: {
+        layer: { class_name: 'SimpleRNN', config: { units: 4, activation: 'tanh', return_sequences: false } },
+        merge_mode: 'mul'
+      }
     },
     {
-      wrappedLayer: 'SimpleRNN',
       inputShape: [3, 6],
-      attrs: { merge_mode: 'concat' },
-      wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: false }
+      attrs: {
+        layer: { class_name: 'SimpleRNN', config: { units: 4, activation: 'tanh', return_sequences: false } },
+        merge_mode: 'concat'
+      }
     },
     {
-      wrappedLayer: 'SimpleRNN',
       inputShape: [3, 6],
-      attrs: { merge_mode: 'ave' },
-      wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: false }
+      attrs: {
+        layer: { class_name: 'SimpleRNN', config: { units: 4, activation: 'tanh', return_sequences: false } },
+        merge_mode: 'ave'
+      }
     },
     {
-      wrappedLayer: 'SimpleRNN',
       inputShape: [3, 6],
-      attrs: { merge_mode: 'concat' },
-      wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: true }
+      attrs: {
+        layer: { class_name: 'SimpleRNN', config: { units: 4, activation: 'tanh', return_sequences: true } },
+        merge_mode: 'concat'
+      }
     },
     {
-      wrappedLayer: 'GRU',
       inputShape: [3, 6],
-      attrs: { merge_mode: 'concat' },
-      wrappedLayerAttrs: { units: 4, activation: 'tanh', recurrent_activation: 'hard_sigmoid', return_sequences: true }
+      attrs: {
+        layer: {
+          class_name: 'GRU',
+          config: { units: 4, activation: 'tanh', recurrent_activation: 'hard_sigmoid', return_sequences: true }
+        },
+        merge_mode: 'concat'
+      }
     },
     {
-      wrappedLayer: 'LSTM',
       inputShape: [3, 6],
-      attrs: { merge_mode: 'concat' },
-      wrappedLayerAttrs: { units: 4, activation: 'tanh', recurrent_activation: 'hard_sigmoid', return_sequences: true }
+      attrs: {
+        layer: {
+          class_name: 'LSTM',
+          config: { units: 4, activation: 'tanh', recurrent_activation: 'hard_sigmoid', return_sequences: true }
+        },
+        merge_mode: 'concat'
+      }
     },
     {
-      wrappedLayer: 'SimpleRNN',
       inputShape: [3, 6],
-      attrs: { merge_mode: 'sum' },
-      wrappedLayerAttrs: { units: 4, activation: 'tanh', return_sequences: true }
+      attrs: {
+        layer: { class_name: 'SimpleRNN', config: { units: 4, activation: 'tanh', return_sequences: true } },
+        merge_mode: 'sum'
+      }
     }
   ]
 
@@ -69,17 +83,16 @@ describe('wrappers layer: Bidirectional', function() {
       console.log('\n%cCPU', styles.h2)
     })
 
-    testParams.forEach(({ wrappedLayer, inputShape, attrs, wrappedLayerAttrs }, i) => {
+    testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `wrappers.Bidirectional.${i}`
-      const title = `[${key}] [CPU] test: ${inputShape} input, merge_mode: ${attrs.merge_mode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
-        wrappedLayerAttrs
-      )}`
+      const title =
+        `[${key}] [CPU] test: ${JSON.stringify(inputShape)} input, ` +
+        `merge_mode: ${attrs.merge_mode}, wrapped layer: ${attrs.layer.class_name}, ` +
+        `wrapped layer attrs: ${JSON.stringify(attrs.layer.config)}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.Bidirectional(
-          Object.assign(attrs, { layer: new layers[wrappedLayer](wrappedLayerAttrs) })
-        )
+        const testLayer = new layers.Bidirectional(attrs)
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -104,17 +117,16 @@ describe('wrappers layer: Bidirectional', function() {
       console.log('\n%cGPU', styles.h2)
     })
 
-    testParams.forEach(({ wrappedLayer, inputShape, attrs, wrappedLayerAttrs }, i) => {
+    testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `wrappers.Bidirectional.${i}`
-      const title = `[${key}] [GPU] test: ${inputShape} input, merge_mode: ${attrs.merge_mode}, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(
-        wrappedLayerAttrs
-      )}`
+      const title =
+        `[${key}] [GPU] test: ${JSON.stringify(inputShape)} input, ` +
+        `merge_mode: ${attrs.merge_mode}, wrapped layer: ${attrs.layer.class_name}, ` +
+        `wrapped layer attrs: ${JSON.stringify(attrs.layer.config)}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.Bidirectional(
-          Object.assign(attrs, { layer: new layers[wrappedLayer](wrappedLayerAttrs), gpu: true })
-        )
+        const testLayer = new layers.Bidirectional(Object.assign(attrs, { gpu: true }))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
