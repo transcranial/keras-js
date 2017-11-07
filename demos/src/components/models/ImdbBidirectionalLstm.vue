@@ -140,10 +140,11 @@ export default {
       return this.model.getLoadingProgress()
     },
     outputColor: function() {
-      if (this.output[0] > 0 && this.output[0] < 0.5) {
-        return `rgba(242, 38, 19, ${1 - this.output[0]})`
-      } else if (this.output[0] >= 0.5) {
-        return `rgba(27, 188, 155, ${this.output[0]})`
+      const p = this.output[0]
+      if (p > 0 && p < 0.5) {
+        return `rgba(242, 38, 19, ${1 - p})`
+      } else if (p >= 0.5) {
+        return `rgba(27, 188, 155, ${p})`
       }
       return '#69707a'
     },
@@ -209,7 +210,7 @@ export default {
 
       this.input = new Float32Array(values)
       this.model.predict({ input: this.input }).then(outputData => {
-        this.output = outputData.output
+        this.output = new Float32Array(outputData.output)
         this.stepwiseCalc()
         this.modelRunning = false
       })
@@ -246,7 +247,7 @@ export default {
       }
 
       this.model.predict({ input: this.input }).then(outputData => {
-        this.output = outputData.output
+        this.output = new Float32Array(outputData.output)
         this.stepwiseCalc()
         this.modelRunning = false
       })
@@ -261,9 +262,9 @@ export default {
       const start = findIndex(this.input, idx => idx >= INDEX_FROM)
       if (start === -1) return
 
-      let stepwiseOutput = []
+      const stepwiseOutput = []
+      const tempTensor = new Tensor([], [forwardDim + backwardDim])
       for (let i = start; i < MAXLEN; i++) {
-        let tempTensor = new Tensor([], [forwardDim + backwardDim])
         ops.assign(tempTensor.tensor.hi(forwardDim).lo(0), forwardHiddenStates.tensor.pick(i, null))
         ops.assign(
           tempTensor.tensor.hi(forwardDim + backwardDim).lo(forwardDim),
