@@ -62,7 +62,7 @@ export default class Model {
     this.dataRequestProgress = { model: 0, weights: 0, metadata: 0 }
 
     // flag to enable GPU where possible (disable in node environment)
-    this.gpu = typeof window !== 'undefined' ? gpu : false
+    this.gpu = typeof window !== 'undefined' && webgl2.isSupported ? gpu : false
 
     // in GPU mode, transfer intermediate outputs of each layer from GPU->CPU (warning: decreases performance)
     this.transferLayerOutputs = transferLayerOutputs
@@ -88,6 +88,13 @@ export default class Model {
 
     // Promise for when Model class is initialized
     this._ready = this._initialize()
+  }
+
+  /**
+   * Checks whether WebGL 2 is supported by browser
+   */
+  checkGPUSupport() {
+    return webgl2.isSupported
   }
 
   /**
