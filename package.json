@@ -71,7 +71,7 @@
     "postcss-loader": "^2.0.8",
     "raw-loader": "^0.5.1",
     "vue": "^2.5.3",
-    "vue-loader": "^13.4.0",
+    "vue-loader": "^13.5.0",
     "vue-mdl": "^1.1.1",
     "vue-router": "^3.0.1",
     "vue-template-compiler": "^2.5.3",

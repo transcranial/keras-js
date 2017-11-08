@@ -36,6 +36,10 @@ export default class Bidirectional extends Layer {
     this.forwardLayer = new recurrentLayers[layer.class_name](forwardLayerAttrs)
     this.backwardLayer = new recurrentLayers[layer.class_name](backwardLayerAttrs)
 
+    // prevent GPU -> CPU data transfer by specifying non-empty outbound nodes array on internal layers
+    this.forwardLayer.outbound = [null]
+    this.backwardLayer.outbound = [null]
+
     this.mergeMode = merge_mode
     this.returnSequences = layer.config.return_sequences
 
@@ -148,6 +152,7 @@ export default class Bidirectional extends Layer {
       inputs: [{ texture: x.glTexture, type: '2d', name: 'source' }]
     })
 
+    // run internal component layers
     this.forwardLayer._callGPU(x)
     this.backwardLayer._callGPU(this.inputCopy)
     const forwardOutput = this.forwardLayer.output

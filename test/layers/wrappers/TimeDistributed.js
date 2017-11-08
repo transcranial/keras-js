@@ -8,22 +8,27 @@ describe('wrappers layer: TimeDistributed', function() {
 
   const testParams = [
     {
-      wrappedLayer: 'Dense',
       inputShape: [3, 6],
-      wrappedLayerAttrs: { units: 4, activation: 'linear', input_dim: null, use_bias: true }
+      attrs: {
+        layer: { class_name: 'Dense', config: { units: 4, activation: 'linear', input_dim: null, use_bias: true } }
+      }
     },
     {
-      wrappedLayer: 'Conv2D',
       inputShape: [5, 4, 4, 2],
-      wrappedLayerAttrs: {
-        filters: 6,
-        kernel_size: [3, 3],
-        strides: [1, 1],
-        padding: 'valid',
-        data_format: 'channels_last',
-        dilation_rate: [1, 1],
-        activation: 'linear',
-        use_bias: true
+      attrs: {
+        layer: {
+          class_name: 'Conv2D',
+          config: {
+            filters: 6,
+            kernel_size: [3, 3],
+            strides: [1, 1],
+            padding: 'valid',
+            data_format: 'channels_last',
+            dilation_rate: [1, 1],
+            activation: 'linear',
+            use_bias: true
+          }
+        }
       }
     }
   ]
@@ -40,13 +45,16 @@ describe('wrappers layer: TimeDistributed', function() {
       console.log('\n%cCPU', styles.h2)
     })
 
-    testParams.forEach(({ wrappedLayer, inputShape, wrappedLayerAttrs }, i) => {
+    testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `wrappers.TimeDistributed.${i}`
-      const title = `[${key}] [CPU] test: ${inputShape} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`
+      const title =
+        `[${key}] [CPU] test: ${JSON.stringify(inputShape)} input, ` +
+        `wrapped layer: ${attrs.layer.class_name}, ` +
+        `wrapped layer attrs: ${JSON.stringify(attrs.layer.config)}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.TimeDistributed({ layer: new layers[wrappedLayer](wrappedLayerAttrs) })
+        const testLayer = new layers.TimeDistributed(attrs)
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
@@ -71,13 +79,16 @@ describe('wrappers layer: TimeDistributed', function() {
       console.log('\n%cGPU', styles.h2)
     })
 
-    testParams.forEach(({ wrappedLayer, inputShape, wrappedLayerAttrs }, i) => {
+    testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `wrappers.TimeDistributed.${i}`
-      const title = `[${key}] [GPU] test: ${inputShape} input, wrapped layer: ${wrappedLayer}, wrapped layer attrs: ${JSON.stringify(wrappedLayerAttrs)}`
+      const title =
+        `[${key}] [GPU] test: ${JSON.stringify(inputShape)} input, ` +
+        `wrapped layer: ${attrs.layer.class_name}, ` +
+        `wrapped layer attrs: ${JSON.stringify(attrs.layer.config)}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
-        let testLayer = new layers.TimeDistributed({ layer: new layers[wrappedLayer](wrappedLayerAttrs), gpu: true })
+        const testLayer = new layers.TimeDistributed(Object.assign(attrs, { gpu: true }))
         testLayer.setWeights(TEST_DATA[key].weights.map(w => new KerasJS.Tensor(w.data, w.shape)))
         let t = new KerasJS.Tensor(TEST_DATA[key].input.data, TEST_DATA[key].input.shape)
         console.log('%cin', styles.h4, stringifyCondensed(t.tensor))
