@@ -42,7 +42,7 @@ export default {
   & .info-panel-text {
     width: 100%;
     color: var(--color-darkgray);
-    font-size: 14px;
+    font-size: 12px;
     text-align: justify;
 
     & a {

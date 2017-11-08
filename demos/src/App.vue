@@ -29,8 +29,8 @@ export default {
   },
   created: function() {
     const canvas = document.createElement('canvas')
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
-    if (gl && gl instanceof WebGLRenderingContext) {
+    const gl = canvas.getContext('webgl2')
+    if (gl && gl instanceof window.WebGL2RenderingContext) {
       this.hasWebGL = true
     } else {
       this.hasWebGL = false
@@ -45,6 +45,10 @@ export default {
 @import 'https://fonts.googleapis.com/css?family=Nothing+You+Could+Do';
 
 @import './variables.css';
+
+html {
+  background: #CCCCCC;
+}
 
 body {
   background: linear-gradient(0deg, #CCCCCC, #F0F0F0);
@@ -109,8 +113,9 @@ body {
   & .mdl-textfield__input {
     color: var(--color-darkgray);
     border-bottom-color: var(--color-green-light);
-    font-family: var(--font-sans-serif);
-    font-size: 14px;
+    font-family: var(--font-monospace);
+    font-size: 14px !important;
+    outline: none;
   }
 
   & .mdl-textfield__label {
@@ -144,8 +149,10 @@ body {
 .mdl-menu {
   & .mdl-menu__item {
     font-family: var(--font-monospace);
-    font-size: 14px;
+    font-size: 14px !important;
     color: var(--color-lightgray);
+    height: 32px;
+    line-height: 32px;
 
     &:hover {
       background-color: var(--color-green-light);

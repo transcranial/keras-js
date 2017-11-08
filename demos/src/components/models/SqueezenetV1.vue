@@ -44,6 +44,12 @@
       </div>
       <div class="column output-column">
         <div class="output">
+          <div class="inference-time">
+            <span>inference time: </span>
+            <span v-if="inferenceTime > 0" class="inference-time-value">{{ inferenceTime.toFixed(1) }} ms </span>
+            <span v-if="inferenceTime > 0" class="inference-time-value">({{ (1000 / inferenceTime).toFixed(1) }} fps)</span>
+            <span v-else>-</span>
+          </div>
           <div class="output-class"
             :class="{ predicted: i === 0 && outputClasses[i].probability.toFixed(2) > 0 }"
             v-for="i in [0, 1, 2, 3, 4]"
@@ -111,6 +117,7 @@ export default {
       model: new KerasJS.Model(Object.assign({ gpu: this.hasWebGL, layerCallPauses: false }, MODEL_CONFIG)),
       modelLoading: true,
       modelRunning: false,
+      inferenceTime: null,
       imageURLInput: '',
       imageURLSelect: null,
       imageURLSelectList: IMAGE_URLS,
@@ -255,13 +262,16 @@ export default {
       ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 0))
 
       const inputData = { input_1: dataProcessedTensor.data }
+      const start = performance.now()
       this.model.predict(inputData).then(outputData => {
+        this.inferenceTime = performance.now() - start
         this.output = outputData['loss']
         this.modelRunning = false
       })
     },
     clearAll: function() {
       this.modelRunning = false
+      this.inferenceTime = null
       this.imageURLInput = null
       this.imageURLSelect = null
       this.imageLoading = false
@@ -331,6 +341,7 @@ export default {
   & .columns.input-output {
     max-width: 800px;
     margin: 0 auto;
+    margin-bottom: 20px;
 
     & .column {
       display: flex;
@@ -375,11 +386,22 @@ export default {
     & .column.output-column {
       & .output {
         width: 370px;
-        height: 160px;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         justify-content: center;
+
+        & .inference-time {
+          align-self: center;
+          font-family: var(--font-monospace);
+          font-size: 14px;
+          color: var(--color-lightgray);
+          margin-bottom: 10px;
+
+          & .inference-time-value {
+            color: var(--color-green);
+          }
+        }
 
         & .output-class {
           display: flex;
