@@ -1,11 +1,8 @@
 <template>
   <aside class="menu">
-    <h1>Keras.js Demos</h1>
+    <h1><a href="#/">Keras.js Demos</a></h1>
     <p class="menu-label">Demos</p>
     <ul class="menu-list">
-      <li :class="{ active: currentView === 'home' }">
-        <a href="#/">Home</a>
-      </li>
       <li :class="{ active: currentView === 'mnist-cnn' }">
         <a href="#/mnist-cnn">
           <span class="menu-item-heading">Basic Convnet</span>
@@ -83,15 +80,21 @@ export default {
   padding: 40px;
   margin: 20px;
   background: whitesmoke;
-  border-radius: 10px;
-  box-shadow: 5px 5px #CCCCCC;
+  box-shadow: 3px 3px #CCCCCC;
 
   & h1 {
-    color: #CCCCCC;
+    color: var(--color-green);
     font-family: var(--font-sans-serif);
     font-size: 1.5rem;
-    user-select: none;
-    cursor: default;
+
+    & a {
+      color: var(--color-green);
+      transition: color 0.2s ease-in-out;
+
+      &:hover {
+        color: var(--color-green-light);
+      }
+    }
   }
 }
 
@@ -147,11 +150,11 @@ export default {
     padding: 0;
     display: inline-flex;
     background-color: none;
-    transition: color 0.2s ease-in;
+    transition: color 0.2s ease-in-out;
 
     & .github-logo {
       fill: var(--color-green);
-      transition: fill 0.2s ease-in;
+      transition: fill 0.2s ease-in-out;
     }
 
     &:hover {

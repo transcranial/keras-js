@@ -1,6 +1,5 @@
 <template>
   <div class="demo home">
-    <div class="title"><span></span></div>
     <a v-for="info in demoInfo" :href="`#/${info.path}`">
       <div class="demo-card">
         <div class="demo-card-image"><img :src="info.imagePath" /></div>
@@ -52,9 +51,6 @@ export default {
   max-width: 1000px;
   margin: 30px auto;
   background: whitesmoke;
-  border: 2px solid whitesmoke;
-  border-radius: 10px;
-  transition: border-color 0.2s ease-in;
   cursor: default;
   user-select: none;
   display: flex;
@@ -62,9 +58,15 @@ export default {
   align-items: center;
   justify-content: space-between;
   overflow: hidden;
+  box-shadow: 3px 3px #CCCCCC;
+  transition: box-shadow 0.2s ease-in;
+
+  &:first-child {
+    margin-top: 0;
+  }
 
   &:hover {
-    border-color: var(--color-green);
+    box-shadow: 3px 3px 5px var(--color-green-light);
     cursor: pointer;
 
     & .demo-card-heading {
@@ -79,13 +81,13 @@ export default {
   text-align: center;
   color: var(--color-lightgray);
   font-family: var(--font-sans-serif);
-  font-size: 20px;
+  font-size: 18px;
   transition: color 0.2s ease-in;
 }
 
 .demo-card-image {
   & img {
-    width: 180px;
+    width: 150px;
     height: auto;
   }
 }

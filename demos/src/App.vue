@@ -74,7 +74,7 @@ body {
 }
 
 .demo {
-  padding: 50px 30px;
+  padding: 30px;
 
   & .loading-progress {
     position: absolute;
