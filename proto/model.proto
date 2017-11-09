@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package kerasjs;
+
+message Weights {
+  string layer_name = 1;
+  string weight_name = 2;
+  repeated uint32 shape = 3;
+  string type = 4;
+  bytes data = 5;
+}
+
+message Model {
+  string id = 1;
+  string name = 2;
+  string keras_version = 3;
+  string backend = 4;
+  string model_config = 5;
+  repeated Weights model_weights = 6;
+}
