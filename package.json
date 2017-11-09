@@ -10,24 +10,14 @@
     "build": "npm run build:browser && npm run build:node",
     "server": "http-server . -c-1 -p 3000",
     "demos:watch": "cd demos; NODE_ENV=development BABEL_ENV=browser webpack --watch --config webpack.config.js",
-    "demos:build": "cd demos; rm -rf dist; NODE_ENV=production BABEL_ENV=browser webpack --config webpack.config.js"
+    "demos:build": "cd demos; rm -rf dist; NODE_ENV=production BABEL_ENV=browser webpack --config webpack.config.js",
+    "proto2js": "pbjs --target static-module --wrap es6 proto/model.proto > src/proto.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/transcranial/keras-js.git"
   },
-  "keywords": [
-    "keras",
-    "deep",
-    "learning",
-    "machine",
-    "learning",
-    "neural",
-    "networks",
-    "javascript",
-    "webgl",
-    "gpu"
-  ],
+  "keywords": ["keras", "deep", "learning", "machine", "learning", "neural", "networks", "javascript", "webgl", "gpu"],
   "author": "Leon Chen <leon@md.ai>",
   "license": "MIT",
   "bugs": {
@@ -48,7 +38,8 @@
     "ndarray-squeeze": "^1.0.2",
     "ndarray-tile": "^1.0.3",
     "ndarray-unpack": "^1.0.0",
-    "ndarray-unsqueeze": "^1.0.3"
+    "ndarray-unsqueeze": "^1.0.3",
+    "protobufjs": "^6.8.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
