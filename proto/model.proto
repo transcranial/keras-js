@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-package kerasjs;
-
 message Weights {
   string layer_name = 1;
   string weight_name = 2;
