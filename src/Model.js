@@ -4,6 +4,7 @@ import _ from 'lodash'
 import * as layers from './layers'
 import Tensor from './Tensor'
 import { webgl2 } from './WebGL2'
+import proto from './proto'
 
 const axiosSource = axios.CancelToken.source()
 
@@ -14,17 +15,14 @@ export default class Model {
   /**
    * Create new Model class
    *
-   * @param {Object} config.filepaths
-   * @param {string} config.filepaths.modelFilepath - path to model architecture configuration (json)
-   * @param {string} config.filepaths.weightsFilepath - path to weights data (arraybuffer)
-   * @param {string} config.filepaths.metadataFilepath - path to weights metadata (json)
+   * @param {string} config.filepath - path to protobuf-serialized model definition file
    * @param {Object} [config.headers] - any additional HTTP headers required for resource fetching
    * @param {boolean} [config.gpu] - enable GPU
    * @param {boolean} [config.layerCallPauses] - force next tick after each layer call
    */
   constructor(config = {}) {
     const {
-      filepaths = {},
+      filepath = null,
       headers = {},
       filesystem = false,
       gpu = false,
@@ -32,11 +30,10 @@ export default class Model {
       layerCallPauses = false
     } = config
 
-    if (!filepaths.model || !filepaths.weights || !filepaths.metadata) {
-      throw new Error('[Model] File paths must be declared for model, weights, and metadata.')
+    if (!filepath) {
+      throw new Error('[Model] path to protobuf-serialized model definition file is missing.')
     }
-    this.filepaths = filepaths
-    this.filetypes = { model: 'json', weights: 'arraybuffer', metadata: 'json' }
+    this.filepath = filepath
 
     // HTTP(S) headers used during data fetching
     this.headers = headers
@@ -45,21 +42,16 @@ export default class Model {
     // only in node
     this.filesystem = typeof window !== 'undefined' ? false : filesystem
 
-    this.data = {
-      // object representing the model architecture configuration,
-      // directly from the to_json() method in Keras
-      model: {},
-      // ArrayBuffer of all the weights, sequentially concatenated
-      // see encoder.py for construction details - essentially the raw flattened
-      // numerical data from the HDF5 file is extracted sequentially and concatenated.
-      weights: null,
-      // array of weight tensor metadata, used to reconstruct tensors from the raw
-      // weights ArrayBuffer above.
-      metadata: []
-    }
-
     // data request progress
-    this.dataRequestProgress = { model: 0, weights: 0, metadata: 0 }
+    this.dataRequestProgress = 0
+
+    // Model config
+    this.id = null
+    this.name = null
+    this.kerasVersion = null
+    this.backend = null
+    this.modelConfig = {}
+    this.modelWeights = []
 
     // flag to enable GPU where possible (disable in node environment)
     this.gpu = typeof window !== 'undefined' && webgl2.isSupported ? gpu : false
@@ -119,13 +111,9 @@ export default class Model {
    * @returns {Promise}
    */
   async _initialize() {
-    const dataTypes = ['model', 'weights', 'metadata']
-    const dataRequests = dataTypes.map(type => {
-      return this.filesystem ? this._dataRequestFS(type) : this._dataRequestHTTP(type, this.headers)
-    })
-
     try {
-      await Promise.all(dataRequests)
+      const req = this.filesystem ? this._dataRequestFS() : this._dataRequestHTTP(this.headers)
+      await req
     } catch (err) {
       console.log(err)
       this._interrupt()
@@ -160,67 +148,79 @@ export default class Model {
   /**
    * Makes data FS request (node only)
    *
-   * @param {string} type - type of requested data, one of `model`, `weights`, or `metadata`.
    * @returns {Promise}
    */
-  async _dataRequestFS(type) {
+  async _dataRequestFS() {
     const readFile = Promise.promisify(require('fs').readFile)
-    const filetype = this.filetypes[type]
-    const encoding = filetype === 'json' ? 'utf8' : undefined
 
     try {
-      const data = await readFile(this.filepaths[type], encoding)
-      if (filetype === 'json') {
-        this.data[type] = JSON.parse(data)
-      } else if (filetype === 'arraybuffer') {
-        this.data[type] = data.buffer
-      } else {
-        throw new Error(`[Model] Invalid file type: ${filetype}`)
-      }
+      const file = await readFile(this.filepath)
+      this.decodeProtobuf(file.buffer)
     } catch (err) {
       throw err
     }
-    this.dataRequestProgress[type] = 100
+
+    this.dataRequestProgress = 100
   }
 
   /**
    * Makes data HTTP request (browser or node)
    *
-   * @param {string} type - type of requested data, one of `model`, `weights`, or `metadata`.
    * @param {Object} [headers] - any headers to be passed along with request
    * @returns {Promise}
    */
-  async _dataRequestHTTP(type, headers = {}) {
+  async _dataRequestHTTP(headers = {}) {
     try {
-      const res = await axios.get(this.filepaths[type], {
-        responseType: this.filetypes[type],
+      const res = await axios.get(this.filepath, {
+        responseType: 'arraybuffer',
         headers,
         onDownloadProgress: e => {
           if (e.lengthComputable) {
             const percentComplete = Math.round(100 * e.loaded / e.total)
-            this.dataRequestProgress[type] = percentComplete
+            this.dataRequestProgress = percentComplete
           }
         },
         cancelToken: axiosSource.token
       })
-      this.data[type] = res.data
+
+      this.decodeProtobuf(new Uint8Array(res.data))
     } catch (err) {
       if (axios.isCancel(err)) {
-        console.log('Data request canceled', err.message)
+        console.log('[Model] Data request canceled', err.message)
       } else {
         throw err
       }
     }
-    this.dataRequestProgress[type] = 100
+
+    this.dataRequestProgress = 100
+  }
+
+  /**
+   * Verifies and decodes binary buffer representing protobuf-serialized model definition file.
+   *
+   * @param {Uint8Array|Buffer} buffer
+   */
+  decodeProtobuf(buffer) {
+    const err = proto.Model.verify(buffer)
+    if (err) {
+      throw new Error(`[Model] Invalid model - check protobuf serialization: {err}`)
+    }
+    const model = proto.Model.decode(buffer)
+
+    this.id = model.id
+    this.name = model.name
+    this.kerasVersion = model.kerasVersion
+    this.backend = model.backend
+    this.modelConfig = JSON.parse(model.modelConfig)
+    this.modelWeights = model.modelWeights
   }
 
   /**
    * Loading progress calculated from all the data requests combined.
-   * @returns {number} progress
+   * @returns {number}
    */
   getLoadingProgress() {
-    const progressValues = _.values(this.dataRequestProgress)
-    return Math.round(_.sum(progressValues) / progressValues.length)
+    return this.dataRequestProgress
   }
 
   /**
@@ -259,13 +259,13 @@ export default class Model {
    * outbound nodes. Note that Models can have layers be entire Sequential branches.
    */
   _buildDAG() {
-    const modelClass = this.data.model.class_name
+    const modelClass = this.modelConfig.class_name
 
     let modelConfig = []
     if (modelClass === 'Sequential') {
-      modelConfig = this.data.model.config
+      modelConfig = this.modelConfig.config
     } else if (modelClass === 'Model') {
-      modelConfig = this.data.model.config.layers
+      modelConfig = this.modelConfig.config.layers
     }
 
     if (!(Array.isArray(modelConfig) && modelConfig.length)) {
@@ -359,18 +359,30 @@ export default class Model {
     } else {
       weightNames = layer.params.map(param => `${layerConfig.name}/${param}`)
     }
+
     if (weightNames && weightNames.length) {
       const weights = weightNames.map(weightName => {
-        const paramMetadata = _.find(this.data.metadata, meta => {
+        const weightDef = _.find(this.modelWeights, w => {
           const weightRE = new RegExp(`^${weightName}`)
-          return weightRE.test(meta.weight_name)
+          return weightRE.test(w.weightName)
         })
-        if (!paramMetadata) {
+
+        if (!weightDef) {
           throw new Error(`[Model] error loading weights.`)
         }
-        const { offset, length, shape } = paramMetadata
-        return new Tensor(new Float32Array(this.data.weights, offset, length), shape)
+
+        const { data, shape, type } = weightDef
+        if (type !== 'float32') {
+          throw new Error(`[Model] Only float32 weights supported for now.`)
+        }
+
+        // need to make a copy of underlying ArrayBuffer
+        const buf = new ArrayBuffer(data.byteLength)
+        new Uint8Array(buf).set(new Uint8Array(data.buffer, data.byteOffset, data.byteLength))
+
+        return new Tensor(new Float32Array(buf), shape)
       })
+
       layer.setWeights(weights)
     }
 
@@ -514,7 +526,7 @@ export default class Model {
     this._maybeTransferIntermediateOutputs()
 
     // outputs are layers with no outbound nodes
-    const modelClass = this.data.model.class_name
+    const modelClass = this.modelConfig.class_name
     const outputData = {}
     if (modelClass === 'Sequential') {
       const outputLayer = this.modelLayersMap.get(this.outputLayerNames[0])
