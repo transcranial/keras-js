@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='model.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x0bmodel.proto\"]\n\x07Weights\x12\x12\n\nlayer_name\x18\x01 \x01(\t\x12\x13\n\x0bweight_name\x18\x02 \x01(\t\x12\r\n\x05shape\x18\x03 \x03(\r\x12\x0c\n\x04type\x18\x04 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\"\x80\x01\n\x05Model\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rkeras_version\x18\x03 \x01(\t\x12\x0f\n\x07\x62\x61\x63kend\x18\x04 \x01(\t\x12\x14\n\x0cmodel_config\x18\x05 \x01(\t\x12\x1f\n\rmodel_weights\x18\x06 \x03(\x0b\x32\x08.Weightsb\x06proto3')
+  serialized_pb=_b('\n\x0bmodel.proto\"\x89\x01\n\x07Weights\x12\x12\n\nlayer_name\x18\x01 \x01(\t\x12\x13\n\x0bweight_name\x18\x02 \x01(\t\x12\r\n\x05shape\x18\x03 \x03(\r\x12\x0c\n\x04type\x18\x04 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\x12\x14\n\x0cquantize_min\x18\x06 \x01(\x02\x12\x14\n\x0cquantize_max\x18\x07 \x01(\x02\"\x80\x01\n\x05Model\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rkeras_version\x18\x03 \x01(\t\x12\x0f\n\x07\x62\x61\x63kend\x18\x04 \x01(\t\x12\x14\n\x0cmodel_config\x18\x05 \x01(\t\x12\x1f\n\rmodel_weights\x18\x06 \x03(\x0b\x32\x08.Weightsb\x06proto3')
 )
 
 
@@ -67,6 +67,20 @@ _WEIGHTS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='quantize_min', full_name='Weights.quantize_min', index=5,
+      number=6, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='quantize_max', full_name='Weights.quantize_max', index=6,
+      number=7, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -79,8 +93,8 @@ _WEIGHTS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=15,
-  serialized_end=108,
+  serialized_start=16,
+  serialized_end=153,
 )
 
 
@@ -145,8 +159,8 @@ _MODEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=111,
-  serialized_end=239,
+  serialized_start=156,
+  serialized_end=284,
 )
 
 _MODEL.fields_by_name['model_weights'].message_type = _WEIGHTS

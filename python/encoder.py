@@ -6,7 +6,21 @@ import uuid
 import model_pb2
 
 
-class Encoder(object):
+def quantize_arr(arr):
+    """Quantization based on linear rescaling over min/max range.
+    """
+    min_val, max_val = np.min(arr), np.max(arr)
+    if max_val - min_val > 0:
+        quantized = np.round(255 * (arr - min_val) / (max_val - min_val))
+    else:
+        quantized = np.zeros(arr.shape)
+    quantized = quantized.astype(np.uint8)
+    min_val = min_val.astype(np.float32)
+    max_val = max_val.astype(np.float32)
+    return quantized, min_val, max_val
+
+
+class Encoder:
     """Encoder class.
 
     Takes as input a Keras model saved in hdf5 format that includes the model architecture with the weights.
@@ -19,11 +33,12 @@ class Encoder(object):
     See https://keras.io/getting-started/faq/#savingloading-whole-models-architecture-weights-optimizer-state
     """
 
-    def __init__(self, hdf5_model_filepath, name):
+    def __init__(self, hdf5_model_filepath, name, quantize):
         if not hdf5_model_filepath:
             raise Exception('hdf5_model_filepath must be provided.')
         self.hdf5_model_filepath = hdf5_model_filepath
         self.name = name
+        self.quantize = quantize
 
         self.create_model()
 
@@ -55,8 +70,15 @@ class Encoder(object):
                 w.layer_name = layer_name
                 w.weight_name = weight_name
                 w.shape.extend(list(weight_value.shape))
-                w.type = 'float32'
-                w.data = weight_value.astype(np.float32).tobytes()
+                if quantize:
+                    w.type = 'uint8'
+                    quantized, min_val, max_val = quantize_arr(weight_value)
+                    w.data = quantized.astype(np.uint8).tobytes()
+                    w.quantize_min = min_val
+                    w.quantize_max = max_val
+                else:
+                    w.type = 'float32'
+                    w.data = weight_value.astype(np.float32).tobytes()
 
         hdf5_file.close()
 
@@ -73,8 +95,10 @@ class Encoder(object):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('hdf5_model_filepath')
-    parser.add_argument('--name', type=str, required=False,
+    parser.add_argument('-n', '--name', type=str, required=False,
                         help='model name (defaults to filename without extension if not provided)')
+    parser.add_argument('-q', '--quantize', action='store_true', required=False,
+                        help='quantize weights to 8-bit unsigned int')
     args = parser.parse_args()
 
     hdf5_model_filepath = args.hdf5_model_filepath
@@ -84,6 +108,8 @@ if __name__ == '__main__':
     else:
         name = os.path.splitext(os.path.basename(hdf5_model_filepath))[0]
 
-    encoder = Encoder(hdf5_model_filepath, name)
+    quantize = args.quantize
+
+    encoder = Encoder(hdf5_model_filepath, name, quantize)
     encoder.serialize()
     encoder.save()

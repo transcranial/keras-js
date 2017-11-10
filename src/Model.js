@@ -371,15 +371,24 @@ export default class Model {
         }
 
         const { data, shape, type } = weightDef
-        if (type !== 'float32') {
-          throw new Error(`[Model] Only float32 weights supported for now.`)
-        }
 
         // need to make a copy of underlying ArrayBuffer
         const buf = new ArrayBuffer(data.byteLength)
-        new Uint8Array(buf).set(new Uint8Array(data.buffer, data.byteOffset, data.byteLength))
+        const arr = new Uint8Array(buf)
+        arr.set(new Uint8Array(data.buffer, data.byteOffset, data.byteLength))
 
-        return new Tensor(new Float32Array(buf), shape)
+        if (type === 'uint8') {
+          // weights are quantized
+          const { quantizeMin, quantizeMax } = weightDef
+          const unquantized = new Float32Array(arr)
+          for (let i = 0, len = unquantized.length; i < len; i++) {
+            unquantized[i] *= (quantizeMax - quantizeMin) / 255
+            unquantized[i] += quantizeMin
+          }
+          return new Tensor(unquantized, shape)
+        } else {
+          return new Tensor(new Float32Array(buf), shape)
+        }
       })
 
       layer.setWeights(weights)

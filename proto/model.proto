@@ -6,6 +6,8 @@ message Weights {
   repeated uint32 shape = 3;
   string type = 4;
   bytes data = 5;
+  float quantize_min = 6;
+  float quantize_max = 7;
 }
 
 message Model {

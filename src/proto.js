@@ -18,6 +18,8 @@ export const Weights = $root.Weights = (() => {
      * @property {Array.<number>} [shape] Weights shape
      * @property {string} [type] Weights type
      * @property {Uint8Array} [data] Weights data
+     * @property {number} [quantizeMin] Weights quantizeMin
+     * @property {number} [quantizeMax] Weights quantizeMax
      */
 
     /**
@@ -76,6 +78,22 @@ export const Weights = $root.Weights = (() => {
     Weights.prototype.data = $util.newBuffer([]);
 
     /**
+     * Weights quantizeMin.
+     * @member {number}quantizeMin
+     * @memberof Weights
+     * @instance
+     */
+    Weights.prototype.quantizeMin = 0;
+
+    /**
+     * Weights quantizeMax.
+     * @member {number}quantizeMax
+     * @memberof Weights
+     * @instance
+     */
+    Weights.prototype.quantizeMax = 0;
+
+    /**
      * Creates a new Weights instance using the specified properties.
      * @function create
      * @memberof Weights
@@ -113,6 +131,10 @@ export const Weights = $root.Weights = (() => {
             writer.uint32(/* id 4, wireType 2 =*/34).string(message.type);
         if (message.data != null && message.hasOwnProperty("data"))
             writer.uint32(/* id 5, wireType 2 =*/42).bytes(message.data);
+        if (message.quantizeMin != null && message.hasOwnProperty("quantizeMin"))
+            writer.uint32(/* id 6, wireType 5 =*/53).float(message.quantizeMin);
+        if (message.quantizeMax != null && message.hasOwnProperty("quantizeMax"))
+            writer.uint32(/* id 7, wireType 5 =*/61).float(message.quantizeMax);
         return writer;
     };
 
@@ -169,6 +191,12 @@ export const Weights = $root.Weights = (() => {
             case 5:
                 message.data = reader.bytes();
                 break;
+            case 6:
+                message.quantizeMin = reader.float();
+                break;
+            case 7:
+                message.quantizeMax = reader.float();
+                break;
             default:
                 reader.skipType(tag & 7);
                 break;
@@ -223,6 +251,12 @@ export const Weights = $root.Weights = (() => {
         if (message.data != null && message.hasOwnProperty("data"))
             if (!(message.data && typeof message.data.length === "number" || $util.isString(message.data)))
                 return "data: buffer expected";
+        if (message.quantizeMin != null && message.hasOwnProperty("quantizeMin"))
+            if (typeof message.quantizeMin !== "number")
+                return "quantizeMin: number expected";
+        if (message.quantizeMax != null && message.hasOwnProperty("quantizeMax"))
+            if (typeof message.quantizeMax !== "number")
+                return "quantizeMax: number expected";
         return null;
     };
 
@@ -256,6 +290,10 @@ export const Weights = $root.Weights = (() => {
                 $util.base64.decode(object.data, message.data = $util.newBuffer($util.base64.length(object.data)), 0);
             else if (object.data.length)
                 message.data = object.data;
+        if (object.quantizeMin != null)
+            message.quantizeMin = Number(object.quantizeMin);
+        if (object.quantizeMax != null)
+            message.quantizeMax = Number(object.quantizeMax);
         return message;
     };
 
@@ -279,6 +317,8 @@ export const Weights = $root.Weights = (() => {
             object.weightName = "";
             object.type = "";
             object.data = options.bytes === String ? "" : [];
+            object.quantizeMin = 0;
+            object.quantizeMax = 0;
         }
         if (message.layerName != null && message.hasOwnProperty("layerName"))
             object.layerName = message.layerName;
@@ -293,6 +333,10 @@ export const Weights = $root.Weights = (() => {
             object.type = message.type;
         if (message.data != null && message.hasOwnProperty("data"))
             object.data = options.bytes === String ? $util.base64.encode(message.data, 0, message.data.length) : options.bytes === Array ? Array.prototype.slice.call(message.data) : message.data;
+        if (message.quantizeMin != null && message.hasOwnProperty("quantizeMin"))
+            object.quantizeMin = options.json && !isFinite(message.quantizeMin) ? String(message.quantizeMin) : message.quantizeMin;
+        if (message.quantizeMax != null && message.hasOwnProperty("quantizeMax"))
+            object.quantizeMax = options.json && !isFinite(message.quantizeMax) ? String(message.quantizeMax) : message.quantizeMax;
         return object;
     };
 
