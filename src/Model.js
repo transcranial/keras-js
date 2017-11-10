@@ -206,7 +206,6 @@ export default class Model {
       throw new Error(`[Model] Invalid model - check protobuf serialization: {err}`)
     }
     const model = proto.Model.decode(buffer)
-
     this.id = model.id
     this.name = model.name
     this.kerasVersion = model.kerasVersion

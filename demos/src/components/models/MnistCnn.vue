@@ -84,17 +84,12 @@ import debounce from 'lodash/debounce'
 import range from 'lodash/range'
 import * as utils from '../../utils'
 
-const MODEL_FILEPATHS_DEV = {
-  model: '/demos/data/mnist_cnn/mnist_cnn.json',
-  weights: '/demos/data/mnist_cnn/mnist_cnn_weights.buf',
-  metadata: '/demos/data/mnist_cnn/mnist_cnn_metadata.json'
+const MODEL_CONFIG = {
+  filepath:
+    process.env.NODE_ENV === 'production'
+      ? 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn.bin'
+      : '/demos/data/mnist_cnn/mnist_cnn.bin'
 }
-const MODEL_FILEPATHS_PROD = {
-  model: 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn.json',
-  weights: 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn_weights.buf',
-  metadata: 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn_metadata.json'
-}
-const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
 const LAYER_DISPLAY_CONFIG = {
   conv2d_1: { heading: '32 3x3 filters, padding valid, 1x1 strides', scalingFactor: 2 },

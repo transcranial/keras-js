@@ -95,17 +95,12 @@ import * as utils from '../../utils'
 import { IMAGE_URLS } from '../../data/sample-image-urls'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/resnet50-arch'
 
-const MODEL_FILEPATHS_DEV = {
-  model: '/demos/data/resnet50/resnet50.json',
-  weights: '/demos/data/resnet50/resnet50_weights.buf',
-  metadata: '/demos/data/resnet50/resnet50_metadata.json'
+const MODEL_CONFIG = {
+  filepath:
+    process.env.NODE_ENV === 'production'
+      ? 'https://transcranial.github.io/keras-js-demos-data/resnet50/resnet50.bin'
+      : '/demos/data/resnet50/resnet50.bin'
 }
-const MODEL_FILEPATHS_PROD = {
-  model: 'https://transcranial.github.io/keras-js-demos-data/resnet50/resnet50.json',
-  weights: 'https://transcranial.github.io/keras-js-demos-data/resnet50/resnet50_weights.buf',
-  metadata: 'https://transcranial.github.io/keras-js-demos-data/resnet50/resnet50_metadata.json'
-}
-const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
 export default {
   props: ['hasWebGL'],

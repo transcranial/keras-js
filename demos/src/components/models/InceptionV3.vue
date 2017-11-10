@@ -95,17 +95,12 @@ import * as utils from '../../utils'
 import { IMAGE_URLS } from '../../data/sample-image-urls'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/inception-v3-arch'
 
-const MODEL_FILEPATHS_DEV = {
-  model: '/demos/data/inception_v3/inception_v3.json',
-  weights: '/demos/data/inception_v3/inception_v3_weights.buf',
-  metadata: '/demos/data/inception_v3/inception_v3_metadata.json'
+const MODEL_CONFIG = {
+  filepath:
+    process.env.NODE_ENV === 'production'
+      ? 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3.bin'
+      : '/demos/data/inception_v3/inception_v3.bin'
 }
-const MODEL_FILEPATHS_PROD = {
-  model: 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3.json',
-  weights: 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3_weights.buf',
-  metadata: 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3_metadata.json'
-}
-const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
 export default {
   props: ['hasWebGL'],

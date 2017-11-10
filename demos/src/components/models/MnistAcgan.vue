@@ -56,17 +56,12 @@ import * as utils from '../../utils'
 import filter from 'lodash/filter'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/mnist-acgan-arch'
 
-const MODEL_FILEPATHS_DEV = {
-  model: '/demos/data/mnist_acgan/mnist_acgan.json',
-  weights: '/demos/data/mnist_acgan/mnist_acgan_weights.buf',
-  metadata: '/demos/data/mnist_acgan/mnist_acgan_metadata.json'
+const MODEL_CONFIG = {
+  filepath:
+    process.env.NODE_ENV === 'production'
+      ? 'https://transcranial.github.io/keras-js-demos-data/mnist_acgan/mnist_acgan.bin'
+      : '/demos/data/mnist_acgan/mnist_acgan.bin'
 }
-const MODEL_FILEPATHS_PROD = {
-  model: 'https://transcranial.github.io/keras-js-demos-data/mnist_acgan/mnist_acgan.json',
-  weights: 'https://transcranial.github.io/keras-js-demos-data/mnist_acgan/mnist_acgan_weights.buf',
-  metadata: 'https://transcranial.github.io/keras-js-demos-data/mnist_acgan/mnist_acgan_metadata.json'
-}
-const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
 export default {
   props: ['hasWebGL'],

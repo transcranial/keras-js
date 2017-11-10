@@ -82,26 +82,21 @@
 import _ from 'lodash'
 import * as utils from '../../utils'
 
-const MODEL_FILEPATHS_DEV = {
-  model: '/demos/data/mnist_vae/mnist_vae.json',
-  weights: '/demos/data/mnist_vae/mnist_vae_weights.buf',
-  metadata: '/demos/data/mnist_vae/mnist_vae_metadata.json'
+const MODEL_CONFIG = {
+  filepath:
+    process.env.NODE_ENV === 'production'
+      ? 'https://transcranial.github.io/keras-js-demos-data/mnist_vae/mnist_vae.bin'
+      : '/demos/data/mnist_vae/mnist_vae.bin'
 }
-const MODEL_FILEPATHS_PROD = {
-  model: 'https://transcranial.github.io/keras-js-demos-data/mnist_vae/mnist_vae.json',
-  weights: 'https://transcranial.github.io/keras-js-demos-data/mnist_vae/mnist_vae_weights.buf',
-  metadata: 'https://transcranial.github.io/keras-js-demos-data/mnist_vae/mnist_vae_metadata.json'
-}
-const MODEL_CONFIG = { filepaths: process.env.NODE_ENV === 'production' ? MODEL_FILEPATHS_PROD : MODEL_FILEPATHS_DEV }
 
 const LAYER_DISPLAY_CONFIG = {
-  dense_19: { heading: 'input dimensions = 2, output dimensions = 128, ReLU activation', scalingFactor: 2 },
-  dense_20: { heading: 'ReLU activation, output dimensions = 25088 (64 x 14 x 14)', scalingFactor: 2 },
-  reshape_7: { heading: '', scalingFactor: 2 },
-  conv2d_transpose_19: { heading: '64 3x3 filters, padding same, 1x1 strides, ReLU activation', scalingFactor: 2 },
-  conv2d_transpose_20: { heading: '64 3x3 filters, padding same, 1x1 strides, ReLU activation', scalingFactor: 2 },
-  conv2d_transpose_21: { heading: '64 2x2 filters, padding valid, 2x2 strides, ReLU activation', scalingFactor: 2 },
-  conv2d_15: { heading: '1 2x2 filters, padding same, 1x1 strides, sigmoid activation', scalingFactor: 2 }
+  dense_6: { heading: 'input dimensions = 2, output dimensions = 128, ReLU activation', scalingFactor: 2 },
+  dense_7: { heading: 'ReLU activation, output dimensions = 25088 (64 x 14 x 14)', scalingFactor: 2 },
+  reshape_2: { heading: '', scalingFactor: 2 },
+  conv2d_transpose_4: { heading: '64 3x3 filters, padding same, 1x1 strides, ReLU activation', scalingFactor: 2 },
+  conv2d_transpose_5: { heading: '64 3x3 filters, padding same, 1x1 strides, ReLU activation', scalingFactor: 2 },
+  conv2d_transpose_6: { heading: '64 2x2 filters, padding valid, 2x2 strides, ReLU activation', scalingFactor: 2 },
+  conv2d_6: { heading: '1 2x2 filters, padding same, 1x1 strides, sigmoid activation', scalingFactor: 2 }
 }
 
 export default {
@@ -207,9 +202,9 @@ export default {
       { leading: true, trailing: true }
     ),
     runModel: function() {
-      const inputData = { input_7: new Float32Array(this.inputCoordinates) }
+      const inputData = { input_2: new Float32Array(this.inputCoordinates) }
       this.model.predict(inputData).then(outputData => {
-        this.output = outputData['conv2d_15']
+        this.output = outputData['conv2d_6']
         this.drawOutput()
         this.getIntermediateOutputs()
       })
