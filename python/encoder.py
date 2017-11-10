@@ -1,8 +1,6 @@
-import sys
 import os
 import h5py
 import numpy as np
-import json
 import argparse
 import uuid
 import model_pb2
@@ -69,6 +67,7 @@ class Encoder(object):
                                          '{}.bin'.format(self.name))
         with open(pb_model_filepath, 'wb') as f:
             f.write(self.model.SerializeToString())
+        print('Saved to binary file {}'.format(os.path.abspath(pb_model_filepath)))
 
 
 if __name__ == '__main__':
@@ -83,7 +82,7 @@ if __name__ == '__main__':
     if args.name is not None:
         name = args.name
     else:
-        name = os.path.basename(hdf5_model_filepath).split('.')[0]
+        name = os.path.splitext(os.path.basename(hdf5_model_filepath))[0]
 
     encoder = Encoder(hdf5_model_filepath, name)
     encoder.serialize()
