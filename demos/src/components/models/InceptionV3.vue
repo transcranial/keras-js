@@ -29,7 +29,6 @@
       </div>
       <div class="controls">
         <mdl-switch v-model="useGPU" :disabled="modelLoading || modelRunning || !hasWebGL">Use GPU</mdl-switch>
-        <mdl-switch v-model="showComputationFlow" :disabled="modelLoading || modelRunning">Show computation flow</mdl-switch>
       </div>
     </div>
     <div class="columns input-output" v-if="!modelLoading">
@@ -108,8 +107,7 @@ export default {
   data: function() {
     return {
       useGPU: this.hasWebGL,
-      showComputationFlow: false,
-      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebGL, layerCallPauses: false }, MODEL_CONFIG)),
+      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebGL }, MODEL_CONFIG)),
       modelLoading: true,
       modelRunning: false,
       inferenceTime: null,
@@ -132,9 +130,6 @@ export default {
     },
     useGPU: function(value) {
       this.model.toggleGPU(value)
-    },
-    showComputationFlow: function(value) {
-      this.model.layerCallPauses = value
     }
   },
 

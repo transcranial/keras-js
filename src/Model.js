@@ -17,18 +17,11 @@ export default class Model {
    *
    * @param {string} config.filepath - path to protobuf-serialized model definition file
    * @param {Object} [config.headers] - any additional HTTP headers required for resource fetching
+   * @param {Object} [config.filesystem] - specifies that data files are from local file system (Node.js only)
    * @param {boolean} [config.gpu] - enable GPU
-   * @param {boolean} [config.layerCallPauses] - force next tick after each layer call
    */
   constructor(config = {}) {
-    const {
-      filepath = null,
-      headers = {},
-      filesystem = false,
-      gpu = false,
-      transferLayerOutputs = false,
-      layerCallPauses = false
-    } = config
+    const { filepath = null, headers = {}, filesystem = false, gpu = false, transferLayerOutputs = false } = config
 
     if (!filepath) {
       throw new Error('[Model] path to protobuf-serialized model definition file is missing.')
@@ -38,8 +31,7 @@ export default class Model {
     // HTTP(S) headers used during data fetching
     this.headers = headers
 
-    // specifies that data files are from local file system
-    // only in node
+    // specifies that data files are from local file system (Node.js only)
     this.filesystem = typeof window !== 'undefined' ? false : filesystem
 
     // data request progress
@@ -58,9 +50,6 @@ export default class Model {
 
     // in GPU mode, transfer intermediate outputs of each layer from GPU->CPU (warning: decreases performance)
     this.transferLayerOutputs = transferLayerOutputs
-
-    // flag to enable 0 ms pauses after layer computation calls
-    this.layerCallPauses = layerCallPauses
 
     // map of model layers
     this.modelLayersMap = new Map()
@@ -123,17 +112,13 @@ export default class Model {
     this._buildDAG()
 
     // run predict once with initial empty input tensors to cache variables such as shape inference
-    // make sure layerCallPauses is turned off during this step
     this.inputLayerNames.forEach(name => {
       const inputLayer = this.modelLayersMap.get(name)
       inputLayer.call(this.inputTensorsMap.get(name))
       inputLayer.hasOutput = true
       inputLayer.visited = true
     })
-    const _layerCallPauses = this.layerCallPauses
-    this.layerCallPauses = false
     await this._traverseDAG(this.inputLayerNames)
-    this.layerCallPauses = _layerCallPauses
 
     // reset hasOutput and visited flags in all layers
     this.finishedLayerNames = []
@@ -447,12 +432,6 @@ export default class Model {
         currentLayer.hasOutput = true
         currentLayer.visited = true
         this.finishedLayerNames.push(currentLayer.name)
-
-        if (this.layerCallPauses) {
-          // temporarily pause 0 ms
-          // useful for allowing DOM operations and other simultaneously running functions on the main thread
-          await Promise.delay(0)
-        }
       }
 
       await this._traverseDAG(currentLayer.outbound)
