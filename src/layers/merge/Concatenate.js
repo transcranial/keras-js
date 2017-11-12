@@ -3,7 +3,7 @@ import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import * as tensorUtils from '../../utils/tensorUtils'
 import concatFirstAxis from 'ndarray-concat-rows'
-import sum from 'lodash/sum'
+import _ from 'lodash'
 
 /**
  * Concatenate merge layer class, extends abstract _Merge class
@@ -85,16 +85,16 @@ export default class Concatenate extends _Merge {
 
     // create output textures if doesn't already exist
     if (!this.output) {
-      outputShape[_concatAxis] = sum(inputs.map(input => input.glTextureShape[_concatAxis]))
+      outputShape[_concatAxis] = _.sum(inputs.map(input => input.glTextureShape[_concatAxis]))
       this.output = new Tensor([], outputShape)
       this.output.createGLTexture()
       if (inputs[0].is1D) {
         this.output.is1D = inputs[0].is1D
       } else if (inputs[0].is2DReshaped) {
         this.output.is2DReshaped = inputs[0].is2DReshaped
-        this.output.originalShape = inputs[0].originalShape
+        this.output.originalShape = inputs[0].originalShape.slice()
         const _concatAxis = this.concatAxis < 0 ? this.output.originalShape.length + this.concatAxis : this.concatAxis
-        this.output.originalShape[_concatAxis] = sum(inputs.map(input => input.originalShape[_concatAxis]))
+        this.output.originalShape[_concatAxis] = _.sum(inputs.map(input => input.originalShape[_concatAxis]))
         this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(
           this.output.originalShape,
           false,
