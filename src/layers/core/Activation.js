@@ -54,7 +54,7 @@ export default class Activation extends Layer {
    * @param {Tensor} x
    */
   _callCPU(x) {
-    this.output = x
+    this.output = new Tensor(new x.arrayType(x.tensor.data), x.tensor.shape)
     this.activationFunc(this.output)
   }
 
