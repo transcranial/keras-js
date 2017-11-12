@@ -17,7 +17,18 @@
     "type": "git",
     "url": "git+https://github.com/transcranial/keras-js.git"
   },
-  "keywords": ["keras", "deep", "learning", "machine", "learning", "neural", "networks", "javascript", "webgl", "gpu"],
+  "keywords": [
+    "keras",
+    "deep",
+    "learning",
+    "machine",
+    "learning",
+    "neural",
+    "networks",
+    "javascript",
+    "webgl",
+    "gpu"
+  ],
   "author": "Leon Chen <leon@md.ai>",
   "license": "MIT",
   "bugs": {
@@ -25,7 +36,7 @@
   },
   "homepage": "https://github.com/transcranial/keras-js#readme",
   "dependencies": {
-    "axios": "^0.17.0",
+    "axios": "^0.17.1",
     "babel-polyfill": "^6.26.0",
     "bluebird": "^3.5.1",
     "cwise": "^1.0.10",
@@ -50,9 +61,9 @@
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "blueimp-load-image": "^2.17.0",
+    "blueimp-load-image": "^2.17.1",
     "css-loader": "^0.28.7",
-    "eslint": "^4.10.0",
+    "eslint": "^4.11.0",
     "eslint-loader": "^1.9.0",
     "eslint-plugin-html": "^3.2.2",
     "glslify-loader": "^1.0.2",
