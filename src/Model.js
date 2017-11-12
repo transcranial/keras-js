@@ -2,6 +2,7 @@ import Promise from 'bluebird'
 import axios from 'axios'
 import _ from 'lodash'
 import * as layers from './layers'
+import * as visMethods from './visualizations'
 import Tensor from './Tensor'
 import { webgl2 } from './WebGL2'
 import proto from './proto'
@@ -19,9 +20,18 @@ export default class Model {
    * @param {Object} [config.headers] - any additional HTTP headers required for resource fetching
    * @param {Object} [config.filesystem] - specifies that data files are from local file system (Node.js only)
    * @param {boolean} [config.gpu] - enable GPU
+   * @param {boolean} [config.transferLayerOutputs] - in GPU mode, transfer outputs of each layer from GPU->CPU
+   * @param {string[]} [config.visualizations] - specifies which visualizations to calculate
    */
   constructor(config = {}) {
-    const { filepath = null, headers = {}, filesystem = false, gpu = false, transferLayerOutputs = false } = config
+    const {
+      filepath = null,
+      headers = {},
+      filesystem = false,
+      gpu = false,
+      transferLayerOutputs = false,
+      visualizations = []
+    } = config
 
     if (!filepath) {
       throw new Error('[Model] path to protobuf-serialized model definition file is missing.')
@@ -69,6 +79,15 @@ export default class Model {
 
     // Promise for when Model class is initialized
     this._ready = this._initialize()
+
+    // visualizations to calculate
+    this.visMap = new Map()
+    visualizations.forEach(v => {
+      if (v in visMethods) {
+        const visInstance = new visMethods[v]({ modelLayersMap: this.modelLayersMap, gpu: this.gpu })
+        this.visMap.set(v, visInstance)
+      }
+    })
   }
 
   /**
@@ -125,6 +144,11 @@ export default class Model {
     this.modelLayersMap.forEach(layer => {
       layer.hasOutput = false
       layer.visited = false
+    })
+
+    // initialize visualizations
+    this.visMap.forEach(visInstance => {
+      visInstance.initialize()
     })
 
     return true
@@ -220,6 +244,9 @@ export default class Model {
     }
     this.modelLayersMap.forEach(layer => {
       layer.toggleGPU(this.gpu)
+    })
+    this.visMap.forEach(visInstance => {
+      visInstance.gpu = this.gpu
     })
     this.resetInputTensors()
   }
@@ -524,6 +551,11 @@ export default class Model {
         outputData[layerName] = outputLayer.output.tensor.data
       })
     }
+
+    // update visualizations
+    this.visMap.forEach(visInstance => {
+      visInstance.update()
+    })
 
     this.isRunning = false
     return outputData
