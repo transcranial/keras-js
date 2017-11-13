@@ -121,6 +121,7 @@ body {
   & .mdl-textfield__label {
     font-family: var(--font-monospace);
     color: var(--color-green-light);
+    font-size: 14px !important;
   }
 
   & .mdl-icon-toggle__label {
@@ -135,6 +136,7 @@ body {
 
   & .mdl-textfield__label {
     color: var(--color-green);
+    font-size: 12px !important;
 
     &::after {
       background-color: var(--color-green);
@@ -144,6 +146,16 @@ body {
   & .mdl-icon-toggle__label {
     color: var(--color-green);
   }
+}
+
+.mdl-textfield.is-dirty {
+  & .mdl-textfield__label {
+    font-size: 12px !important;
+  }
+}
+
+.mdl-menu__container {
+  overflow: visible !important;
 }
 
 .mdl-menu {

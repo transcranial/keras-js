@@ -82,12 +82,8 @@
 import _ from 'lodash'
 import * as utils from '../../utils'
 
-const MODEL_CONFIG = {
-  filepath:
-    process.env.NODE_ENV === 'production'
-      ? 'https://transcranial.github.io/keras-js-demos-data/mnist_vae/mnist_vae.bin'
-      : '/demos/data/mnist_vae/mnist_vae.bin'
-}
+const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/mnist_vae/mnist_vae.bin'
+const MODEL_FILEPATH_DEV = '/demos/data/mnist_vae/mnist_vae.bin'
 
 const LAYER_DISPLAY_CONFIG = {
   dense_6: { heading: 'input dimensions = 2, output dimensions = 128, ReLU activation', scalingFactor: 2 },
@@ -102,10 +98,14 @@ const LAYER_DISPLAY_CONFIG = {
 export default {
   props: ['hasWebGL'],
 
-  data: function() {
+  data() {
     return {
       useGPU: this.hasWebGL,
-      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebGL, transferLayerOutputs: true }, MODEL_CONFIG)),
+      model: new KerasJS.Model({
+        filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
+        gpu: this.hasWebGL,
+        transferLayerOutputs: true
+      }),
       modelLoading: true,
       output: new Float32Array(28 * 28),
       crosshairsActivated: false,
@@ -117,18 +117,18 @@ export default {
   },
 
   watch: {
-    useGPU: function(value) {
+    useGPU(value) {
       this.model.toggleGPU(value)
     }
   },
 
   computed: {
-    loadingProgress: function() {
+    loadingProgress() {
       return this.model.getLoadingProgress()
     }
   },
 
-  mounted: function() {
+  mounted() {
     this.model.ready().then(() => {
       this.modelLoading = false
       this.$nextTick(() => {
@@ -140,14 +140,14 @@ export default {
   },
 
   methods: {
-    activateCrosshairs: function() {
+    activateCrosshairs() {
       this.crosshairsActivated = true
     },
-    deactivateCrosshairs: function(e) {
+    deactivateCrosshairs(e) {
       this.crosshairsActivated = false
       this.draw(e)
     },
-    draw: function(e) {
+    draw(e) {
       const [x, y] = this.getEventCanvasCoordinates(e)
       const ctx = document.getElementById('input-canvas').getContext('2d')
       ctx.clearRect(0, 0, 200, 200)
@@ -166,7 +166,7 @@ export default {
         ctx.stroke()
       }
     },
-    drawPosition: function() {
+    drawPosition() {
       const ctx = document.getElementById('input-canvas').getContext('2d')
       ctx.clearRect(0, 0, 200, 200)
       ctx.fillStyle = 'rgb(0, 0, 0)'
@@ -175,7 +175,7 @@ export default {
       ctx.closePath()
       ctx.fill()
     },
-    getEventCanvasCoordinates: function(e) {
+    getEventCanvasCoordinates(e) {
       let { clientX, clientY } = e
       // for touch event
       if (e.touches && e.touches.length) {
@@ -201,7 +201,7 @@ export default {
       16,
       { leading: true, trailing: true }
     ),
-    runModel: function() {
+    runModel() {
       const inputData = { input_2: new Float32Array(this.inputCoordinates) }
       this.model.predict(inputData).then(outputData => {
         this.output = outputData['conv2d_6']
@@ -209,7 +209,7 @@ export default {
         this.getIntermediateOutputs()
       })
     },
-    drawOutput: function() {
+    drawOutput() {
       const ctx = document.getElementById('output-canvas').getContext('2d')
       const image = utils.image2Darray(this.output, 28, 28, [0, 0, 0])
       ctx.putImageData(image, 0, 0)
@@ -222,7 +222,7 @@ export default {
       ctxScaled.drawImage(document.getElementById('output-canvas'), 0, 0)
       ctxScaled.restore()
     },
-    getIntermediateOutputs: function() {
+    getIntermediateOutputs() {
       const outputs = []
       this.model.modelLayersMap.forEach((layer, name) => {
         if (layer.layerClass === 'InputLayer') return
@@ -241,7 +241,7 @@ export default {
         this.showIntermediateOutputs()
       }, 0)
     },
-    showIntermediateOutputs: function() {
+    showIntermediateOutputs() {
       this.layerOutputImages.forEach((output, layerNum) => {
         const scalingFactor = this.layerDisplayConfig[output.name].scalingFactor
         output.images.forEach((image, imageNum) => {
@@ -258,7 +258,7 @@ export default {
         })
       })
     },
-    clearIntermediateOutputs: function() {
+    clearIntermediateOutputs() {
       this.layerOutputImages.forEach((output, layerNum) => {
         const scalingFactor = this.layerDisplayConfig[output.name].scalingFactor
         output.images.forEach((image, imageNum) => {

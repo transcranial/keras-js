@@ -84,12 +84,8 @@ import debounce from 'lodash/debounce'
 import range from 'lodash/range'
 import * as utils from '../../utils'
 
-const MODEL_CONFIG = {
-  filepath:
-    process.env.NODE_ENV === 'production'
-      ? 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn.bin'
-      : '/demos/data/mnist_cnn/mnist_cnn.bin'
-}
+const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn.bin'
+const MODEL_FILEPATH_DEV = '/demos/data/mnist_cnn/mnist_cnn.bin'
 
 const LAYER_DISPLAY_CONFIG = {
   conv2d_1: { heading: '32 3x3 filters, padding valid, 1x1 strides', scalingFactor: 2 },
@@ -109,10 +105,14 @@ const LAYER_DISPLAY_CONFIG = {
 export default {
   props: ['hasWebGL'],
 
-  data: function() {
+  data() {
     return {
       useGPU: this.hasWebGL,
-      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebGL, transferLayerOutputs: true }, MODEL_CONFIG)),
+      model: new KerasJS.Model({
+        filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
+        gpu: this.hasWebGL,
+        transferLayerOutputs: true
+      }),
       modelLoading: true,
       input: new Float32Array(784),
       output: new Float32Array(10),
@@ -125,16 +125,16 @@ export default {
   },
 
   watch: {
-    useGPU: function(value) {
+    useGPU(value) {
       this.model.toggleGPU(value)
     }
   },
 
   computed: {
-    loadingProgress: function() {
+    loadingProgress() {
       return this.model.getLoadingProgress()
     },
-    predictedClass: function() {
+    predictedClass() {
       if (this.output.reduce((a, b) => a + b, 0) === 0) {
         return -1
       }
@@ -142,7 +142,7 @@ export default {
     }
   },
 
-  mounted: function() {
+  mounted() {
     this.model.ready().then(() => {
       this.modelLoading = false
       this.$nextTick(() => {
@@ -152,7 +152,7 @@ export default {
   },
 
   methods: {
-    clear: function() {
+    clear() {
       this.clearIntermediateOutputs()
       const ctx = document.getElementById('input-canvas').getContext('2d')
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
@@ -164,13 +164,13 @@ export default {
       this.drawing = false
       this.strokes = []
     },
-    activateDraw: function(e) {
+    activateDraw(e) {
       this.drawing = true
       this.strokes.push([])
       let points = this.strokes[this.strokes.length - 1]
       points.push(utils.getCoordinates(e))
     },
-    draw: function(e) {
+    draw(e) {
       if (!this.drawing) return
 
       const ctx = document.getElementById('input-canvas').getContext('2d')
@@ -242,7 +242,7 @@ export default {
       200,
       { leading: true, trailing: true }
     ),
-    getIntermediateOutputs: function() {
+    getIntermediateOutputs() {
       const outputs = []
       this.model.modelLayersMap.forEach((layer, name) => {
         if (name === 'input') return
@@ -261,7 +261,7 @@ export default {
         this.showIntermediateOutputs()
       }, 0)
     },
-    showIntermediateOutputs: function() {
+    showIntermediateOutputs() {
       this.layerOutputImages.forEach((output, layerNum) => {
         const scalingFactor = this.layerDisplayConfig[output.name].scalingFactor
         output.images.forEach((image, imageNum) => {
@@ -278,7 +278,7 @@ export default {
         })
       })
     },
-    clearIntermediateOutputs: function() {
+    clearIntermediateOutputs() {
       this.layerOutputImages.forEach((output, layerNum) => {
         const scalingFactor = this.layerDisplayConfig[output.name].scalingFactor
         output.images.forEach((image, imageNum) => {

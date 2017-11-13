@@ -56,22 +56,21 @@ import * as utils from '../../utils'
 import filter from 'lodash/filter'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/mnist-acgan-arch'
 
-const MODEL_CONFIG = {
-  filepath:
-    process.env.NODE_ENV === 'production'
-      ? 'https://transcranial.github.io/keras-js-demos-data/mnist_acgan/mnist_acgan.bin'
-      : '/demos/data/mnist_acgan/mnist_acgan.bin'
-}
+const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/mnist_acgan/mnist_acgan.bin'
+const MODEL_FILEPATH_DEV = '/demos/data/mnist_acgan/mnist_acgan.bin'
 
 export default {
   props: ['hasWebGL'],
 
-  data: function() {
+  data() {
     return {
       useGPU: this.hasWebGL,
       digit: 6,
       noiseVector: [],
-      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebGL }, MODEL_CONFIG)),
+      model: new KerasJS.Model({
+        filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
+        gpu: this.hasWebGL
+      }),
       modelLoading: true,
       output: new Float32Array(28 * 28),
       architectureDiagram: ARCHITECTURE_DIAGRAM,
@@ -81,16 +80,16 @@ export default {
   },
 
   watch: {
-    useGPU: function(value) {
+    useGPU(value) {
       this.model.toggleGPU(value)
     }
   },
 
   computed: {
-    loadingProgress: function() {
+    loadingProgress() {
       return this.model.getLoadingProgress()
     },
-    architectureDiagramRows: function() {
+    architectureDiagramRows() {
       const rows = []
       for (let row = 0; row < 12; row++) {
         rows.push(filter(this.architectureDiagram, { row }))
@@ -99,11 +98,11 @@ export default {
     }
   },
 
-  created: function() {
+  created() {
     this.createNoise()
   },
 
-  mounted: function() {
+  mounted() {
     this.model.ready().then(() => {
       this.modelLoading = false
       this.$nextTick(() => {
@@ -115,7 +114,7 @@ export default {
   },
 
   methods: {
-    drawArchitectureDiagramPaths: function() {
+    drawArchitectureDiagramPaths() {
       this.architectureDiagramPaths = []
       this.$nextTick(() => {
         this.architectureConnections.forEach(conn => {
@@ -147,11 +146,11 @@ export default {
         })
       })
     },
-    selectDigit: function(digit) {
+    selectDigit(digit) {
       this.digit = digit
       this.runModel()
     },
-    createNoise: function() {
+    createNoise() {
       const latentSize = 100
       const noiseVector = []
       for (let i = 0; i < latentSize; i++) {
@@ -160,7 +159,7 @@ export default {
       }
       this.noiseVector = noiseVector
     },
-    runModel: function() {
+    runModel() {
       const inputData = {
         input_2: new Float32Array(this.noiseVector),
         input_3: new Float32Array([this.digit])
@@ -170,7 +169,7 @@ export default {
         this.drawOutput()
       })
     },
-    drawNoise: function() {
+    drawNoise() {
       // draw noise visualization on canvas
       const ctx = document.getElementById('noise-canvas').getContext('2d')
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
@@ -182,7 +181,7 @@ export default {
         }
       }
     },
-    drawOutput: function() {
+    drawOutput() {
       const ctx = document.getElementById('output-canvas').getContext('2d')
       const image = utils.image2Darray(this.output, 28, 28, [0, 0, 0])
       ctx.putImageData(image, 0, 0)
@@ -195,7 +194,7 @@ export default {
       ctxScaled.drawImage(document.getElementById('output-canvas'), 0, 0)
       ctxScaled.restore()
     },
-    onGenerateNewNoise: function() {
+    onGenerateNewNoise() {
       this.createNoise()
       this.runModel()
       this.drawNoise()

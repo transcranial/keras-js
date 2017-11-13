@@ -94,20 +94,19 @@ import * as utils from '../../utils'
 import { IMAGE_URLS } from '../../data/sample-image-urls'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/inception-v3-arch'
 
-const MODEL_CONFIG = {
-  filepath:
-    process.env.NODE_ENV === 'production'
-      ? 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3.bin'
-      : '/demos/data/inception_v3/inception_v3.bin'
-}
+const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/inception_v3/inception_v3.bin'
+const MODEL_FILEPATH_DEV = '/demos/data/inception_v3/inception_v3.bin'
 
 export default {
   props: ['hasWebGL'],
 
-  data: function() {
+  data() {
     return {
       useGPU: this.hasWebGL,
-      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebGL }, MODEL_CONFIG)),
+      model: new KerasJS.Model({
+        filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
+        gpu: this.hasWebGL
+      }),
       modelLoading: true,
       modelRunning: false,
       inferenceTime: null,
@@ -124,20 +123,20 @@ export default {
   },
 
   watch: {
-    imageURLSelect: function(value) {
+    imageURLSelect(value) {
       this.imageURLInput = value
       this.loadImageToCanvas(value)
     },
-    useGPU: function(value) {
+    useGPU(value) {
       this.model.toggleGPU(value)
     }
   },
 
   computed: {
-    loadingProgress: function() {
+    loadingProgress() {
       return this.model.getLoadingProgress()
     },
-    architectureDiagramRows: function() {
+    architectureDiagramRows() {
       let rows = []
       for (let row = 0; row < 112; row++) {
         let cols = []
@@ -148,11 +147,11 @@ export default {
       }
       return rows
     },
-    finishedLayerNames: function() {
+    finishedLayerNames() {
       // store as computed property for reactivity
       return this.model.finishedLayerNames
     },
-    outputClasses: function() {
+    outputClasses() {
       if (!this.output) {
         let empty = []
         for (let i = 0; i < 5; i++) {
@@ -164,7 +163,7 @@ export default {
     }
   },
 
-  mounted: function() {
+  mounted() {
     this.model.ready().then(() => {
       this.modelLoading = false
       this.$nextTick(() => {
@@ -174,7 +173,7 @@ export default {
   },
 
   methods: {
-    drawArchitectureDiagramPaths: function() {
+    drawArchitectureDiagramPaths() {
       this.architectureDiagramPaths = []
       this.architectureConnections.forEach(conn => {
         const containerElem = document.getElementsByClassName('architecture-container')[0]
@@ -205,11 +204,11 @@ export default {
         this.architectureDiagramPaths.push(path)
       })
     },
-    onImageURLInputEnter: function(e) {
+    onImageURLInputEnter(e) {
       this.imageURLSelect = null
       this.loadImageToCanvas(e.target.value)
     },
-    loadImageToCanvas: function(url) {
+    loadImageToCanvas(url) {
       if (!url) {
         this.clearAll()
         return
@@ -240,7 +239,7 @@ export default {
         { maxWidth: 299, maxHeight: 299, cover: true, crop: true, canvas: true, crossOrigin: 'Anonymous' }
       )
     },
-    runModel: function() {
+    runModel() {
       const ctx = document.getElementById('input-canvas').getContext('2d')
       const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
       const { data, width, height } = imageData
@@ -265,7 +264,7 @@ export default {
         this.modelRunning = false
       })
     },
-    clearAll: function() {
+    clearAll() {
       this.modelRunning = false
       this.inferenceTime = null
       this.imageURLInput = null
@@ -292,7 +291,7 @@ export default {
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 
     & .input-container {
       & .input-label {

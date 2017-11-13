@@ -63,12 +63,9 @@ import findIndex from 'lodash/findIndex'
 import ops from 'ndarray-ops'
 import Tensor from '../../../../src/Tensor'
 
-const MODEL_CONFIG = {
-  filepath:
-    process.env.NODE_ENV === 'production'
-      ? 'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm.bin'
-      : '/demos/data/imdb_bidirectional_lstm/imdb_bidirectional_lstm.bin'
-}
+const MODEL_FILEPATH_PROD =
+  'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm.bin'
+const MODEL_FILEPATH_DEV = '/demos/data/imdb_bidirectional_lstm/imdb_bidirectional_lstm.bin'
 
 const ADDITIONAL_DATA_FILEPATHS_DEV = {
   wordIndex: '/demos/data/imdb_bidirectional_lstm/imdb_dataset_word_index_top20000.json',
@@ -108,10 +105,13 @@ const ARCHITECTURE_DIAGRAM_LAYERS = [
 export default {
   props: ['hasWebGL'],
 
-  data: function() {
+  data() {
     return {
       useGPU: false,
-      model: new KerasJS.Model(Object.assign({ gpu: false }, MODEL_CONFIG)),
+      model: new KerasJS.Model({
+        filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
+        gpu: false
+      }),
       modelLoading: true,
       modelRunning: false,
       input: new Float32Array(MAXLEN),
@@ -129,10 +129,10 @@ export default {
   },
 
   computed: {
-    loadingProgress: function() {
+    loadingProgress() {
       return this.model.getLoadingProgress()
     },
-    outputColor: function() {
+    outputColor() {
       const p = this.output[0]
       if (p > 0 && p < 0.5) {
         return `rgba(242, 38, 19, ${1 - p})`
@@ -141,7 +141,7 @@ export default {
       }
       return '#69707a'
     },
-    stepwiseOutputColor: function() {
+    stepwiseOutputColor() {
       return this.stepwiseOutput.map(prob => {
         if (prob > 0 && prob < 0.5) {
           return `rgba(242, 38, 19, ${0.5 - prob})`
@@ -153,7 +153,7 @@ export default {
     }
   },
 
-  mounted: function() {
+  mounted() {
     this.model.ready().then(() => {
       this.modelLoading = false
       this.loadAdditionalData()
@@ -161,13 +161,13 @@ export default {
   },
 
   methods: {
-    clear: function() {
+    clear() {
       this.inputText = ''
       this.inputTextParsed = []
       this.output = new Float32Array(1)
       this.isSampleText = false
     },
-    loadAdditionalData: function() {
+    loadAdditionalData() {
       this.modelLoading = true
       const reqs = ['wordIndex', 'wordDict', 'testSamples'].map(key => {
         return axios.get(ADDITIONAL_DATA_FILEPATHS[key])
@@ -181,7 +181,7 @@ export default {
         })
       )
     },
-    randomSample: function() {
+    randomSample() {
       this.modelRunning = true
       this.isSampleText = true
 
@@ -246,7 +246,7 @@ export default {
         this.modelRunning = false
       })
     }, 200),
-    stepwiseCalc: function() {
+    stepwiseCalc() {
       const fcLayer = this.model.modelLayersMap.get('dense_1')
       const forwardHiddenStates = this.model.modelLayersMap.get('bidirectional_1').forwardLayer.hiddenStateSequence
       const backwardHiddenStates = this.model.modelLayersMap.get('bidirectional_1').backwardLayer.hiddenStateSequence

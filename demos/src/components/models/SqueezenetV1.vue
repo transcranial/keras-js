@@ -33,12 +33,21 @@
     </div>
     <div class="columns input-output" v-if="!modelLoading">
       <div class="column input-column">
-        <div class="loading-indicator">
-          <mdl-spinner v-if="imageLoading || modelRunning"></mdl-spinner>
-          <div class="error" v-if="imageLoadingError">Error loading URL</div>
+        <div class="visualization">
+          <mdl-select
+            label="visualization"
+            id="visualization-select"
+            v-model="visualizationSelect"
+            :options="visualizationSelectList"
+            style="width:250px;"
+          ></mdl-select>
         </div>
         <div class="canvas-container">
           <canvas id="input-canvas" width="227" height="227"></canvas>
+        </div>
+        <div class="loading-indicator">
+          <mdl-spinner v-if="imageLoading || modelRunning"></mdl-spinner>
+          <div class="error" v-if="imageLoadingError">Error loading URL</div>
         </div>
       </div>
       <div class="column output-column">
@@ -94,20 +103,20 @@ import * as utils from '../../utils'
 import { IMAGE_URLS } from '../../data/sample-image-urls'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/squeezenet-v1.1-arch'
 
-const MODEL_CONFIG = {
-  filepath:
-    process.env.NODE_ENV === 'production'
-      ? 'https://transcranial.github.io/keras-js-demos-data/squeezenet_v1.1/squeezenet_v1.1.bin'
-      : '/demos/data/squeezenet_v1.1/squeezenet_v1.1.bin'
-}
+const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/squeezenet_v1.1/squeezenet_v1.1.bin'
+const MODEL_FILEPATH_DEV = '/demos/data/squeezenet_v1.1/squeezenet_v1.1.bin'
 
 export default {
   props: ['hasWebGL'],
 
-  data: function() {
+  data() {
     return {
       useGPU: this.hasWebGL,
-      model: new KerasJS.Model(Object.assign({ gpu: this.hasWebGL }, MODEL_CONFIG)),
+      model: new KerasJS.Model({
+        filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
+        gpu: this.hasWebGL,
+        visualizations: ['CAM']
+      }),
       modelLoading: true,
       modelRunning: false,
       inferenceTime: null,
@@ -116,6 +125,8 @@ export default {
       imageURLSelectList: IMAGE_URLS,
       imageLoading: false,
       imageLoadingError: false,
+      visualizationSelect: 'CAM',
+      visualizationSelectList: [{ name: 'None', value: 'None' }, { name: 'Class Activation Mapping', value: 'CAM' }],
       output: null,
       architectureDiagram: ARCHITECTURE_DIAGRAM,
       architectureConnections: ARCHITECTURE_CONNECTIONS,
@@ -124,31 +135,31 @@ export default {
   },
 
   watch: {
-    imageURLSelect: function(value) {
+    imageURLSelect(value) {
       this.imageURLInput = value
       this.loadImageToCanvas(value)
     },
-    useGPU: function(value) {
+    useGPU(value) {
       this.model.toggleGPU(value)
     }
   },
 
   computed: {
-    loadingProgress: function() {
+    loadingProgress() {
       return this.model.getLoadingProgress()
     },
-    architectureDiagramRows: function() {
+    architectureDiagramRows() {
       const rows = []
       for (let row = 0; row < 50; row++) {
         rows.push(filter(this.architectureDiagram, { row }))
       }
       return rows
     },
-    finishedLayerNames: function() {
+    finishedLayerNames() {
       // store as computed property for reactivity
       return this.model.finishedLayerNames
     },
-    outputClasses: function() {
+    outputClasses() {
       if (!this.output) {
         const empty = []
         for (let i = 0; i < 5; i++) {
@@ -160,7 +171,7 @@ export default {
     }
   },
 
-  mounted: function() {
+  mounted() {
     this.model.ready().then(() => {
       this.modelLoading = false
       this.$nextTick(() => {
@@ -170,7 +181,7 @@ export default {
   },
 
   methods: {
-    drawArchitectureDiagramPaths: function() {
+    drawArchitectureDiagramPaths() {
       this.architectureDiagramPaths = []
       this.architectureConnections.forEach(conn => {
         const containerElem = document.getElementsByClassName('architecture-container')[0]
@@ -200,11 +211,11 @@ export default {
         this.architectureDiagramPaths.push(path)
       })
     },
-    onImageURLInputEnter: function(e) {
+    onImageURLInputEnter(e) {
       this.imageURLSelect = null
       this.loadImageToCanvas(e.target.value)
     },
-    loadImageToCanvas: function(url) {
+    loadImageToCanvas(url) {
       if (!url) {
         this.clearAll()
         return
@@ -235,7 +246,7 @@ export default {
         { maxWidth: 227, maxHeight: 227, cover: true, crop: true, canvas: true, crossOrigin: 'Anonymous' }
       )
     },
-    runModel: function() {
+    runModel() {
       const ctx = document.getElementById('input-canvas').getContext('2d')
       const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
       const { data, width, height } = imageData
@@ -257,9 +268,11 @@ export default {
         this.inferenceTime = performance.now() - start
         this.output = outputData['loss']
         this.modelRunning = false
+        this.showVis()
       })
     },
-    clearAll: function() {
+    showVis() {},
+    clearAll() {
       this.modelRunning = false
       this.inferenceTime = null
       this.imageURLInput = null
@@ -286,7 +299,7 @@ export default {
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 
     & .input-container {
       & .input-label {
@@ -321,6 +334,7 @@ export default {
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      font-family: var(--font-monospace);
 
       & .mdl-switch {
         margin-bottom: 5px;
@@ -329,9 +343,11 @@ export default {
   }
 
   & .columns.input-output {
-    max-width: 800px;
+    padding: 10px;
     margin: 0 auto;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    background-color: whitesmoke;
+    box-shadow: 3px 3px #CCCCCC;
 
     & .column {
       display: flex;
@@ -342,10 +358,24 @@ export default {
     & .column.input-column {
       position: relative;
 
+      & .canvas-container {
+        display: inline-flex;
+        justify-content: flex-end;
+
+        & canvas {
+          background: #EEEEEE;
+        }
+      }
+
+      & .visualization {
+        margin-right: 20px;
+        align-self: flex-end;
+      }
+
       & .loading-indicator {
         position: absolute;
         top: 0;
-        left: -10px;
+        right: 250px;
         display: flex;
         flex-direction: column;
         align-self: flex-start;
@@ -357,18 +387,8 @@ export default {
 
         & .error {
           color: var(--color-error);
-          font-size: 14px;
-          font-family: var(--font-sans-serif);
-          margin: 20px;
-        }
-      }
-
-      & .canvas-container {
-        display: inline-flex;
-        justify-content: flex-end;
-
-        & canvas {
-          background: whitesmoke;
+          font-family: var(--font-monospace);
+          font-size: 12px;
         }
       }
     }
