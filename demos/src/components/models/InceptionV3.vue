@@ -33,13 +33,22 @@
     </div>
     <div class="columns input-output" v-if="!modelLoading">
       <div class="column input-column">
-        <div class="loading-indicator">
-          <mdl-spinner v-if="imageLoading || modelRunning"></mdl-spinner>
-          <div class="error" v-if="imageLoadingError">Error loading URL</div>
+        <div class="visualization">
+          <mdl-select
+            label="visualization"
+            id="visualization-select"
+            v-model="visualizationSelect"
+            :options="visualizationSelectList"
+            style="width:250px;"
+          ></mdl-select>
         </div>
         <div class="canvas-container">
           <canvas id="input-canvas" width="299" height="299"></canvas>
         </div>
+        <div class="loading-indicator">
+          <mdl-spinner v-if="imageLoading || modelRunning"></mdl-spinner>
+          <div class="error" v-if="imageLoadingError">Error loading URL</div>
+        322iv>
       </div>
       <div class="column output-column">
         <div class="output">
@@ -105,7 +114,8 @@ export default {
       useGPU: this.hasWebGL,
       model: new KerasJS.Model({
         filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
-        gpu: this.hasWebGL
+        gpu: this.hasWebGL,
+        visualizations: ['CAM']
       }),
       modelLoading: true,
       modelRunning: false,
@@ -115,6 +125,8 @@ export default {
       imageURLSelectList: IMAGE_URLS,
       imageLoading: false,
       imageLoadingError: false,
+      visualizationSelect: 'CAM',
+      visualizationSelectList: [{ name: 'None', value: 'None' }, { name: 'Class Activation Mapping', value: 'CAM' }],
       output: null,
       architectureDiagram: ARCHITECTURE_DIAGRAM,
       architectureConnections: ARCHITECTURE_CONNECTIONS,
@@ -262,7 +274,11 @@ export default {
         this.inferenceTime = performance.now() - start
         this.output = outputData['predictions']
         this.modelRunning = false
+        this.showVis()
       })
+    },
+    showVis() {
+
     },
     clearAll() {
       this.modelRunning = false
@@ -326,6 +342,7 @@ export default {
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      font-family: var(--font-monospace);
 
       & .mdl-switch {
         margin-bottom: 5px;
@@ -334,9 +351,11 @@ export default {
   }
 
   & .columns.input-output {
-    max-width: 800px;
+    padding: 10px;
     margin: 0 auto;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    background-color: whitesmoke;
+    box-shadow: 3px 3px #CCCCCC;
 
     & .column {
       display: flex;
@@ -347,10 +366,24 @@ export default {
     & .column.input-column {
       position: relative;
 
+      & .canvas-container {
+        display: inline-flex;
+        justify-content: flex-end;
+
+        & canvas {
+          background: #EEEEEE;
+        }
+      }
+
+      & .visualization {
+        margin-right: 20px;
+        align-self: flex-end;
+      }
+
       & .loading-indicator {
         position: absolute;
         top: 0;
-        left: -10px;
+        right: 322px;
         display: flex;
         flex-direction: column;
         align-self: flex-start;
@@ -362,18 +395,8 @@ export default {
 
         & .error {
           color: var(--color-error);
-          font-size: 14px;
-          font-family: var(--font-sans-serif);
-          margin: 20px;
-        }
-      }
-
-      & .canvas-container {
-        display: inline-flex;
-        justify-content: flex-end;
-
-        & canvas {
-          background: whitesmoke;
+          font-family: var(--font-monospace);
+          font-size: 12px;
         }
       }
     }
