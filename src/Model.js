@@ -147,8 +147,9 @@ export default class Model {
     })
 
     // initialize visualizations
+    const [height, width] = this.modelLayersMap.get(this.inputLayerNames[0]).shape
     this.visMap.forEach(visInstance => {
-      visInstance.initialize()
+      visInstance.initialize(width, height)
     })
 
     return true

@@ -1,6 +1,8 @@
 import Tensor from '../Tensor'
 import { webgl2 } from '../WebGL2'
+import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
+import resample from 'ndarray-resample'
 
 /**
  * Class Activation Maps
@@ -27,16 +29,22 @@ export default class CAM {
    * Checks whether CAM can be computed directly (requires GlobalAveragePooling2D layer)
    * Grad-CAM generalizes this to arbitrary architectures, and may be implemented in the future.
    *
-   * @returns {boolean}
+   * @param {number} width
+   * @param {number} height
    */
-  initialize() {
+  initialize(width, height) {
     this.modelLayersMap.forEach(layer => {
       if (layer.layerClass === 'GlobalAveragePooling2D') {
         this.enabled = true
         this.poolLayer = layer
       }
     })
-    return this.enabled
+    
+    if (this.enabled && !this.imageData) {
+      this.width = width
+      this.height = height
+      this.imageData = new ImageData(width, height)
+    }
   }
 
   /**
@@ -55,7 +63,15 @@ export default class CAM {
     } else {
       this._updateCPU()
     }
-    return this.output
+
+    const size = this.width * this.height * 4
+    const arr = ndarray(new Uint8ClampedArray(this.height * this.width * 4), [this.height, this.width, 4])
+    const alpha = ndarray(new Float32Array(this.height * this.width), [this.height, this.width])
+    resample(alpha, this.output.tensor)
+    ops.mulseq(alpha, -255)
+    ops.addseq(alpha, 255)
+    ops.assign(arr.pick(null, null, 3), alpha)
+    this.imageData.data.set(arr.data)
   }
 
   _updateCPU() {

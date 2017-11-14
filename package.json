@@ -46,6 +46,7 @@
     "ndarray-concat-rows": "^1.0.1",
     "ndarray-gemm": "^1.0.0",
     "ndarray-ops": "^1.2.2",
+    "ndarray-resample": "^1.0.1",
     "ndarray-squeeze": "^1.0.2",
     "ndarray-tile": "^1.0.3",
     "ndarray-unpack": "^1.0.0",
