@@ -51,6 +51,7 @@
     "ndarray-tile": "^1.0.3",
     "ndarray-unpack": "^1.0.0",
     "ndarray-unsqueeze": "^1.0.3",
+    "performance-now": "^2.1.0",
     "protobufjs": "^6.8.0"
   },
   "devDependencies": {

@@ -1,6 +1,7 @@
 import Promise from 'bluebird'
 import axios from 'axios'
 import _ from 'lodash'
+import now from 'performance-now'
 import * as layers from './layers'
 import * as visMethods from './visualizations'
 import Tensor from './Tensor'
@@ -77,8 +78,8 @@ export default class Model {
     // flag while computations are being performed
     this.isRunning = false
 
-    // Promise for when Model class is initialized
-    this._ready = this._initialize()
+    // stats object for last `predict` call
+    this.predictStats = {}
 
     // visualizations to calculate
     this.visMap = new Map()
@@ -88,6 +89,9 @@ export default class Model {
         this.visMap.set(v, visInstance)
       }
     })
+
+    // Promise for when Model class is initialized
+    this._ready = this._initialize()
   }
 
   /**
@@ -532,10 +536,14 @@ export default class Model {
     })
 
     // load data to input tensors
+    let start = now()
     this.loadData(inputData)
+    this.predictStats.loadData = now() - start
 
     // start traversing DAG at inputs
+    start = now()
     await this._traverseDAG(this.inputLayerNames)
+    this.predictStats.forwardPass = now() - start
 
     // transfer intermediate outputs if specified
     this._maybeTransferIntermediateOutputs()
@@ -554,9 +562,11 @@ export default class Model {
     }
 
     // update visualizations
+    start = now()
     this.visMap.forEach(visInstance => {
       visInstance.update()
     })
+    this.predictStats.visualizations = now() - start
 
     this.isRunning = false
     return outputData
