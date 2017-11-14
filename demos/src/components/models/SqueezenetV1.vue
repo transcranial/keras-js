@@ -1,70 +1,83 @@
 <template>
-  <div class="demo squeezenet-v1">
-    <div class="title">
-      <span>SqueezeNet v1.1, trained on ImageNet</span>
-    </div>
-    <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
-    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
-      Loading...{{ loadingProgress }}%
-    </div>
-    <div class="top-container" v-if="!modelLoading">
-      <div class="input-container">
-        <div class="input-label">Enter a valid image URL or select an image from the dropdown:</div>
-        <div class="image-url">
-          <mdl-textfield
-            floating-label="enter image url"
+  <div class="demo">
+    <v-progress-circular v-if="modelLoading && loadingProgress < 100" indeterminate color="primary" />
+    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">Loading...{{ loadingProgress }}%</div>
+    <div v-if="!modelLoading" class="ui-container">
+      <v-layout row justify-center class="input-label">
+        Enter a valid image URL or select an image from the dropdown:
+      </v-layout>
+      <v-layout row wrap justify-center align-center>
+        <v-flex xs7 md5>
+          <v-text-field
             v-model="imageURLInput"
-            spellcheck="false"
+            label="enter image url"
             @keyup.native.enter="onImageURLInputEnter"
-          ></mdl-textfield>
-          <span>or</span>
-          <mdl-select
-            label="select image"
-            id="image-url-select"
+          ></v-text-field>
+        </v-flex>
+        <v-flex xs1 class="input-label text-xs-center">or</v-flex>
+        <v-flex xs5 md3>
+          <v-select
             v-model="imageURLSelect"
-            :options="imageURLSelectList"
-            style="width:200px;"
-          ></mdl-select>
+            :items="imageURLSelectList"
+            label="select image"
+            max-height="500"
+          ></v-select>
+        </v-flex>
+        <v-flex xs2 md2 class="controls">
+          <v-switch label="use GPU" 
+            v-model="useGPU" :disabled="modelLoading || modelRunning || !hasWebGL" color="primary"
+          ></v-switch>
+        </v-flex>
+      </v-layout>
+      <v-layout row wrap justify-center class="image-panel elevation-1">
+        <div v-if="imageLoading || modelRunning" class="loading-indicator">
+          <v-progress-circular indeterminate color="primary" />
         </div>
-      </div>
-      <div class="controls">
-        <mdl-switch v-model="useGPU" :disabled="modelLoading || modelRunning || !hasWebGL">Use GPU</mdl-switch>
-      </div>
-    </div>
-    <div class="columns input-output" v-if="!modelLoading">
-      <div class="column input-column">
-        <div class="visualization">
-          <mdl-select
-            label="visualization"
-            id="visualization-select"
+        <div v-if="imageLoadingError" class="error-message">Error loading URL</div>
+        <v-flex sm5 md3 align-flex-end class="visualization">
+          <v-select
             v-model="visualizationSelect"
-            :options="visualizationSelectList"
-            style="width:250px;"
-          ></mdl-select>
-        </div>
-        <div class="canvas-container">
+            :items="visualizationSelectList"
+            label="visualization"
+            max-height="500"
+          ></v-select>
+          <v-select
+            v-show="visualizationSelect !== 'None'"
+            v-model="colormapSelect"
+            :items="colormapSelectList"
+            label="colormap"
+            max-height="500"
+          ></v-select>
+          <div 
+            v-show="visualizationSelect !== 'None' && colormapSelect !== 'transparency'"
+            class="colormap-alpha"
+          >
+            <label>{{ `opacity: ${colormapAlpha}` }}</label>
+            <v-slider v-model="colormapAlpha" min="0" max="1" step="0.01"></v-slider>
+          </div>
+        </v-flex>
+        <v-flex sm5 md3 class="canvas-container">
           <canvas id="input-canvas" width="227" height="227"
             v-on:mouseenter="showVis = true"
             v-on:mouseleave="showVis = false"
           ></canvas>
-          <canvas v-show="showVis" id="visualization-canvas" width="227" height="227"></canvas>
-        </div>
-        <div class="loading-indicator">
-          <mdl-spinner v-if="imageLoading || modelRunning"></mdl-spinner>
-          <div class="error" v-if="imageLoadingError">Error loading URL</div>
-        </div>
-      </div>
-      <div class="column output-column">
-        <div class="output">
+          <transition name="fade">
+            <div v-show="showVis">
+              <canvas id="visualization-canvas" width="227" height="227"
+                :style="{ opacity: colormapSelect === 'transparency' ? 1 : colormapAlpha }"
+              ></canvas>
+            </div>
+          </transition>
+        </v-flex>
+        <v-flex sm6 md4 class="output-container">
           <div class="inference-time">
             <span>inference time: </span>
             <span v-if="inferenceTime > 0" class="inference-time-value">{{ inferenceTime.toFixed(1) }} ms </span>
             <span v-if="inferenceTime > 0" class="inference-time-value">({{ (1000 / inferenceTime).toFixed(1) }} fps)</span>
             <span v-else>-</span>
           </div>
-          <div class="output-class"
-            :class="{ predicted: i === 0 && outputClasses[i].probability.toFixed(2) > 0 }"
-            v-for="i in [0, 1, 2, 3, 4]"
+          <div v-for="i in [0, 1, 2, 3, 4]" :key="i"
+            class="output-class" :class="{ predicted: i === 0 && outputClasses[i].probability.toFixed(2) > 0 }"
           >
             <div class="output-label">{{ outputClasses[i].name }}</div>
             <div class="output-bar"
@@ -72,10 +85,10 @@
             ></div>
             <div class="output-value">{{ Math.round(100 * outputClasses[i].probability) }}%</div>
           </div>
-        </div>
-      </div>
+        </v-flex>
+      </v-layout>
     </div>
-    <div class="architecture-container" v-if="!modelLoading">
+    <div v-if="!modelLoading" v-resize="drawArchitectureDiagramPaths" class="architecture-container">
       <div v-for="(row, rowIndex) in architectureDiagramRows" :key="`row-${rowIndex}`" class="layers-row">
         <div v-for="layer in row" :key="`layer-${layer.name}`" class="layer-column">
           <div
@@ -102,9 +115,10 @@
 import loadImage from 'blueimp-load-image'
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
-import filter from 'lodash/filter'
+import _ from 'lodash'
 import * as utils from '../../utils'
 import { IMAGE_URLS } from '../../data/sample-image-urls'
+import { COLORMAPS } from '../../data/colormaps'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/squeezenet-v1.1-arch'
 
 const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/squeezenet_v1.1/squeezenet_v1.1.bin'
@@ -130,7 +144,10 @@ export default {
       imageLoading: false,
       imageLoadingError: false,
       visualizationSelect: 'CAM',
-      visualizationSelectList: [{ name: 'None', value: 'None' }, { name: 'Class Activation Mapping', value: 'CAM' }],
+      visualizationSelectList: [{ text: 'None', value: 'None' }, { text: 'Class Activation Mapping', value: 'CAM' }],
+      colormapSelect: 'transparency',
+      colormapSelectList: COLORMAPS,
+      colormapAlpha: 0.7,
       showVis: false,
       output: null,
       architectureDiagram: ARCHITECTURE_DIAGRAM,
@@ -140,12 +157,22 @@ export default {
   },
 
   watch: {
-    imageURLSelect(value) {
-      this.imageURLInput = value
-      this.loadImageToCanvas(value)
+    imageURLSelect(newVal) {
+      this.imageURLInput = newVal
+      this.loadImageToCanvas(newVal)
     },
-    useGPU(value) {
-      this.model.toggleGPU(value)
+    useGPU(newVal) {
+      this.model.toggleGPU(newVal)
+    },
+    visualizationSelect(newVal) {
+      if (newVal === 'None') {
+        this.showVis = false
+      } else {
+        this.updateVis()
+      }
+    },
+    colormapSelect() {
+      this.updateVis()
     }
   },
 
@@ -156,7 +183,7 @@ export default {
     architectureDiagramRows() {
       const rows = []
       for (let row = 0; row < 50; row++) {
-        rows.push(filter(this.architectureDiagram, { row }))
+        rows.push(_.filter(this.architectureDiagram, { row }))
       }
       return rows
     },
@@ -186,7 +213,7 @@ export default {
   },
 
   methods: {
-    drawArchitectureDiagramPaths() {
+    drawArchitectureDiagramPaths: _.debounce(function() {
       this.architectureDiagramPaths = []
       this.architectureConnections.forEach(conn => {
         const containerElem = document.getElementsByClassName('architecture-container')[0]
@@ -215,7 +242,7 @@ export default {
 
         this.architectureDiagramPaths.push(path)
       })
-    },
+    }, 100),
     onImageURLInputEnter(e) {
       this.imageURLSelect = null
       this.loadImageToCanvas(e.target.value)
@@ -268,19 +295,41 @@ export default {
       ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 0))
 
       const inputData = { input_1: dataProcessedTensor.data }
-      const start = performance.now()
       this.model.predict(inputData).then(outputData => {
-        this.inferenceTime = performance.now() - start
+        this.inferenceTime = this.model.predictStats.forwardPass
         this.output = outputData['loss']
         this.modelRunning = false
         this.updateVis()
       })
     },
     updateVis() {
-      if (!this.model.visMap.has(this.visualizationSelect)) return
+      if (!this.output || !this.model.visMap.has(this.visualizationSelect)) return
+
       const vis = this.model.visMap.get(this.visualizationSelect)
+      const height = vis.height
+      const width = vis.width
+      const imageDataArr = ndarray(new Uint8ClampedArray(height * width * 4), [height, width, 4])
+
+      if (this.colormapSelect === 'transparency') {
+        const alpha = ndarray(new Float32Array(vis.data), [height, width])
+        ops.mulseq(alpha, -255)
+        ops.addseq(alpha, 255)
+        ops.assign(imageDataArr.pick(null, null, 3), alpha)
+      } else {
+        const colormap = this.colormapSelect
+        for (let i = 0, len = vis.data.length; i < len; i++) {
+          const rgb = colormap(vis.data[i]).rgb()
+          imageDataArr.data[4 * i] = rgb[0]
+          imageDataArr.data[4 * i + 1] = rgb[1]
+          imageDataArr.data[4 * i + 2] = rgb[2]
+          imageDataArr.data[4 * i + 3] = 255
+        }
+      }
+
+      const imageData = new ImageData(width, height)
+      imageData.data.set(imageDataArr.data)
       const ctx = document.getElementById('visualization-canvas').getContext('2d')
-      ctx.putImageData(vis.imageData, 0, 0)
+      ctx.putImageData(imageData, 0, 0)
     },
     clearAll() {
       this.modelRunning = false
@@ -300,244 +349,214 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 @import '../../variables.css';
 
-.demo.squeezenet-v1 {
-  & .top-container {
-    margin: 10px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+.ui-container {
+  font-family: var(--font-monospace);
+  margin-bottom: 30px;
+}
 
-    & .input-container {
-      & .input-label {
-        font-family: var(--font-cursive);
-        font-size: 16px;
-        color: var(--color-lightgray);
-        text-align: left;
-        user-select: none;
-        cursor: default;
-      }
+.input-label {
+  font-family: var(--font-cursive);
+  font-size: 16px;
+  color: var(--color-lightgray);
+  text-align: left;
+  user-select: none;
+  cursor: default;
+}
 
-      & .image-url {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-        position: relative;
+.controls {
+  width: 100px;
+  margin-left: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 
-        & span {
-          margin: 0 10px;
-          font-family: var(--font-cursive);
-          font-size: 16px;
-          color: var(--color-lightgray);
-        }
-      }
-    }
+.image-panel {
+  padding: 30px 20px;
+  background-color: whitesmoke;
+  position: relative;
 
-    & .controls {
-      width: 250px;
-      margin-left: 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-monospace);
-
-      & .mdl-switch {
-        margin-bottom: 5px;
-      }
-    }
+  & .loading-indicator {
+    position: absolute;
+    top: 5px;
+    left: 5px;
   }
 
-  & .columns.input-output {
-    padding: 10px;
-    margin: 0 auto;
-    margin-bottom: 30px;
-    background-color: whitesmoke;
-    box-shadow: 3px 3px #CCCCCC;
-
-    & .column {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    & .column.input-column {
-      position: relative;
-
-      & .canvas-container {
-        position: relative;
-        display: inline-flex;
-        justify-content: flex-end;
-
-        & #input-canvas {
-          background: #EEEEEE;
-        }
-
-        & #visualization-canvas {
-          pointer-events: none;
-          position: absolute;
-          top: 0;
-          left: 0;
-        }
-      }
-
-      & .visualization {
-        margin-right: 20px;
-        align-self: flex-end;
-      }
-
-      & .loading-indicator {
-        position: absolute;
-        top: 0;
-        right: 250px;
-        display: flex;
-        flex-direction: column;
-        align-self: flex-start;
-
-        & .mdl-spinner {
-          margin: 20px;
-          align-self: center;
-        }
-
-        & .error {
-          color: var(--color-error);
-          font-family: var(--font-monospace);
-          font-size: 12px;
-        }
-      }
-    }
-
-    & .column.output-column {
-      & .output {
-        width: 370px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: center;
-
-        & .inference-time {
-          align-self: center;
-          font-family: var(--font-monospace);
-          font-size: 14px;
-          color: var(--color-lightgray);
-          margin-bottom: 10px;
-
-          & .inference-time-value {
-            color: var(--color-green);
-          }
-        }
-
-        & .output-class {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: center;
-          padding: 6px 0;
-
-          & .output-label {
-            text-align: right;
-            width: 200px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-family: var(--font-monospace);
-            font-size: 18px;
-            color: var(--color-lightgray);
-            padding: 0 6px;
-            border-right: 2px solid var(--color-green-lighter);
-          }
-
-          & .output-bar {
-            height: 8px;
-            transition: width 0.2s ease-out;
-          }
-
-          & .output-value {
-            text-align: left;
-            margin-left: 5px;
-            font-family: var(--font-monospace);
-            font-size: 14px;
-            color: var(--color-lightgray);
-          }
-        }
-
-        & .output-class.predicted {
-          & .output-label {
-            color: var(--color-green);
-            border-left-color: var(--color-green);
-          }
-
-          & .output-value {
-            color: var(--color-green);
-          }
-        }
-      }
-    }
+  & .error-message {
+    color: var(--color-error);
+    font-size: 12px;
+    position: absolute;
+    top: 5px;
+    left: 5px;
   }
+}
 
-  & .architecture-container {
-    min-width: 700px;
-    max-width: 900px;
-    margin: 0 auto;
+.visualization {
+  margin-right: 20px;
+
+  & .colormap-alpha {
     position: relative;
 
-    & .layers-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 5px;
-      position: relative;
-      z-index: 1;
-
-      & .layer-column {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 5px;
-
-        & .layer {
-          display: inline-block;
-          background: whitesmoke;
-          border: 2px solid whitesmoke;
-          border-radius: 5px;
-          padding: 2px 5px 0px;
-
-          & .layer-class-name {
-            color: var(--color-green);
-            font-size: 12px;
-            font-weight: bold;
-          }
-
-          & .layer-details {
-            color: #999999;
-            font-size: 11px;
-            font-weight: bold;
-          }
-        }
-
-        & .layer.has-output {
-          border-color: var(--color-green);
-        }
-      }
-    }
-
-    & .architecture-connections {
+    & label {
       position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 0;
+      color: var(--color-darkgray);
+      font-size: 10px;
+    }
+  }
+}
 
-      & path {
-        stroke-width: 4px;
-        stroke: #AAAAAA;
-        fill: none;
+.canvas-container {
+  position: relative;
+  margin: 0 20px;
+
+  & #input-canvas {
+    background: #eeeeee;
+  }
+
+  & #visualization-canvas {
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease-out;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.output-container {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  & .inference-time {
+    align-self: center;
+    font-family: var(--font-monospace);
+    font-size: 14px;
+    color: var(--color-lightgray);
+    margin-bottom: 10px;
+
+    & .inference-time-value {
+      color: var(--color-green);
+    }
+  }
+
+  & .output-class {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 0;
+
+    & .output-label {
+      text-align: right;
+      width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: var(--font-monospace);
+      font-size: 16px;
+      color: var(--color-darkgray);
+      padding: 0 6px;
+      border-right: 2px solid var(--color-green-lighter);
+    }
+
+    & .output-bar {
+      height: 8px;
+      transition: width 0.2s ease-out;
+    }
+
+    & .output-value {
+      text-align: left;
+      margin-left: 5px;
+      font-family: var(--font-monospace);
+      font-size: 14px;
+      color: var(--color-lightgray);
+    }
+  }
+
+  & .output-class.predicted {
+    & .output-label {
+      color: var(--color-green);
+      border-left-color: var(--color-green);
+    }
+
+    & .output-value {
+      color: var(--color-green);
+    }
+  }
+}
+
+.architecture-container {
+  min-width: 700px;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+
+  & .layers-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+    position: relative;
+    z-index: 1;
+
+    & .layer-column {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px;
+
+      & .layer {
+        display: inline-block;
+        background: whitesmoke;
+        border: 2px solid whitesmoke;
+        border-radius: 5px;
+        padding: 2px 5px 0px;
+
+        & .layer-class-name {
+          color: var(--color-green);
+          font-size: 12px;
+          font-weight: bold;
+        }
+
+        & .layer-details {
+          color: #999999;
+          font-size: 11px;
+          font-weight: bold;
+        }
       }
+
+      & .layer.has-output {
+        border-color: var(--color-green);
+      }
+    }
+  }
+
+  & .architecture-connections {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+
+    & path {
+      stroke-width: 4px;
+      stroke: #aaaaaa;
+      fill: none;
     }
   }
 }

@@ -1,38 +1,40 @@
 <template>
-  <div class="demo mnist-acgan">
-    <div class="title">
-      <span>Auxiliary Classifier Generative Adversarial Networks (AC-GAN) on MNIST</span>
-    </div>
-    <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
-    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
-      Loading...{{ loadingProgress }}%
-    </div>
-    <div class="columns input-output" v-if="!modelLoading">
-      <div class="column is-half input-column">
-        <div class="input-container">
-          <canvas id="noise-canvas" width="120" height="120"></canvas>
-          <div class="input-items">
-            <div v-for="n in 10"
-              class="digit-select" :class="{ active: digit === n - 1 }"
-              @click="selectDigit(n - 1)"
-            >{{ n - 1 }}</div>
-            <div
-              class="noise-btn"
-              @click="onGenerateNewNoise"
-            >Generate New Noise</div>
+  <div class="demo">
+    <v-progress-circular v-if="modelLoading && loadingProgress < 100" indeterminate color="primary" />
+    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">Loading...{{ loadingProgress }}%</div>
+    <v-layout v-if="!modelLoading" row wrap justify-center>
+      <v-flex sm2 md1>
+        <div class="controls-column">
+          <div class="control">
+            <v-switch label="use GPU" v-model="useGPU" :disabled="modelLoading || !hasWebGL" color="primary"></v-switch>
           </div>
         </div>
-      </div>
-      <div class="column output-column">
-        <div class="output">
-          <canvas id="output-canvas-scaled" width="140" height="140"></canvas>
-          <canvas id="output-canvas" width="28" height="28" style="display:none;"></canvas>
+      </v-flex>
+      <v-flex sm8 md6>
+        <div class="input-column">
+          <div class="input-container">
+            <canvas id="noise-canvas" width="120" height="120"></canvas>
+            <div class="input-items">
+              <div v-for="n in 10" :key="n" class="digit-select" :class="{ active: digit === n - 1 }"
+                @click="selectDigit(n - 1)"
+              >{{ n - 1 }}</div>
+              <div
+                class="noise-btn"
+                @click="onGenerateNewNoise"
+              >Generate New Noise</div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="column controls-column">
-        <mdl-switch v-model="useGPU" :disabled="modelLoading || !hasWebGL">use GPU</mdl-switch>
-      </div>
-    </div>
+      </v-flex>
+      <v-flex sm4 md2>
+        <div class="output-column">
+          <div class="output">
+            <canvas id="output-canvas-scaled" width="140" height="140"></canvas>
+            <canvas id="output-canvas" width="28" height="28" style="display:none;"></canvas>
+          </div>
+        </div>
+      </v-flex>
+    </v-layout>
     <div class="architecture-container" v-if="!modelLoading">
       <div v-for="(row, rowIndex) in architectureDiagramRows" :key="`row-${rowIndex}`" class="layers-row">
         <div v-for="layer in row" :key="`layer-${layer.name}`" class="layer-column">
@@ -203,163 +205,171 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 @import '../../variables.css';
 
-.demo.mnist-acgan {
-  & .column {
+.controls-column {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  font-family: var(--font-monospace);
+  padding-top: 20px;
+
+  & .control {
+    width: 100px;
+    margin: 10px 0;
+  }
+}
+
+.input-column {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & .input-container {
+    margin: 20px;
+    position: relative;
+    user-select: none;
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-  }
 
-  & .column.input-column {
-    justify-content: flex-end;
+    & canvas {
+      margin: 10px;
+    }
 
-    & .input-container {
-      margin: 20px;
-      position: relative;
-      user-select: none;
+    & .input-items {
       display: flex;
-      flex-direction: row;
       align-items: center;
       justify-content: center;
+      flex-wrap: wrap;
+      width: 280px;
 
-      & canvas {
-        margin: 10px;
-      }
-
-      & .input-items {
+      & .digit-select,
+      & .noise-btn {
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-wrap: wrap;
-        width: 280px;
+        width: 50px;
+        height: 50px;
+        margin: 2px;
+        border: 1px solid var(--color-green-lighter);
+        color: var(--color-green);
+        font-size: 20px;
+        font-weight: bold;
+        font-family: var(--font-monospace);
+        transition: background-color 0.1s ease;
+        cursor: default;
 
-        & .digit-select, & .noise-btn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 50px;
-          height: 50px;
-          margin: 2px;
-          border: 1px solid var(--color-green-lighter);
-          color: var(--color-green);
-          font-size: 20px;
-          font-weight: bold;
-          font-family: var(--font-monospace);
-          transition: background-color 0.1s ease;
-          cursor: default;
-
-          &.active {
-            background-color: var(--color-green);
-            color: white;
-          }
-
-          &:hover:not(.active) {
-            background-color: var(--color-green-lighter);
-            cursor: pointer;
-          }
+        &.active {
+          background-color: var(--color-green);
+          color: white;
         }
 
-        & .noise-btn {
-          width: 266px;
-          font-size: 14px;
+        &:hover:not(.active) {
+          background-color: var(--color-green-lighter);
+          cursor: pointer;
         }
       }
 
-      & .canvas-container {
-        position: relative;
-        display: inline-flex;
-        justify-content: flex-end;
-        margin: 10px 0;
-        border: 15px solid var(--color-green-lighter);
-        transition: border-color 0.2s ease-in;
-
-        & canvas {
-          background: whitesmoke;
-        }
+      & .noise-btn {
+        width: 266px;
+        font-size: 14px;
       }
     }
-  }
 
-  & .column.output-column {
-    & .output {
-      border-radius: 10px;
-      border: 1px solid gray;
-      overflow: hidden;
+    & .canvas-container {
+      position: relative;
+      display: inline-flex;
+      justify-content: flex-end;
+      margin: 10px 0;
+      border: 15px solid var(--color-green-lighter);
+      transition: border-color 0.2s ease-in;
 
       & canvas {
         background: whitesmoke;
       }
     }
   }
+}
 
-  & .column.controls-column {
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
+.output-column {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    & .mdl-switch {
-      width: auto;
+  & .output {
+    display: inline-flex;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid gray;
+    overflow: hidden;
+
+    & canvas {
+      background: whitesmoke;
     }
   }
+}
 
-  & .architecture-container {
-    min-width: 700px;
-    max-width: 900px;
-    margin: 0 auto;
+.architecture-container {
+  min-width: 700px;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+
+  & .layers-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
     position: relative;
+    z-index: 1;
 
-    & .layers-row {
+    & .layer-column {
+      flex: 1;
       display: flex;
-      flex-direction: row;
       align-items: center;
       justify-content: center;
-      margin-bottom: 5px;
-      position: relative;
-      z-index: 1;
+      padding: 5px;
 
-      & .layer-column {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 5px;
+      & .layer {
+        display: inline-block;
+        background: whitesmoke;
+        border: 2px solid var(--color-green);
+        border-radius: 5px;
+        padding: 2px 5px 0px;
 
-        & .layer {
-          display: inline-block;
-          background: whitesmoke;
-          border: 2px solid var(--color-green);
-          border-radius: 5px;
-          padding: 2px 5px 0px;
+        & .layer-class-name {
+          color: var(--color-green);
+          font-size: 12px;
+          font-weight: bold;
+        }
 
-          & .layer-class-name {
-            color: var(--color-green);
-            font-size: 12px;
-            font-weight: bold;
-          }
-
-          & .layer-details {
-            color: #999999;
-            font-size: 11px;
-            font-weight: bold;
-          }
+        & .layer-details {
+          color: #999999;
+          font-size: 11px;
+          font-weight: bold;
         }
       }
     }
+  }
 
-    & .architecture-connections {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 0;
+  & .architecture-connections {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
 
-      & path {
-        stroke-width: 4px;
-        stroke: #AAAAAA;
-        fill: none;
-      }
+    & path {
+      stroke-width: 4px;
+      stroke: #aaaaaa;
+      fill: none;
     }
   }
 }

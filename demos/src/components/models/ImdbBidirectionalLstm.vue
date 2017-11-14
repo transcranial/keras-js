@@ -1,37 +1,35 @@
 <template>
-  <div class="demo imdb-bidirectional-lstm">
-    <div class="title">
-      <span>Bidirectional LSTM for IMDB sentiment classification</span>
-    </div>
-    <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
-    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
-      Loading...{{ loadingProgress }}%
-    </div>
-    <div class="columns input-output" v-if="!modelLoading">
-      <div class="column input-column">
-        <div class="input-container">
-          <mdl-textfield
-            floating-label="input text"
-            v-model="inputText"
-            spellcheck="false"
-            textarea
-            rows="10"
-            @input.native="inputChanged"
-          ></mdl-textfield>
-          <div class="input-buttons">
-            <div class="input-load-button" @click="randomSample"><i class="material-icons">add_circle</i>LOAD SAMPLE TEXT</div>
-            <div class="input-clear-button" @click="clear"><i class="material-icons">clear</i>CLEAR</div>
-          </div>
+  <div class="demo">
+    <v-progress-circular v-if="modelLoading && loadingProgress < 100" indeterminate color="primary" />
+    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">Loading...{{ loadingProgress }}%</div>
+    <v-layout v-if="!modelLoading" row wrap justify-center align-center>
+      <v-flex sm12 md6 class="input-container elevation-1">
+        <v-text-field
+          label="input text"
+          v-model="inputText"
+          multi-line
+          rows="10"
+          color="primary"
+          @input.native="inputChanged"
+        ></v-text-field>
+        <div class="input-buttons">
+          <v-btn flat bottom right color="primary" @click="randomSample">
+            <v-icon left>add_circle</v-icon>LOAD SAMPLE TEXT
+          </v-btn>
+          <v-btn flat bottom right color="primary" @click="clear">
+            <v-icon left>clear</v-icon>CLEAR
+          </v-btn>
         </div>
-      </div>
-      <div class="column output-column">
-        <div class="output">
-          <div class="output-heading">Result:</div>
-          <div class="output-value" :style="{ color: outputColor }">{{ Math.round(output[0] * 100) }}%</div>
-          <div class="output-heading" v-if="isSampleText">Actual label for sample text: <span class="output-label" :class="sampleTextLabel">{{ sampleTextLabel }}</span></div>
+      </v-flex>
+      <v-flex sm12 md4 class="output-container">
+        <div class="output-heading">Result:</div>
+        <div class="output-value" :style="{ color: outputColor }">{{ Math.round(output[0] * 100) }}%</div>
+        <div class="output-heading" v-if="isSampleText">
+          <span>Actual label for sample text: </span>
+          <span class="output-label" :class="sampleTextLabel">{{ sampleTextLabel }}</span>
         </div>
-      </div>
-    </div>
+      </v-flex>
+    </v-layout>
     <div class="architecture-container" v-if="!modelLoading">
       <div class="bg-line"></div>
       <div
@@ -272,161 +270,118 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 @import '../../variables.css';
 
-.demo.imdb-bidirectional-lstm {
-  & .column {
+.input-container {
+  font-family: var(--font-monospace);
+  background-color: whitesmoke;
+  padding: 10px 30px;
+  margin-bottom: 30px;
+
+  & .input-buttons {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
   }
+}
 
-  & .column.input-column {
-    justify-content: center;
+.output-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: default;
+  margin-bottom: 30px;
 
-    & .input-container {
-      text-align: right;
-      margin: 5px 5px 5px 20px;
-      position: relative;
+  & .output-heading {
+    color: var(--color-lightgray);
+    font-family: var(--font-monospace);
+    font-size: 16px;
+    text-align: center;
+    margin: 10px;
 
-      & .input-label {
-        font-family: var(--font-cursive);
-        font-size: 18px;
-        color: var(--color-lightgray);
-        text-align: left;
-      }
-
-      & .mdl-textfield {
-        width: 550px;
-      }
-
-      & .input-buttons {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        & .input-load-button,
-        & .input-clear-button {
-          display: flex;
-          align-items: center;
-          color: var(--color-lightgray);
-          transition: color 0.2s ease-in;
-
-          & .material-icons {
-            margin-right: 5px;
-          }
-
-          &:hover {
-            color: var(--color-green-lighter);
-            cursor: pointer;
-          }
-        }
-
-        & .input-load-button {
-          &:hover { color: var(--color-green); }
-        }
-      }
+    & span {
+      display: block;
+    }
+    & span.output-label.positive {
+      color: var(--color-green);
+    }
+    & span.output-label.negative {
+      color: var(--color-red);
     }
   }
 
-  & .column.output-column {
-    justify-content: center;
+  & .output-value {
+    transition: color 0.3s ease-in-out;
+    font-family: var(--font-monospace);
+    font-size: 42px;
+    margin: 10px;
+  }
+}
 
-    & .output {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-      cursor: default;
+.architecture-container {
+  position: relative;
+  width: 710px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
-      & .output-heading {
-        max-width: 200px;
-        color: var(--color-lightgray);
-        font-family: var(--font-monospace);
-        font-size: 16px;
-        margin: 10px;
-
-        & span.output-label.positive {
-          color: var(--color-green);
-        }
-        & span.output-label.negative {
-          color: var(--color-red);
-        }
-      }
-
-      & .output-value {
-        transition: color 0.3s ease-in-out;
-        font-family: var(--font-monospace);
-        font-size: 42px;
-        margin: 10px;
-      }
-    }
+  & .bg-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 5px;
+    width: 100%;
+    background: whitesmoke;
   }
 
-  & .architecture-container {
-    position: relative;
-    width: 710px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    & .bg-line {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      height: 5px;
-      width: 100%;
-      background: whitesmoke;
-    }
-
-    & .layer {
-      display: inline-block;
-      width: 170px;
-      margin-right: 10px;
-      background: whitesmoke;
-      border-radius: 5px;
-      padding: 2px 10px 0px;
-      z-index: 1;
-
-      & .layer-class-name {
-        color: var(--color-green);
-        font-size: 14px;
-        font-weight: bold;
-      }
-
-      & .layer-details {
-        color: #999999;
-        font-size: 10px;
-        font-weight: bold;
-      }
-    }
-
-    & .layer:last-child {
-      margin-right: 0;
-    }
-  }
-
-  & .lstm-visualization-container {
-    min-width: 700px;
-    max-width: 900px;
-    margin: 20px auto;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    border: 1px solid var(--color-lightgray);
+  & .layer {
+    display: inline-block;
+    width: 170px;
+    margin-right: 10px;
+    background: whitesmoke;
     border-radius: 5px;
-    padding: 10px;
+    padding: 2px 10px 0px;
+    z-index: 1;
 
-    & .lstm-visualization-word {
-      font-family: var(--font-monospace);
+    & .layer-class-name {
+      color: var(--color-green);
       font-size: 14px;
-      color: var(--color-darkgray);
-      padding: 3px 6px;
+      font-weight: bold;
     }
+
+    & .layer-details {
+      color: #999999;
+      font-size: 10px;
+      font-weight: bold;
+    }
+  }
+
+  & .layer:last-child {
+    margin-right: 0;
+  }
+}
+
+.lstm-visualization-container {
+  min-width: 700px;
+  max-width: 900px;
+  margin: 20px auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  border: 1px solid var(--color-lightgray);
+  border-radius: 5px;
+  padding: 10px;
+
+  & .lstm-visualization-word {
+    font-family: var(--font-monospace);
+    font-size: 14px;
+    color: var(--color-darkgray);
+    padding: 3px 6px;
   }
 }
 </style>

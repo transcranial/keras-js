@@ -1,33 +1,59 @@
 <template>
-  <div id="app" class="container">
-    <div class="columns">
-      <div class="column is-3" style="min-width: 350px; max-width: 450px;">
+  <div id="app">
+    <v-app>
+      <v-navigation-drawer v-model="showNav" absolute fixed floating app>
         <main-menu :currentView="currentView"></main-menu>
-        <info-panel :currentView="currentView"></info-panel>
-      </div>
-      <div class="column is-9">
-        <router-view :hasWebGL="hasWebGL"></router-view>
-      </div>
-    </div>
+      </v-navigation-drawer>
+      <v-toolbar app dark color="primary">
+        <v-toolbar-side-icon @click.stop="showNav = !showNav"></v-toolbar-side-icon>
+        <v-toolbar-title>{{ currentTitle }}</v-toolbar-title>
+        <v-btn icon @click.stop="showInfoPanel = true">
+          <v-icon>fa-info-circle</v-icon>
+        </v-btn>
+        <v-spacer></v-spacer>
+        <v-btn icon href="https://github.com/transcranial/keras-js">
+          <v-icon>fa-github</v-icon>
+        </v-btn>
+      </v-toolbar>
+      <v-content>
+        <v-container fluid>
+          <router-view :hasWebGL="hasWebGL"></router-view>
+        </v-container>
+      </v-content>
+      <v-footer app></v-footer>
+      <info-panel 
+        :showInfoPanel="showInfoPanel" 
+        :currentView="currentView" 
+        :close="closeInfoPanel"
+      ></info-panel>
+    </v-app>
   </div>
 </template>
 
 <script>
 import MainMenu from './components/MainMenu'
 import InfoPanel from './components/InfoPanel'
+import { DEMO_TITLES } from './data/demo-titles'
 
 export default {
   components: { MainMenu, InfoPanel },
-  data: function() {
-    return { hasWebGL: true }
-  },
-  computed: {
-    currentView: function() {
-      const path = this.$route.path
-      return path.replace(/^\//, '') || 'home'
+  data() {
+    return {
+      showNav: true,
+      showInfoPanel: false,
+      hasWebGL: true
     }
   },
-  created: function() {
+  computed: {
+    currentView() {
+      const path = this.$route.path
+      return path.replace(/^\//, '') || 'home'
+    },
+    currentTitle() {
+      return DEMO_TITLES[this.currentView]
+    }
+  },
+  created() {
     const canvas = document.createElement('canvas')
     const gl = canvas.getContext('webgl2')
     if (gl && gl instanceof window.WebGL2RenderingContext) {
@@ -35,46 +61,33 @@ export default {
     } else {
       this.hasWebGL = false
     }
+  },
+  methods: {
+    closeInfoPanel() {
+      this.showInfoPanel = false
+    }
   }
 }
 </script>
 
-<style>
+<style lang="postcss">
 @import 'https://fonts.googleapis.com/css?family=Open+Sans';
 @import 'https://fonts.googleapis.com/css?family=Share+Tech+Mono';
 @import 'https://fonts.googleapis.com/css?family=Nothing+You+Could+Do';
 
 @import './variables.css';
 
-html {
-  background: #CCCCCC;
-}
-
-body {
-  background: linear-gradient(0deg, #CCCCCC, #F0F0F0);
-  color: var(--color-darkgray);
-  min-height: 100vh;
+.application {
   font-family: var(--font-sans-serif);
 }
 
-.title {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  & span {
-    color: var(--color-green);
-    margin-right: 20px;
-  }
-}
-
-.subtitle {
+.application.theme--light {
+  background: linear-gradient(0deg, #cccccc, #f0f0f0) !important;
   color: var(--color-darkgray);
 }
 
 .demo {
-  padding: 30px;
+  font-family: var(--font-sans-serif);
 
   & .loading-progress {
     position: absolute;
@@ -91,85 +104,36 @@ body {
   }
 }
 
-/****************************************************************/
-/* MDL overrides */
+footer {
+  background: #cccccc !important;
+}
 
-.mdl-switch__label {
+/*******************************************************************/
+/* Vuetify overrides */
+
+.navigation-drawer {
+  background-color: whitesmoke !important;
+}
+
+.input-group--select .input-group__selections__comma,
+.input-group input,
+.input-group textarea {
   font-size: 14px !important;
-  color: #69707a;
+  color: var(--color-darkgray) !important;
 }
 
-.mdl-switch.is-checked {
-  & .mdl-switch__thumb {
-    background: var(--color-green-light);
-  }
-
-  & .mdl-switch__track {
-    background: var(--color-green-lighter);
-  }
+.input-group:not(.input-group--error) label {
+  font-size: 14px !important;
+  color: var(--color-lightgray) !important;
 }
 
-.mdl-textfield {
-  & .mdl-textfield__input {
-    color: var(--color-darkgray);
-    border-bottom-color: var(--color-green-light);
-    font-family: var(--font-monospace);
-    font-size: 14px !important;
-    outline: none;
-  }
-
-  & .mdl-textfield__label {
-    font-family: var(--font-monospace);
-    color: var(--color-green-light);
-    font-size: 14px !important;
-  }
-
-  & .mdl-icon-toggle__label {
-    color: var(--color-green-light);
-  }
+.list .list__tile:not(.list__tile--active) {
+  color: var(--color-darkgray) !important;
 }
 
-.mdl-textfield.is-focused {
-  & .mdl-textfield__input {
-    border-color: var(--color-green);
-  }
-
-  & .mdl-textfield__label {
-    color: var(--color-green);
-    font-size: 12px !important;
-
-    &::after {
-      background-color: var(--color-green);
-    }
-  }
-
-  & .mdl-icon-toggle__label {
-    color: var(--color-green);
-  }
-}
-
-.mdl-textfield.is-dirty {
-  & .mdl-textfield__label {
-    font-size: 12px !important;
-  }
-}
-
-.mdl-menu__container {
-  overflow: visible !important;
-}
-
-.mdl-menu {
-  & .mdl-menu__item {
-    font-family: var(--font-monospace);
-    font-size: 14px !important;
-    color: var(--color-lightgray);
-    height: 32px;
-    line-height: 32px;
-
-    &:hover {
-      background-color: var(--color-green-light);
-      color: whitesmoke;
-    }
-  }
+.list__tile {
+  font-size: 14px !important;
+  height: 42px !important;
+  font-family: var(--font-monospace);
 }
 </style>

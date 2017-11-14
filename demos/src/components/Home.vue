@@ -1,6 +1,6 @@
 <template>
   <div class="demo home">
-    <a v-for="info in demoInfo" :href="`#/${info.path}`">
+    <a v-for="info in demoInfo" :key="info.path" :href="`#/${info.path}`">
       <div class="demo-card">
         <div class="demo-card-image"><img :src="info.imagePath" /></div>
         <div class="demo-card-heading">{{ info.title }}</div>
@@ -43,10 +43,11 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 @import '../variables.css';
 
 .demo-card {
+  font-family: var(--font-sans-serif);
   width: 100%;
   max-width: 1000px;
   margin: 30px auto;
@@ -58,7 +59,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   overflow: hidden;
-  box-shadow: 3px 3px #CCCCCC;
+  box-shadow: 3px 3px #cccccc;
   transition: box-shadow 0.2s ease-in;
 
   &:first-child {
@@ -80,7 +81,6 @@ export default {
   padding: 20px;
   text-align: center;
   color: var(--color-lightgray);
-  font-family: var(--font-sans-serif);
   font-size: 18px;
   transition: color 0.2s ease-in;
 }

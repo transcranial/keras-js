@@ -11,6 +11,7 @@ const config = {
       { enforce: 'pre', test: /\.js$/, loader: 'eslint-loader', exclude: /node_modules/ },
       { test: /\.vue$/, loader: 'vue-loader', exclude: /node_modules/ },
       { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
+      { test: /\.css$/, loader: ['style-loader', 'css-loader'] },
       { test: /\.(glsl|frag|vert)$/, use: ['raw-loader', 'glslify-loader'], exclude: /node_modules/ }
     ]
   }

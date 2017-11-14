@@ -1,53 +1,56 @@
 <template>
-  <div class="demo mnist-cnn">
-    <div class="title">
-      <span>Basic Convnet for MNIST</span>
-    </div>
-    <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
-    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
-      Loading...{{ loadingProgress }}%
-    </div>
-    <div class="columns input-output" v-if="!modelLoading">
-      <div class="column input-column">
-        <div class="input-container">
-          <div class="input-label">Draw any digit (0-9) here <span class="arrow">⤸</span></div>
-          <div class="canvas-container">
-            <canvas
-              id="input-canvas" width="240" height="240"
-              @mousedown="activateDraw"
-              @mouseup="deactivateDrawAndPredict"
-              @mouseleave="deactivateDrawAndPredict"
-              @mousemove="draw"
-              @touchstart="activateDraw"
-              @touchend="deactivateDrawAndPredict"
-              @touchmove="draw"
-            ></canvas>
-            <canvas id="input-canvas-scaled" width="28" height="28" style="display:none;"></canvas>
-            <canvas id="input-canvas-centercrop" style="display:none;"></canvas>
-          </div>
-          <div class="input-buttons">
-            <div class="input-clear-button" @click="clear"><i class="material-icons">clear</i>CLEAR</div>
+  <div class="demo">
+    <v-progress-circular v-if="modelLoading && loadingProgress < 100" indeterminate color="primary" />
+    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">Loading...{{ loadingProgress }}%</div>
+    <v-layout v-if="!modelLoading" row wrap justify-center>
+      <v-flex sm6 md4>
+        <div class="input-column">
+          <div class="input-container">
+            <div class="input-label">Draw any digit (0-9) here <span class="arrow">⤸</span></div>
+            <div class="canvas-container">
+              <canvas
+                id="input-canvas" width="240" height="240"
+                @mousedown="activateDraw"
+                @mouseup="deactivateDrawAndPredict"
+                @mouseleave="deactivateDrawAndPredict"
+                @mousemove="draw"
+                @touchstart="activateDraw"
+                @touchend="deactivateDrawAndPredict"
+                @touchmove="draw"
+              ></canvas>
+              <canvas id="input-canvas-scaled" width="28" height="28" style="display:none;"></canvas>
+              <canvas id="input-canvas-centercrop" style="display:none;"></canvas>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="column is-2 controls-column">
-        <mdl-switch v-model="useGPU" :disabled="modelLoading || !hasWebGL">use GPU</mdl-switch>
-      </div>
-      <div class="column output-column">
-        <div class="output">
-          <div class="output-class"
-            :class="{ predicted: i === predictedClass }"
-            v-for="i in outputClasses"
-            :key="`output-class-${i}`"
-          >
-            <div class="output-label">{{ i }}</div>
-            <div class="output-bar"
-              :style="{ height: `${Math.round(100 * output[i])}px`, background: `rgba(27, 188, 155, ${output[i].toFixed(2)})` }"
-            ></div>
+      </v-flex>
+      <v-flex sm2 md1>
+        <div class="controls-column">
+          <div class="control">
+            <v-switch label="use GPU" v-model="useGPU" :disabled="modelLoading || !hasWebGL" color="primary"></v-switch>
+          </div>
+          <div class="control">
+            <v-btn flat bottom right color="primary" @click="clear"><v-icon left>close</v-icon>Clear</v-btn>
           </div>
         </div>
-      </div>
-    </div>
+      </v-flex>
+      <v-flex sm8 md4>
+        <div class="output-column">
+          <div class="output">
+            <div class="output-class"
+              :class="{ predicted: i === predictedClass }"
+              v-for="i in outputClasses"
+              :key="`output-class-${i}`"
+            >
+              <div class="output-label">{{ i }}</div>
+              <div class="output-bar"
+                :style="{ height: `${Math.round(100 * output[i])}px`, background: `rgba(27, 188, 155, ${output[i].toFixed(2)})` }"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </v-flex>
+    </v-layout>
     <div class="layer-outputs-container" v-if="!modelLoading">
       <div class="bg-line"></div>
       <div
@@ -296,179 +299,166 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 @import '../../variables.css';
 
-.demo.mnist-cnn {
-  & .column {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.input-column {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  & .column.input-column {
-    justify-content: flex-end;
-
-    & .input-container {
-      text-align: right;
-      margin: 20px;
-      position: relative;
-      user-select: none;
-
-      & .input-label {
-        font-family: var(--font-cursive);
-        font-size: 18px;
-        color: var(--color-lightgray);
-        text-align: right;
-
-        & span.arrow {
-          font-size: 36px;
-          color: #CCCCCC;
-          position: absolute;
-          right: -32px;
-          top: 8px;
-        }
-      }
-
-      & .canvas-container {
-        display: inline-flex;
-        justify-content: flex-end;
-        margin: 10px 0;
-        border: 15px solid var(--color-green-lighter);
-        transition: border-color 0.2s ease-in;
-
-        &:hover {
-          border-color: var(--color-green-light);
-        }
-
-        & canvas {
-          background: whitesmoke;
-
-          &:hover {
-            cursor: crosshair;
-          }
-        }
-      }
-
-      & .input-buttons {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-
-        & .input-clear-button {
-          display: flex;
-          align-items: center;
-          color: var(--color-lightgray);
-          transition: color 0.2s ease-in;
-
-          & .material-icons {
-            margin-right: 5px;
-          }
-
-          &:hover {
-            color: var(--color-green-lighter);
-            cursor: pointer;
-          }
-        }
-      }
-    }
-  }
-
-  & .column.controls-column {
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding-top: 80px;
-  }
-
-  & .column.output-column {
-    justify-content: center;
-
-    & .output {
-      height: 160px;
-      display: flex;
-      flex-direction: row;
-      align-items: flex-end;
-      justify-content: center;
-      user-select: none;
-      cursor: default;
-
-      & .output-class {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 0 6px;
-        border-bottom: 2px solid var(--color-green-lighter);
-
-        & .output-label {
-          font-family: var(--font-monospace);
-          font-size: 1.5rem;
-          color: var(--color-lightgray);
-        }
-
-        & .output-bar {
-          width: 8px;
-          background: #EEEEEE;
-          transition: height 0.2s ease-out;
-        }
-      }
-
-      & .output-class.predicted {
-        border-bottom-color: var(--color-green);
-
-        & .output-label {
-          color: var(--color-green);
-        }
-      }
-    }
-  }
-
-  & .layer-outputs-container {
+  & .input-container {
+    width: 100%;
+    text-align: right;
+    margin: 20px;
     position: relative;
+    user-select: none;
 
-    & .bg-line {
-      position: absolute;
-      z-index: 0;
-      top: 0;
-      left: 50%;
-      background: whitesmoke;
-      width: 15px;
-      height: 100%;
+    & .input-label {
+      font-family: var(--font-cursive);
+      font-size: 18px;
+      color: var(--color-lightgray);
+      text-align: right;
+
+      & span.arrow {
+        font-size: 36px;
+        color: #cccccc;
+        position: absolute;
+        right: -32px;
+        top: 8px;
+      }
     }
 
-    & .layer-output {
-      position: relative;
-      z-index: 1;
-      margin: 30px 20px;
-      background: whitesmoke;
-      border-radius: 10px;
-      padding: 20px;
-      overflow-x: auto;
+    & .canvas-container {
+      display: inline-flex;
+      justify-content: flex-end;
+      margin: 10px 0;
+      border: 15px solid var(--color-green-lighter);
+      transition: border-color 0.2s ease-in;
 
-      & .layer-output-heading {
-        font-size: 1rem;
-        color: #999999;
-        margin-bottom: 10px;
-        display: flex;
-        flex-direction: column;
-        font-size: 12px;
-
-        & span.layer-class {
-          color: var(--color-green);
-          font-size: 14px;
-          font-weight: bold;
-        }
+      &:hover {
+        border-color: var(--color-green-light);
       }
 
-      & .layer-output-canvas-container {
-        display: inline-flex;
-        flex-wrap: wrap;
+      & canvas {
         background: whitesmoke;
 
-        & canvas {
-          border: 1px solid lightgray;
-          margin: 1px;
+        &:hover {
+          cursor: crosshair;
         }
+      }
+    }
+  }
+}
+
+.controls-column {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-monospace);
+  padding-top: 80px;
+
+  & .control {
+    width: 100%;
+    margin: 10px 0;
+  }
+}
+
+.output-column {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 40px;
+
+  & .output {
+    height: 160px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    user-select: none;
+    cursor: default;
+
+    & .output-class {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 6px;
+      border-bottom: 2px solid var(--color-green-lighter);
+
+      & .output-label {
+        font-family: var(--font-monospace);
+        font-size: 1.5rem;
+        color: var(--color-lightgray);
+      }
+
+      & .output-bar {
+        width: 8px;
+        background: #eeeeee;
+        transition: height 0.2s ease-out;
+      }
+    }
+
+    & .output-class.predicted {
+      border-bottom-color: var(--color-green);
+
+      & .output-label {
+        color: var(--color-green);
+      }
+    }
+  }
+}
+
+.layer-outputs-container {
+  position: relative;
+
+  & .bg-line {
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    left: 50%;
+    background: whitesmoke;
+    width: 15px;
+    height: 100%;
+  }
+
+  & .layer-output {
+    position: relative;
+    z-index: 1;
+    margin: 30px 20px;
+    background: whitesmoke;
+    border-radius: 10px;
+    padding: 20px;
+    overflow-x: auto;
+
+    & .layer-output-heading {
+      font-size: 1rem;
+      color: #999999;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      font-size: 12px;
+
+      & span.layer-class {
+        color: var(--color-green);
+        font-size: 14px;
+        font-weight: bold;
+      }
+    }
+
+    & .layer-output-canvas-container {
+      display: inline-flex;
+      flex-wrap: wrap;
+      background: whitesmoke;
+
+      & canvas {
+        border: 1px solid lightgray;
+        margin: 1px;
       }
     }
   }

@@ -1,7 +1,6 @@
 export const ARCHITECTURE_DIAGRAM = [
   // /////////////////////////////////////////////////////////////////////
   // initial
-  { name: 'zero_padding2d_1', className: 'ZeroPadding2D', details: '3x3 padding', row: 0, col: 0 },
   {
     name: 'conv1',
     className: 'Conv2D',
@@ -547,7 +546,7 @@ export const ARCHITECTURE_CONNECTIONS = [
   // main
   { from: 'res2a_branch1', to: 'fc1000' },
   // initial + conv block 2a
-  { from: 'zero_padding2d_1', to: 'bn2a_branch2c' },
+  { from: 'conv1', to: 'bn2a_branch2c' },
   // identity block 2b
   { from: 'res2b_branch2a', to: 'bn2b_branch2c' },
   // identity block 2c

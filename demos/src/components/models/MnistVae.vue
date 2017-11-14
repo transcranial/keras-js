@@ -1,52 +1,55 @@
 <template>
-  <div class="demo mnist-vae">
-    <div class="title">
-      <span>Convolutional Variational Autoencoder, trained on MNIST</span>
-    </div>
-    <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
-    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
-      Loading...{{ loadingProgress }}%
-    </div>
-    <div class="columns input-output" v-if="!modelLoading">
-      <div class="column is-3 controls-column">
-        <mdl-switch v-model="useGPU" :disabled="modelLoading || !hasWebGL">use GPU</mdl-switch>
-        <div class="coordinates">
-          <div class="coordinates-x">x: {{ inputCoordinates[0] < 0 ? inputCoordinates[0].toFixed(2) : inputCoordinates[0].toFixed(3) }}</div>
-          <div class="coordinates-y">y: {{ inputCoordinates[1] < 0 ? inputCoordinates[1].toFixed(2) : inputCoordinates[1].toFixed(3) }}</div>
+  <div class="demo">
+    <v-progress-circular v-if="modelLoading && loadingProgress < 100" indeterminate color="primary" />
+    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">Loading...{{ loadingProgress }}%</div>
+    <v-layout v-if="!modelLoading" row wrap justify-center>
+      <v-flex sm2 md1>
+        <div class="controls-column">
+          <div class="control">
+            <v-switch label="use GPU" v-model="useGPU" :disabled="modelLoading || !hasWebGL" color="primary"></v-switch>
+          </div>
+          <div class="coordinates">
+            <div class="coordinates-x">x: {{ inputCoordinates[0] < 0 ? inputCoordinates[0].toFixed(2) : inputCoordinates[0].toFixed(3) }}</div>
+            <div class="coordinates-y">y: {{ inputCoordinates[1] < 0 ? inputCoordinates[1].toFixed(2) : inputCoordinates[1].toFixed(3) }}</div>
+          </div>
         </div>
-      </div>
-      <div class="column input-column">
-        <div class="input-container">
-          <div class="input-label">Move around the latent space <span class="arrow">⤸</span></div>
-          <div class="canvas-container">
-            <canvas
-              id="input-canvas" width="200" height="200"
-              @mouseenter="activateCrosshairs"
-              @mouseleave="deactivateCrosshairs"
-              @mousemove="selectCoordinates"
-              @click="selectCoordinates"
-              @touchend="selectCoordinates"
-            ></canvas>
-            <div class="axis x-axis">
-              <span>-1</span>
-              <span>x</span>
-              <span>1</span>
-            </div>
-            <div class="axis y-axis">
-              <span>-1</span>
-              <span>y</span>
-              <span>1</span>
+      </v-flex>
+      <v-flex sm6 md4>
+        <div class="input-column">
+          <div class="input-container">
+            <div class="input-label">Move around the latent space <span class="arrow">⤸</span></div>
+            <div class="canvas-container">
+              <canvas
+                id="input-canvas" width="200" height="200"
+                @mouseenter="activateCrosshairs"
+                @mouseleave="deactivateCrosshairs"
+                @mousemove="selectCoordinates"
+                @click="selectCoordinates"
+                @touchend="selectCoordinates"
+              ></canvas>
+              <div class="axis x-axis">
+                <span>-1</span>
+                <span>x</span>
+                <span>1</span>
+              </div>
+              <div class="axis y-axis">
+                <span>-1</span>
+                <span>y</span>
+                <span>1</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="column output-column">
-        <div class="output">
-          <canvas id="output-canvas-scaled" width="140" height="140"></canvas>
-          <canvas id="output-canvas" width="28" height="28" style="display:none;"></canvas>
+      </v-flex>
+      <v-flex sm4 md2>
+        <div class="output-column">
+          <div class="output">
+            <canvas id="output-canvas-scaled" width="140" height="140"></canvas>
+            <canvas id="output-canvas" width="28" height="28" style="display:none;"></canvas>
+          </div>
         </div>
-      </div>
-    </div>
+      </v-flex>
+    </v-layout>
     <div class="layer-outputs-container" v-if="!modelLoading">
       <div class="bg-line"></div>
       <div
@@ -276,169 +279,169 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 @import '../../variables.css';
 
-.demo.mnist-vae {
-  & .column {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.controls-column {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  font-family: var(--font-monospace);
+  padding-top: 80px;
+
+  & .control {
+    width: 100px;
+    margin: 10px auto;
   }
 
-  & .column.controls-column {
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: flex-start;
-    padding-top: 80px;
+  & .coordinates {
+    margin: 10px auto;
+    font-size: 18px;
+    color: var(--color-lightgray);
+  }
+}
 
-    & .mdl-switch {
-      width: auto;
-      margin-right: 15px;
-    }
+.input-column {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    & .coordinates {
-      margin-left: 5px;
-      margin-top: 45px;
-      font-family: var(--font-monospace);
-      font-size: 20px;
+  & .input-container {
+    text-align: left;
+    margin: 20px;
+    position: relative;
+    user-select: none;
+
+    & .input-label {
+      font-family: var(--font-cursive);
+      font-size: 18px;
       color: var(--color-lightgray);
+
+      & span.arrow {
+        font-size: 36px;
+        color: #cccccc;
+        position: absolute;
+        left: 260px;
+        top: 8px;
+      }
     }
-  }
 
-  & .column.input-column {
-    justify-content: center;
-
-    & .input-container {
-      text-align: right;
-      margin: 20px;
+    & .canvas-container {
       position: relative;
-      user-select: none;
+      display: inline-flex;
+      justify-content: flex-end;
+      margin: 10px 0 10px 30px;
+      border: 15px solid var(--color-green-lighter);
+      transition: border-color 0.2s ease-in;
 
-      & .input-label {
-        font-family: var(--font-cursive);
-        font-size: 18px;
-        color: var(--color-lightgray);
-        text-align: right;
-
-        & span.arrow {
-          font-size: 36px;
-          color: #CCCCCC;
-          position: absolute;
-          right: -32px;
-          top: 8px;
-        }
+      &:hover {
+        border-color: var(--color-green-light);
       }
-
-      & .canvas-container {
-        position: relative;
-        display: inline-flex;
-        justify-content: flex-end;
-        margin: 10px 0;
-        border: 15px solid var(--color-green-lighter);
-        transition: border-color 0.2s ease-in;
-
-        &:hover {
-          border-color: var(--color-green-light);
-        }
-
-        & canvas {
-          background: whitesmoke;
-
-          &:hover {
-            cursor: crosshair;
-          }
-        }
-
-        & .axis {
-          position: absolute;
-          cursor: default;
-          user-select: none;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          font-family: var(--font-monospace);
-          font-size: 14px;
-          color: var(--color-green);
-        }
-
-        & .axis.x-axis {
-          right: 0;
-          bottom: -45px;
-          width: 200px;
-          flex-direction: row;
-        }
-
-        & .axis.y-axis {
-          top: 0;
-          left: -55px;
-          height: 200px;
-          flex-direction: column;
-        }
-      }
-    }
-  }
-
-  & .column.output-column {
-    justify-content: flex-start;
-
-    & .output {
-      border-radius: 10px;
-      border: 1px solid gray;
-      overflow: hidden;
 
       & canvas {
         background: whitesmoke;
+
+        &:hover {
+          cursor: crosshair;
+        }
+      }
+
+      & .axis {
+        position: absolute;
+        cursor: default;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: var(--font-monospace);
+        font-size: 14px;
+        color: var(--color-green);
+      }
+
+      & .axis.x-axis {
+        right: 0;
+        bottom: -45px;
+        width: 200px;
+        flex-direction: row;
+      }
+
+      & .axis.y-axis {
+        top: 0;
+        left: -55px;
+        height: 200px;
+        flex-direction: column;
       }
     }
   }
+}
 
-  & .layer-outputs-container {
-    position: relative;
+.output-column {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 40px;
 
-    & .bg-line {
-      position: absolute;
-      z-index: 0;
-      top: 0;
-      left: 50%;
+  & .output {
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid gray;
+    overflow: hidden;
+
+    & canvas {
       background: whitesmoke;
-      width: 15px;
-      height: 100%;
+    }
+  }
+}
+
+.layer-outputs-container {
+  position: relative;
+
+  & .bg-line {
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    left: 50%;
+    background: whitesmoke;
+    width: 15px;
+    height: 100%;
+  }
+
+  & .layer-output {
+    position: relative;
+    z-index: 1;
+    margin: 30px 20px;
+    background: whitesmoke;
+    border-radius: 10px;
+    padding: 20px;
+    overflow-x: auto;
+
+    & .layer-output-heading {
+      font-size: 1rem;
+      color: #999999;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      font-size: 12px;
+
+      & span.layer-class {
+        color: var(--color-green);
+        font-size: 14px;
+        font-weight: bold;
+      }
     }
 
-    & .layer-output {
-      position: relative;
-      z-index: 1;
-      margin: 30px 20px;
+    & .layer-output-canvas-container {
+      display: inline-flex;
+      flex-wrap: wrap;
       background: whitesmoke;
-      border-radius: 10px;
-      padding: 20px;
-      overflow-x: auto;
 
-      & .layer-output-heading {
-        font-size: 1rem;
-        color: #999999;
-        margin-bottom: 10px;
-        display: flex;
-        flex-direction: column;
-        font-size: 12px;
-
-        & span.layer-class {
-          color: var(--color-green);
-          font-size: 14px;
-          font-weight: bold;
-        }
-      }
-
-      & .layer-output-canvas-container {
-        display: inline-flex;
-        flex-wrap: wrap;
-        background: whitesmoke;
-
-        & canvas {
-          border: 1px solid lightgray;
-          margin: 1px;
-        }
+      & canvas {
+        border: 1px solid lightgray;
+        margin: 1px;
       }
     }
   }

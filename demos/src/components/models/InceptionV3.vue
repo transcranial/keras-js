@@ -1,30 +1,22 @@
 <template>
-  <div class="demo inception-v3">
-    <div class="title">
-      <span>Inception v3, trained on ImageNet</span>
-    </div>
-    <mdl-spinner v-if="modelLoading && loadingProgress < 100"></mdl-spinner>
-    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">
-      Loading...{{ loadingProgress }}%
-    </div>
+  <div class="demo">
+    <v-progress-circular v-if="modelLoading && loadingProgress < 100" indeterminate color="primary" />
+    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">Loading...{{ loadingProgress }}%</div>
     <div class="top-container" v-if="!modelLoading">
       <div class="input-container">
         <div class="input-label">Enter a valid image URL or select an image from the dropdown:</div>
         <div class="image-url">
-          <mdl-textfield
-            floating-label="enter image url"
+          <v-text-field
             v-model="imageURLInput"
-            spellcheck="false"
+            label="enter image url"
             @keyup.native.enter="onImageURLInputEnter"
-          ></mdl-textfield>
+          ></v-text-field>
           <span>or</span>
-          <mdl-select
-            label="select image"
-            id="image-url-select"
+          <v-select
             v-model="imageURLSelect"
-            :options="imageURLSelectList"
-            style="width:200px;"
-          ></mdl-select>
+            :items="imageURLSelectList"
+            label="select image"
+          ></v-select>
         </div>
       </div>
       <div class="controls">
@@ -34,19 +26,17 @@
     <div class="columns input-output" v-if="!modelLoading">
       <div class="column input-column">
         <div class="visualization">
-          <mdl-select
-            label="visualization"
-            id="visualization-select"
+          <mdl-select label="visualization" id="visualization-select"
+            style="width:230px;"
             v-model="visualizationSelect"
             :options="visualizationSelectList"
-            style="width:250px;"
           ></mdl-select>
         </div>
         <div class="canvas-container">
           <canvas id="input-canvas" width="299" height="299"></canvas>
         </div>
         <div class="loading-indicator">
-          <mdl-spinner v-if="imageLoading || modelRunning"></mdl-spinner>
+          <v-progress-circular v-if="imageLoading || modelRunning" indeterminate color="primary" />
           <div class="error" v-if="imageLoadingError">Error loading URL</div>
         </div>
       </div>
@@ -58,9 +48,8 @@
             <span v-if="inferenceTime > 0" class="inference-time-value">({{ (1000 / inferenceTime).toFixed(1) }} fps)</span>
             <span v-else>-</span>
           </div>
-          <div class="output-class"
-            :class="{ predicted: i === 0 && outputClasses[i].probability.toFixed(2) > 0 }"
-            v-for="i in [0, 1, 2, 3, 4]"
+          <div v-for="i in [0, 1, 2, 3, 4]" :key="i"
+            class="output-class" :class="{ predicted: i === 0 && outputClasses[i].probability.toFixed(2) > 0 }"
           >
             <div class="output-label">{{ outputClasses[i].name }}</div>
             <div class="output-bar"
@@ -73,7 +62,7 @@
     </div>
     <div class="architecture-container" v-if="!modelLoading">
       <div v-for="(row, rowIndex) in architectureDiagramRows" :key="`row-${rowIndex}`" class="layers-row">
-        <div v-for="layers in row" class="layer-column">
+        <div v-for="(layers, i) in row" :key="`layer-row-${i}`" class="layer-column">
           <div v-for="layer in layers" :key="`layer-${layer.name}`"
             v-if="layer.className"
             class="layer"
@@ -126,7 +115,7 @@ export default {
       imageLoading: false,
       imageLoadingError: false,
       visualizationSelect: 'CAM',
-      visualizationSelectList: [{ name: 'None', value: 'None' }, { name: 'Class Activation Mapping', value: 'CAM' }],
+      visualizationSelectList: [{ text: 'None', value: 'None' }, { text: 'Class Activation Mapping', value: 'CAM' }],
       output: null,
       architectureDiagram: ARCHITECTURE_DIAGRAM,
       architectureConnections: ARCHITECTURE_CONNECTIONS,
@@ -269,17 +258,14 @@ export default {
       ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 2))
 
       const inputData = { input_1: dataProcessedTensor.data }
-      const start = performance.now()
       this.model.predict(inputData).then(outputData => {
-        this.inferenceTime = performance.now() - start
+        this.inferenceTime = this.model.predictStats.forwardPass
         this.output = outputData['predictions']
         this.modelRunning = false
         this.updateVis()
       })
     },
-    updateVis() {
-
-    },
+    updateVis() {},
     clearAll() {
       this.modelRunning = false
       this.inferenceTime = null
@@ -298,237 +284,238 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 @import '../../variables.css';
 
-.demo.inception-v3 {
-  & .top-container {
-    margin: 10px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+.top-container {
+  margin: 10px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 
-    & .input-container {
-      & .input-label {
-        font-family: var(--font-cursive);
-        font-size: 16px;
-        color: var(--color-lightgray);
-        text-align: left;
-        user-select: none;
-        cursor: default;
-      }
+  & .input-container {
+    width: 100%;
 
-      & .image-url {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-        position: relative;
-
-        & span {
-          margin: 0 10px;
-          font-family: var(--font-cursive);
-          font-size: 16px;
-          color: var(--color-lightgray);
-        }
-      }
+    & .input-label {
+      font-family: var(--font-cursive);
+      font-size: 16px;
+      color: var(--color-lightgray);
+      text-align: left;
+      user-select: none;
+      cursor: default;
     }
 
-    & .controls {
-      width: 250px;
-      margin-left: 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+    & .image-url {
       font-family: var(--font-monospace);
-
-      & .mdl-switch {
-        margin-bottom: 5px;
-      }
-    }
-  }
-
-  & .columns.input-output {
-    padding: 10px;
-    margin: 0 auto;
-    margin-bottom: 30px;
-    background-color: whitesmoke;
-    box-shadow: 3px 3px #CCCCCC;
-
-    & .column {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    & .column.input-column {
-      position: relative;
-
-      & .canvas-container {
-        display: inline-flex;
-        justify-content: flex-end;
-
-        & canvas {
-          background: #EEEEEE;
-        }
-      }
-
-      & .visualization {
-        margin-right: 20px;
-        align-self: flex-end;
-      }
-
-      & .loading-indicator {
-        position: absolute;
-        top: 0;
-        right: 322px;
-        display: flex;
-        flex-direction: column;
-        align-self: flex-start;
-
-        & .mdl-spinner {
-          margin: 20px;
-          align-self: center;
-        }
-
-        & .error {
-          color: var(--color-error);
-          font-family: var(--font-monospace);
-          font-size: 12px;
-        }
-      }
-    }
-
-    & .column.output-column {
-      & .output {
-        width: 370px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: center;
-
-        & .inference-time {
-          align-self: center;
-          font-family: var(--font-monospace);
-          font-size: 14px;
-          color: var(--color-lightgray);
-          margin-bottom: 10px;
-
-          & .inference-time-value {
-            color: var(--color-green);
-          }
-        }
-
-        & .output-class {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: center;
-          padding: 6px 0;
-
-          & .output-label {
-            text-align: right;
-            width: 200px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-family: var(--font-monospace);
-            font-size: 18px;
-            color: var(--color-lightgray);
-            padding: 0 6px;
-            border-right: 2px solid var(--color-green-lighter);
-          }
-
-          & .output-bar {
-            height: 8px;
-            transition: width 0.2s ease-out;
-          }
-
-          & .output-value {
-            text-align: left;
-            margin-left: 5px;
-            font-family: var(--font-monospace);
-            font-size: 14px;
-            color: var(--color-lightgray);
-          }
-        }
-
-        & .output-class.predicted {
-          & .output-label {
-            color: var(--color-green);
-            border-left-color: var(--color-green);
-          }
-
-          & .output-value {
-            color: var(--color-green);
-          }
-        }
-      }
-    }
-  }
-
-  & .architecture-container {
-    min-width: 800px;
-    max-width: 1200px;
-    margin: 0 auto;
-    position: relative;
-
-    & .layers-row {
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: center;
-      margin-bottom: 5px;
+      justify-content: flex-start;
       position: relative;
-      z-index: 1;
 
-      & .layer-column {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 5px;
+      & span {
+        font-family: var(--font-cursive);
+        color: var(--color-lightgray);
+        margin: 0 10px;
+        font-size: 16px;
+      }
+    }
+  }
 
-        & .layer {
-          display: inline-block;
-          background: whitesmoke;
-          border: 2px solid whitesmoke;
-          border-radius: 5px;
-          padding: 2px 5px 0px;
-          margin: 3px;
+  & .controls {
+    width: 250px;
+    margin-left: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-monospace);
+  }
+}
 
-          & .layer-class-name {
-            color: var(--color-green);
-            font-size: 12px;
-            font-weight: bold;
-          }
+.columns.input-output {
+  padding: 10px;
+  margin: 0 auto;
+  margin-bottom: 30px;
+  background-color: whitesmoke;
+  box-shadow: 3px 3px #cccccc;
 
-          & .layer-details {
-            color: #999999;
-            font-size: 11px;
-            font-weight: bold;
-          }
-        }
+  & .column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-        & .layer.has-output {
-          border-color: var(--color-green);
-        }
+  & .column.input-column {
+    position: relative;
+
+    & .canvas-container {
+      display: inline-flex;
+      justify-content: flex-end;
+
+      & canvas {
+        background: #eeeeee;
       }
     }
 
-    & .architecture-connections {
+    & .visualization {
+      font-family: var(--font-monospace);
+      width: 100%;
+      margin-right: 10px;
+      align-self: flex-end;
+    }
+
+    & .loading-indicator {
       position: absolute;
       top: 0;
-      left: 0;
-      z-index: 0;
+      right: 322px;
+      display: flex;
+      flex-direction: column;
+      align-self: flex-start;
 
-      & path {
-        stroke-width: 4px;
-        stroke: #AAAAAA;
-        fill: none;
+      & .mdl-spinner {
+        margin: 20px;
+        align-self: center;
       }
+
+      & .error {
+        color: var(--color-error);
+        font-family: var(--font-monospace);
+        font-size: 12px;
+      }
+    }
+  }
+
+  & .column.output-column {
+    justify-content: flex-start;
+
+    & .output {
+      width: 370px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+
+      & .inference-time {
+        align-self: center;
+        font-family: var(--font-monospace);
+        font-size: 14px;
+        color: var(--color-lightgray);
+        margin-bottom: 10px;
+
+        & .inference-time-value {
+          color: var(--color-green);
+        }
+      }
+
+      & .output-class {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 0;
+
+        & .output-label {
+          text-align: right;
+          width: 200px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-family: var(--font-monospace);
+          font-size: 16px;
+          color: var(--color-darkgray);
+          padding: 0 6px;
+          border-right: 2px solid var(--color-green-lighter);
+        }
+
+        & .output-bar {
+          height: 8px;
+          transition: width 0.2s ease-out;
+        }
+
+        & .output-value {
+          text-align: left;
+          margin-left: 5px;
+          font-family: var(--font-monospace);
+          font-size: 14px;
+          color: var(--color-lightgray);
+        }
+      }
+
+      & .output-class.predicted {
+        & .output-label {
+          color: var(--color-green);
+          border-left-color: var(--color-green);
+        }
+
+        & .output-value {
+          color: var(--color-green);
+        }
+      }
+    }
+  }
+}
+
+.architecture-container {
+  min-width: 800px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+
+  & .layers-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+    position: relative;
+    z-index: 1;
+
+    & .layer-column {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px;
+
+      & .layer {
+        display: inline-block;
+        background: whitesmoke;
+        border: 2px solid whitesmoke;
+        border-radius: 5px;
+        padding: 2px 5px 0px;
+        margin: 3px;
+
+        & .layer-class-name {
+          color: var(--color-green);
+          font-size: 12px;
+          font-weight: bold;
+        }
+
+        & .layer-details {
+          color: #999999;
+          font-size: 11px;
+          font-weight: bold;
+        }
+      }
+
+      & .layer.has-output {
+        border-color: var(--color-green);
+      }
+    }
+  }
+
+  & .architecture-connections {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+
+    & path {
+      stroke-width: 4px;
+      stroke: #aaaaaa;
+      fill: none;
     }
   }
 }
