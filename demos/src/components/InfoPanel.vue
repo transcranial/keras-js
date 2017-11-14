@@ -43,7 +43,6 @@ export default {
     width: 100%;
     color: var(--color-darkgray);
     font-size: 12px;
-    text-align: justify;
 
     & a {
       color: var(--color-green);

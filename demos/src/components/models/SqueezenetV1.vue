@@ -43,7 +43,11 @@
           ></mdl-select>
         </div>
         <div class="canvas-container">
-          <canvas id="input-canvas" width="227" height="227"></canvas>
+          <canvas id="input-canvas" width="227" height="227"
+            v-on:mouseenter="showVis = true"
+            v-on:mouseleave="showVis = false"
+          ></canvas>
+          <canvas v-show="showVis" id="visualization-canvas" width="227" height="227"></canvas>
         </div>
         <div class="loading-indicator">
           <mdl-spinner v-if="imageLoading || modelRunning"></mdl-spinner>
@@ -127,6 +131,7 @@ export default {
       imageLoadingError: false,
       visualizationSelect: 'CAM',
       visualizationSelectList: [{ name: 'None', value: 'None' }, { name: 'Class Activation Mapping', value: 'CAM' }],
+      showVis: false,
       output: null,
       architectureDiagram: ARCHITECTURE_DIAGRAM,
       architectureConnections: ARCHITECTURE_CONNECTIONS,
@@ -268,10 +273,15 @@ export default {
         this.inferenceTime = performance.now() - start
         this.output = outputData['loss']
         this.modelRunning = false
-        this.showVis()
+        this.updateVis()
       })
     },
-    showVis() {},
+    updateVis() {
+      if (!this.model.visMap.has(this.visualizationSelect)) return
+      const vis = this.model.visMap.get(this.visualizationSelect)
+      const ctx = document.getElementById('visualization-canvas').getContext('2d')
+      ctx.putImageData(vis.imageData, 0, 0)
+    },
     clearAll() {
       this.modelRunning = false
       this.inferenceTime = null
@@ -359,11 +369,19 @@ export default {
       position: relative;
 
       & .canvas-container {
+        position: relative;
         display: inline-flex;
         justify-content: flex-end;
 
-        & canvas {
+        & #input-canvas {
           background: #EEEEEE;
+        }
+
+        & #visualization-canvas {
+          pointer-events: none;
+          position: absolute;
+          top: 0;
+          left: 0;
         }
       }
 

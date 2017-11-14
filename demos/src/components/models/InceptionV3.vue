@@ -48,7 +48,7 @@
         <div class="loading-indicator">
           <mdl-spinner v-if="imageLoading || modelRunning"></mdl-spinner>
           <div class="error" v-if="imageLoadingError">Error loading URL</div>
-        322iv>
+        </div>
       </div>
       <div class="column output-column">
         <div class="output">
@@ -274,10 +274,10 @@ export default {
         this.inferenceTime = performance.now() - start
         this.output = outputData['predictions']
         this.modelRunning = false
-        this.showVis()
+        this.updateVis()
       })
     },
-    showVis() {
+    updateVis() {
 
     },
     clearAll() {

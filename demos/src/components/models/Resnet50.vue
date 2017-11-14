@@ -270,10 +270,10 @@ export default {
         this.inferenceTime = performance.now() - start
         this.output = outputData['fc1000']
         this.modelRunning = false
-        this.showVis()
+        this.updateVis()
       })
     },
-    showVis() {
+    updateVis() {
 
     },
     clearAll() {
