@@ -39,11 +39,11 @@ export default class CAM {
         this.poolLayer = layer
       }
     })
-    
-    if (this.enabled && !this.imageData) {
+
+    if (this.enabled && !this.data) {
       this.width = width
       this.height = height
-      this.imageData = new ImageData(width, height)
+      this.data = new Float32Array(this.width * this.height)
     }
   }
 
@@ -64,14 +64,8 @@ export default class CAM {
       this._updateCPU()
     }
 
-    const size = this.width * this.height * 4
-    const arr = ndarray(new Uint8ClampedArray(this.height * this.width * 4), [this.height, this.width, 4])
-    const alpha = ndarray(new Float32Array(this.height * this.width), [this.height, this.width])
-    resample(alpha, this.output.tensor)
-    ops.mulseq(alpha, -255)
-    ops.addseq(alpha, 255)
-    ops.assign(arr.pick(null, null, 3), alpha)
-    this.imageData.data.set(arr.data)
+    const dataArr = ndarray(this.data, [this.height, this.width])
+    resample(dataArr, this.output.tensor)
   }
 
   _updateCPU() {
