@@ -17,3 +17,6 @@ demos/data/
 # python
 __pycache__/
 *.pyc
+
+# assets
+assets/logo.idraw
