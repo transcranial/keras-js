@@ -55,7 +55,7 @@
 
 <script>
 import * as utils from '../../utils'
-import filter from 'lodash/filter'
+import _ from 'lodash'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/mnist-acgan-arch'
 
 const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/mnist_acgan/mnist_acgan.bin'
@@ -67,7 +67,7 @@ export default {
   data() {
     return {
       useGPU: this.hasWebGL,
-      digit: 6,
+      digit: 3,
       noiseVector: [],
       model: new KerasJS.Model({
         filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
@@ -94,7 +94,7 @@ export default {
     architectureDiagramRows() {
       const rows = []
       for (let row = 0; row < 12; row++) {
-        rows.push(filter(this.architectureDiagram, { row }))
+        rows.push(_.filter(this.architectureDiagram, { row }))
       }
       return rows
     }
@@ -104,15 +104,18 @@ export default {
     this.createNoise()
   },
 
-  mounted() {
-    this.model.ready().then(() => {
-      this.modelLoading = false
-      this.$nextTick(() => {
-        this.drawArchitectureDiagramPaths()
-        this.runModel()
-        this.drawNoise()
-      })
+  async mounted() {
+    await this.model.ready()
+    this.modelLoading = false
+    this.$nextTick(() => {
+      this.drawArchitectureDiagramPaths()
+      this.runModel()
+      this.drawNoise()
     })
+  },
+
+  beforeDestroy() {
+    this.model.cleanup()
   },
 
   methods: {
@@ -161,15 +164,14 @@ export default {
       }
       this.noiseVector = noiseVector
     },
-    runModel() {
+    async runModel() {
       const inputData = {
         input_2: new Float32Array(this.noiseVector),
         input_3: new Float32Array([this.digit])
       }
-      this.model.predict(inputData).then(outputData => {
-        this.output = outputData['conv2d_7']
-        this.drawOutput()
-      })
+      const outputData = await this.model.predict(inputData)
+      this.output = outputData['conv2d_7']
+      this.drawOutput()
     },
     drawNoise() {
       // draw noise visualization on canvas

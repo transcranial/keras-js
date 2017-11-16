@@ -131,15 +131,18 @@ export default {
     }
   },
 
-  mounted() {
-    this.model.ready().then(() => {
-      this.modelLoading = false
-      this.$nextTick(() => {
-        this.drawPosition()
-        this.getIntermediateOutputs()
-        this.runModel()
-      })
+  async mounted() {
+    await this.model.ready()
+    this.modelLoading = false
+    this.$nextTick(() => {
+      this.drawPosition()
+      this.getIntermediateOutputs()
+      this.runModel()
     })
+  },
+
+  beforeDestroy() {
+    this.model.cleanup()
   },
 
   methods: {
@@ -204,13 +207,12 @@ export default {
       16,
       { leading: true, trailing: true }
     ),
-    runModel() {
+    async runModel() {
       const inputData = { input_2: new Float32Array(this.inputCoordinates) }
-      this.model.predict(inputData).then(outputData => {
-        this.output = outputData['conv2d_6']
-        this.drawOutput()
-        this.getIntermediateOutputs()
-      })
+      const outputData = await this.model.predict(inputData)
+      this.output = outputData['conv2d_6']
+      this.drawOutput()
+      this.getIntermediateOutputs()
     },
     drawOutput() {
       const ctx = document.getElementById('output-canvas').getContext('2d')

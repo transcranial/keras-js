@@ -207,13 +207,16 @@ export default {
     }
   },
 
-  mounted() {
-    this.model.ready().then(() => {
-      this.modelLoading = false
-      this.$nextTick(() => {
-        this.drawArchitectureDiagramPaths()
-      })
+  async mounted() {
+    await this.model.ready()
+    this.modelLoading = false
+    this.$nextTick(() => {
+      this.drawArchitectureDiagramPaths()
     })
+  },
+
+  beforeDestroy() {
+    this.model.cleanup()
   },
 
   methods: {

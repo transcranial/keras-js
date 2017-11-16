@@ -83,8 +83,7 @@
 </template>
 
 <script>
-import debounce from 'lodash/debounce'
-import range from 'lodash/range'
+import _ from 'lodash'
 import * as utils from '../../utils'
 
 const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn.bin'
@@ -119,7 +118,7 @@ export default {
       modelLoading: true,
       input: new Float32Array(784),
       output: new Float32Array(10),
-      outputClasses: range(10),
+      outputClasses: _.range(10),
       layerOutputImages: [],
       layerDisplayConfig: LAYER_DISPLAY_CONFIG,
       drawing: false,
@@ -145,13 +144,16 @@ export default {
     }
   },
 
-  mounted() {
-    this.model.ready().then(() => {
-      this.modelLoading = false
-      this.$nextTick(() => {
-        this.getIntermediateOutputs()
-      })
+  async mounted() {
+    await this.model.ready()
+    this.modelLoading = false
+    this.$nextTick(() => {
+      this.getIntermediateOutputs()
     })
+  },
+
+  beforeDestroy() {
+    this.model.cleanup()
   },
 
   methods: {
@@ -207,7 +209,7 @@ export default {
         ctx.stroke()
       }
     },
-    deactivateDrawAndPredict: debounce(
+    deactivateDrawAndPredict: _.debounce(
       function() {
         if (!this.drawing) return
         this.drawing = false

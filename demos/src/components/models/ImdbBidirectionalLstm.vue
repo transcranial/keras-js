@@ -55,11 +55,9 @@
 
 <script>
 import axios from 'axios'
-import debounce from 'lodash/debounce'
-import random from 'lodash/random'
-import findIndex from 'lodash/findIndex'
+import _ from 'lodash'
+import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
-import Tensor from '../../../../src/Tensor'
 
 const MODEL_FILEPATH_PROD =
   'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm.bin'
@@ -151,11 +149,14 @@ export default {
     }
   },
 
-  mounted() {
-    this.model.ready().then(() => {
-      this.modelLoading = false
-      this.loadAdditionalData()
-    })
+  async mounted() {
+    await this.model.ready()
+    this.modelLoading = false
+    this.loadAdditionalData()
+  },
+
+  beforeDestroy() {
+    this.model.cleanup()
   },
 
   methods: {
@@ -183,7 +184,7 @@ export default {
       this.modelRunning = true
       this.isSampleText = true
 
-      const randSampleIdx = random(0, this.testSamples.length - 1)
+      const randSampleIdx = _.random(0, this.testSamples.length - 1)
       const values = this.testSamples[randSampleIdx].values
       this.sampleTextLabel = this.testSamples[randSampleIdx].label === 0 ? 'negative' : 'positive'
 
@@ -207,7 +208,7 @@ export default {
         this.modelRunning = false
       })
     },
-    inputChanged: debounce(function() {
+    inputChanged: _.debounce(function() {
       if (this.modelRunning) return
       if (this.inputText.trim() === '') {
         this.inputTextParsed = []
@@ -245,24 +246,23 @@ export default {
       })
     }, 200),
     stepwiseCalc() {
-      const fcLayer = this.model.modelLayersMap.get('dense_1')
       const forwardHiddenStates = this.model.modelLayersMap.get('bidirectional_1').forwardLayer.hiddenStateSequence
       const backwardHiddenStates = this.model.modelLayersMap.get('bidirectional_1').backwardLayer.hiddenStateSequence
       const forwardDim = forwardHiddenStates.tensor.shape[1]
       const backwardDim = backwardHiddenStates.tensor.shape[1]
 
-      const start = findIndex(this.input, idx => idx >= INDEX_FROM)
+      const start = _.findIndex(this.input, idx => idx >= INDEX_FROM)
       if (start === -1) return
 
       const stepwiseOutput = []
-      const tempTensor = new Tensor([], [forwardDim + backwardDim])
+      const tempTensor = ndarray(new Float32Array(forwardDim + backwardDim), [forwardDim + backwardDim])
       for (let i = start; i < MAXLEN; i++) {
-        ops.assign(tempTensor.tensor.hi(forwardDim).lo(0), forwardHiddenStates.tensor.pick(i, null))
+        ops.assign(tempTensor.hi(forwardDim).lo(0), forwardHiddenStates.tensor.pick(i, null))
         ops.assign(
-          tempTensor.tensor.hi(forwardDim + backwardDim).lo(forwardDim),
+          tempTensor.hi(forwardDim + backwardDim).lo(forwardDim),
           backwardHiddenStates.tensor.pick(MAXLEN - i - 1, null)
         )
-        stepwiseOutput.push(fcLayer.call(tempTensor).tensor.data[0])
+        stepwiseOutput.push(this.model.layerCall('dense_1', tempTensor).tensor.data[0])
       }
       this.stepwiseOutput = stepwiseOutput
     }

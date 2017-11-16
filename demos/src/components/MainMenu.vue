@@ -1,6 +1,6 @@
 <template>
   <aside class="menu">
-    <h1><a href="#/">Keras.js</a></h1>
+    <div class="logo"><a href="#/"><img src="assets/logo.svg" /></a></div>
     <p class="menu-label">Demos</p>
     <ul class="menu-list">
       <li :class="{ active: currentView === 'mnist-cnn' }">
@@ -23,7 +23,7 @@
       </li>
       <li :class="{ active: currentView === 'resnet50' }">
         <a href="#/resnet50">
-          <span class="menu-item-heading">Residual Network (50-layer)</span>
+          <span class="menu-item-heading">ResNet-50</span>
           <span class="menu-item-subheading">ImageNet</span>
         </a>
       </li>
@@ -80,23 +80,14 @@ export default {
 
 .menu {
   font-family: var(--font-sans-serif);
-  padding: 0 40px;
+  padding: 20px 40px;
   background: whitesmoke;
+}
 
-  & h1 {
-    color: var(--color-green);
-    font-size: 21px;
-    margin: 24px 0;
-
-    & a {
-      color: var(--color-green) !important;
-      text-decoration: none;
-      transition: color 0.2s ease-in-out;
-
-      &:hover {
-        color: var(--color-green-light) !important;
-      }
-    }
+.logo {
+  & img {
+    max-width: 100%;
+    max-height: 100%;
   }
 }
 
