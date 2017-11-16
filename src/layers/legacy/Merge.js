@@ -4,8 +4,7 @@ import gemm from 'ndarray-gemm'
 import ops from 'ndarray-ops'
 import unsqueeze from 'ndarray-unsqueeze'
 import concatFirstAxis from 'ndarray-concat-rows'
-import isEqual from 'lodash/isEqual'
-import range from 'lodash/range'
+import _ from 'lodash'
 
 /**
  * Merge layer class
@@ -51,7 +50,7 @@ export default class Merge extends Layer {
   _validateInputs(inputs) {
     const shapes = inputs.map(x => x.tensor.shape.slice())
     if (['sum', 'mul', 'ave', 'cos', 'max'].indexOf(this.mode) > -1) {
-      if (!shapes.every(shape => isEqual(shape, shapes[0]))) {
+      if (!shapes.every(shape => _.isEqual(shape, shapes[0]))) {
         this.throwError(`All input shapes must be the same for mode ${this.mode}.`)
       }
     }
@@ -72,10 +71,10 @@ export default class Merge extends Layer {
       let nonConcatShapes = shapes.slice()
       let _concatAxis = this.concatAxis < 0 ? nonConcatShapes[0].length + this.concatAxis : this.concatAxis
       if (this.concatAxis === 0) _concatAxis = 0
-      range(nonConcatShapes.length).forEach(i => {
+      _.range(nonConcatShapes.length).forEach(i => {
         nonConcatShapes[i].splice(_concatAxis, 1)
       })
-      if (!nonConcatShapes.every(shape => isEqual(shape, nonConcatShapes[0]))) {
+      if (!nonConcatShapes.every(shape => _.isEqual(shape, nonConcatShapes[0]))) {
         this.throwError('In concat mode, all shapes must be the same except along the concat axis.')
       }
     }

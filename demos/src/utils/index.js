@@ -1,10 +1,5 @@
 import unpack from 'ndarray-unpack'
-import sum from 'lodash/sum'
-import flatten from 'lodash/flatten'
-import isTypedArray from 'lodash/isTypedArray'
-import reverse from 'lodash/reverse'
-import sortBy from 'lodash/sortBy'
-import take from 'lodash/take'
+import _ from 'lodash'
 import { imagenetClasses } from './imagenet'
 
 /**
@@ -95,8 +90,8 @@ export function centerCrop(imageData) {
  * calculates mean and stddev for a ndarray tensor
  */
 export function tensorStats(tensor) {
-  const mean = sum(tensor.data) / tensor.data.length
-  const stddev = Math.sqrt(sum(tensor.data.map(x => (x - mean) ** 2)) / tensor.data.length)
+  const mean = _.sum(tensor.data) / tensor.data.length
+  const stddev = Math.sqrt(_.sum(tensor.data.map(x => (x - mean) ** 2)) / tensor.data.length)
   return { mean, stddev }
 }
 
@@ -164,7 +159,7 @@ export function unroll3Dtensor(tensor) {
   let shape = tensor.shape.slice()
   let unrolled = []
   for (let k = 0, channels = shape[2]; k < channels; k++) {
-    const channelData = flatten(unpack(tensor.pick(null, null, k)))
+    const channelData = _.flatten(unpack(tensor.pick(null, null, k)))
     unrolled.push(channelData)
   }
 
@@ -184,11 +179,11 @@ export function unroll3Dtensor(tensor) {
  * Find top k imagenet classes
  */
 export function imagenetClassesTopK(classProbabilities, k = 5) {
-  const probs = isTypedArray(classProbabilities) ? Array.prototype.slice.call(classProbabilities) : classProbabilities
+  const probs = _.isTypedArray(classProbabilities) ? Array.prototype.slice.call(classProbabilities) : classProbabilities
 
-  const sorted = reverse(sortBy(probs.map((prob, index) => [prob, index]), probIndex => probIndex[0]))
+  const sorted = _.reverse(_.sortBy(probs.map((prob, index) => [prob, index]), probIndex => probIndex[0]))
 
-  const topK = take(sorted, k).map(probIndex => {
+  const topK = _.take(sorted, k).map(probIndex => {
     const iClass = imagenetClasses[probIndex[1]]
     return { id: iClass[0], name: iClass[1].replace(/_/, ' '), probability: probIndex[0] }
   })
