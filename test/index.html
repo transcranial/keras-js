@@ -1,227 +1,223 @@
 <html>
+
 <head>
   <meta charset="utf-8">
   <title>Keras.js | Mocha Tests</title>
   <link href="https://cdn.rawgit.com/mochajs/mocha/v3.0.2/mocha.css" rel="stylesheet" />
 </head>
+
 <body>
-<div id="mocha"></div>
+  <div id="mocha"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/4.0.1/mocha.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.1.2/chai.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/4.0.1/mocha.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.1.2/chai.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
 
-<script src="/dist/keras.js"></script>
+  <script src="/dist/keras.js"></script>
 
-<script>mocha.setup('bdd')</script>
-<script src="globals.js"></script>
+  <script>
+    mocha.setup('bdd')
+  </script>
+  <script src="globals.js"></script>
 
-<!-- ///////////////////////// DATA ///////////////////////// -->
-<script>
-function fetchJSON(f) {
-  return fetch(f).then(res => res.json())
-}
+  <!-- ///////////////////////// DATA ///////////////////////// -->
+  <script>
+    function fetchJSON(f) {
+      return fetch(f).then(res => res.json())
+    }
 
-var dataFiles = [
-  'data/activations.json',
-  'data/layers/advanced_activations.json',
-  'data/layers/core/Dense.json',
-  'data/layers/core/Activation.json',
-  'data/layers/core/Dropout.json',
-  'data/layers/core/Flatten.json',
-  'data/layers/core/Reshape.json',
-  'data/layers/core/Permute.json',
-  'data/layers/core/RepeatVector.json',
-  'data/layers/merge/Add.json',
-  'data/layers/merge/Subtract.json',
-  'data/layers/merge/Multiply.json',
-  'data/layers/merge/Average.json',
-  'data/layers/merge/Maximum.json',
-  'data/layers/merge/Minimum.json',
-  'data/layers/merge/Concatenate.json',
-  'data/layers/merge/Dot.json',
-  'data/layers/convolutional/Conv1D.json',
-  'data/layers/convolutional/Conv2D.json',
-  'data/layers/convolutional/SeparableConv2D.json',
-  'data/layers/convolutional/Conv2DTranspose.json',
-  'data/layers/convolutional/Conv3D.json',
-  'data/layers/convolutional/UpSampling1D.json',
-  'data/layers/convolutional/UpSampling2D.json',
-  'data/layers/convolutional/UpSampling3D.json',
-  'data/layers/convolutional/ZeroPadding1D.json',
-  'data/layers/convolutional/ZeroPadding2D.json',
-  'data/layers/convolutional/ZeroPadding3D.json',
-  'data/layers/convolutional/Cropping1D.json',
-  'data/layers/convolutional/Cropping2D.json',
-  'data/layers/convolutional/Cropping3D.json',
-  'data/layers/pooling/MaxPooling1D.json',
-  'data/layers/pooling/MaxPooling2D.json',
-  'data/layers/pooling/MaxPooling3D.json',
-  'data/layers/pooling/AveragePooling1D.json',
-  'data/layers/pooling/AveragePooling2D.json',
-  'data/layers/pooling/AveragePooling3D.json',
-  'data/layers/pooling/GlobalMaxPooling1D.json',
-  'data/layers/pooling/GlobalMaxPooling2D.json',
-  'data/layers/pooling/GlobalMaxPooling3D.json',
-  'data/layers/pooling/GlobalAveragePooling1D.json',
-  'data/layers/pooling/GlobalAveragePooling2D.json',
-  'data/layers/pooling/GlobalAveragePooling3D.json',
-  'data/layers/normalization/BatchNormalization.json',
-  'data/layers/embeddings/Embedding.json',
-  'data/layers/noise/GaussianDropout.json',
-  'data/layers/noise/GaussianNoise.json',
-  'data/layers/recurrent/SimpleRNN.json',
-  'data/layers/recurrent/LSTM.json',
-  'data/layers/recurrent/GRU.json',
-  'data/layers/wrappers/TimeDistributed.json',
-  'data/layers/wrappers/Bidirectional.json',
-  'data/layers/legacy/Merge.json',
-  'data/layers/legacy/MaxoutDense.json',
-  'data/layers/legacy/Highway.json',
-  'data/pipeline/00.json',
-  'data/pipeline/01.json',
-  'data/pipeline/02.json',
-  'data/pipeline/03.json',
-  'data/pipeline/04.json',
-  'data/pipeline/05.json',
-  'data/pipeline/06.json',
-  'data/pipeline/07.json',
-  'data/pipeline/08.json',
-  'data/pipeline/09.json',
-  'data/pipeline/10.json',
-  'data/pipeline/11.json',
-  'data/pipeline/12.json',
-  'data/pipeline/13.json',
-  'data/graph/00.json',
-  'data/graph/01.json',
-  'data/graph/02.json',
-  'data/graph/03.json',
-  'data/graph/04.json',
-  'data/graph/05.json',
-  'data/graph/06.json'
-]
+    var dataFiles = [
+      'data/activations.json',
+      'data/layers/advanced_activations.json',
+      'data/layers/core/Dense.json',
+      'data/layers/core/Activation.json',
+      'data/layers/core/Dropout.json',
+      'data/layers/core/Flatten.json',
+      'data/layers/core/Reshape.json',
+      'data/layers/core/Permute.json',
+      'data/layers/core/RepeatVector.json',
+      'data/layers/merge/Add.json',
+      'data/layers/merge/Subtract.json',
+      'data/layers/merge/Multiply.json',
+      'data/layers/merge/Average.json',
+      'data/layers/merge/Maximum.json',
+      'data/layers/merge/Minimum.json',
+      'data/layers/merge/Concatenate.json',
+      'data/layers/merge/Dot.json',
+      'data/layers/convolutional/Conv1D.json',
+      'data/layers/convolutional/Conv2D.json',
+      'data/layers/convolutional/SeparableConv2D.json',
+      'data/layers/convolutional/Conv2DTranspose.json',
+      'data/layers/convolutional/Conv3D.json',
+      'data/layers/convolutional/UpSampling1D.json',
+      'data/layers/convolutional/UpSampling2D.json',
+      'data/layers/convolutional/UpSampling3D.json',
+      'data/layers/convolutional/ZeroPadding1D.json',
+      'data/layers/convolutional/ZeroPadding2D.json',
+      'data/layers/convolutional/ZeroPadding3D.json',
+      'data/layers/convolutional/Cropping1D.json',
+      'data/layers/convolutional/Cropping2D.json',
+      'data/layers/convolutional/Cropping3D.json',
+      'data/layers/pooling/MaxPooling1D.json',
+      'data/layers/pooling/MaxPooling2D.json',
+      'data/layers/pooling/MaxPooling3D.json',
+      'data/layers/pooling/AveragePooling1D.json',
+      'data/layers/pooling/AveragePooling2D.json',
+      'data/layers/pooling/AveragePooling3D.json',
+      'data/layers/pooling/GlobalMaxPooling1D.json',
+      'data/layers/pooling/GlobalMaxPooling2D.json',
+      'data/layers/pooling/GlobalMaxPooling3D.json',
+      'data/layers/pooling/GlobalAveragePooling1D.json',
+      'data/layers/pooling/GlobalAveragePooling2D.json',
+      'data/layers/pooling/GlobalAveragePooling3D.json',
+      'data/layers/normalization/BatchNormalization.json',
+      'data/layers/embeddings/Embedding.json',
+      'data/layers/noise/GaussianDropout.json',
+      'data/layers/noise/GaussianNoise.json',
+      'data/layers/recurrent/SimpleRNN.json',
+      'data/layers/recurrent/LSTM.json',
+      'data/layers/recurrent/GRU.json',
+      'data/layers/wrappers/TimeDistributed.json',
+      'data/layers/wrappers/Bidirectional.json',
+      'data/pipeline/00.json',
+      'data/pipeline/01.json',
+      'data/pipeline/02.json',
+      'data/pipeline/03.json',
+      'data/pipeline/04.json',
+      'data/pipeline/05.json',
+      'data/pipeline/06.json',
+      'data/pipeline/07.json',
+      'data/pipeline/08.json',
+      'data/pipeline/09.json',
+      'data/pipeline/10.json',
+      'data/pipeline/11.json',
+      'data/pipeline/12.json',
+      'data/pipeline/13.json',
+      'data/graph/00.json',
+      'data/graph/01.json',
+      'data/graph/02.json',
+      'data/graph/03.json',
+      'data/graph/04.json',
+      'data/graph/05.json',
+      'data/graph/06.json'
+    ]
 
-window.TEST_DATA = {}
-Promise.all(dataFiles.map(f => fetchJSON(f))).then(jsonArr => {
-  jsonArr.forEach(json => {
-    Object.assign(window.TEST_DATA, json)
-  })
-})
-</script>
+    window.TEST_DATA = {}
+    Promise.all(dataFiles.map(f => fetchJSON(f))).then(jsonArr => {
+      jsonArr.forEach(json => {
+        Object.assign(window.TEST_DATA, json)
+      })
+    })
+  </script>
 
-<!-- ///////////////////////// TESTS ///////////////////////// -->
+  <!-- ///////////////////////// TESTS ///////////////////////// -->
 
-<!-- activations -->
-<script src="activations.js"></script>
+  <!-- activations -->
+  <script src="activations.js"></script>
 
-<!-- layers: advanced_activations -->
-<script src="layers/advanced_activations.js"></script>
+  <!-- layers: advanced_activations -->
+  <script src="layers/advanced_activations.js"></script>
 
-<!-- layers: core -->
-<script src="layers/core/Dense.js"></script>
-<script src="layers/core/Activation.js"></script>
-<script src="layers/core/Dropout.js"></script>
-<script src="layers/core/Flatten.js"></script>
-<script src="layers/core/Reshape.js"></script>
-<script src="layers/core/Permute.js"></script>
-<script src="layers/core/RepeatVector.js"></script>
+  <!-- layers: core -->
+  <script src="layers/core/Dense.js"></script>
+  <script src="layers/core/Activation.js"></script>
+  <script src="layers/core/Dropout.js"></script>
+  <script src="layers/core/Flatten.js"></script>
+  <script src="layers/core/Reshape.js"></script>
+  <script src="layers/core/Permute.js"></script>
+  <script src="layers/core/RepeatVector.js"></script>
 
-<!-- layers: merge -->
-<script src="layers/merge/Add.js"></script>
-<script src="layers/merge/Subtract.js"></script>
-<script src="layers/merge/Multiply.js"></script>
-<script src="layers/merge/Average.js"></script>
-<script src="layers/merge/Maximum.js"></script>
-<script src="layers/merge/Minimum.js"></script>
-<script src="layers/merge/Concatenate.js"></script>
-<script src="layers/merge/Dot.js"></script>
+  <!-- layers: merge -->
+  <script src="layers/merge/Add.js"></script>
+  <script src="layers/merge/Subtract.js"></script>
+  <script src="layers/merge/Multiply.js"></script>
+  <script src="layers/merge/Average.js"></script>
+  <script src="layers/merge/Maximum.js"></script>
+  <script src="layers/merge/Minimum.js"></script>
+  <script src="layers/merge/Concatenate.js"></script>
+  <script src="layers/merge/Dot.js"></script>
 
-<!-- layers: convolutional -->
-<script src="layers/convolutional/Conv1D.js"></script>
-<script src="layers/convolutional/Conv2D.js"></script>
-<script src="layers/convolutional/SeparableConv2D.js"></script>
-<script src="layers/convolutional/Conv2DTranspose.js"></script>
-<script src="layers/convolutional/Conv3D.js"></script>
-<script src="layers/convolutional/UpSampling1D.js"></script>
-<script src="layers/convolutional/UpSampling2D.js"></script>
-<script src="layers/convolutional/UpSampling3D.js"></script>
-<script src="layers/convolutional/ZeroPadding1D.js"></script>
-<script src="layers/convolutional/ZeroPadding2D.js"></script>
-<script src="layers/convolutional/ZeroPadding3D.js"></script>
-<script src="layers/convolutional/Cropping1D.js"></script>
-<script src="layers/convolutional/Cropping2D.js"></script>
-<script src="layers/convolutional/Cropping3D.js"></script>
+  <!-- layers: convolutional -->
+  <script src="layers/convolutional/Conv1D.js"></script>
+  <script src="layers/convolutional/Conv2D.js"></script>
+  <script src="layers/convolutional/SeparableConv2D.js"></script>
+  <script src="layers/convolutional/Conv2DTranspose.js"></script>
+  <script src="layers/convolutional/Conv3D.js"></script>
+  <script src="layers/convolutional/UpSampling1D.js"></script>
+  <script src="layers/convolutional/UpSampling2D.js"></script>
+  <script src="layers/convolutional/UpSampling3D.js"></script>
+  <script src="layers/convolutional/ZeroPadding1D.js"></script>
+  <script src="layers/convolutional/ZeroPadding2D.js"></script>
+  <script src="layers/convolutional/ZeroPadding3D.js"></script>
+  <script src="layers/convolutional/Cropping1D.js"></script>
+  <script src="layers/convolutional/Cropping2D.js"></script>
+  <script src="layers/convolutional/Cropping3D.js"></script>
 
-<!-- layers: pooling -->
-<script src="layers/pooling/MaxPooling1D.js"></script>
-<script src="layers/pooling/MaxPooling2D.js"></script>
-<script src="layers/pooling/MaxPooling3D.js"></script>
-<script src="layers/pooling/AveragePooling1D.js"></script>
-<script src="layers/pooling/AveragePooling2D.js"></script>
-<script src="layers/pooling/AveragePooling3D.js"></script>
-<script src="layers/pooling/GlobalMaxPooling1D.js"></script>
-<script src="layers/pooling/GlobalMaxPooling2D.js"></script>
-<script src="layers/pooling/GlobalMaxPooling3D.js"></script>
-<script src="layers/pooling/GlobalAveragePooling1D.js"></script>
-<script src="layers/pooling/GlobalAveragePooling2D.js"></script>
-<script src="layers/pooling/GlobalAveragePooling3D.js"></script>
+  <!-- layers: pooling -->
+  <script src="layers/pooling/MaxPooling1D.js"></script>
+  <script src="layers/pooling/MaxPooling2D.js"></script>
+  <script src="layers/pooling/MaxPooling3D.js"></script>
+  <script src="layers/pooling/AveragePooling1D.js"></script>
+  <script src="layers/pooling/AveragePooling2D.js"></script>
+  <script src="layers/pooling/AveragePooling3D.js"></script>
+  <script src="layers/pooling/GlobalMaxPooling1D.js"></script>
+  <script src="layers/pooling/GlobalMaxPooling2D.js"></script>
+  <script src="layers/pooling/GlobalMaxPooling3D.js"></script>
+  <script src="layers/pooling/GlobalAveragePooling1D.js"></script>
+  <script src="layers/pooling/GlobalAveragePooling2D.js"></script>
+  <script src="layers/pooling/GlobalAveragePooling3D.js"></script>
 
-<!-- layers: normalization -->
-<script src="layers/normalization/BatchNormalization.js"></script>
+  <!-- layers: normalization -->
+  <script src="layers/normalization/BatchNormalization.js"></script>
 
-<!-- layers: embeddings -->
-<script src="layers/embeddings/Embedding.js"></script>
+  <!-- layers: embeddings -->
+  <script src="layers/embeddings/Embedding.js"></script>
 
-<!-- layers: noise -->
-<script src="layers/noise/GaussianDropout.js"></script>
-<script src="layers/noise/GaussianNoise.js"></script>
+  <!-- layers: noise -->
+  <script src="layers/noise/GaussianDropout.js"></script>
+  <script src="layers/noise/GaussianNoise.js"></script>
 
-<!-- layers: recurrent -->
-<script src="layers/recurrent/SimpleRNN.js"></script>
-<script src="layers/recurrent/LSTM.js"></script>
-<script src="layers/recurrent/GRU.js"></script>
+  <!-- layers: recurrent -->
+  <script src="layers/recurrent/SimpleRNN.js"></script>
+  <script src="layers/recurrent/LSTM.js"></script>
+  <script src="layers/recurrent/GRU.js"></script>
 
-<!-- layers: wrappers -->
-<script src="layers/wrappers/TimeDistributed.js"></script>
-<script src="layers/wrappers/Bidirectional.js"></script>
+  <!-- layers: wrappers -->
+  <script src="layers/wrappers/TimeDistributed.js"></script>
+  <script src="layers/wrappers/Bidirectional.js"></script>
 
-<!-- layers: legacy -->
-<script src="layers/legacy/Merge.js"></script>
-<script src="layers/legacy/MaxoutDense.js"></script>
-<script src="layers/legacy/Highway.js"></script>
+  <!-- pipeline -->
+  <script src="pipeline/00.js"></script>
+  <script src="pipeline/01.js"></script>
+  <script src="pipeline/02.js"></script>
+  <script src="pipeline/03.js"></script>
+  <script src="pipeline/04.js"></script>
+  <script src="pipeline/05.js"></script>
+  <script src="pipeline/06.js"></script>
+  <script src="pipeline/07.js"></script>
+  <script src="pipeline/08.js"></script>
+  <script src="pipeline/09.js"></script>
+  <script src="pipeline/10.js"></script>
+  <script src="pipeline/11.js"></script>
+  <script src="pipeline/12.js"></script>
+  <script src="pipeline/13.js"></script>
 
+  <!-- graph -->
+  <script src="graph/00.js"></script>
+  <script src="graph/01.js"></script>
+  <script src="graph/02.js"></script>
+  <script src="graph/03.js"></script>
+  <script src="graph/04.js"></script>
+  <script src="graph/05.js"></script>
+  <script src="graph/06.js"></script>
 
-<!-- pipeline -->
-<script src="pipeline/00.js"></script>
-<script src="pipeline/01.js"></script>
-<script src="pipeline/02.js"></script>
-<script src="pipeline/03.js"></script>
-<script src="pipeline/04.js"></script>
-<script src="pipeline/05.js"></script>
-<script src="pipeline/06.js"></script>
-<script src="pipeline/07.js"></script>
-<script src="pipeline/08.js"></script>
-<script src="pipeline/09.js"></script>
-<script src="pipeline/10.js"></script>
-<script src="pipeline/11.js"></script>
-<script src="pipeline/12.js"></script>
-<script src="pipeline/13.js"></script>
-
-<!-- graph -->
-<script src="graph/00.js"></script>
-<script src="graph/01.js"></script>
-<script src="graph/02.js"></script>
-<script src="graph/03.js"></script>
-<script src="graph/04.js"></script>
-<script src="graph/05.js"></script>
-<script src="graph/06.js"></script>
-
-<script>
-// mocha.checkLeaks()
-mocha.globals(['jQuery'])
-mocha.run()
-</script>
+  <script>
+    // mocha.checkLeaks()
+    mocha.globals(['jQuery'])
+    mocha.run()
+  </script>
 
 </body>
+
 </html>
