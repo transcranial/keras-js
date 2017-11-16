@@ -3,8 +3,6 @@ class WebGL2 {
     this.isSupported = false
 
     this.vertexShader = null
-    this.textureUnitMap = null
-    this.textureUnitCounter = 0
 
     if (typeof window !== 'undefined') {
       this.canvas = document.createElement('canvas')
@@ -21,13 +19,14 @@ class WebGL2 {
         console.log('Unable to initialize WebGL2 -- your browser may not support it.')
       }
     }
+
+    this._refs = { textures: [], buffers: [] }
   }
 
   /**
    * Intialization after WebGL2 detected.
    */
   init() {
-    this.textureUnitMap = new Map()
     this.createCommonVertexShader()
   }
 
@@ -103,6 +102,7 @@ class WebGL2 {
     const position = gl.getAttribLocation(program, 'position')
     const positionVertexObj = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, positionVertexObj)
+    this.storeRef('buffer', positionVertexObj)
 
     gl.bufferData(
       gl.ARRAY_BUFFER,
@@ -118,10 +118,12 @@ class WebGL2 {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]), gl.STATIC_DRAW)
     gl.vertexAttribPointer(texcoord, 2, gl.FLOAT, false, 0, 0)
     gl.enableVertexAttribArray(texcoord)
+    this.storeRef('buffer', texcoordVertexObj)
 
     const indicesVertexObj = gl.createBuffer()
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesVertexObj)
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW)
+    this.storeRef('buffer', indicesVertexObj)
   }
 
   /**
@@ -130,7 +132,7 @@ class WebGL2 {
    * @param {WebGLProgram} program
    */
   selectProgram(program) {
-    const gl = webgl2.context
+    const gl = this.context
     gl.useProgram(program)
   }
 
@@ -141,7 +143,7 @@ class WebGL2 {
    * @param {Object[]} uniforms
    */
   bindUniforms(program, uniforms) {
-    const gl = webgl2.context
+    const gl = this.context
 
     uniforms.forEach(({ value, type, name }) => {
       const loc = gl.getUniformLocation(program, name)
@@ -160,7 +162,7 @@ class WebGL2 {
    * @param {Object[]} inputs
    */
   bindInputTextures(program, inputs) {
-    const gl = webgl2.context
+    const gl = this.context
 
     inputs.forEach(({ texture, type, name }, i) => {
       gl.activeTexture(gl.TEXTURE0 + i)
@@ -261,6 +263,30 @@ class WebGL2 {
     const textureType = typeMap[format]
 
     return { textureTarget, textureInternalFormat, textureFormat, textureType }
+  }
+
+  /**
+   * Store reference to WebGL texture or buffer on class instance, useful for when we want to delete later
+   * 
+   * @param {string} type
+   * @param {WebGLTexture|WebGLBuffer} obj
+   */
+  storeRef(type, obj) {
+    if (type === 'texture') {
+      this._refs.textures.push(obj)
+    } else if (type === 'buffer') {
+      this._refs.buffers.push(obj)
+    }
+  }
+
+  /**
+   * Deletes all stored references to WebGL textures and buffers
+   */
+  clearRefs() {
+    const gl = this.context
+    this._refs.textures.forEach(texture => gl.deleteTexture(texture))
+    this._refs.buffers.forEach(buffer => gl.deleteBuffer(buffer))
+    this._refs = { textures: [], buffers: [] }
   }
 }
 

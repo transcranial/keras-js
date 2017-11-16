@@ -31,6 +31,20 @@ export default class Layer {
   }
 
   /**
+     * Toggle GPU mode on/off
+     *
+     * @param {boolean} mode - on/off
+     */
+  toggleGPU(mode) {
+    const newMode = typeof mode === 'undefined' ? !this.gpu : mode
+    if (webgl2.isSupported && newMode) {
+      this.gpu = true
+    } else {
+      this.gpu = false
+    }
+  }
+
+  /**
    * Set layer weights
    *
    * @param {Tensor[]} weightsArr - array of weights which are instances of Tensor
@@ -55,19 +69,5 @@ export default class Layer {
   call(x) {
     this.output = x
     return this.output
-  }
-
-  /**
-   * Toggle GPU mode on/off
-   *
-   * @param {boolean} mode - on/off
-   */
-  toggleGPU(mode) {
-    const newMode = typeof mode === 'undefined' ? !this.gpu : mode
-    if (webgl2.isSupported && newMode) {
-      this.gpu = true
-    } else {
-      this.gpu = false
-    }
   }
 }

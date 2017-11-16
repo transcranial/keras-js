@@ -571,4 +571,39 @@ export default class Model {
     this.isRunning = false
     return outputData
   }
+
+  /**
+   * Run computation on a specific layer
+   * 
+   * @param {string} layerName
+   * @param {Tensor|Object} input - can be Tensor instance or ndarray object
+   */
+  layerCall(layerName, input) {
+    if (!this.modelLayersMap.has(layerName)) return
+
+    let x
+    if (input instanceof Tensor) {
+      x = input
+    } else {
+      x = new Tensor(input.data, input.shape)
+    }
+    const layer = this.modelLayersMap.get(layerName)
+    return layer.call(x)
+  }
+
+  /**
+   * Cleanup - important for memory management
+   */
+  cleanup() {
+    // delete references to WebGL textures and buffers to free up GPU memory
+    webgl2.clearRefs()
+
+    // Maps must be manually cleared so that values may be garbage collected
+    this.modelLayersMap.clear()
+    this.inputTensorsMap.clear()
+    this.visMap.clear()
+
+    // delete reference to model weights object
+    delete this.modelWeights
+  }
 }

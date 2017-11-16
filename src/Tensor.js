@@ -61,6 +61,8 @@ export default class Tensor {
 
     this.glTexture = gl.createTexture()
     gl.bindTexture(textureTarget, this.glTexture)
+    webgl2.storeRef('texture', this.glTexture)
+
     if (type === '2d') {
       const data = this.tensor.data
       gl.texImage2D(textureTarget, 0, textureInternalFormat, shape[1], shape[0], 0, textureFormat, textureType, data)
