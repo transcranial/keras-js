@@ -20,7 +20,7 @@
             v-model="imageURLSelect"
             :items="imageURLSelectList"
             label="select image"
-            max-height="500"
+            max-height="750"
           ></v-select>
         </v-flex>
         <v-flex xs2 md2 class="controls">
@@ -55,6 +55,10 @@
             <label>{{ `opacity: ${colormapAlpha}` }}</label>
             <v-slider v-model="colormapAlpha" min="0" max="1" step="0.01"></v-slider>
           </div>
+          <div 
+            v-show="visualizationSelect !== 'None' && output !== null" 
+            class="visualization-instruction"
+          >(hover over image to view)</div>
         </v-flex>
         <v-flex sm5 md3 class="canvas-container">
           <canvas id="input-canvas" width="227" height="227"
@@ -271,7 +275,7 @@ export default {
             this.$nextTick(function() {
               setTimeout(() => {
                 this.runModel()
-              }, 200)
+              }, 10)
             })
           }
         },
@@ -397,6 +401,7 @@ export default {
 
 .visualization {
   margin-right: 20px;
+  position: relative;
 
   & .colormap-alpha {
     position: relative;
@@ -406,6 +411,14 @@ export default {
       color: var(--color-darkgray);
       font-size: 10px;
     }
+  }
+
+  & .visualization-instruction {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    font-size: 12px;
+    color: var(--color-lightgray);
   }
 }
 
