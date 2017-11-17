@@ -99,7 +99,7 @@ export default class Dot extends _Merge {
     // create output textures if doesn't already exist
     if (!this.output) {
       this.output = new Tensor([], this.outputShape)
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
     }
 
     const commonDim = inputs[0].glTextureShape[this.dotAxes[0]]

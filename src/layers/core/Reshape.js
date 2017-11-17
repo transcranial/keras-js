@@ -102,8 +102,8 @@ export default class Reshape extends Layer {
       this.colIndexMap.reshapeTo2D()
     }
 
-    this.rowIndexMap.createGLTexture('2d', 'int')
-    this.colIndexMap.createGLTexture('2d', 'int')
+    this.rowIndexMap.createGLTexture({ type: '2d', format: 'int' })
+    this.colIndexMap.createGLTexture({ type: '2d', format: 'int' })
   }
 
   /**
@@ -115,10 +115,10 @@ export default class Reshape extends Layer {
     if (!x.glTexture) {
       this.inputShape = x.tensor.shape
       if (x.tensor.shape.length <= 2) {
-        x.createGLTexture()
+        x.createGLTexture({ type: '2d', format: 'float' })
       } else if (x.tensor.shape.length > 2 && !x.is2DReshaped) {
         x.reshapeTo2D()
-        x.createGLTexture()
+        x.createGLTexture({ type: '2d', format: 'float' })
       }
     } else if (x.is2DReshaped || x.is2DSquareReshaped) {
       this.inputShape = x.originalShape
@@ -132,7 +132,7 @@ export default class Reshape extends Layer {
       if (this.targetShape.length > 2) {
         this.output.reshapeTo2D()
       }
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
     }
 
     webgl2.runProgram({

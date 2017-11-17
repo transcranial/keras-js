@@ -123,7 +123,7 @@ export default class GRU extends Layer {
     if (this.gpu) {
       const names = ['W_z', 'W_r', 'W_h', 'U_z', 'U_r', 'U_h', 'b_z', 'b_r', 'b_h']
       names.forEach(name => {
-        this.weights[name].createGLTexture()
+        this.weights[name].createGLTexture({ type: '2d', format: 'float' })
       })
     }
   }
@@ -418,7 +418,7 @@ export default class GRU extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
-      x.createGLTexture()
+      x.createGLTexture({ type: '2d', format: 'float' })
     }
 
     const dimUpdateGate = this.weights['b_z'].glTextureShape[1]
@@ -427,80 +427,80 @@ export default class GRU extends Layer {
 
     if (!this.currentHiddenState || !this.stateful) {
       this.currentHiddenState = new Tensor([], [dimHiddenState])
-      this.currentHiddenState.createGLTexture()
+      this.currentHiddenState.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.currentHiddenStateCopy) {
       this.currentHiddenStateCopy = new Tensor([], [dimHiddenState])
-      this.currentHiddenStateCopy.createGLTexture()
+      this.currentHiddenStateCopy.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.currentHiddenStatePreactiv) {
       this.currentHiddenStatePreactiv = new Tensor([], [dimHiddenState])
-      this.currentHiddenStatePreactiv.createGLTexture()
+      this.currentHiddenStatePreactiv.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.currentUpdateGateState) {
       this.currentUpdateGateState = new Tensor([], [dimUpdateGate])
-      this.currentUpdateGateState.createGLTexture()
+      this.currentUpdateGateState.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.currentUpdateGateStatePreactiv) {
       this.currentUpdateGateStatePreactiv = new Tensor([], [dimUpdateGate])
-      this.currentUpdateGateStatePreactiv.createGLTexture()
+      this.currentUpdateGateStatePreactiv.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempXZ) {
       this.tempXZ = new Tensor([], [dimUpdateGate])
-      this.tempXZ.createGLTexture()
+      this.tempXZ.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempHZ) {
       this.tempHZ = new Tensor([], [dimUpdateGate])
-      this.tempHZ.createGLTexture()
+      this.tempHZ.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.currentResetGateState) {
       this.currentResetGateState = new Tensor([], [dimResetGate])
-      this.currentResetGateState.createGLTexture()
+      this.currentResetGateState.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.currentResetGateStateCopy) {
       this.currentResetGateStateCopy = new Tensor([], [dimResetGate])
-      this.currentResetGateStateCopy.createGLTexture()
+      this.currentResetGateStateCopy.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.currentResetGateStatePreactiv) {
       this.currentResetGateStatePreactiv = new Tensor([], [dimResetGate])
-      this.currentResetGateStatePreactiv.createGLTexture()
+      this.currentResetGateStatePreactiv.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempXR) {
       this.tempXR = new Tensor([], [dimResetGate])
-      this.tempXR.createGLTexture()
+      this.tempXR.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempHR) {
       this.tempHR = new Tensor([], [dimResetGate])
-      this.tempHR.createGLTexture()
+      this.tempHR.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.tempXH) {
       this.tempXH = new Tensor([], [dimHiddenState])
-      this.tempXH.createGLTexture()
+      this.tempXH.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempHH) {
       this.tempHH = new Tensor([], [dimHiddenState])
-      this.tempHH.createGLTexture()
+      this.tempHH.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.previousHiddenState) {
       this.previousHiddenState = new Tensor([], [dimHiddenState])
-      this.previousHiddenState.createGLTexture()
+      this.previousHiddenState.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.hiddenStateSequence) {
       this.hiddenStateSequence = new Tensor([], [x.glTextureShape[0], dimHiddenState])
-      this.hiddenStateSequence.createGLTexture()
+      this.hiddenStateSequence.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.hiddenStateSequenceCopy) {
       this.hiddenStateSequenceCopy = new Tensor([], [x.glTextureShape[0], dimHiddenState])
-      this.hiddenStateSequenceCopy.createGLTexture()
+      this.hiddenStateSequenceCopy.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.currentX) {
       this.currentX = new Tensor([], [x.glTextureShape[1]])
-      this.currentX.createGLTexture()
+      this.currentX.createGLTexture({ type: '2d', format: 'float' })
     }
 
     for (let i = 0, len = x.glTextureShape[0]; i < len; i++) {

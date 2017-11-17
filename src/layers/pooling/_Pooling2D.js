@@ -262,7 +262,7 @@ export default class _Pooling2D extends Layer {
       }
     }
 
-    this.indexMap.createGLTexture('2d', 'int')
+    this.indexMap.createGLTexture({ type: '2d', format: 'int' })
   }
 
   /**
@@ -280,7 +280,7 @@ export default class _Pooling2D extends Layer {
       }
       this.inputShape = x.tensor.shape
       this._im2col(x)
-      this.tiledInput.createGLTexture()
+      this.tiledInput.createGLTexture({ type: '2d', format: 'float' })
     }
     this._calcOutputShape(this.inputShape)
     this._createIndexMap()
@@ -290,7 +290,7 @@ export default class _Pooling2D extends Layer {
       const [outputRows, outputCols, inputChannels] = this.outputShape
       const outputTextureShape = [outputRows * outputCols, inputChannels]
       this.output = new Tensor([], outputTextureShape)
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
       this.output.is2DReshaped = true
       this.output.originalShape = this.outputShape
       this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)

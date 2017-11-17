@@ -64,12 +64,12 @@ export default class RepeatVector extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
-      x.createGLTexture()
+      x.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.output) {
       this.output = new Tensor([], [this.n, x.glTextureShape[1]])
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
     }
 
     webgl2.runProgram({

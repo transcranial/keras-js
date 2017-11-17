@@ -69,12 +69,12 @@ export default class Embedding extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
-      x.createGLTexture()
+      x.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.output) {
       this.output = new Tensor([], [x.glTextureShape[1], this.weights['embeddings'].glTextureShape[1]])
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
     }
 
     webgl2.runProgram({

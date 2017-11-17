@@ -69,10 +69,10 @@ export default class InputLayer extends Layer {
 
     if (!x.glTexture) {
       if (x.tensor.shape.length <= 2) {
-        x.createGLTexture('2d', 'float')
+        x.createGLTexture({ type: '2d', format: 'float' })
       } else if (x.tensor.shape.length > 2) {
         x.reshapeTo2DSquare()
-        x.createGLTexture('2d', 'float')
+        x.createGLTexture({ type: '2d', format: 'float' })
       }
     }
 

@@ -68,14 +68,14 @@ export default class _GlobalPooling1D extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
-      x.createGLTexture()
+      x.createGLTexture({ type: '2d', format: 'float' })
     }
     this.inputShape = x.tensor.shape
 
     // create output textures if doesn't already exist
     if (!this.output) {
       this.output = new Tensor([], [this.inputShape[1]])
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
     }
 
     // `true` if max pooling, `false` if average pooling

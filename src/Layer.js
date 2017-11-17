@@ -55,7 +55,7 @@ export default class Layer {
       this.weights[p] = weightsArr[i]
 
       if (this.gpu && createGLTexture) {
-        this.weights[p].createGLTexture()
+        this.weights[p].createGLTexture({ type: '2d', format: 'float' })
       }
     })
   }

@@ -135,7 +135,7 @@ export default class _Pooling1D extends Layer {
       step += this.strides
     }
 
-    this.indexMap.createGLTexture('2d', 'int')
+    this.indexMap.createGLTexture({ type: '2d', format: 'int' })
   }
 
   /**
@@ -145,7 +145,7 @@ export default class _Pooling1D extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
-      x.createGLTexture()
+      x.createGLTexture({ type: '2d', format: 'float' })
     }
     this.inputShape = x.tensor.shape
     this._createIndexMap()
@@ -153,7 +153,7 @@ export default class _Pooling1D extends Layer {
     // create output textures if doesn't already exist
     if (!this.output) {
       this.output = new Tensor([], this.outputShape)
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
     }
 
     // `true` if max pooling, `false` if average pooling

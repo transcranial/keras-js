@@ -70,7 +70,7 @@ export default class SimpleRNN extends Layer {
     if (!this.use_bias) {
       this.weights['bias'] = new Tensor([], [this.units])
       if (this.gpu) {
-        this.weights['bias'].createGLTexture()
+        this.weights['bias'].createGLTexture({ type: '2d', format: 'float' })
       }
     }
   }
@@ -213,46 +213,46 @@ export default class SimpleRNN extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
-      x.createGLTexture()
+      x.createGLTexture({ type: '2d', format: 'float' })
     }
 
     const dimHiddenState = this.units
 
     if (!this.currentHiddenState || !this.stateful) {
       this.currentHiddenState = new Tensor([], [dimHiddenState])
-      this.currentHiddenState.createGLTexture()
+      this.currentHiddenState.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.currentHiddenStatePreactiv) {
       this.currentHiddenStatePreactiv = new Tensor([], [dimHiddenState])
-      this.currentHiddenStatePreactiv.createGLTexture()
+      this.currentHiddenStatePreactiv.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.tempXH) {
       this.tempXH = new Tensor([], [dimHiddenState])
-      this.tempXH.createGLTexture()
+      this.tempXH.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempHH) {
       this.tempHH = new Tensor([], [dimHiddenState])
-      this.tempHH.createGLTexture()
+      this.tempHH.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.previousHiddenState) {
       this.previousHiddenState = new Tensor([], [dimHiddenState])
-      this.previousHiddenState.createGLTexture()
+      this.previousHiddenState.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.hiddenStateSequence) {
       this.hiddenStateSequence = new Tensor([], [x.glTextureShape[0], dimHiddenState])
-      this.hiddenStateSequence.createGLTexture()
+      this.hiddenStateSequence.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.hiddenStateSequenceCopy) {
       this.hiddenStateSequenceCopy = new Tensor([], [x.glTextureShape[0], dimHiddenState])
-      this.hiddenStateSequenceCopy.createGLTexture()
+      this.hiddenStateSequenceCopy.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.currentX) {
       this.currentX = new Tensor([], [x.glTextureShape[1]])
-      this.currentX.createGLTexture()
+      this.currentX.createGLTexture({ type: '2d', format: 'float' })
     }
 
     for (let i = 0, len = x.glTextureShape[0]; i < len; i++) {

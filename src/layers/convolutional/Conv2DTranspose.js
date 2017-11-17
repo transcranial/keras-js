@@ -92,9 +92,9 @@ export default class Conv2DTranspose extends Layer {
 
     if (this.gpu) {
       this.weights['kernel'] = this.wRowsMat
-      this.weights['kernel'].createGLTexture()
+      this.weights['kernel'].createGLTexture({ type: '2d', format: 'float' })
       if (this.use_bias) {
-        this.weights['bias'].createGLTexture()
+        this.weights['bias'].createGLTexture({ type: '2d', format: 'float' })
       }
     }
   }
@@ -373,8 +373,8 @@ export default class Conv2DTranspose extends Layer {
       }
     }
 
-    this.rowIndexMap.createGLTexture('2d_array', 'int')
-    this.colIndexMap.createGLTexture('2d_array', 'int')
+    this.rowIndexMap.createGLTexture({ type: '2d_array', format: 'int' })
+    this.colIndexMap.createGLTexture({ type: '2d_array', format: 'int' })
   }
 
   /**
@@ -390,7 +390,7 @@ export default class Conv2DTranspose extends Layer {
       this.inputShape = x.tensor.shape
       this._calcOutputShape(this.inputShape)
       this._im2col(x)
-      this.imColsMat.createGLTexture()
+      this.imColsMat.createGLTexture({ type: '2d', format: 'float' })
     }
 
     const input = x.is2DReshaped || x.is2DSquareReshaped ? x : this.imColsMat
@@ -399,12 +399,12 @@ export default class Conv2DTranspose extends Layer {
     if (!this.outputMatmul) {
       const outputTextureShape = [input.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
       this.outputMatmul = new Tensor([], outputTextureShape)
-      this.outputMatmul.createGLTexture()
+      this.outputMatmul.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.outputPreactiv) {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
       this.outputPreactiv = new Tensor([], outputTextureShape)
-      this.outputPreactiv.createGLTexture()
+      this.outputPreactiv.createGLTexture({ type: '2d', format: 'float' })
       this.outputPreactiv.is2DReshaped = true
       this.outputPreactiv.originalShape = this.outputShape
       this.outputPreactiv.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
@@ -412,7 +412,7 @@ export default class Conv2DTranspose extends Layer {
     if (!this.output) {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
       this.output = new Tensor([], outputTextureShape)
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
       this.output.is2DReshaped = true
       this.output.originalShape = this.outputShape
       this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)

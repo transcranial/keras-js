@@ -109,8 +109,8 @@ export default class TimeDistributed extends Layer {
       ops.assign(sliceIndicesCol.tensor, indicesCol.tensor.pick(t, ...Array(sliceShape.length).fill(null)))
       sliceIndicesRow.reshapeTo2DSquare()
       sliceIndicesCol.reshapeTo2DSquare()
-      sliceIndicesRow.createGLTexture('2d', 'int')
-      sliceIndicesCol.createGLTexture('2d', 'int')
+      sliceIndicesRow.createGLTexture({ type: '2d', format: 'int' })
+      sliceIndicesCol.createGLTexture({ type: '2d', format: 'int' })
       this.rowIndexMaps.push(sliceIndicesRow)
       this.colIndexMaps.push(sliceIndicesCol)
     }
@@ -147,8 +147,8 @@ export default class TimeDistributed extends Layer {
       ops.assign(outputIndicesCol.tensor.pick(t, ...Array(sliceShape.length).fill(null)), outputSliceIndicesCol.tensor)
       outputIndicesRow.reshapeTo2DSquare()
       outputIndicesCol.reshapeTo2DSquare()
-      outputIndicesRow.createGLTexture('2d', 'int')
-      outputIndicesCol.createGLTexture('2d', 'int')
+      outputIndicesRow.createGLTexture({ type: '2d', format: 'int' })
+      outputIndicesCol.createGLTexture({ type: '2d', format: 'int' })
       this.outputRowIndexMaps.push(outputIndicesRow)
       this.outputColIndexMaps.push(outputIndicesCol)
     }
@@ -168,10 +168,10 @@ export default class TimeDistributed extends Layer {
 
     if (!x.glTexture) {
       if (x.tensor.shape.length <= 2) {
-        x.createGLTexture()
+        x.createGLTexture({ type: '2d', format: 'float' })
       } else if (x.tensor.shape.length > 2 && !x.is2DReshaped) {
         x.reshapeTo2DSquare()
-        x.createGLTexture()
+        x.createGLTexture({ type: '2d', format: 'float' })
       }
     }
 
@@ -185,10 +185,10 @@ export default class TimeDistributed extends Layer {
     if (!this.slice) {
       this.slice = new Tensor([], sliceShape)
       if (sliceShape.length <= 2) {
-        this.slice.createGLTexture()
+        this.slice.createGLTexture({ type: '2d', format: 'float' })
       } else {
         this.slice.reshapeTo2DSquare()
-        this.slice.createGLTexture()
+        this.slice.createGLTexture({ type: '2d', format: 'float' })
       }
     }
 
@@ -219,16 +219,16 @@ export default class TimeDistributed extends Layer {
         this.outputShape = [timesteps, this.sliceOutput.glTextureShape[1]]
         this.output = new Tensor([], this.outputShape)
         this.outputCopy = new Tensor([], this.outputShape)
-        this.output.createGLTexture()
-        this.outputCopy.createGLTexture()
+        this.output.createGLTexture({ type: '2d', format: 'float' })
+        this.outputCopy.createGLTexture({ type: '2d', format: 'float' })
       } else {
         this.outputShape = [timesteps, ...this.sliceOutput.originalShape]
         this.output = new Tensor([], this.outputShape)
         this.outputCopy = new Tensor([], this.outputShape)
         this.output.reshapeTo2DSquare()
         this.outputCopy.reshapeTo2DSquare()
-        this.output.createGLTexture()
-        this.outputCopy.createGLTexture()
+        this.output.createGLTexture({ type: '2d', format: 'float' })
+        this.outputCopy.createGLTexture({ type: '2d', format: 'float' })
 
         this._createOutputIndexMap(this.sliceOutput.indicesForReshaped)
       }

@@ -33,7 +33,7 @@ export default class _Merge extends Layer {
     if (this.gpu) {
       inputs.forEach(input => {
         if (!input.glTexture) {
-          input.createGLTexture()
+          input.createGLTexture({ type: '2d', format: 'float' })
         }
       })
       this._callGPU(inputs)
@@ -109,7 +109,7 @@ export default class _Merge extends Layer {
     // create output textures if doesn't already exist
     if (!this.output) {
       this.output = new Tensor([], inputs[0].glTextureShape)
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
       if (inputs[0].is1D) {
         this.output.is1D = inputs[0].is1D
       } else if (inputs[0].is2DReshaped || inputs[0].is2DSquareReshaped) {
@@ -139,7 +139,7 @@ export default class _Merge extends Layer {
     if (numInputs > 2) {
       if (!this.runningOutput) {
         this.runningOutput = new Tensor([], inputs[0].glTextureShape)
-        this.runningOutput.createGLTexture()
+        this.runningOutput.createGLTexture({ type: '2d', format: 'float' })
       }
       if (this.mode === 'ave') {
         mergeUniforms.push({ value: 1, type: 'bool', name: 'additional' })

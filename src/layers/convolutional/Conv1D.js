@@ -112,7 +112,7 @@ export default class Conv1D extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
-      x.createGLTexture()
+      x.createGLTexture({ type: '2d', format: 'float' })
     }
     const inputShape = x.tensor.shape
     const input = new Tensor([], inputShape)

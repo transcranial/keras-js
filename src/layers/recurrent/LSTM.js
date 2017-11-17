@@ -135,7 +135,7 @@ export default class LSTM extends Layer {
     if (this.gpu) {
       const names = ['W_i', 'W_f', 'W_c', 'W_o', 'U_i', 'U_f', 'U_c', 'U_o', 'b_i', 'b_f', 'b_c', 'b_o']
       names.forEach(name => {
-        this.weights[name].createGLTexture()
+        this.weights[name].createGLTexture({ type: '2d', format: 'float' })
       })
     }
   }
@@ -515,7 +515,7 @@ export default class LSTM extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
-      x.createGLTexture()
+      x.createGLTexture({ type: '2d', format: 'float' })
     }
 
     const dimInputGate = this.weights['b_i'].glTextureShape[1]
@@ -525,101 +525,101 @@ export default class LSTM extends Layer {
 
     if (!this.currentInputGateState) {
       this.currentInputGateState = new Tensor([], [dimInputGate])
-      this.currentInputGateState.createGLTexture()
+      this.currentInputGateState.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.currentInputGateStatePreactiv) {
       this.currentInputGateStatePreactiv = new Tensor([], [dimInputGate])
-      this.currentInputGateStatePreactiv.createGLTexture()
+      this.currentInputGateStatePreactiv.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempXI) {
       this.tempXI = new Tensor([], [dimInputGate])
-      this.tempXI.createGLTexture()
+      this.tempXI.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempHI) {
       this.tempHI = new Tensor([], [dimInputGate])
-      this.tempHI.createGLTexture()
+      this.tempHI.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.currentForgetGateState) {
       this.currentForgetGateState = new Tensor([], [dimForgetGate])
-      this.currentForgetGateState.createGLTexture()
+      this.currentForgetGateState.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.currentForgetGateStatePreactiv) {
       this.currentForgetGateStatePreactiv = new Tensor([], [dimForgetGate])
-      this.currentForgetGateStatePreactiv.createGLTexture()
+      this.currentForgetGateStatePreactiv.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempXF) {
       this.tempXF = new Tensor([], [dimForgetGate])
-      this.tempXF.createGLTexture()
+      this.tempXF.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempHF) {
       this.tempHF = new Tensor([], [dimForgetGate])
-      this.tempHF.createGLTexture()
+      this.tempHF.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.currentOutputGateState) {
       this.currentOutputGateState = new Tensor([], [dimOutputGate])
-      this.currentOutputGateState.createGLTexture()
+      this.currentOutputGateState.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.currentOutputGateStatePreactiv) {
       this.currentOutputGateStatePreactiv = new Tensor([], [dimOutputGate])
-      this.currentOutputGateStatePreactiv.createGLTexture()
+      this.currentOutputGateStatePreactiv.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempXO) {
       this.tempXO = new Tensor([], [dimOutputGate])
-      this.tempXO.createGLTexture()
+      this.tempXO.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempHO) {
       this.tempHO = new Tensor([], [dimOutputGate])
-      this.tempHO.createGLTexture()
+      this.tempHO.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.currentCandidate) {
       this.currentCandidate = new Tensor([], [dimCandidate])
-      this.currentCandidate.createGLTexture()
+      this.currentCandidate.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.currentCandidateCopy) {
       this.currentCandidateCopy = new Tensor([], [dimCandidate])
-      this.currentCandidateCopy.createGLTexture()
+      this.currentCandidateCopy.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.currentCandidatePreactiv) {
       this.currentCandidatePreactiv = new Tensor([], [dimCandidate])
-      this.currentCandidatePreactiv.createGLTexture()
+      this.currentCandidatePreactiv.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempXC) {
       this.tempXC = new Tensor([], [dimCandidate])
-      this.tempXC.createGLTexture()
+      this.tempXC.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.tempHC) {
       this.tempHC = new Tensor([], [dimCandidate])
-      this.tempHC.createGLTexture()
+      this.tempHC.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.previousCandidate || !this.stateful) {
       this.previousCandidate = new Tensor([], [dimCandidate])
-      this.previousCandidate.createGLTexture()
+      this.previousCandidate.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.currentHiddenState || !this.stateful) {
       this.currentHiddenState = new Tensor([], [dimCandidate])
-      this.currentHiddenState.createGLTexture()
+      this.currentHiddenState.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.previousHiddenState) {
       this.previousHiddenState = new Tensor([], [dimCandidate])
-      this.previousHiddenState.createGLTexture()
+      this.previousHiddenState.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.hiddenStateSequence) {
       this.hiddenStateSequence = new Tensor([], [x.glTextureShape[0], dimCandidate])
-      this.hiddenStateSequence.createGLTexture()
+      this.hiddenStateSequence.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.hiddenStateSequenceCopy) {
       this.hiddenStateSequenceCopy = new Tensor([], [x.glTextureShape[0], dimCandidate])
-      this.hiddenStateSequenceCopy.createGLTexture()
+      this.hiddenStateSequenceCopy.createGLTexture({ type: '2d', format: 'float' })
     }
 
     if (!this.currentX) {
       this.currentX = new Tensor([], [x.glTextureShape[1]])
-      this.currentX.createGLTexture()
+      this.currentX.createGLTexture({ type: '2d', format: 'float' })
     }
 
     for (let i = 0, len = x.glTextureShape[0]; i < len; i++) {

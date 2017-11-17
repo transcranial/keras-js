@@ -144,7 +144,7 @@ export default class BatchNormalization extends Layer {
       this.normAxisIndexMap = _normAxisIndexMap
     }
 
-    this.normAxisIndexMap.createGLTexture('2d', 'int')
+    this.normAxisIndexMap.createGLTexture({ type: '2d', format: 'int' })
   }
 
   /**
@@ -166,10 +166,10 @@ export default class BatchNormalization extends Layer {
 
     if (!x.glTexture) {
       if (x.tensor.shape.length <= 2) {
-        x.createGLTexture()
+        x.createGLTexture({ type: '2d', format: 'float' })
       } else if (x.tensor.shape.length > 2 && !x.is2DReshaped) {
         x.reshapeTo2DSquare()
-        x.createGLTexture()
+        x.createGLTexture({ type: '2d', format: 'float' })
       }
     }
 
@@ -178,7 +178,7 @@ export default class BatchNormalization extends Layer {
     // create output textures if doesn't already exist
     if (!this.output) {
       this.output = new Tensor([], x.glTextureShape)
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
       if (x.is1D) {
         this.output.is1D = x.is1D
       } else if (x.is2DReshaped || x.is2DSquareReshaped) {

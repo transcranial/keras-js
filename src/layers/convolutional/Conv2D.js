@@ -107,9 +107,9 @@ export default class Conv2D extends Layer {
 
     if (this.gpu) {
       this.weights['kernel'] = this.wRowsMat
-      this.weights['kernel'].createGLTexture()
+      this.weights['kernel'].createGLTexture({ type: '2d', format: 'float' })
       if (this.use_bias) {
-        this.weights['bias'].createGLTexture()
+        this.weights['bias'].createGLTexture({ type: '2d', format: 'float' })
       }
     }
   }
@@ -383,8 +383,8 @@ export default class Conv2D extends Layer {
       }
     }
 
-    this.rowIndexMap.createGLTexture('2d', 'int')
-    this.colIndexMap.createGLTexture('2d', 'int')
+    this.rowIndexMap.createGLTexture({ type: '2d', format: 'int' })
+    this.colIndexMap.createGLTexture({ type: '2d', format: 'int' })
   }
 
   /**
@@ -399,14 +399,14 @@ export default class Conv2D extends Layer {
       this._createIndexMap(x.indicesForReshaped)
       if (!this.mappedInput) {
         this.mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
-        this.mappedInput.createGLTexture()
+        this.mappedInput.createGLTexture({ type: '2d', format: 'float' })
       }
     } else {
       this.inputShape = x.tensor.shape
       this._calcOutputShape(this.inputShape)
       this._padInput(x)
       this._im2col(x)
-      this.imColsMat.createGLTexture()
+      this.imColsMat.createGLTexture({ type: '2d', format: 'float' })
     }
 
     // map from 2d-reshaped input
@@ -418,7 +418,8 @@ export default class Conv2D extends Layer {
           { input: x, name: 'x' },
           { input: this.rowIndexMap, name: 'rowIndexMap' },
           { input: this.colIndexMap, name: 'colIndexMap' }
-        ]
+        ],
+        supportsTextureFragments: true
       })
     }
 
@@ -428,14 +429,14 @@ export default class Conv2D extends Layer {
     // create output textures if doesn't already exist
     if (!this.outputPreactiv) {
       this.outputPreactiv = new Tensor([], outputTextureShape)
-      this.outputPreactiv.createGLTexture()
+      this.outputPreactiv.createGLTexture({ type: '2d', format: 'float' })
       this.outputPreactiv.is2DReshaped = true
       this.outputPreactiv.originalShape = this.outputShape
       this.outputPreactiv.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
     if (!this.output) {
       this.output = new Tensor([], outputTextureShape)
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
       this.output.is2DReshaped = true
       this.output.originalShape = this.outputShape
       this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
@@ -455,7 +456,8 @@ export default class Conv2D extends Layer {
         { value: input.glTextureShape[0], type: 'int', name: 'M' },
         { value: this.weights['kernel'].glTextureShape[0], type: 'int', name: 'K' },
         { value: this.weights['kernel'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      ],
+      supportsTextureFragments: true
     })
 
     // Activation
@@ -465,7 +467,8 @@ export default class Conv2D extends Layer {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.output,
-        inputs: [{ input: this.outputPreactiv, name: 'x' }]
+        inputs: [{ input: this.outputPreactiv, name: 'x' }],
+        supportsTextureFragments: true
       })
     }
 

@@ -99,7 +99,7 @@ export default class CAM {
     this.outputShape = this.inputShape.slice(0, 2)
     if (!this.output) {
       this.output = new Tensor([], this.outputShape)
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
     }
 
     webgl2.runProgram({

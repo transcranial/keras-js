@@ -139,11 +139,11 @@ export default class Bidirectional extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
-      x.createGLTexture()
+      x.createGLTexture({ type: '2d', format: 'float' })
     }
     if (!this.inputCopy) {
       this.inputCopy = new Tensor([], x.glTextureShape)
-      this.inputCopy.createGLTexture()
+      this.inputCopy.createGLTexture({ type: '2d', format: 'float' })
     }
 
     webgl2.runProgram({
@@ -164,7 +164,7 @@ export default class Bidirectional extends Layer {
     }
     if (!this.output) {
       this.output = new Tensor([], outShape)
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
       if (!this.returnSequences) {
         this.output.is1D = true
       }

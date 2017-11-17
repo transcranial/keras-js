@@ -58,7 +58,7 @@ class _DepthwiseConv2D extends Conv2D {
     }
 
     if (this.gpu) {
-      this.imColsMat.createGLTexture()
+      this.imColsMat.createGLTexture({ type: '2d', format: 'float' })
     }
     return this.imColsMat
   }
@@ -138,8 +138,8 @@ class _DepthwiseConv2D extends Conv2D {
       ops.assigns(this.reshapeColIndexMap.tensor.pick(null, j), j)
     }
 
-    this.reshapeRowIndexMap.createGLTexture('2d', 'int')
-    this.reshapeColIndexMap.createGLTexture('2d', 'int')
+    this.reshapeRowIndexMap.createGLTexture({ type: '2d', format: 'int' })
+    this.reshapeColIndexMap.createGLTexture({ type: '2d', format: 'int' })
   }
 
   /**
@@ -152,7 +152,7 @@ class _DepthwiseConv2D extends Conv2D {
     if (!this.outputReshaped) {
       const reshape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
       this.outputReshaped = new Tensor([], reshape)
-      this.outputReshaped.createGLTexture()
+      this.outputReshaped.createGLTexture({ type: '2d', format: 'float' })
       this.outputReshaped.is2DReshaped = true
       this.outputReshaped.originalShape = this.outputShape
       this.outputReshaped.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
@@ -324,7 +324,7 @@ export default class SeparableConv2D extends Layer {
     } else {
       if (!this.output) {
         this.output = new Tensor([], this._pointwiseConv.output.glTextureShape)
-        this.output.createGLTexture()
+        this.output.createGLTexture({ type: '2d', format: 'float' })
         this.output.is2DReshaped = true
         this.output.originalShape = this._pointwiseConv.output.originalShape
         this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(

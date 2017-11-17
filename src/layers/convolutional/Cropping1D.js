@@ -85,8 +85,8 @@ export default class Cropping1D extends Layer {
     ops.assign(this.rowIndexMap.tensor, indicesRow.tensor.hi(...sliceEnd).lo(...sliceStart))
     ops.assign(this.colIndexMap.tensor, indicesCol.tensor.hi(...sliceEnd).lo(...sliceStart))
 
-    this.rowIndexMap.createGLTexture('2d', 'int')
-    this.colIndexMap.createGLTexture('2d', 'int')
+    this.rowIndexMap.createGLTexture({ type: '2d', format: 'int' })
+    this.colIndexMap.createGLTexture({ type: '2d', format: 'int' })
   }
 
   /**
@@ -96,7 +96,7 @@ export default class Cropping1D extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
-      x.createGLTexture()
+      x.createGLTexture({ type: '2d', format: 'float' })
     }
 
     this.inputShape = x.tensor.shape
@@ -105,7 +105,7 @@ export default class Cropping1D extends Layer {
 
     if (!this.output) {
       this.output = new Tensor([], this.outputShape)
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
     }
 
     webgl2.runProgram({

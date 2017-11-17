@@ -39,10 +39,11 @@ export default class Tensor {
    *
    * Without args, defaults to gl.TEXTURE_2D and gl.R32F
    *
-   * @param {string} type
-   * @param {string} format
+   * @param {string} [opts.type]
+   * @param {string} [opts.format]
+   * @param {boolean} [opts.supportsTextureFragments]
    */
-  createGLTexture(type = '2d', format = 'float') {
+  createGLTexture({ type = '2d', format = 'float', supportsTextureFragments = false }) {
     let shape = []
     if (this.tensor.shape.length === 1) {
       shape = [1, this.tensor.shape[0]]
@@ -60,10 +61,10 @@ export default class Tensor {
     this.glTextureFormat = format
 
     if (type === '2d') {
-      if (this.glTextureShape[0] <= MAX_TEXTURE_SIZE) {
-        this._create2DGLTexture()
-      } else {
+      if (this.glTextureShape[0] > MAX_TEXTURE_SIZE && supportsTextureFragments) {
         this._create2DFragmentedGLTexture()
+      } else {
+        this._create2DGLTexture()
       }
     } else if (type === '2d_array' || type === '3d') {
       this._create3DGLTexture()

@@ -81,13 +81,13 @@ export default class _GlobalPooling3D extends Layer {
       }
       this.inputShape = x.tensor.shape
       x.reshapeTo2D()
-      x.createGLTexture()
+      x.createGLTexture({ type: '2d', format: 'float' })
     }
 
     // create output textures if doesn't already exist
     if (!this.output) {
       this.output = new Tensor([], [this.inputShape[3]])
-      this.output.createGLTexture()
+      this.output.createGLTexture({ type: '2d', format: 'float' })
     }
 
     // `true` if max pooling, `false` if average pooling
