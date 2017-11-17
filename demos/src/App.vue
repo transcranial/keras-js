@@ -133,7 +133,7 @@ footer {
 
 .list__tile {
   font-size: 14px !important;
-  height: 42px !important;
+  height: 35px !important;
   font-family: var(--font-monospace);
 }
 </style>
