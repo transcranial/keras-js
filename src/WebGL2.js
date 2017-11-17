@@ -197,19 +197,49 @@ class WebGL2 {
    * @param {Object[]} options.inputs
    * @param {Object[]} options.uniforms
    */
-  runProgram({ program, output, inputs, uniforms }) {
+  runProgram({ program, output, inputs, uniforms, supportsTextureFragments = false }) {
     if (!program) throw new Error('[WebGL2] missing program')
     if (!output) throw new Error('[WebGL2] missing output')
     if (!inputs) throw new Error('[WebGL2] missing inputs')
 
     const gl = this.context
     webgl2.selectProgram(program)
-    webgl2.bindOutputTexture(output.glTexture, output.glTextureShape)
-    webgl2.bindInputTextures(program, inputs)
     if (uniforms && Array.isArray(uniforms)) {
       webgl2.bindUniforms(program, uniforms)
     }
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
+
+    if (output.glTextureFragments || inputs.some(obj => obj.input.glTextureFragments)) {
+      if (!supportsTextureFragments) {
+        throw new Error('[WebGL2] program does not support texture fragments')
+      }
+
+      const inputsWithFragments = inputs.filter(obj => obj.input.glTextureFragments)
+      const numFragments = output.glTextureFragments.length
+      if (inputsWithFragments.some(obj => obj.input.glTextureFragments.length !== numFragments)) {
+        throw new Error('[WebGL2] number of texture fragments in inputs and output do not match')
+      }
+
+      for (let i = 0; i < numFragments; i++) {
+        webgl2.bindOutputTexture(output.glTextureFragments[i], output.glTextureFragmentShapes[i])
+        const fragmentedInputs = inputs.map(obj => {
+          if (!obj.input.glTextureFragments) return obj
+          return {
+            input: {
+              glTextureType: obj.input.glTextureType,
+              glTextureFormat: obj.input.glTextureFormat,
+              glTexture: obj.input.glTextureFragments[i]
+            },
+            name: obj.name
+          }
+        })
+        webgl2.bindInputTextures(program, fragmentedInputs)
+        gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
+      }
+    } else {
+      webgl2.bindOutputTexture(output.glTexture, output.glTextureShape)
+      webgl2.bindInputTextures(program, inputs)
+      gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
+    }
   }
 
   /**

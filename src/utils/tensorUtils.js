@@ -24,8 +24,6 @@ export function checkShape(data, shape) {
  * @param {number[]} shape
  */
 export function data3DLayoutForGL(typedarrayConstructor, arr, shape) {
-  // must shuffle data layout for webgl
-  //
   const data = new typedarrayConstructor(arr.data.length)
   const slice = ndarray(new typedarrayConstructor(shape[0] * shape[1]), [shape[0], shape[1]])
   let offset = 0
