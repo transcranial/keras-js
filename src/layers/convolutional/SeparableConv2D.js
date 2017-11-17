@@ -162,9 +162,9 @@ class _DepthwiseConv2D extends Conv2D {
       program: this.mapInputProgram,
       output: this.outputReshaped,
       inputs: [
-        { texture: this.output.glTexture, type: '2d', name: 'x' },
-        { texture: this.reshapeRowIndexMap.glTexture, type: '2d', name: 'rowIndexMap' },
-        { texture: this.reshapeColIndexMap.glTexture, type: '2d', name: 'colIndexMap' }
+        { input: this.output, name: 'x' },
+        { input: this.reshapeRowIndexMap, name: 'rowIndexMap' },
+        { input: this.reshapeColIndexMap, name: 'colIndexMap' }
       ]
     })
   }
@@ -337,7 +337,7 @@ export default class SeparableConv2D extends Layer {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.output,
-        inputs: [{ texture: this.outputPreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.outputPreactiv, name: 'x' }]
       })
     }
 

@@ -114,9 +114,9 @@ export default class ZeroPadding1D extends Layer {
       program: this.mapInputProgram,
       output: this.output,
       inputs: [
-        { texture: x.glTexture, type: '2d', name: 'x' },
-        { texture: this.rowIndexMap.glTexture, type: '2d', name: 'rowIndexMap' },
-        { texture: this.colIndexMap.glTexture, type: '2d', name: 'colIndexMap' }
+        { input: x, name: 'x' },
+        { input: this.rowIndexMap, name: 'rowIndexMap' },
+        { input: this.colIndexMap, name: 'colIndexMap' }
       ]
     })
 

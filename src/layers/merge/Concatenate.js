@@ -116,17 +116,14 @@ export default class Concatenate extends _Merge {
       webgl2.runProgram({
         program: this.copyTextureProgram,
         output: this.runningOutput,
-        inputs: [{ texture: this.output.glTexture, type: '2d', name: 'source' }]
+        inputs: [{ input: this.output, name: 'source' }]
       })
 
       // run merge program
       webgl2.runProgram({
         program: this.mergeProgram,
         output: this.output,
-        inputs: [
-          { texture: this.runningOutput.glTexture, type: '2d', name: 'runningOutput' },
-          { texture: inputs[i].glTexture, type: '2d', name: 'input1' }
-        ],
+        inputs: [{ input: this.runningOutput, name: 'runningOutput' }, { input: inputs[i], name: 'input1' }],
         uniforms: [
           { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
           { value: this.output.glTextureShape[1], type: 'int', name: 'cols' },

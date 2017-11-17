@@ -96,7 +96,7 @@ export default class _GlobalPooling3D extends Layer {
     webgl2.runProgram({
       program: this.poolingProgram,
       output: this.output,
-      inputs: [{ texture: x.glTexture, type: '2d', name: 'x' }],
+      inputs: [{ input: x, name: 'x' }],
       uniforms: [
         { value: this.inputShape[0] * this.inputShape[1] * this.inputShape[2], type: 'int', name: 'channelDataSize' },
         { value: +isMaxPooling, type: 'bool', name: 'isMaxPooling' }

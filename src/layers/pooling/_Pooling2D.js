@@ -304,10 +304,7 @@ export default class _Pooling2D extends Layer {
     webgl2.runProgram({
       program: this.poolingProgram,
       output: this.output,
-      inputs: [
-        { texture: input.glTexture, type: '2d', name: 'x' },
-        { texture: this.indexMap.glTexture, type: '2d', name: 'indexMap' }
-      ],
+      inputs: [{ input: input, name: 'x' }, { input: this.indexMap, name: 'indexMap' }],
       uniforms: [
         { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
         { value: this.output.glTextureShape[1], type: 'int', name: 'cols' },

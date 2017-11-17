@@ -192,18 +192,15 @@ export default class BatchNormalization extends Layer {
       }
     }
 
-    const programInputs = [
-      { texture: x.glTexture, type: '2d', name: 'X' },
-      { texture: this.normAxisIndexMap.glTexture, type: '2d', name: 'normAxisIndexMap' }
-    ]
+    const programInputs = [{ input: x, name: 'X' }, { input: this.normAxisIndexMap, name: 'normAxisIndexMap' }]
     if (this.scale) {
-      programInputs.push({ texture: this.weights['gamma'].glTexture, type: '2d', name: 'gamma' })
+      programInputs.push({ input: this.weights['gamma'], name: 'gamma' })
     }
     if (this.center) {
-      programInputs.push({ texture: this.weights['beta'].glTexture, type: '2d', name: 'beta' })
+      programInputs.push({ input: this.weights['beta'], name: 'beta' })
     }
-    programInputs.push({ texture: this.weights['moving_mean'].glTexture, type: '2d', name: 'mean' })
-    programInputs.push({ texture: this.weights['moving_variance'].glTexture, type: '2d', name: 'std' })
+    programInputs.push({ input: this.weights['moving_mean'], name: 'mean' })
+    programInputs.push({ input: this.weights['moving_variance'], name: 'std' })
     const programUniforms = [
       { value: this.epsilon, type: 'float', name: 'epsilon' },
       { value: +this.scale, type: 'bool', name: 'scale' },

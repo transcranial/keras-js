@@ -241,7 +241,7 @@ export default class GRU extends Layer {
     webgl2.runProgram({
       program: this.copyTextureProgram,
       output: this.previousHiddenState,
-      inputs: [{ texture: this.currentHiddenState.glTexture, type: '2d', name: 'source' }]
+      inputs: [{ input: this.currentHiddenState, name: 'source' }]
     })
 
     // update gate
@@ -249,10 +249,7 @@ export default class GRU extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempXZ,
-      inputs: [
-        { texture: this.currentX.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['W_z'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_z'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -264,10 +261,7 @@ export default class GRU extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHZ,
-      inputs: [
-        { texture: this.previousHiddenState.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['U_z'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['U_z'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -280,9 +274,9 @@ export default class GRU extends Layer {
       program: this.gateSummationProgram,
       output: this.currentUpdateGateStatePreactiv,
       inputs: [
-        { texture: this.tempXZ.glTexture, type: '2d', name: 't1' },
-        { texture: this.tempHZ.glTexture, type: '2d', name: 't2' },
-        { texture: this.weights['b_z'].glTexture, type: '2d', name: 'bias' }
+        { input: this.tempXZ, name: 't1' },
+        { input: this.tempHZ, name: 't2' },
+        { input: this.weights['b_z'], name: 'bias' }
       ]
     })
 
@@ -290,7 +284,7 @@ export default class GRU extends Layer {
       webgl2.runProgram({
         program: this.recurrentActivationProgram,
         output: this.currentUpdateGateState,
-        inputs: [{ texture: this.currentUpdateGateStatePreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.currentUpdateGateStatePreactiv, name: 'x' }]
       })
     } else {
       this.currentUpdateGateState = this.currentUpdateGateStatePreactiv
@@ -301,10 +295,7 @@ export default class GRU extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempXR,
-      inputs: [
-        { texture: this.currentX.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['W_r'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_r'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -316,10 +307,7 @@ export default class GRU extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHR,
-      inputs: [
-        { texture: this.previousHiddenState.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['U_r'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['U_r'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -332,9 +320,9 @@ export default class GRU extends Layer {
       program: this.gateSummationProgram,
       output: this.currentResetGateStatePreactiv,
       inputs: [
-        { texture: this.tempXR.glTexture, type: '2d', name: 't1' },
-        { texture: this.tempHR.glTexture, type: '2d', name: 't2' },
-        { texture: this.weights['b_r'].glTexture, type: '2d', name: 'bias' }
+        { input: this.tempXR, name: 't1' },
+        { input: this.tempHR, name: 't2' },
+        { input: this.weights['b_r'], name: 'bias' }
       ]
     })
 
@@ -342,7 +330,7 @@ export default class GRU extends Layer {
       webgl2.runProgram({
         program: this.recurrentActivationProgram,
         output: this.currentResetGateState,
-        inputs: [{ texture: this.currentResetGateStatePreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.currentResetGateStatePreactiv, name: 'x' }]
       })
     } else {
       this.currentResetGateState = this.currentResetGateStatePreactiv
@@ -353,25 +341,19 @@ export default class GRU extends Layer {
     webgl2.runProgram({
       program: this.copyTextureProgram,
       output: this.currentResetGateStateCopy,
-      inputs: [{ texture: this.currentResetGateState.glTexture, type: '2d', name: 'source' }]
+      inputs: [{ input: this.currentResetGateState, name: 'source' }]
     })
 
     webgl2.runProgram({
       program: this.gateProductProgram,
       output: this.currentResetGateState,
-      inputs: [
-        { texture: this.currentResetGateStateCopy.glTexture, type: '2d', name: 't1' },
-        { texture: this.previousHiddenState.glTexture, type: '2d', name: 't2' }
-      ]
+      inputs: [{ input: this.currentResetGateStateCopy, name: 't1' }, { input: this.previousHiddenState, name: 't2' }]
     })
 
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempXH,
-      inputs: [
-        { texture: this.currentX.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['W_h'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_h'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -383,10 +365,7 @@ export default class GRU extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHH,
-      inputs: [
-        { texture: this.currentResetGateState.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['U_h'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.currentResetGateState, name: 'A' }, { input: this.weights['U_h'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -399,9 +378,9 @@ export default class GRU extends Layer {
       program: this.gateSummationProgram,
       output: this.currentHiddenStatePreactiv,
       inputs: [
-        { texture: this.tempXH.glTexture, type: '2d', name: 't1' },
-        { texture: this.tempHH.glTexture, type: '2d', name: 't2' },
-        { texture: this.weights['b_h'].glTexture, type: '2d', name: 'bias' }
+        { input: this.tempXH, name: 't1' },
+        { input: this.tempHH, name: 't2' },
+        { input: this.weights['b_h'], name: 'bias' }
       ]
     })
 
@@ -409,7 +388,7 @@ export default class GRU extends Layer {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.currentHiddenState,
-        inputs: [{ texture: this.currentHiddenStatePreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.currentHiddenStatePreactiv, name: 'x' }]
       })
     } else {
       this.currentHiddenState = this.currentHiddenStatePreactiv
@@ -418,16 +397,16 @@ export default class GRU extends Layer {
     webgl2.runProgram({
       program: this.copyTextureProgram,
       output: this.currentHiddenStateCopy,
-      inputs: [{ texture: this.currentHiddenState.glTexture, type: '2d', name: 'source' }]
+      inputs: [{ input: this.currentHiddenState, name: 'source' }]
     })
 
     webgl2.runProgram({
       program: this.updateProgram,
       output: this.currentHiddenState,
       inputs: [
-        { texture: this.currentHiddenStateCopy.glTexture, type: '2d', name: 'h' },
-        { texture: this.previousHiddenState.glTexture, type: '2d', name: 'htm1' },
-        { texture: this.currentUpdateGateState.glTexture, type: '2d', name: 'z' }
+        { input: this.currentHiddenStateCopy, name: 'h' },
+        { input: this.previousHiddenState, name: 'htm1' },
+        { input: this.currentUpdateGateState, name: 'z' }
       ]
     })
   }
@@ -530,7 +509,7 @@ export default class GRU extends Layer {
       webgl2.runProgram({
         program: this.timestepReadProgram,
         output: this.currentX,
-        inputs: [{ texture: x.glTexture, type: '2d', name: 'x' }],
+        inputs: [{ input: x, name: 'x' }],
         uniforms: [{ value: inputIndex, type: 'int', name: 'index' }]
       })
 
@@ -540,15 +519,12 @@ export default class GRU extends Layer {
         webgl2.runProgram({
           program: this.copyTextureProgram,
           output: this.hiddenStateSequenceCopy,
-          inputs: [{ texture: this.hiddenStateSequence.glTexture, type: '2d', name: 'source' }]
+          inputs: [{ input: this.hiddenStateSequence, name: 'source' }]
         })
         webgl2.runProgram({
           program: this.timestepWriteProgram,
           output: this.hiddenStateSequence,
-          inputs: [
-            { texture: this.currentHiddenState.glTexture, type: '2d', name: 'x' },
-            { texture: this.hiddenStateSequenceCopy.glTexture, type: '2d', name: 'y' }
-          ],
+          inputs: [{ input: this.currentHiddenState, name: 'x' }, { input: this.hiddenStateSequenceCopy, name: 'y' }],
           uniforms: [{ value: i, type: 'int', name: 'index' }]
         })
       }

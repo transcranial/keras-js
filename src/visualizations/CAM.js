@@ -105,10 +105,7 @@ export default class CAM {
     webgl2.runProgram({
       program: this.program,
       output: this.output,
-      inputs: [
-        { texture: this.featureMaps.glTexture, type: '2d', name: 'featureMaps' },
-        { texture: this.weights.glTexture, type: '2d', name: 'weights' }
-      ],
+      inputs: [{ input: this.featureMaps, name: 'featureMaps' }, { input: this.weights, name: 'weights' }],
       uniforms: [
         { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
         { value: this.output.glTextureShape[1], type: 'int', name: 'cols' }

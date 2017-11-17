@@ -88,7 +88,7 @@ export default class ThresholdedReLU extends Layer {
     webgl2.runProgram({
       program: this.program,
       output: this.output,
-      inputs: [{ texture: x.glTexture, type: '2d', name: 'x' }],
+      inputs: [{ input: x, name: 'x' }],
       uniforms: [{ value: this.theta, type: 'float', name: 'theta' }]
     })
 

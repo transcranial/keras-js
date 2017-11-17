@@ -164,10 +164,10 @@ class WebGL2 {
   bindInputTextures(program, inputs) {
     const gl = this.context
 
-    inputs.forEach(({ texture, type, name }, i) => {
+    inputs.forEach(({ input, name }, i) => {
       gl.activeTexture(gl.TEXTURE0 + i)
-      const { textureTarget } = this.getWebGLTextureOptions({ type })
-      gl.bindTexture(textureTarget, texture)
+      const { textureTarget } = this.getWebGLTextureOptions(input.glTextureType, input.glTextureFormat)
+      gl.bindTexture(textureTarget, input.glTexture)
       gl.uniform1i(gl.getUniformLocation(program, name), i)
     })
   }
@@ -233,7 +233,7 @@ class WebGL2 {
   /**
    * Gets WebGLTexture options constants
    */
-  getWebGLTextureOptions({ type, format }) {
+  getWebGLTextureOptions(type, format) {
     const gl = this.context
 
     const targetMap = {

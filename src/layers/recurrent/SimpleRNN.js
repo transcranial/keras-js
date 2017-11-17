@@ -158,16 +158,13 @@ export default class SimpleRNN extends Layer {
     webgl2.runProgram({
       program: this.copyTextureProgram,
       output: this.previousHiddenState,
-      inputs: [{ texture: this.currentHiddenState.glTexture, type: '2d', name: 'source' }]
+      inputs: [{ input: this.currentHiddenState, name: 'source' }]
     })
 
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempXH,
-      inputs: [
-        { texture: this.currentX.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['kernel'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['kernel'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -179,10 +176,7 @@ export default class SimpleRNN extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHH,
-      inputs: [
-        { texture: this.previousHiddenState.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['recurrent_kernel'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['recurrent_kernel'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -195,9 +189,9 @@ export default class SimpleRNN extends Layer {
       program: this.gateSummationProgram,
       output: this.currentHiddenStatePreactiv,
       inputs: [
-        { texture: this.tempXH.glTexture, type: '2d', name: 't1' },
-        { texture: this.tempHH.glTexture, type: '2d', name: 't2' },
-        { texture: this.weights['bias'].glTexture, type: '2d', name: 'bias' }
+        { input: this.tempXH, name: 't1' },
+        { input: this.tempHH, name: 't2' },
+        { input: this.weights['bias'], name: 'bias' }
       ]
     })
 
@@ -205,7 +199,7 @@ export default class SimpleRNN extends Layer {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.currentHiddenState,
-        inputs: [{ texture: this.currentHiddenStatePreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.currentHiddenStatePreactiv, name: 'x' }]
       })
     } else {
       this.currentHiddenState = this.currentHiddenStatePreactiv
@@ -267,7 +261,7 @@ export default class SimpleRNN extends Layer {
       webgl2.runProgram({
         program: this.timestepReadProgram,
         output: this.currentX,
-        inputs: [{ texture: x.glTexture, type: '2d', name: 'x' }],
+        inputs: [{ input: x, name: 'x' }],
         uniforms: [{ value: inputIndex, type: 'int', name: 'index' }]
       })
 
@@ -277,15 +271,12 @@ export default class SimpleRNN extends Layer {
         webgl2.runProgram({
           program: this.copyTextureProgram,
           output: this.hiddenStateSequenceCopy,
-          inputs: [{ texture: this.hiddenStateSequence.glTexture, type: '2d', name: 'source' }]
+          inputs: [{ input: this.hiddenStateSequence, name: 'source' }]
         })
         webgl2.runProgram({
           program: this.timestepWriteProgram,
           output: this.hiddenStateSequence,
-          inputs: [
-            { texture: this.currentHiddenState.glTexture, type: '2d', name: 'x' },
-            { texture: this.hiddenStateSequenceCopy.glTexture, type: '2d', name: 'y' }
-          ],
+          inputs: [{ input: this.currentHiddenState, name: 'x' }, { input: this.hiddenStateSequenceCopy, name: 'y' }],
           uniforms: [{ value: i, type: 'int', name: 'index' }]
         })
       }

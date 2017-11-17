@@ -473,9 +473,9 @@ export default class Conv3D extends Layer {
         program: this.mapInputProgram,
         output: this.mappedInput,
         inputs: [
-          { texture: x.glTexture, type: '2d', name: 'x' },
-          { texture: this.rowIndexMap.glTexture, type: '2d', name: 'rowIndexMap' },
-          { texture: this.colIndexMap.glTexture, type: '2d', name: 'colIndexMap' }
+          { input: x, name: 'x' },
+          { input: this.rowIndexMap, name: 'rowIndexMap' },
+          { input: this.colIndexMap, name: 'colIndexMap' }
         ]
       })
     }
@@ -500,12 +500,9 @@ export default class Conv3D extends Layer {
     }
 
     // Matrix Multiply
-    const matMulInputs = [
-      { texture: input.glTexture, type: '2d', name: 'A' },
-      { texture: this.weights['kernel'].glTexture, type: '2d', name: 'B' }
-    ]
+    const matMulInputs = [{ input: input, name: 'A' }, { input: this.weights['kernel'], name: 'B' }]
     if (this.use_bias) {
-      matMulInputs.push({ texture: this.weights['bias'].glTexture, type: '2d', name: 'C' })
+      matMulInputs.push({ input: this.weights['bias'], name: 'C' })
     }
     webgl2.runProgram({
       program: this.matMulProgram,
@@ -526,7 +523,7 @@ export default class Conv3D extends Layer {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.output,
-        inputs: [{ texture: this.outputPreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.outputPreactiv, name: 'x' }]
       })
     }
 

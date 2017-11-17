@@ -181,9 +181,7 @@ export default class Conv2DTranspose extends Layer {
       channelRaveled.replaceTensorData(channel.tensor.data)
       ops.assign(this.imColsMat.tensor.pick(null, c), channelRaveled.tensor)
     }
-    if (this.gpu) {
-      this.imColsMat.createGLTexture()
-    }
+
     return this.imColsMat
   }
 
@@ -375,10 +373,8 @@ export default class Conv2DTranspose extends Layer {
       }
     }
 
-    if (this.gpu) {
-      this.rowIndexMap.createGLTexture('2d_array', 'int')
-      this.colIndexMap.createGLTexture('2d_array', 'int')
-    }
+    this.rowIndexMap.createGLTexture('2d_array', 'int')
+    this.colIndexMap.createGLTexture('2d_array', 'int')
   }
 
   /**
@@ -394,13 +390,14 @@ export default class Conv2DTranspose extends Layer {
       this.inputShape = x.tensor.shape
       this._calcOutputShape(this.inputShape)
       this._im2col(x)
-      x.glTexture = this.imColsMat.glTexture
-      x.glTextureShape = this.imColsMat.glTextureShape
+      this.imColsMat.createGLTexture()
     }
+
+    const input = x.is2DReshaped || x.is2DSquareReshaped ? x : this.imColsMat
 
     // create output textures if doesn't already exist
     if (!this.outputMatmul) {
-      const outputTextureShape = [x.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
+      const outputTextureShape = [input.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
       this.outputMatmul = new Tensor([], outputTextureShape)
       this.outputMatmul.createGLTexture()
     }
@@ -425,13 +422,10 @@ export default class Conv2DTranspose extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.outputMatmul,
-      inputs: [
-        { texture: x.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['kernel'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: input, name: 'A' }, { input: this.weights['kernel'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
-        { value: x.glTextureShape[0], type: 'int', name: 'M' },
+        { value: input.glTextureShape[0], type: 'int', name: 'M' },
         { value: this.weights['kernel'].glTextureShape[0], type: 'int', name: 'K' },
         { value: this.weights['kernel'].glTextureShape[1], type: 'int', name: 'N' }
       ]
@@ -442,12 +436,12 @@ export default class Conv2DTranspose extends Layer {
     const test = new Tensor([], [this.outputShape[0] * this.outputShape[1], this.outputShape[2]])
     ops.assign(test.tensor, this.rowIndexMap.tensor.pick(null, null, 0))
     const convTransposeInputs = [
-      { texture: this.outputMatmul.glTexture, type: '2d', name: 'outputMatmul' },
-      { texture: this.rowIndexMap.glTexture, type: '2d_array', name: 'rowIndexMap' },
-      { texture: this.colIndexMap.glTexture, type: '2d_array', name: 'colIndexMap' }
+      { input: this.outputMatmul, name: 'outputMatmul' },
+      { input: this.rowIndexMap, name: 'rowIndexMap' },
+      { input: this.colIndexMap, name: 'colIndexMap' }
     ]
     if (this.use_bias) {
-      convTransposeInputs.push({ texture: this.weights['bias'].glTexture, type: '2d', name: 'bias' })
+      convTransposeInputs.push({ input: this.weights['bias'], name: 'bias' })
     }
     webgl2.runProgram({
       program: this.convTransposeProgram,
@@ -468,7 +462,7 @@ export default class Conv2DTranspose extends Layer {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.output,
-        inputs: [{ texture: this.outputPreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.outputPreactiv, name: 'x' }]
       })
     }
 

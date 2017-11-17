@@ -196,7 +196,7 @@ export default class TimeDistributed extends Layer {
       webgl2.runProgram({
         program: this.selectSliceProgram,
         output: this.slice,
-        inputs: [{ texture: x.glTexture, type: '2d', name: 'x' }],
+        inputs: [{ input: x, name: 'x' }],
         uniforms: [{ value: 0, type: 'int', name: 't' }]
       })
     } else {
@@ -204,9 +204,9 @@ export default class TimeDistributed extends Layer {
         program: this.mapInputProgram,
         output: this.slice,
         inputs: [
-          { texture: x.glTexture, type: '2d', name: 'x' },
-          { texture: this.rowIndexMaps[0].glTexture, type: '2d', name: 'rowIndexMap' },
-          { texture: this.colIndexMaps[0].glTexture, type: '2d', name: 'colIndexMap' }
+          { input: x, name: 'x' },
+          { input: this.rowIndexMaps[0], name: 'rowIndexMap' },
+          { input: this.colIndexMaps[0], name: 'colIndexMap' }
         ]
       })
     }
@@ -237,17 +237,14 @@ export default class TimeDistributed extends Layer {
     webgl2.runProgram({
       program: this.copyTextureProgram,
       output: this.outputCopy,
-      inputs: [{ texture: this.output.glTexture, type: '2d', name: 'source' }]
+      inputs: [{ input: this.output, name: 'source' }]
     })
 
     if (this.inputShape.length <= 2) {
       webgl2.runProgram({
         program: this.copySliceOutputProgram,
         output: this.output,
-        inputs: [
-          { texture: this.outputCopy.glTexture, type: '2d', name: 'outputCopy' },
-          { texture: this.sliceOutput.glTexture, type: '2d', name: 'sliceOutput' }
-        ],
+        inputs: [{ input: this.outputCopy, name: 'outputCopy' }, { input: this.sliceOutput, name: 'sliceOutput' }],
         uniforms: [{ value: 0, type: 'int', name: 't' }, { value: timesteps, type: 'int', name: 'timesteps' }]
       })
     } else {
@@ -255,10 +252,10 @@ export default class TimeDistributed extends Layer {
         program: this.mapSliceOutputProgram,
         output: this.output,
         inputs: [
-          { texture: this.outputCopy.glTexture, type: '2d', name: 'outputCopy' },
-          { texture: this.sliceOutput.glTexture, type: '2d', name: 'sliceOutput' },
-          { texture: this.outputRowIndexMaps[0].glTexture, type: '2d', name: 'rowIndexMap' },
-          { texture: this.outputColIndexMaps[0].glTexture, type: '2d', name: 'colIndexMap' }
+          { input: this.outputCopy, name: 'outputCopy' },
+          { input: this.sliceOutput, name: 'sliceOutput' },
+          { input: this.outputRowIndexMaps[0], name: 'rowIndexMap' },
+          { input: this.outputColIndexMaps[0], name: 'colIndexMap' }
         ]
       })
     }
@@ -268,7 +265,7 @@ export default class TimeDistributed extends Layer {
         webgl2.runProgram({
           program: this.selectSliceProgram,
           output: this.slice,
-          inputs: [{ texture: x.glTexture, type: '2d', name: 'x' }],
+          inputs: [{ input: x, name: 'x' }],
           uniforms: [{ value: i, type: 'int', name: 't' }]
         })
       } else {
@@ -276,9 +273,9 @@ export default class TimeDistributed extends Layer {
           program: this.mapInputProgram,
           output: this.slice,
           inputs: [
-            { texture: x.glTexture, type: '2d', name: 'x' },
-            { texture: this.rowIndexMaps[i].glTexture, type: '2d', name: 'rowIndexMap' },
-            { texture: this.colIndexMaps[i].glTexture, type: '2d', name: 'colIndexMap' }
+            { input: x, name: 'x' },
+            { input: this.rowIndexMaps[i], name: 'rowIndexMap' },
+            { input: this.colIndexMaps[i], name: 'colIndexMap' }
           ]
         })
       }
@@ -289,17 +286,14 @@ export default class TimeDistributed extends Layer {
       webgl2.runProgram({
         program: this.copyTextureProgram,
         output: this.outputCopy,
-        inputs: [{ texture: this.output.glTexture, type: '2d', name: 'source' }]
+        inputs: [{ input: this.output, name: 'source' }]
       })
 
       if (this.inputShape.length <= 2) {
         webgl2.runProgram({
           program: this.copySliceOutputProgram,
           output: this.output,
-          inputs: [
-            { texture: this.outputCopy.glTexture, type: '2d', name: 'outputCopy' },
-            { texture: this.sliceOutput.glTexture, type: '2d', name: 'sliceOutput' }
-          ],
+          inputs: [{ input: this.outputCopy, name: 'outputCopy' }, { input: this.sliceOutput, name: 'sliceOutput' }],
           uniforms: [{ value: i, type: 'int', name: 't' }, { value: timesteps, type: 'int', name: 'timesteps' }]
         })
       } else {
@@ -307,10 +301,10 @@ export default class TimeDistributed extends Layer {
           program: this.mapSliceOutputProgram,
           output: this.output,
           inputs: [
-            { texture: this.outputCopy.glTexture, type: '2d', name: 'outputCopy' },
-            { texture: this.sliceOutput.glTexture, type: '2d', name: 'sliceOutput' },
-            { texture: this.outputRowIndexMaps[i].glTexture, type: '2d', name: 'rowIndexMap' },
-            { texture: this.outputColIndexMaps[i].glTexture, type: '2d', name: 'colIndexMap' }
+            { input: this.outputCopy, name: 'outputCopy' },
+            { input: this.sliceOutput, name: 'sliceOutput' },
+            { input: this.outputRowIndexMaps[i], name: 'rowIndexMap' },
+            { input: this.outputColIndexMaps[i], name: 'colIndexMap' }
           ]
         })
       }

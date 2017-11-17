@@ -116,7 +116,7 @@ export default class Conv1D extends Layer {
     }
     const inputShape = x.tensor.shape
     const input = new Tensor([], inputShape)
-    input.glTexture = x.glTexture
+    Object.assign(input, x)
     input.glTextureShape = inputShape
     input.is2DReshaped = true
     input.originalShape = [inputShape[0], 1, inputShape[1]]

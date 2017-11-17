@@ -132,10 +132,7 @@ export default class _Merge extends Layer {
     webgl2.runProgram({
       program: this.mergeProgram,
       output: this.output,
-      inputs: [
-        { texture: inputs[0].glTexture, type: '2d', name: 'input1' },
-        { texture: inputs[1].glTexture, type: '2d', name: 'input2' }
-      ],
+      inputs: [{ input: inputs[0], name: 'input1' }, { input: inputs[1], name: 'input2' }],
       uniforms: mergeUniforms
     })
 
@@ -153,16 +150,13 @@ export default class _Merge extends Layer {
         webgl2.runProgram({
           program: this.copyTextureProgram,
           output: this.runningOutput,
-          inputs: [{ texture: this.output.glTexture, type: '2d', name: 'source' }]
+          inputs: [{ input: this.output, name: 'source' }]
         })
 
         webgl2.runProgram({
           program: this.mergeProgram,
           output: this.output,
-          inputs: [
-            { texture: this.runningOutput.glTexture, type: '2d', name: 'input1' },
-            { texture: inputs[i].glTexture, type: '2d', name: 'input2' }
-          ],
+          inputs: [{ input: this.runningOutput, name: 'input1' }, { input: inputs[i], name: 'input2' }],
           uniforms: mergeUniforms
         })
       }

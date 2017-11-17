@@ -87,12 +87,9 @@ export default class Dense extends Layer {
     }
 
     // Matrix Multiply
-    const matMulInputs = [
-      { texture: x.glTexture, type: '2d', name: 'A' },
-      { texture: this.weights['kernel'].glTexture, type: '2d', name: 'B' }
-    ]
+    const matMulInputs = [{ input: x, name: 'A' }, { input: this.weights['kernel'], name: 'B' }]
     if (this.use_bias) {
-      matMulInputs.push({ texture: this.weights['bias'].glTexture, type: '2d', name: 'C' })
+      matMulInputs.push({ input: this.weights['bias'], name: 'C' })
     }
     webgl2.runProgram({
       program: this.matMulProgram,
@@ -113,7 +110,7 @@ export default class Dense extends Layer {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.output,
-        inputs: [{ texture: this.outputPreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.outputPreactiv, name: 'x' }]
       })
     }
 

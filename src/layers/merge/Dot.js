@@ -107,10 +107,7 @@ export default class Dot extends _Merge {
     webgl2.runProgram({
       program: this.mergeProgram,
       output: this.output,
-      inputs: [
-        { texture: inputs[0].glTexture, type: '2d', name: 'input1' },
-        { texture: inputs[1].glTexture, type: '2d', name: 'input2' }
-      ],
+      inputs: [{ input: inputs[0], name: 'input1' }, { input: inputs[1], name: 'input2' }],
       uniforms: [
         { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
         { value: this.output.glTextureShape[1], type: 'int', name: 'cols' },

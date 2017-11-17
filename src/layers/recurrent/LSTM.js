@@ -275,7 +275,7 @@ export default class LSTM extends Layer {
     webgl2.runProgram({
       program: this.copyTextureProgram,
       output: this.previousHiddenState,
-      inputs: [{ texture: this.currentHiddenState.glTexture, type: '2d', name: 'source' }]
+      inputs: [{ input: this.currentHiddenState, name: 'source' }]
     })
 
     // input gate
@@ -283,10 +283,7 @@ export default class LSTM extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempXI,
-      inputs: [
-        { texture: this.currentX.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['W_i'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_i'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -298,10 +295,7 @@ export default class LSTM extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHI,
-      inputs: [
-        { texture: this.previousHiddenState.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['U_i'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['U_i'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -314,9 +308,9 @@ export default class LSTM extends Layer {
       program: this.gateSummationProgram,
       output: this.currentInputGateStatePreactiv,
       inputs: [
-        { texture: this.tempXI.glTexture, type: '2d', name: 't1' },
-        { texture: this.tempHI.glTexture, type: '2d', name: 't2' },
-        { texture: this.weights['b_i'].glTexture, type: '2d', name: 'bias' }
+        { input: this.tempXI, name: 't1' },
+        { input: this.tempHI, name: 't2' },
+        { input: this.weights['b_i'], name: 'bias' }
       ]
     })
 
@@ -324,7 +318,7 @@ export default class LSTM extends Layer {
       webgl2.runProgram({
         program: this.recurrentActivationProgram,
         output: this.currentInputGateState,
-        inputs: [{ texture: this.currentInputGateStatePreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.currentInputGateStatePreactiv, name: 'x' }]
       })
     } else {
       this.currentInputGateState = this.currentInputGateStatePreactiv
@@ -335,10 +329,7 @@ export default class LSTM extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempXF,
-      inputs: [
-        { texture: this.currentX.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['W_f'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_f'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -350,10 +341,7 @@ export default class LSTM extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHF,
-      inputs: [
-        { texture: this.previousHiddenState.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['U_f'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['U_f'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -366,9 +354,9 @@ export default class LSTM extends Layer {
       program: this.gateSummationProgram,
       output: this.currentForgetGateStatePreactiv,
       inputs: [
-        { texture: this.tempXF.glTexture, type: '2d', name: 't1' },
-        { texture: this.tempHF.glTexture, type: '2d', name: 't2' },
-        { texture: this.weights['b_f'].glTexture, type: '2d', name: 'bias' }
+        { input: this.tempXF, name: 't1' },
+        { input: this.tempHF, name: 't2' },
+        { input: this.weights['b_f'], name: 'bias' }
       ]
     })
 
@@ -376,7 +364,7 @@ export default class LSTM extends Layer {
       webgl2.runProgram({
         program: this.recurrentActivationProgram,
         output: this.currentForgetGateState,
-        inputs: [{ texture: this.currentForgetGateStatePreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.currentForgetGateStatePreactiv, name: 'x' }]
       })
     } else {
       this.currentForgetGateState = this.currentForgetGateStatePreactiv
@@ -387,10 +375,7 @@ export default class LSTM extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempXO,
-      inputs: [
-        { texture: this.currentX.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['W_o'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_o'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -402,10 +387,7 @@ export default class LSTM extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHO,
-      inputs: [
-        { texture: this.previousHiddenState.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['U_o'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['U_o'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -418,9 +400,9 @@ export default class LSTM extends Layer {
       program: this.gateSummationProgram,
       output: this.currentOutputGateStatePreactiv,
       inputs: [
-        { texture: this.tempXO.glTexture, type: '2d', name: 't1' },
-        { texture: this.tempHO.glTexture, type: '2d', name: 't2' },
-        { texture: this.weights['b_o'].glTexture, type: '2d', name: 'bias' }
+        { input: this.tempXO, name: 't1' },
+        { input: this.tempHO, name: 't2' },
+        { input: this.weights['b_o'], name: 'bias' }
       ]
     })
 
@@ -428,7 +410,7 @@ export default class LSTM extends Layer {
       webgl2.runProgram({
         program: this.recurrentActivationProgram,
         output: this.currentOutputGateState,
-        inputs: [{ texture: this.currentOutputGateStatePreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.currentOutputGateStatePreactiv, name: 'x' }]
       })
     } else {
       this.currentOutputGateState = this.currentOutputGateStatePreactiv
@@ -439,10 +421,7 @@ export default class LSTM extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempXC,
-      inputs: [
-        { texture: this.currentX.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['W_c'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_c'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -454,10 +433,7 @@ export default class LSTM extends Layer {
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHC,
-      inputs: [
-        { texture: this.previousHiddenState.glTexture, type: '2d', name: 'A' },
-        { texture: this.weights['U_c'].glTexture, type: '2d', name: 'B' }
-      ],
+      inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['U_c'], name: 'B' }],
       uniforms: [
         { value: 0, type: 'bool', name: 'addC' },
         { value: 1, type: 'int', name: 'M' },
@@ -470,9 +446,9 @@ export default class LSTM extends Layer {
       program: this.gateSummationProgram,
       output: this.currentCandidatePreactiv,
       inputs: [
-        { texture: this.tempXC.glTexture, type: '2d', name: 't1' },
-        { texture: this.tempHC.glTexture, type: '2d', name: 't2' },
-        { texture: this.weights['b_c'].glTexture, type: '2d', name: 'bias' }
+        { input: this.tempXC, name: 't1' },
+        { input: this.tempHC, name: 't2' },
+        { input: this.weights['b_c'], name: 'bias' }
       ]
     })
 
@@ -480,7 +456,7 @@ export default class LSTM extends Layer {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.currentCandidate,
-        inputs: [{ texture: this.currentCandidatePreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.currentCandidatePreactiv, name: 'x' }]
       })
     } else {
       this.currentCandidate = this.currentCandidatePreactiv
@@ -489,37 +465,37 @@ export default class LSTM extends Layer {
     webgl2.runProgram({
       program: this.copyTextureProgram,
       output: this.currentCandidateCopy,
-      inputs: [{ texture: this.currentCandidate.glTexture, type: '2d', name: 'source' }]
+      inputs: [{ input: this.currentCandidate, name: 'source' }]
     })
 
     webgl2.runProgram({
       program: this.updateProgram,
       output: this.currentCandidate,
       inputs: [
-        { texture: this.currentCandidateCopy.glTexture, type: '2d', name: 'c' },
-        { texture: this.previousCandidate.glTexture, type: '2d', name: 'ctm1' },
-        { texture: this.currentInputGateState.glTexture, type: '2d', name: 'i' },
-        { texture: this.currentForgetGateState.glTexture, type: '2d', name: 'f' }
+        { input: this.currentCandidateCopy, name: 'c' },
+        { input: this.previousCandidate, name: 'ctm1' },
+        { input: this.currentInputGateState, name: 'i' },
+        { input: this.currentForgetGateState, name: 'f' }
       ]
     })
 
     webgl2.runProgram({
       program: this.copyTextureProgram,
       output: this.previousCandidate,
-      inputs: [{ texture: this.currentCandidate.glTexture, type: '2d', name: 'source' }]
+      inputs: [{ input: this.currentCandidate, name: 'source' }]
     })
 
     webgl2.runProgram({
       program: this.copyTextureProgram,
       output: this.currentCandidatePreactiv,
-      inputs: [{ texture: this.currentCandidate.glTexture, type: '2d', name: 'source' }]
+      inputs: [{ input: this.currentCandidate, name: 'source' }]
     })
 
     if (this.activation !== 'linear') {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.currentCandidate,
-        inputs: [{ texture: this.currentCandidatePreactiv.glTexture, type: '2d', name: 'x' }]
+        inputs: [{ input: this.currentCandidatePreactiv, name: 'x' }]
       })
     } else {
       this.currentCandidate = this.currentCandidatePreactiv
@@ -528,10 +504,7 @@ export default class LSTM extends Layer {
     webgl2.runProgram({
       program: this.gateProductProgram,
       output: this.currentHiddenState,
-      inputs: [
-        { texture: this.currentOutputGateState.glTexture, type: '2d', name: 't1' },
-        { texture: this.currentCandidate.glTexture, type: '2d', name: 't2' }
-      ]
+      inputs: [{ input: this.currentOutputGateState, name: 't1' }, { input: this.currentCandidate, name: 't2' }]
     })
   }
 
@@ -655,7 +628,7 @@ export default class LSTM extends Layer {
       webgl2.runProgram({
         program: this.timestepReadProgram,
         output: this.currentX,
-        inputs: [{ texture: x.glTexture, type: '2d', name: 'x' }],
+        inputs: [{ input: x, name: 'x' }],
         uniforms: [{ value: inputIndex, type: 'int', name: 'index' }]
       })
 
@@ -665,15 +638,12 @@ export default class LSTM extends Layer {
         webgl2.runProgram({
           program: this.copyTextureProgram,
           output: this.hiddenStateSequenceCopy,
-          inputs: [{ texture: this.hiddenStateSequence.glTexture, type: '2d', name: 'source' }]
+          inputs: [{ input: this.hiddenStateSequence, name: 'source' }]
         })
         webgl2.runProgram({
           program: this.timestepWriteProgram,
           output: this.hiddenStateSequence,
-          inputs: [
-            { texture: this.currentHiddenState.glTexture, type: '2d', name: 'x' },
-            { texture: this.hiddenStateSequenceCopy.glTexture, type: '2d', name: 'y' }
-          ],
+          inputs: [{ input: this.currentHiddenState, name: 'x' }, { input: this.hiddenStateSequenceCopy, name: 'y' }],
           uniforms: [{ value: i, type: 'int', name: 'index' }]
         })
       }

@@ -93,10 +93,7 @@ export default class PReLU extends Layer {
     webgl2.runProgram({
       program: this.program,
       output: this.output,
-      inputs: [
-        { texture: x.glTexture, type: '2d', name: 'x' },
-        { texture: this.weights['alpha'].glTexture, type: '2d', name: 'alpha' }
-      ]
+      inputs: [{ input: x, name: 'x' }, { input: this.weights['alpha'], name: 'alpha' }]
     })
 
     // GPU -> CPU data transfer

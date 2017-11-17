@@ -149,7 +149,7 @@ export default class Bidirectional extends Layer {
     webgl2.runProgram({
       program: this.copyTextureProgram,
       output: this.inputCopy,
-      inputs: [{ texture: x.glTexture, type: '2d', name: 'source' }]
+      inputs: [{ input: x, name: 'source' }]
     })
 
     // run internal component layers
@@ -174,10 +174,7 @@ export default class Bidirectional extends Layer {
     webgl2.runProgram({
       program: this.mergeProgram,
       output: this.output,
-      inputs: [
-        { texture: forwardOutput.glTexture, type: '2d', name: 'forward' },
-        { texture: backwardOutput.glTexture, type: '2d', name: 'backward' }
-      ]
+      inputs: [{ input: forwardOutput, name: 'forward' }, { input: backwardOutput, name: 'backward' }]
     })
 
     // GPU -> CPU data transfer

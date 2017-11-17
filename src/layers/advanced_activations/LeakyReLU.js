@@ -81,7 +81,7 @@ export default class LeakyReLU extends Layer {
     webgl2.runProgram({
       program: this.program,
       output: this.output,
-      inputs: [{ texture: x.glTexture, type: '2d', name: 'x' }],
+      inputs: [{ input: x, name: 'x' }],
       uniforms: [{ value: this.alpha, type: 'float', name: 'alpha' }]
     })
 
