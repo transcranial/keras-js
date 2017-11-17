@@ -113,6 +113,41 @@ export default class BatchNormalization extends Layer {
   }
 
   /**
+   * Pre-compute index maps for GPU batchnorm function
+   *
+   * @param {number[]} glTextureShape
+   * @param {Object} indicesForReshaped
+   */
+  _createIndexMap(glTextureShape, indicesForReshaped) {
+    if (this.normAxisIndexMap) {
+      return
+    }
+
+    const _normAxisIndexMap = new Tensor([], this.inputShape, { type: Int32Array })
+    this.normAxisIndexMap = new Tensor([], glTextureShape, { type: Int32Array })
+
+    const slice = Array(this.inputShape.length).fill(null)
+    for (let i = 0; i < this.inputShape[this.axis]; i++) {
+      slice[this.axis] = i
+      ops.assigns(_normAxisIndexMap.tensor.pick(...slice), i)
+    }
+
+    if (indicesForReshaped) {
+      for (let i = 0; i < indicesForReshaped.row.data.length; i++) {
+        this.normAxisIndexMap.tensor.set(
+          indicesForReshaped.row.data[i],
+          indicesForReshaped.col.data[i],
+          _normAxisIndexMap.tensor.data[i]
+        )
+      }
+    } else {
+      this.normAxisIndexMap = _normAxisIndexMap
+    }
+
+    this.normAxisIndexMap.createGLTexture('2d', 'int')
+  }
+
+  /**
    * GPU call
    * (will only work on the 2D-reshaped representation for post-convolutional BN)
    *
@@ -133,10 +168,12 @@ export default class BatchNormalization extends Layer {
       if (x.tensor.shape.length <= 2) {
         x.createGLTexture()
       } else if (x.tensor.shape.length > 2 && !x.is2DReshaped) {
-        x.reshapeTo2D(this.axis)
+        x.reshapeTo2DSquare()
         x.createGLTexture()
       }
     }
+
+    this._createIndexMap(x.glTextureShape, x.indicesForReshaped)
 
     // create output textures if doesn't already exist
     if (!this.output) {
@@ -151,7 +188,10 @@ export default class BatchNormalization extends Layer {
       }
     }
 
-    const programInputs = [{ texture: x.glTexture, type: '2d', name: 'X' }]
+    const programInputs = [
+      { texture: x.glTexture, type: '2d', name: 'X' },
+      { texture: this.normAxisIndexMap.glTexture, type: '2d', name: 'normAxisIndexMap' }
+    ]
     if (this.scale) {
       programInputs.push({ texture: this.weights['gamma'].glTexture, type: '2d', name: 'gamma' })
     }
@@ -162,8 +202,6 @@ export default class BatchNormalization extends Layer {
     programInputs.push({ texture: this.weights['moving_variance'].glTexture, type: '2d', name: 'std' })
     const programUniforms = [
       { value: this.epsilon, type: 'float', name: 'epsilon' },
-      { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
-      { value: this.output.glTextureShape[1], type: 'int', name: 'cols' },
       { value: +this.scale, type: 'bool', name: 'scale' },
       { value: +this.center, type: 'bool', name: 'center' }
     ]
@@ -178,7 +216,7 @@ export default class BatchNormalization extends Layer {
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
       if (this.output.is2DReshaped) {
-        this.output.reshapeFrom2D(this.axis)
+        this.output.reshapeFrom2DSquare()
       }
     }
   }
