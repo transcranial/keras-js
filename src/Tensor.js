@@ -150,17 +150,12 @@ export default class Tensor {
   }
 
   /**
-   * Reshapes data into 2D representation preserving single axis
-   *
-   * @param {number} axis
+   * Reshapes data into 2D representation preserving last axis (typically channel axis)
    */
-  reshapeTo2D(axis = -1) {
-    if (axis < 0) {
-      axis = this.tensor.shape.length + axis
-    }
-
+  reshapeTo2D() {
+    const axis = this.tensor.shape.length - 1
     const axisSize = this.tensor.shape[axis]
-    const otherAxes = [...this.tensor.shape.slice(0, axis), ...this.tensor.shape.slice(axis + 1)]
+    const otherAxes = this.tensor.shape.slice(0, axis)
     const otherAxesSize = otherAxes.reduce((a, b) => a * b, 1)
 
     const reshaped = ndarray(new this.arrayType(otherAxesSize * axisSize), [otherAxesSize, axisSize])
@@ -229,19 +224,6 @@ export default class Tensor {
     const squareDim = Math.ceil(Math.sqrt(this.tensor.size))
     const reshaped = ndarray(new this.arrayType(squareDim ** 2), [squareDim, squareDim])
     reshaped.data.set(this.tensor.data)
-
-    const indicesRowArr = ndarray(new Int32Array(this.tensor.size), this.tensor.shape)
-    const indicesColArr = ndarray(new Int32Array(this.tensor.size), this.tensor.shape)
-    const indicesRowArrReshaped = ndarray(new Int32Array(squareDim ** 2), [squareDim, squareDim])
-    const indicesColArrReshaped = ndarray(new Int32Array(squareDim ** 2), [squareDim, squareDim])
-    for (let i = 0; i < squareDim; i++) {
-      ops.assigns(indicesRowArrReshaped.pick(i, null), i)
-    }
-    for (let j = 0; j < squareDim; j++) {
-      ops.assigns(indicesColArrReshaped.pick(null, j), j)
-    }
-    indicesRowArr.data.set(indicesRowArrReshaped.data.subarray(0, indicesRowArr.size))
-    indicesColArr.data.set(indicesColArrReshaped.data.subarray(0, indicesColArr.size))
 
     this.originalShape = this.tensor.shape
     this.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.tensor.shape, true)
