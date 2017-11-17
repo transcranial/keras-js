@@ -56,7 +56,7 @@ export default class InputLayer extends Layer {
     if (!x.glTexture) {
       this.inputShape = x.tensor.shape
     } else {
-      if (x.is2DReshaped) {
+      if (x.is2DReshaped || x.is2DSquareReshaped) {
         this.inputShape = x.originalShape
       } else {
         this.inputShape = x.tensor.shape

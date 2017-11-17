@@ -72,7 +72,7 @@ export default class _GlobalPooling3D extends Layer {
    * @param {Tensor} x
    */
   _callGPU(x) {
-    if (x.is2DReshaped) {
+    if (x.is2DReshaped || x.is2DSquareReshaped) {
       this.inputShape = x.originalShape
     } else {
       // convert to channels_last ordering

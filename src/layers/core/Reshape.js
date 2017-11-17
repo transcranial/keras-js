@@ -120,7 +120,7 @@ export default class Reshape extends Layer {
         x.reshapeTo2D()
         x.createGLTexture()
       }
-    } else if (x.is2DReshaped) {
+    } else if (x.is2DReshaped || x.is2DSquareReshaped) {
       this.inputShape = x.originalShape
     } else {
       this.inputShape = x.tensor.shape
@@ -149,7 +149,9 @@ export default class Reshape extends Layer {
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
       if (this.output.is2DReshaped) {
-        this.output.reshapeFrom2D(this.axis)
+        this.output.reshapeFrom2D()
+      } else if (this.output.is2DSquareReshaped) {
+        this.output.reshapeFrom2DSquare()
       }
     }
   }

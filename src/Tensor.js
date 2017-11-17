@@ -246,14 +246,14 @@ export default class Tensor {
     this.originalShape = this.tensor.shape
     this.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.tensor.shape, true)
     this.tensor = reshaped
-    this.is2DReshaped = true
+    this.is2DSquareReshaped = true
   }
 
   /**
    * Reshapes tensor in 2D square representation back to original (underlying data remains contiguous)
    */
   reshapeFrom2DSquare() {
-    if (!this.is2DReshaped || this.tensor.shape.length !== 2 || this.tensor.shape[0] !== this.tensor.shape[1]) {
+    if (!this.is2DSquareReshaped) {
       throw new Error('[Tensor] not in reshaped 2D square representation.')
     }
     if (!this.originalShape) {

@@ -79,8 +79,12 @@ export default class PReLU extends Layer {
       this.output.createGLTexture()
       if (x.is1D) {
         this.output.is1D = x.is1D
-      } else if (x.is2DReshaped) {
-        this.output.is2DReshaped = x.is2DReshaped
+      } else if (x.is2DReshaped || x.is2DSquareReshaped) {
+        if (x.is2DReshaped) {
+          this.output.is2DReshaped = x.is2DReshaped
+        } else if (x.is2DSquareReshaped) {
+          this.output.is2DSquareReshaped = x.is2DSquareReshaped
+        }
         this.output.originalShape = x.originalShape
         this.output.indicesForReshaped = x.indicesForReshaped
       }
@@ -100,6 +104,8 @@ export default class PReLU extends Layer {
       this.output.transferFromGLTexture()
       if (this.output.is2DReshaped) {
         this.output.reshapeFrom2D()
+      } else if (this.output.is2DSquareReshaped) {
+        this.output.reshapeFrom2DSquare()
       }
     }
   }

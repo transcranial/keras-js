@@ -169,6 +169,8 @@ export default class _Merge extends Layer {
       this.output.transferFromGLTexture()
       if (this.output.is2DReshaped) {
         this.output.reshapeFrom2D()
+      } else if (this.output.is2DSquareReshaped) {
+        this.output.reshapeFrom2DSquare()
       }
     }
   }

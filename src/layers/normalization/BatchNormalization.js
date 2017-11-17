@@ -155,7 +155,7 @@ export default class BatchNormalization extends Layer {
    */
   _callGPU(x) {
     if (!this.axisNormalized) {
-      if (x.is2DReshaped) {
+      if (x.is2DReshaped || x.is2DSquareReshaped) {
         this.inputShape = x.originalShape
       } else {
         this.inputShape = x.tensor.shape
@@ -181,8 +181,12 @@ export default class BatchNormalization extends Layer {
       this.output.createGLTexture()
       if (x.is1D) {
         this.output.is1D = x.is1D
-      } else if (x.is2DReshaped) {
-        this.output.is2DReshaped = x.is2DReshaped
+      } else if (x.is2DReshaped || x.is2DSquareReshaped) {
+        if (x.is2DReshaped) {
+          this.output.is2DReshaped = x.is2DReshaped
+        } else if (x.is2DSquareReshaped) {
+          this.output.is2DSquareReshaped = x.is2DSquareReshaped
+        }
         this.output.originalShape = x.originalShape
         this.output.indicesForReshaped = x.indicesForReshaped
       }
@@ -216,6 +220,8 @@ export default class BatchNormalization extends Layer {
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
       if (this.output.is2DReshaped) {
+        this.output.reshapeFrom2D()
+      } else if (this.output.is2DSquareReshaped) {
         this.output.reshapeFrom2DSquare()
       }
     }

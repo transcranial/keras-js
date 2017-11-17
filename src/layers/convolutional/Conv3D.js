@@ -457,7 +457,7 @@ export default class Conv3D extends Layer {
    * @param {Tensor} x
    */
   _callGPU(x) {
-    if (x.is2DReshaped) {
+    if (x.is2DReshaped || x.is2DSquareReshaped) {
       this.inputShape = x.originalShape
       this._calcOutputShape(this.inputShape)
       this._createIndexMap(x.indicesForReshaped)
@@ -473,7 +473,7 @@ export default class Conv3D extends Layer {
     }
 
     // map from 2d-reshaped input
-    if (x.is2DReshaped) {
+    if (x.is2DReshaped || x.is2DSquareReshaped) {
       webgl2.runProgram({
         program: this.mapInputProgram,
         output: this.mappedInput,
@@ -485,7 +485,7 @@ export default class Conv3D extends Layer {
       })
     }
 
-    const input = x.is2DReshaped ? this.mappedInput : this.volColsMat
+    const input = x.is2DReshaped || x.is2DSquareReshaped ? this.mappedInput : this.volColsMat
     const outputTextureShape = [input.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
 
     // create output textures if doesn't already exist
