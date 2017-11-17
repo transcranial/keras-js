@@ -330,29 +330,15 @@ export default class Conv2D extends Layer {
    *
    * @param {Object} indicesForReshaped
    */
-  _createIndexMap(indicesForReshaped = {}) {
+  _createIndexMap(indicesForReshaped) {
     if (this.rowIndexMap && this.colIndexMap) {
       return
     }
 
     let [inputRows, inputCols, inputChannels] = this.inputShape
 
-    let indicesRow, indicesCol
-    if (indicesForReshaped.row && indicesForReshaped.col) {
-      indicesRow = new Tensor(indicesForReshaped.row.data, indicesForReshaped.row.shape, { type: Int32Array })
-      indicesCol = new Tensor(indicesForReshaped.col.data, indicesForReshaped.col.shape, { type: Int32Array })
-    } else {
-      indicesRow = new Tensor([], this.inputShape, { type: Int32Array })
-      indicesCol = new Tensor([], this.inputShape, { type: Int32Array })
-      for (let i = 0; i < inputRows; i++) {
-        for (let j = 0; j < inputCols; j++) {
-          ops.assigns(indicesRow.tensor.pick(i, j, null), i * inputCols + j)
-        }
-      }
-      for (let c = 0; c < inputChannels; c++) {
-        ops.assigns(indicesCol.tensor.pick(null, null, c), c)
-      }
-    }
+    const indicesRow = new Tensor(indicesForReshaped.row.data, indicesForReshaped.row.shape, { type: Int32Array })
+    const indicesCol = new Tensor(indicesForReshaped.col.data, indicesForReshaped.col.shape, { type: Int32Array })
 
     // padding for border mode 'same'
     if (this.padding === 'same') {

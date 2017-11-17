@@ -138,10 +138,8 @@ class _DepthwiseConv2D extends Conv2D {
       ops.assigns(this.reshapeColIndexMap.tensor.pick(null, j), j)
     }
 
-    if (this.gpu) {
-      this.reshapeRowIndexMap.createGLTexture('2d', 'int')
-      this.reshapeColIndexMap.createGLTexture('2d', 'int')
-    }
+    this.reshapeRowIndexMap.createGLTexture('2d', 'int')
+    this.reshapeColIndexMap.createGLTexture('2d', 'int')
   }
 
   /**
@@ -157,6 +155,7 @@ class _DepthwiseConv2D extends Conv2D {
       this.outputReshaped.createGLTexture()
       this.outputReshaped.is2DReshaped = true
       this.outputReshaped.originalShape = this.outputShape
+      this.outputReshaped.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
 
     webgl2.runProgram({

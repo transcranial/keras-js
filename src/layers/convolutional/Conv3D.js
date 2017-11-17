@@ -375,31 +375,15 @@ export default class Conv3D extends Layer {
    *
    * @param {Object} indicesForReshaped
    */
-  _createIndexMap(indicesForReshaped = {}) {
+  _createIndexMap(indicesForReshaped) {
     if (this.rowIndexMap && this.colIndexMap) {
       return
     }
 
     let [inputDim1, inputDim2, inputDim3, inputChannels] = this.inputShape
 
-    let indicesRow, indicesCol
-    if (indicesForReshaped.row && indicesForReshaped.col) {
-      indicesRow = new Tensor(indicesForReshaped.row.data, indicesForReshaped.row.shape, { type: Int32Array })
-      indicesCol = new Tensor(indicesForReshaped.col.data, indicesForReshaped.col.shape, { type: Int32Array })
-    } else {
-      indicesRow = new Tensor([], this.inputShape, { type: Int32Array })
-      indicesCol = new Tensor([], this.inputShape, { type: Int32Array })
-      for (let i = 0; i < inputDim1; i++) {
-        for (let j = 0; j < inputDim2; j++) {
-          for (let k = 0; k < inputDim3; k++) {
-            ops.assigns(indicesRow.tensor.pick(i, j, k, null), i * inputDim2 * inputDim3 + j * inputDim3 + k)
-          }
-        }
-      }
-      for (let c = 0; c < inputChannels; c++) {
-        ops.assigns(indicesCol.tensor.pick(null, null, null, c), c)
-      }
-    }
+    const indicesRow = new Tensor(indicesForReshaped.row.data, indicesForReshaped.row.shape, { type: Int32Array })
+    const indicesCol = new Tensor(indicesForReshaped.col.data, indicesForReshaped.col.shape, { type: Int32Array })
 
     // padding for border mode 'same'
     if (this.padding === 'same') {
@@ -463,10 +447,8 @@ export default class Conv3D extends Layer {
       }
     }
 
-    if (this.gpu) {
-      this.rowIndexMap.createGLTexture('2d', 'int')
-      this.colIndexMap.createGLTexture('2d', 'int')
-    }
+    this.rowIndexMap.createGLTexture('2d', 'int')
+    this.colIndexMap.createGLTexture('2d', 'int')
   }
 
   /**
