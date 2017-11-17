@@ -208,9 +208,6 @@ export default class _Pooling2D extends Layer {
       ops.assign(this.tiledInput.tensor.pick(null, c), patchRaveled.tensor)
     }
 
-    if (this.gpu) {
-      this.tiledInput.createGLTexture()
-    }
     return this.tiledInput
   }
 
@@ -255,7 +252,7 @@ export default class _Pooling2D extends Layer {
 
     this.indexMap = new Tensor([], [outputRows * outputCols, nbRow * nbCol], { type: Int32Array })
 
-    let patchRow = new Tensor([], [nbRow, nbCol])
+    const patchRow = new Tensor([], [nbRow, nbCol])
     let offset = 0
     for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.strides[0]) {
       for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.strides[1]) {
@@ -283,8 +280,7 @@ export default class _Pooling2D extends Layer {
       }
       this.inputShape = x.tensor.shape
       this._im2col(x)
-      x.glTexture = this.tiledInput.glTexture
-      x.glTextureShape = this.tiledInput.glTextureShape
+      this.tiledInput.createGLTexture()
     }
     this._calcOutputShape(this.inputShape)
     this._createIndexMap()
@@ -300,6 +296,7 @@ export default class _Pooling2D extends Layer {
       this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
 
+    const input = x.is2DReshaped || x.is2DSquareReshaped ? x : this.tiledInput
     const poolSize = this.poolSize[0] * this.poolSize[1]
     // `true` if max pooling, `false` if average pooling
     const isMaxPooling = this.poolingFunc === 'max'
@@ -308,7 +305,7 @@ export default class _Pooling2D extends Layer {
       program: this.poolingProgram,
       output: this.output,
       inputs: [
-        { texture: x.glTexture, type: '2d', name: 'x' },
+        { texture: input.glTexture, type: '2d', name: 'x' },
         { texture: this.indexMap.glTexture, type: '2d', name: 'indexMap' }
       ],
       uniforms: [

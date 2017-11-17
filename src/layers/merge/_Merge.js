@@ -112,8 +112,12 @@ export default class _Merge extends Layer {
       this.output.createGLTexture()
       if (inputs[0].is1D) {
         this.output.is1D = inputs[0].is1D
-      } else if (inputs[0].is2DReshaped) {
-        this.output.is2DReshaped = inputs[0].is2DReshaped
+      } else if (inputs[0].is2DReshaped || inputs[0].is2DSquareReshaped) {
+        if (inputs[0].is2DReshaped) {
+          this.output.is2DReshaped = inputs[0].is2DReshaped
+        } else if (inputs[0].is2DSquareReshaped) {
+          this.output.is2DSquareReshaped = inputs[0].is2DSquareReshaped
+        }
         this.output.originalShape = inputs[0].originalShape.slice()
         this.output.indicesForReshaped = inputs[0].indicesForReshaped
       }

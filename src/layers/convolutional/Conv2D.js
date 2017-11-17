@@ -230,9 +230,6 @@ export default class Conv2D extends Layer {
 
     if (nbRowDilated === 1 && nbColDilated === 1 && this.strides[0] === 1 && this.strides[1] === 1) {
       this.imColsMat.replaceTensorData(x.tensor.data)
-      if (this.gpu) {
-        this.imColsMat.createGLTexture()
-      }
       return this.imColsMat
     }
 
@@ -252,9 +249,6 @@ export default class Conv2D extends Layer {
       }
     }
 
-    if (this.gpu) {
-      this.imColsMat.createGLTexture()
-    }
     return this.imColsMat
   }
 
@@ -364,8 +358,8 @@ export default class Conv2D extends Layer {
     this.rowIndexMap = new Tensor([], [nbPatches, patchLen], { type: Int32Array })
     this.colIndexMap = new Tensor([], [nbPatches, patchLen], { type: Int32Array })
 
-    let indicesRowPatch = new Tensor([], [nbRow, nbCol, inputChannels])
-    let indicesColPatch = new Tensor([], [nbRow, nbCol, inputChannels])
+    const indicesRowPatch = new Tensor([], [nbRow, nbCol, inputChannels])
+    const indicesColPatch = new Tensor([], [nbRow, nbCol, inputChannels])
     let offset = 0
     for (let i = 0, limit = inputRows - nbRowDilated; i <= limit; i += this.strides[0]) {
       for (let j = 0, limit = inputCols - nbColDilated; j <= limit; j += this.strides[1]) {
@@ -412,6 +406,7 @@ export default class Conv2D extends Layer {
       this._calcOutputShape(this.inputShape)
       this._padInput(x)
       this._im2col(x)
+      this.imColsMat.createGLTexture()
     }
 
     // map from 2d-reshaped input

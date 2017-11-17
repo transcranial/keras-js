@@ -272,9 +272,6 @@ export default class Conv3D extends Layer {
       this.strides[2] === 1
     ) {
       this.volColsMat.replaceTensorData(x.tensor.data)
-      if (this.gpu) {
-        this.volColsMat.createGLTexture()
-      }
       return this.volColsMat
     }
 
@@ -296,9 +293,6 @@ export default class Conv3D extends Layer {
       }
     }
 
-    if (this.gpu) {
-      this.volColsMat.createGLTexture()
-    }
     return this.volColsMat
   }
 
@@ -420,8 +414,8 @@ export default class Conv3D extends Layer {
     this.rowIndexMap = new Tensor([], [nbPatches, patchLen], { type: Int32Array })
     this.colIndexMap = new Tensor([], [nbPatches, patchLen], { type: Int32Array })
 
-    let indicesRowPatch = new Tensor([], [kernelDim1, kernelDim2, kernelDim3, inputChannels])
-    let indicesColPatch = new Tensor([], [kernelDim1, kernelDim2, kernelDim3, inputChannels])
+    const indicesRowPatch = new Tensor([], [kernelDim1, kernelDim2, kernelDim3, inputChannels])
+    const indicesColPatch = new Tensor([], [kernelDim1, kernelDim2, kernelDim3, inputChannels])
     let offset = 0
     for (let i = 0, limit = inputDim1 - kernelDim1Dilated; i <= limit; i += this.strides[0]) {
       for (let j = 0, limit = inputDim2 - kernelDim2Dilated; j <= limit; j += this.strides[1]) {
@@ -470,6 +464,7 @@ export default class Conv3D extends Layer {
       this._calcOutputShape(this.inputShape)
       this._padInput(x)
       this._vol2col(x)
+      this.volColsMat.createGLTexture()
     }
 
     // map from 2d-reshaped input
