@@ -59,12 +59,12 @@ export default class LeakyReLU extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
-      x.createGLTexture({ type: '2d', format: 'float' })
+      x.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
     }
 
     if (!this.output) {
       this.output = new Tensor([], x.glTextureShape)
-      this.output.createGLTexture({ type: '2d', format: 'float' })
+      this.output.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       if (x.is1D) {
         this.output.is1D = x.is1D
       } else if (x.is2DReshaped || x.is2DSquareReshaped) {
@@ -82,7 +82,8 @@ export default class LeakyReLU extends Layer {
       program: this.program,
       output: this.output,
       inputs: [{ input: x, name: 'x' }],
-      uniforms: [{ value: this.alpha, type: 'float', name: 'alpha' }]
+      uniforms: [{ value: this.alpha, type: 'float', name: 'alpha' }],
+      supportsTextureFragments: true
     })
 
     // GPU -> CPU data transfer
