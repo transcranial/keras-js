@@ -45,7 +45,7 @@ export default class Bidirectional extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.copyTextureProgram = webgl2.compileProgram(require('../../copyTexture.glsl'))
+      this.copyTextureProgram = webgl2.compileProgram(require('../../webgl/copyTexture.glsl'))
       if (this.mergeMode === 'concat') {
         this.mergeProgram = webgl2.compileProgram(require('./Bidirectional.concat.glsl'))
       } else if (this.mergeMode === 'sum') {

@@ -51,8 +51,8 @@ export default class SimpleRNN extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.copyTextureProgram = webgl2.compileProgram(require('../../copyTexture.glsl'))
-      this.matMulProgram = webgl2.compileProgram(require('../../matMul.glsl'))
+      this.copyTextureProgram = webgl2.compileProgram(require('../../webgl/copyTexture.glsl'))
+      this.matMulProgram = webgl2.compileProgram(require('../../webgl/matMul.glsl'))
       this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
       this.gateSummationProgram = webgl2.compileProgram(require('./gateSummation.glsl'))
       this.timestepReadProgram = webgl2.compileProgram(require('./timestepRead.glsl'))

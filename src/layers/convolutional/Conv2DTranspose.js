@@ -65,7 +65,7 @@ export default class Conv2DTranspose extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.matMulProgram = webgl2.compileProgram(require('../../matMul.glsl'))
+      this.matMulProgram = webgl2.compileProgram(require('../../webgl/matMul.glsl'))
       this.convTransposeProgram = webgl2.compileProgram(require('./Conv2DTranspose.glsl'))
       this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
     }
@@ -174,8 +174,8 @@ export default class Conv2DTranspose extends Layer {
       this.imColsMat = new Tensor([], [inputRows * inputCols, inputChannels])
     }
 
-    let channelRaveled = new Tensor([], [inputRows * inputCols])
-    let channel = new Tensor([], [inputRows, inputCols])
+    const channelRaveled = new Tensor([], [inputRows * inputCols])
+    const channel = new Tensor([], [inputRows, inputCols])
     for (let c = 0; c < inputChannels; c++) {
       ops.assign(channel.tensor, x.tensor.pick(null, null, c))
       channelRaveled.replaceTensorData(channel.tensor.data)
@@ -197,8 +197,8 @@ export default class Conv2DTranspose extends Layer {
 
     this.wRowsMat = new Tensor([], [inputChannels, nbRow * nbCol * nbFilter])
 
-    let channelRaveled = new Tensor([], [nbRow * nbCol * nbFilter])
-    let channel = new Tensor([], [nbRow, nbCol, nbFilter])
+    const channelRaveled = new Tensor([], [nbRow * nbCol * nbFilter])
+    const channel = new Tensor([], [nbRow, nbCol, nbFilter])
     for (let c = 0; c < inputChannels; c++) {
       ops.assign(channel.tensor, this.weights['kernel'].tensor.pick(null, null, null, c))
       channelRaveled.replaceTensorData(channel.tensor.data)

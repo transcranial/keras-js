@@ -27,7 +27,7 @@ export default class Cropping1D extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.mapInputProgram = webgl2.compileProgram(require('../../mapInput.glsl'))
+      this.mapInputProgram = webgl2.compileProgram(require('../../webgl/mapInput.glsl'))
     }
   }
 

@@ -57,9 +57,6 @@ class _DepthwiseConv2D extends Conv2D {
       }
     }
 
-    if (this.gpu) {
-      this.imColsMat.createGLTexture({ type: '2d', format: 'float' })
-    }
     return this.imColsMat
   }
 
@@ -138,8 +135,8 @@ class _DepthwiseConv2D extends Conv2D {
       ops.assigns(this.reshapeColIndexMap.tensor.pick(null, j), j)
     }
 
-    this.reshapeRowIndexMap.createGLTexture({ type: '2d', format: 'int' })
-    this.reshapeColIndexMap.createGLTexture({ type: '2d', format: 'int' })
+    this.reshapeRowIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
+    this.reshapeColIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
   /**
@@ -152,7 +149,7 @@ class _DepthwiseConv2D extends Conv2D {
     if (!this.outputReshaped) {
       const reshape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
       this.outputReshaped = new Tensor([], reshape)
-      this.outputReshaped.createGLTexture({ type: '2d', format: 'float' })
+      this.outputReshaped.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       this.outputReshaped.is2DReshaped = true
       this.outputReshaped.originalShape = this.outputShape
       this.outputReshaped.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
@@ -165,7 +162,8 @@ class _DepthwiseConv2D extends Conv2D {
         { input: this.output, name: 'x' },
         { input: this.reshapeRowIndexMap, name: 'rowIndexMap' },
         { input: this.reshapeColIndexMap, name: 'colIndexMap' }
-      ]
+      ],
+      supportsTextureFragments: true
     })
   }
 }
@@ -324,7 +322,7 @@ export default class SeparableConv2D extends Layer {
     } else {
       if (!this.output) {
         this.output = new Tensor([], this._pointwiseConv.output.glTextureShape)
-        this.output.createGLTexture({ type: '2d', format: 'float' })
+        this.output.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
         this.output.is2DReshaped = true
         this.output.originalShape = this._pointwiseConv.output.originalShape
         this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(
@@ -337,7 +335,8 @@ export default class SeparableConv2D extends Layer {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.output,
-        inputs: [{ input: this.outputPreactiv, name: 'x' }]
+        inputs: [{ input: this.outputPreactiv, name: 'x' }],
+        supportsTextureFragments: true
       })
     }
 

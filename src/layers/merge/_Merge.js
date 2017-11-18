@@ -19,7 +19,7 @@ export default class _Merge extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.copyTextureProgram = webgl2.compileProgram(require('../../copyTexture.glsl'))
+      this.copyTextureProgram = webgl2.compileProgram(require('../../webgl/copyTexture.glsl'))
     }
   }
 

@@ -31,8 +31,8 @@ export default class TimeDistributed extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.copyTextureProgram = webgl2.compileProgram(require('../../copyTexture.glsl'))
-      this.mapInputProgram = webgl2.compileProgram(require('../../mapInput.glsl'))
+      this.copyTextureProgram = webgl2.compileProgram(require('../../webgl/copyTexture.glsl'))
+      this.mapInputProgram = webgl2.compileProgram(require('../../webgl/mapInput.glsl'))
       this.selectSliceProgram = webgl2.compileProgram(require('./TimeDistributed.selectSlice.glsl'))
       this.copySliceOutputProgram = webgl2.compileProgram(require('./TimeDistributed.copySliceOutput.glsl'))
       this.mapSliceOutputProgram = webgl2.compileProgram(require('./TimeDistributed.mapSliceOutput.glsl'))

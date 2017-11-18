@@ -37,7 +37,7 @@ class WebGL2 {
   createCommonVertexShader() {
     const gl = this.context
 
-    const source = require('./vertexShader.glsl')
+    const source = require('./webgl/vertexShader.glsl')
 
     const vertexShader = gl.createShader(gl.VERTEX_SHADER)
     gl.shaderSource(vertexShader, source)
@@ -203,9 +203,9 @@ class WebGL2 {
     if (!inputs) throw new Error('[WebGL2] missing inputs')
 
     const gl = this.context
-    webgl2.selectProgram(program)
+    this.selectProgram(program)
     if (uniforms && Array.isArray(uniforms)) {
-      webgl2.bindUniforms(program, uniforms)
+      this.bindUniforms(program, uniforms)
     }
 
     if (output.glTextureFragments || inputs.some(obj => obj.input.glTextureFragments)) {
@@ -220,7 +220,7 @@ class WebGL2 {
       }
 
       for (let i = 0; i < numFragments; i++) {
-        webgl2.bindOutputTexture(output.glTextureFragments[i], output.glTextureFragmentShapes[i])
+        this.bindOutputTexture(output.glTextureFragments[i], output.glTextureFragmentShapes[i])
         const fragmentedInputs = inputs.map(obj => {
           if (!obj.input.glTextureFragments) return obj
           return {
@@ -232,12 +232,12 @@ class WebGL2 {
             name: obj.name
           }
         })
-        webgl2.bindInputTextures(program, fragmentedInputs)
+        this.bindInputTextures(program, fragmentedInputs)
         gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
       }
     } else {
-      webgl2.bindOutputTexture(output.glTexture, output.glTextureShape)
-      webgl2.bindInputTextures(program, inputs)
+      this.bindOutputTexture(output.glTexture, output.glTextureShape)
+      this.bindInputTextures(program, inputs)
       gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
     }
   }

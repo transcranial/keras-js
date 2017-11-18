@@ -3,6 +3,7 @@ import Tensor from '../../Tensor'
 import * as activations from '../../activations'
 import { webgl2 } from '../../WebGL2'
 import * as tensorUtils from '../../utils/tensorUtils'
+import _ from 'lodash'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 
@@ -80,8 +81,8 @@ export default class Conv2D extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.mapInputProgram = webgl2.compileProgram(require('../../mapInput.glsl'))
-      this.matMulProgram = webgl2.compileProgram(require('../../matMul.glsl'))
+      this.mapInputProgram = webgl2.compileProgram(require('../../webgl/mapInput.glsl'))
+      this.matMulProgram = webgl2.compileProgram(require('../../webgl/matMul.glsl'))
       this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
     }
   }
@@ -233,7 +234,7 @@ export default class Conv2D extends Layer {
       return this.imColsMat
     }
 
-    let patch = new Tensor([], [nbRow, nbCol, inputChannels])
+    const patch = new Tensor([], [nbRow, nbCol, inputChannels])
     let offset = 0
     for (let i = 0, limit = inputRows - nbRowDilated; i <= limit; i += this.strides[0]) {
       for (let j = 0, limit = inputCols - nbColDilated; j <= limit; j += this.strides[1]) {
@@ -264,8 +265,8 @@ export default class Conv2D extends Layer {
 
     this.wRowsMat = new Tensor([], [patchLen, nbFilter])
 
-    let patch = new Tensor([], [nbRow, nbCol, inputChannels])
-    let patchRaveled = new Tensor([], [patchLen])
+    const patch = new Tensor([], [nbRow, nbCol, inputChannels])
+    const patchRaveled = new Tensor([], [patchLen])
     for (let n = 0; n < nbFilter; n++) {
       ops.assign(patch.tensor, this.weights['kernel'].tensor.pick(null, null, null, n))
       patchRaveled.replaceTensorData(patch.tensor.data)
@@ -383,8 +384,8 @@ export default class Conv2D extends Layer {
       }
     }
 
-    this.rowIndexMap.createGLTexture({ type: '2d', format: 'int' })
-    this.colIndexMap.createGLTexture({ type: '2d', format: 'int' })
+    this.rowIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
+    this.colIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
   /**
@@ -396,21 +397,21 @@ export default class Conv2D extends Layer {
     if (x.is2DReshaped || x.is2DSquareReshaped) {
       this.inputShape = x.originalShape
       this._calcOutputShape(this.inputShape)
-      this._createIndexMap(x.indicesForReshaped)
-      if (!this.mappedInput) {
-        this.mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
-        this.mappedInput.createGLTexture({ type: '2d', format: 'float' })
-      }
     } else {
       this.inputShape = x.tensor.shape
       this._calcOutputShape(this.inputShape)
       this._padInput(x)
       this._im2col(x)
-      this.imColsMat.createGLTexture({ type: '2d', format: 'float' })
+      this.imColsMat.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
     }
 
     // map from 2d-reshaped input
     if (x.is2DReshaped || x.is2DSquareReshaped) {
+      this._createIndexMap(x.indicesForReshaped)
+      if (!this.mappedInput) {
+        this.mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
+        this.mappedInput.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
+      }
       webgl2.runProgram({
         program: this.mapInputProgram,
         output: this.mappedInput,
@@ -429,14 +430,14 @@ export default class Conv2D extends Layer {
     // create output textures if doesn't already exist
     if (!this.outputPreactiv) {
       this.outputPreactiv = new Tensor([], outputTextureShape)
-      this.outputPreactiv.createGLTexture({ type: '2d', format: 'float' })
+      this.outputPreactiv.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       this.outputPreactiv.is2DReshaped = true
       this.outputPreactiv.originalShape = this.outputShape
       this.outputPreactiv.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
     if (!this.output) {
       this.output = new Tensor([], outputTextureShape)
-      this.output.createGLTexture({ type: '2d', format: 'float' })
+      this.output.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       this.output.is2DReshaped = true
       this.output.originalShape = this.outputShape
       this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
@@ -451,12 +452,7 @@ export default class Conv2D extends Layer {
       program: this.matMulProgram,
       output: this.outputPreactiv,
       inputs: matMulInputs,
-      uniforms: [
-        { value: this.use_bias ? 1 : 0, type: 'bool', name: 'addC' },
-        { value: input.glTextureShape[0], type: 'int', name: 'M' },
-        { value: this.weights['kernel'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['kernel'].glTextureShape[1], type: 'int', name: 'N' }
-      ],
+      uniforms: [{ value: this.use_bias ? 1 : 0, type: 'bool', name: 'addC' }],
       supportsTextureFragments: true
     })
 
