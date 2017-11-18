@@ -31,11 +31,6 @@ export default class _Merge extends Layer {
    */
   call(inputs) {
     if (this.gpu) {
-      inputs.forEach(input => {
-        if (!input.glTexture) {
-          input.createGLTexture({ type: '2d', format: 'float' })
-        }
-      })
       this._callGPU(inputs)
     } else {
       const valid = this._validateInputs(inputs)
@@ -106,10 +101,16 @@ export default class _Merge extends Layer {
    * @param {Tensor[]} inputs
    */
   _callGPU(inputs) {
+    inputs.forEach(input => {
+      if (!input.glTexture && !input.glTextureFragments) {
+        input.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
+      }
+    })
+
     // create output textures if doesn't already exist
     if (!this.output) {
       this.output = new Tensor([], inputs[0].glTextureShape)
-      this.output.createGLTexture({ type: '2d', format: 'float' })
+      this.output.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       if (inputs[0].is1D) {
         this.output.is1D = inputs[0].is1D
       } else if (inputs[0].is2DReshaped || inputs[0].is2DSquareReshaped) {
@@ -133,13 +134,14 @@ export default class _Merge extends Layer {
       program: this.mergeProgram,
       output: this.output,
       inputs: [{ input: inputs[0], name: 'input1' }, { input: inputs[1], name: 'input2' }],
-      uniforms: mergeUniforms
+      uniforms: mergeUniforms,
+      supportsTextureFragments: true
     })
 
     if (numInputs > 2) {
       if (!this.runningOutput) {
         this.runningOutput = new Tensor([], inputs[0].glTextureShape)
-        this.runningOutput.createGLTexture({ type: '2d', format: 'float' })
+        this.runningOutput.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       }
       if (this.mode === 'ave') {
         mergeUniforms.push({ value: 1, type: 'bool', name: 'additional' })
@@ -150,14 +152,16 @@ export default class _Merge extends Layer {
         webgl2.runProgram({
           program: this.copyTextureProgram,
           output: this.runningOutput,
-          inputs: [{ input: this.output, name: 'source' }]
+          inputs: [{ input: this.output, name: 'source' }],
+          supportsTextureFragments: true
         })
 
         webgl2.runProgram({
           program: this.mergeProgram,
           output: this.output,
           inputs: [{ input: this.runningOutput, name: 'input1' }, { input: inputs[i], name: 'input2' }],
-          uniforms: mergeUniforms
+          uniforms: mergeUniforms,
+          supportsTextureFragments: true
         })
       }
     }

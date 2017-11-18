@@ -3,6 +3,7 @@ import Tensor from '../../Tensor'
 import * as activations from '../../activations'
 import { webgl2 } from '../../WebGL2'
 import * as tensorUtils from '../../utils/tensorUtils'
+import _ from 'lodash'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 import Conv2D from './Conv2D'
@@ -117,7 +118,7 @@ class _DepthwiseConv2D extends Conv2D {
     this.output.replaceTensorData(dataFiltered)
   }
 
-  _createOutputReshapeMap() {
+  _createOutputReshapeIndexMap() {
     if (this.reshapeRowIndexMap && this.reshapeColIndexMap) {
       return
     }
@@ -139,13 +140,38 @@ class _DepthwiseConv2D extends Conv2D {
     this.reshapeColIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
+  _createOutputReshapeFragmentIndexMap(glTextureFragmentShapes) {
+    if (this.reshapeFragmentIndexMap) {
+      return
+    }
+
+    this.reshapeFragmentIndexMap = new Tensor([], this.reshapeRowIndexMap.glTextureShape, { type: Int32Array })
+
+    const fragmentRowOffsets = [0]
+    let offset = 0
+    for (let k = 0; k < glTextureFragmentShapes.length; k++) {
+      offset += glTextureFragmentShapes[k][0]
+      fragmentRowOffsets.push(offset)
+    }
+
+    for (let i = 0; i < this.reshapeRowIndexMap.tensor.shape[0]; i++) {
+      for (let j = 0; j < this.reshapeRowIndexMap.tensor.shape[1]; j++) {
+        const rowIndex = this.reshapeRowIndexMap.tensor.get(i, j)
+        const fragmentIndex = _.findLastIndex(fragmentRowOffsets, offset => rowIndex >= offset)
+        this.reshapeFragmentIndexMap.tensor.set(i, j, fragmentIndex)
+      }
+    }
+
+    this.reshapeFragmentIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
+  }
+
   /**
    * @param {Tensor} x
    */
   _callGPU(x) {
     super._callGPU(x)
 
-    this._createOutputReshapeMap()
+    this._createOutputReshapeIndexMap()
     if (!this.outputReshaped) {
       const reshape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
       this.outputReshaped = new Tensor([], reshape)
@@ -154,17 +180,32 @@ class _DepthwiseConv2D extends Conv2D {
       this.outputReshaped.originalShape = this.outputShape
       this.outputReshaped.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
-
-    webgl2.runProgram({
-      program: this.mapInputProgram,
-      output: this.outputReshaped,
-      inputs: [
-        { input: this.output, name: 'x' },
-        { input: this.reshapeRowIndexMap, name: 'rowIndexMap' },
-        { input: this.reshapeColIndexMap, name: 'colIndexMap' }
-      ],
-      supportsTextureFragments: true
-    })
+    if (this.output.glTextureFragments) {
+      this._createOutputReshapeFragmentIndexMap(this.output.glTextureFragmentShapes)
+      this.output.convert2DFragmentedGLTextureTo2DArray()
+      webgl2.runProgram({
+        program: this.mapInputFragmentsProgram,
+        output: this.outputReshaped,
+        inputs: [
+          { input: this.output, name: 'x' },
+          { input: this.reshapeRowIndexMap, name: 'rowIndexMap' },
+          { input: this.reshapeColIndexMap, name: 'colIndexMap' },
+          { input: this.reshapeFragmentIndexMap, name: 'fragmentIndexMap' }
+        ],
+        supportsTextureFragments: true
+      })
+    } else {
+      webgl2.runProgram({
+        program: this.mapInputProgram,
+        output: this.outputReshaped,
+        inputs: [
+          { input: this.output, name: 'x' },
+          { input: this.reshapeRowIndexMap, name: 'rowIndexMap' },
+          { input: this.reshapeColIndexMap, name: 'colIndexMap' }
+        ],
+        supportsTextureFragments: true
+      })
+    }
   }
 }
 

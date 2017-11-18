@@ -94,6 +94,12 @@ export default class Dot extends _Merge {
    * @param {Tensor[]} inputs
    */
   _callGPU(inputs) {
+    inputs.forEach(input => {
+      if (!input.glTexture && !input.glTextureFragments) {
+        input.createGLTexture({ type: '2d', format: 'float' })
+      }
+    })
+
     this._calcOutputShape([inputs[0].glTextureShape, inputs[1].glTextureShape])
 
     // create output textures if doesn't already exist

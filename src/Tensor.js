@@ -108,11 +108,11 @@ export default class Tensor {
     this.glTextureFragments = []
     this.glTextureFragmentShapes = []
     const numFragments = Math.ceil(this.glTextureShape[0] / MAX_TEXTURE_SIZE)
-    let offsetStart = 0
+    let offset = 0
 
-    for (let i = 0; i < numFragments; i++) {
+    for (let k = 0; k < numFragments; k++) {
       let fragmentSize = MAX_TEXTURE_SIZE
-      if (i === numFragments - 1) {
+      if (k === numFragments - 1) {
         // last fragment
         fragmentSize = this.glTextureShape[0] - MAX_TEXTURE_SIZE * (numFragments - 1)
       }
@@ -122,7 +122,7 @@ export default class Tensor {
       gl.bindTexture(textureTarget, glTexture)
 
       const shape = [fragmentSize, this.glTextureShape[1]]
-      const data = this.tensor.data.slice(offsetStart, offsetStart + shape[0] * shape[1])
+      const data = this.tensor.data.slice(offset, offset + shape[0] * shape[1])
       gl.texImage2D(textureTarget, 0, textureInternalFormat, shape[1], shape[0], 0, textureFormat, textureType, data)
 
       // clamp to edge
@@ -134,7 +134,7 @@ export default class Tensor {
 
       this.glTextureFragments.push(glTexture)
       this.glTextureFragmentShapes.push(shape)
-      offsetStart += fragmentSize
+      offset += shape[0] * shape[1]
     }
   }
 
@@ -171,6 +171,59 @@ export default class Tensor {
     // no interpolation
     gl.texParameteri(textureTarget, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
     gl.texParameteri(textureTarget, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+  }
+
+  /**
+   * Converts an array of gl.TEXTURE_2D glTextureFragments into a gl.TEXTURE_2D_ARRAY
+   */
+  convert2DFragmentedGLTextureTo2DArray() {
+    if (!this.glTextureFragments || !this.glTextureFragmentShapes) {
+      throw new Error('[Tensor] no glTextureFragments available.')
+    }
+
+    const gl = webgl2.context
+    const textureOptions = webgl2.getWebGLTextureOptions('2d_array', this.glTextureFormat)
+    const { textureTarget, textureInternalFormat, textureFormat, textureType } = textureOptions
+
+    if (!this.glTextureFragmentsAs2DArray) {
+      this.glTextureFragmentsAs2DArray = gl.createTexture()
+      webgl2.storeRef('texture', this.glTextureFragmentsAs2DArray)
+      gl.bindTexture(textureTarget, this.glTextureFragmentsAs2DArray)
+
+      this.glTextureFragmentsAs2DArrayShape = [...this.glTextureFragmentShapes[0], this.glTextureFragmentShapes.length]
+      const shape = this.glTextureFragmentsAs2DArrayShape
+      const data = new this.arrayType(shape.reduce((a, b) => a * b, 1))
+      gl.texImage3D(
+        textureTarget,
+        0,
+        textureInternalFormat,
+        shape[1],
+        shape[0],
+        shape[2],
+        0,
+        textureFormat,
+        textureType,
+        data
+      )
+
+      // clamp to edge
+      gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+      gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+      // no interpolation
+      gl.texParameteri(textureTarget, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+      gl.texParameteri(textureTarget, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+    } else {
+      gl.bindTexture(textureTarget, this.glTextureFragmentsAs2DArray)
+    }
+
+    const tempFramebuffer = gl.createFramebuffer()
+    gl.bindFramebuffer(gl.FRAMEBUFFER, tempFramebuffer)
+    this.glTextureFragments.forEach((texture, k) => {
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0)
+      const fragmentShape = this.glTextureFragmentShapes[k]
+      gl.copyTexSubImage3D(textureTarget, 0, 0, 0, k, 0, 0, fragmentShape[1], fragmentShape[0])
+    })
+    gl.deleteFramebuffer(tempFramebuffer)
   }
 
   /**
@@ -229,9 +282,9 @@ export default class Tensor {
       const shape = [_.sum(this.glTextureFragmentShapes.map(s => s[0])), this.glTextureShape[1]]
       this.tensor = ndarray(new this.arrayType(shape[0] * shape[1]), shape)
       let offset = 0
-      for (let i = 0; i < this.glTextureFragments.length; i++) {
-        webgl2.bindOutputTexture(this.glTextureFragments[i], this.glTextureFragmentShapes[i])
-        const fragmentData = webgl2.readData(this.glTextureFragmentShapes[i])
+      for (let k = 0; k < this.glTextureFragments.length; k++) {
+        webgl2.bindOutputTexture(this.glTextureFragments[k], this.glTextureFragmentShapes[k])
+        const fragmentData = webgl2.readData(this.glTextureFragmentShapes[k])
         this.tensor.data.set(fragmentData, offset)
         offset += fragmentData.length
       }

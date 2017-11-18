@@ -65,6 +65,12 @@ export default class Concatenate extends _Merge {
    * @param {Tensor[]} inputs
    */
   _callGPU(inputs) {
+    inputs.forEach(input => {
+      if (!input.glTexture && !input.glTextureFragments) {
+        input.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
+      }
+    })
+
     const outputShape = inputs[0].glTextureShape.slice()
     let _concatAxis = 1
     if (inputs[0].is2DReshaped) {
@@ -87,7 +93,7 @@ export default class Concatenate extends _Merge {
     if (!this.output) {
       outputShape[_concatAxis] = _.sum(inputs.map(input => input.glTextureShape[_concatAxis]))
       this.output = new Tensor([], outputShape)
-      this.output.createGLTexture({ type: '2d', format: 'float' })
+      this.output.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: _concatAxis === 1 })
       if (inputs[0].is1D) {
         this.output.is1D = inputs[0].is1D
       } else if (inputs[0].is2DReshaped) {
@@ -104,7 +110,7 @@ export default class Concatenate extends _Merge {
     }
     if (!this.runningOutput) {
       this.runningOutput = new Tensor([], outputShape)
-      this.runningOutput.createGLTexture({ type: '2d', format: 'float' })
+      this.runningOutput.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: _concatAxis === 1 })
     }
 
     const numInputs = inputs.length
@@ -116,7 +122,8 @@ export default class Concatenate extends _Merge {
       webgl2.runProgram({
         program: this.copyTextureProgram,
         output: this.runningOutput,
-        inputs: [{ input: this.output, name: 'source' }]
+        inputs: [{ input: this.output, name: 'source' }],
+        supportsTextureFragments: true
       })
 
       // run merge program
@@ -130,7 +137,8 @@ export default class Concatenate extends _Merge {
           { value: _concatAxis, type: 'int', name: 'concatAxis' },
           { value: offsetStart, type: 'int', name: 'offsetStart' },
           { value: offsetEnd, type: 'int', name: 'offsetEnd' }
-        ]
+        ],
+        supportsTextureFragments: true
       })
 
       if (i < numInputs - 1) {

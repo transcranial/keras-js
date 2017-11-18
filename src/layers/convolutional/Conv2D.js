@@ -82,6 +82,7 @@ export default class Conv2D extends Layer {
     // GPU setup
     if (this.gpu) {
       this.mapInputProgram = webgl2.compileProgram(require('../../webgl/mapInput.glsl'))
+      this.mapInputFragmentsProgram = webgl2.compileProgram(require('../../webgl/mapInput.fragments.glsl'))
       this.matMulProgram = webgl2.compileProgram(require('../../webgl/matMul.glsl'))
       this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
     }
@@ -388,6 +389,37 @@ export default class Conv2D extends Layer {
     this.colIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
+  /** 
+   * Create input fragment index map corresponding to rowIndexMap/colIndexMap. The index at a particular location will
+   * direct the fragment shader which texture fragment to transfer data from.
+   * 
+   * @param {number[][]} glTextureFragmentShapes
+   */
+  _createFragmentIndexMap(glTextureFragmentShapes) {
+    if (this.fragmentIndexMap) {
+      return
+    }
+
+    this.fragmentIndexMap = new Tensor([], this.rowIndexMap.glTextureShape, { type: Int32Array })
+
+    const fragmentRowOffsets = [0]
+    let offset = 0
+    for (let k = 0; k < glTextureFragmentShapes.length; k++) {
+      offset += glTextureFragmentShapes[k][0]
+      fragmentRowOffsets.push(offset)
+    }
+
+    for (let i = 0; i < this.rowIndexMap.tensor.shape[0]; i++) {
+      for (let j = 0; j < this.rowIndexMap.tensor.shape[1]; j++) {
+        const rowIndex = this.rowIndexMap.tensor.get(i, j)
+        const fragmentIndex = _.findLastIndex(fragmentRowOffsets, offset => rowIndex >= offset)
+        this.fragmentIndexMap.tensor.set(i, j, fragmentIndex)
+      }
+    }
+
+    this.fragmentIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
+  }
+
   /**
    * GPU call
    *
@@ -412,16 +444,33 @@ export default class Conv2D extends Layer {
         this.mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
         this.mappedInput.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       }
-      webgl2.runProgram({
-        program: this.mapInputProgram,
-        output: this.mappedInput,
-        inputs: [
-          { input: x, name: 'x' },
-          { input: this.rowIndexMap, name: 'rowIndexMap' },
-          { input: this.colIndexMap, name: 'colIndexMap' }
-        ],
-        supportsTextureFragments: true
-      })
+
+      if (x.glTextureFragments) {
+        this._createFragmentIndexMap(x.glTextureFragmentShapes)
+        x.convert2DFragmentedGLTextureTo2DArray()
+        webgl2.runProgram({
+          program: this.mapInputFragmentsProgram,
+          output: this.mappedInput,
+          inputs: [
+            { input: x, name: 'x' },
+            { input: this.rowIndexMap, name: 'rowIndexMap' },
+            { input: this.colIndexMap, name: 'colIndexMap' },
+            { input: this.fragmentIndexMap, name: 'fragmentIndexMap' }
+          ],
+          supportsTextureFragments: true
+        })
+      } else {
+        webgl2.runProgram({
+          program: this.mapInputProgram,
+          output: this.mappedInput,
+          inputs: [
+            { input: x, name: 'x' },
+            { input: this.rowIndexMap, name: 'rowIndexMap' },
+            { input: this.colIndexMap, name: 'colIndexMap' }
+          ],
+          supportsTextureFragments: true
+        })
+      }
     }
 
     const input = x.is2DReshaped || x.is2DSquareReshaped ? this.mappedInput : this.imColsMat

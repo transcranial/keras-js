@@ -173,6 +173,34 @@ class WebGL2 {
   }
 
   /**
+   * Bind input textures within program, where some are fragmented
+   *
+   * @param {WebGLProgram} program
+   * @param {Object[]} inputs
+   * @param {number} k
+   */
+  bindInputTexturesFragmented(program, inputs, k) {
+    const gl = this.context
+
+    inputs.forEach(({ input, name }, i) => {
+      gl.activeTexture(gl.TEXTURE0 + i)
+      if (input.glTextureFragments) {
+        if (input.glTextureFragmentsAs2DArray) {
+          const { textureTarget } = this.getWebGLTextureOptions('2d_array', input.glTextureFormat)
+          gl.bindTexture(textureTarget, input.glTextureFragmentsAs2DArray)
+        } else {
+          const { textureTarget } = this.getWebGLTextureOptions(input.glTextureType, input.glTextureFormat)
+          gl.bindTexture(textureTarget, input.glTextureFragments[k])
+        }
+      } else {
+        const { textureTarget } = this.getWebGLTextureOptions(input.glTextureType, input.glTextureFormat)
+        gl.bindTexture(textureTarget, input.glTexture)
+      }
+      gl.uniform1i(gl.getUniformLocation(program, name), i)
+    })
+  }
+
+  /**
    * Bind output texture
    *
    * @param {WebGLTexture} outputTexture
@@ -208,31 +236,22 @@ class WebGL2 {
       this.bindUniforms(program, uniforms)
     }
 
-    if (output.glTextureFragments || inputs.some(obj => obj.input.glTextureFragments)) {
+    if (output.glTextureFragments) {
       if (!supportsTextureFragments) {
         throw new Error('[WebGL2] program does not support texture fragments')
       }
 
-      const inputsWithFragments = inputs.filter(obj => obj.input.glTextureFragments)
+      const inputsWithFragments = inputs.filter(
+        obj => obj.input.glTextureFragments && !obj.input.glTextureFragmentsAs2DArray
+      )
       const numFragments = output.glTextureFragments.length
       if (inputsWithFragments.some(obj => obj.input.glTextureFragments.length !== numFragments)) {
         throw new Error('[WebGL2] number of texture fragments in inputs and output do not match')
       }
 
-      for (let i = 0; i < numFragments; i++) {
-        this.bindOutputTexture(output.glTextureFragments[i], output.glTextureFragmentShapes[i])
-        const fragmentedInputs = inputs.map(obj => {
-          if (!obj.input.glTextureFragments) return obj
-          return {
-            input: {
-              glTextureType: obj.input.glTextureType,
-              glTextureFormat: obj.input.glTextureFormat,
-              glTexture: obj.input.glTextureFragments[i]
-            },
-            name: obj.name
-          }
-        })
-        this.bindInputTextures(program, fragmentedInputs)
+      for (let k = 0; k < numFragments; k++) {
+        this.bindOutputTexture(output.glTextureFragments[k], output.glTextureFragmentShapes[k])
+        this.bindInputTexturesFragmented(program, inputs, k)
         gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
       }
     } else {
