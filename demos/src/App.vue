@@ -108,6 +108,10 @@ footer {
   background: #cccccc !important;
 }
 
+a {
+  text-decoration: none;
+}
+
 /*******************************************************************/
 /* Vuetify overrides */
 

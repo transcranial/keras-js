@@ -60,7 +60,7 @@ export default {
   justify-content: space-between;
   overflow: hidden;
   box-shadow: 3px 3px #cccccc;
-  transition: box-shadow 0.2s ease-in;
+  transition: box-shadow 0.2s ease-out;
 
   &:first-child {
     margin-top: 0;
@@ -82,7 +82,7 @@ export default {
   text-align: center;
   color: var(--color-lightgray);
   font-size: 18px;
-  transition: color 0.2s ease-in;
+  transition: color 0.2s ease-out;
 }
 
 .demo-card-image {
