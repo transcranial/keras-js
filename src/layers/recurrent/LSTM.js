@@ -284,24 +284,14 @@ export default class LSTM extends Layer {
       program: this.matMulProgram,
       output: this.tempXI,
       inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_i'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['W_i'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['W_i'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHI,
       inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['U_i'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['U_i'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['U_i'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
@@ -330,24 +320,14 @@ export default class LSTM extends Layer {
       program: this.matMulProgram,
       output: this.tempXF,
       inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_f'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['W_f'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['W_f'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHF,
       inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['U_f'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['U_f'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['U_f'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
@@ -376,24 +356,14 @@ export default class LSTM extends Layer {
       program: this.matMulProgram,
       output: this.tempXO,
       inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_o'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['W_o'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['W_o'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHO,
       inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['U_o'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['U_o'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['U_o'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
@@ -422,24 +392,14 @@ export default class LSTM extends Layer {
       program: this.matMulProgram,
       output: this.tempXC,
       inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_c'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['W_c'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['W_c'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHC,
       inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['U_c'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['U_c'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['U_c'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({

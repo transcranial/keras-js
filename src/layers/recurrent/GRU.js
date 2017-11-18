@@ -250,24 +250,14 @@ export default class GRU extends Layer {
       program: this.matMulProgram,
       output: this.tempXZ,
       inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_z'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['W_z'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['W_z'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHZ,
       inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['U_z'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['U_z'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['U_z'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
@@ -296,24 +286,14 @@ export default class GRU extends Layer {
       program: this.matMulProgram,
       output: this.tempXR,
       inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_r'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['W_r'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['W_r'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHR,
       inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['U_r'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['U_r'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['U_r'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
@@ -354,24 +334,14 @@ export default class GRU extends Layer {
       program: this.matMulProgram,
       output: this.tempXH,
       inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['W_h'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['W_h'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['W_h'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHH,
       inputs: [{ input: this.currentResetGateState, name: 'A' }, { input: this.weights['U_h'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['U_h'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['U_h'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({

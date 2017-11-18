@@ -165,24 +165,14 @@ export default class SimpleRNN extends Layer {
       program: this.matMulProgram,
       output: this.tempXH,
       inputs: [{ input: this.currentX, name: 'A' }, { input: this.weights['kernel'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['kernel'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['kernel'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({
       program: this.matMulProgram,
       output: this.tempHH,
       inputs: [{ input: this.previousHiddenState, name: 'A' }, { input: this.weights['recurrent_kernel'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: 1, type: 'int', name: 'M' },
-        { value: this.weights['recurrent_kernel'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['recurrent_kernel'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     webgl2.runProgram({

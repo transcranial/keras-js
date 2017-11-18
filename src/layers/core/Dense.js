@@ -43,8 +43,8 @@ export default class Dense extends Layer {
     if (this.gpu) {
       this.matMulProgram = webgl2.compileProgram(require('../../matMul.glsl'))
       this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
-      this.outputPreactiv.createGLTexture()
-      this.output.createGLTexture()
+      this.outputPreactiv.createGLTexture({ type: '2d', format: 'float' })
+      this.output.createGLTexture({ type: '2d', format: 'float' })
     }
   }
 
@@ -83,7 +83,7 @@ export default class Dense extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
-      x.createGLTexture()
+      x.createGLTexture({ type: '2d', format: 'float' })
     }
 
     // Matrix Multiply
@@ -95,12 +95,7 @@ export default class Dense extends Layer {
       program: this.matMulProgram,
       output: this.outputPreactiv,
       inputs: matMulInputs,
-      uniforms: [
-        { value: this.use_bias ? 1 : 0, type: 'bool', name: 'addC' },
-        { value: x.glTextureShape[0], type: 'int', name: 'M' },
-        { value: this.weights['kernel'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['kernel'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: this.use_bias ? 1 : 0, type: 'bool', name: 'addC' }]
     })
 
     // Activation

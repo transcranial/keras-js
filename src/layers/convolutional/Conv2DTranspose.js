@@ -423,12 +423,7 @@ export default class Conv2DTranspose extends Layer {
       program: this.matMulProgram,
       output: this.outputMatmul,
       inputs: [{ input: input, name: 'A' }, { input: this.weights['kernel'], name: 'B' }],
-      uniforms: [
-        { value: 0, type: 'bool', name: 'addC' },
-        { value: input.glTextureShape[0], type: 'int', name: 'M' },
-        { value: this.weights['kernel'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['kernel'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
     })
 
     // Tranposed Convolution

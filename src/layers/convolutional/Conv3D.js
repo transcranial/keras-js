@@ -508,12 +508,7 @@ export default class Conv3D extends Layer {
       program: this.matMulProgram,
       output: this.outputPreactiv,
       inputs: matMulInputs,
-      uniforms: [
-        { value: this.use_bias ? 1 : 0, type: 'bool', name: 'addC' },
-        { value: input.glTextureShape[0], type: 'int', name: 'M' },
-        { value: this.weights['kernel'].glTextureShape[0], type: 'int', name: 'K' },
-        { value: this.weights['kernel'].glTextureShape[1], type: 'int', name: 'N' }
-      ]
+      uniforms: [{ value: this.use_bias ? 1 : 0, type: 'bool', name: 'addC' }]
     })
 
     // Activation
