@@ -64,7 +64,7 @@ export default class Activation extends Layer {
    * @param {Tensor} x
    */
   _callGPU(x) {
-    if (!x.glTexture) {
+    if (!x.glTexture && !x.glTextureFragments) {
       x.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
     }
 
