@@ -132,8 +132,6 @@ export default class Concatenate extends _Merge {
         output: this.output,
         inputs: [{ input: this.runningOutput, name: 'runningOutput' }, { input: inputs[i], name: 'input1' }],
         uniforms: [
-          { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
-          { value: this.output.glTextureShape[1], type: 'int', name: 'cols' },
           { value: _concatAxis, type: 'int', name: 'concatAxis' },
           { value: offsetStart, type: 'int', name: 'offsetStart' },
           { value: offsetEnd, type: 'int', name: 'offsetEnd' }

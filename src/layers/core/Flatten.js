@@ -18,7 +18,8 @@ export default class Flatten extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./Flatten.glsl'))
+      this.flattenProgram = webgl2.compileProgram(require('./Flatten.glsl'))
+      this.flattenFragmentsProgram = webgl2.compileProgram(require('./Flatten.fragments.glsl'))
     }
   }
 
@@ -57,7 +58,7 @@ export default class Flatten extends Layer {
    * @param {Tensor} x
    */
   _callGPU(x) {
-    if (!x.glTexture) {
+    if (!x.glTexture && !x.glTextureFragments) {
       if (x.tensor.shape.length <= 2) {
         x.createGLTexture({ type: '2d', format: 'float' })
       } else if (x.tensor.shape.length > 2 && !x.is2DReshaped) {
@@ -71,11 +72,31 @@ export default class Flatten extends Layer {
       this.output.createGLTexture({ type: '2d', format: 'float' })
     }
 
-    webgl2.runProgram({
-      program: this.program,
-      output: this.output,
-      inputs: [{ input: x, name: 'x' }]
-    })
+    if (x.glTextureFragments) {
+      x.convert2DFragmentedGLTextureTo2DArray()
+      webgl2.runProgram({
+        program: this.flattenFragmentsProgram,
+        output: this.output,
+        inputs: [{ input: x, name: 'x' }],
+        uniforms: [
+          { value: this.output.glTextureShape[1], type: 'int', name: 'outputSize' },
+          { value: x.glTextureShape[0], type: 'int', name: 'inputRows' },
+          { value: x.glTextureShape[1], type: 'int', name: 'inputCols' }
+        ],
+        supportsTextureFragments: true
+      })
+    } else {
+      webgl2.runProgram({
+        program: this.flattenProgram,
+        output: this.output,
+        inputs: [{ input: x, name: 'x' }],
+        uniforms: [
+          { value: this.output.glTextureShape[1], type: 'int', name: 'outputSize' },
+          { value: x.glTextureShape[1], type: 'int', name: 'inputCols' }
+        ],
+        supportsTextureFragments: true
+      })
+    }
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
