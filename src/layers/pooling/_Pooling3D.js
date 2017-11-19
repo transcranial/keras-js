@@ -3,6 +3,7 @@ import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import * as tensorUtils from '../../utils/tensorUtils'
 import ops from 'ndarray-ops'
+import _ from 'lodash'
 
 /**
  * _Pooling3D layer class
@@ -43,6 +44,7 @@ export default class _Pooling3D extends Layer {
     // GPU setup
     if (this.gpu) {
       this.poolingProgram = webgl2.compileProgram(require('./_Pooling.glsl'))
+      this.poolingFragmentsProgram = webgl2.compileProgram(require('./_Pooling.fragments.glsl'))
     }
   }
 
@@ -260,7 +262,7 @@ export default class _Pooling3D extends Layer {
    * Pre-compute index map for GPU pooling function
    */
   _createIndexMap() {
-    if (this.indexMap) {
+    if (this.poolIndexMap) {
       return
     }
 
@@ -311,7 +313,7 @@ export default class _Pooling3D extends Layer {
     const outputDim2 = this.outputShape[1]
     const outputDim3 = this.outputShape[2]
 
-    this.indexMap = new Tensor([], [outputDim1 * outputDim2 * outputDim3, poolDim1 * poolDim2 * poolDim3], {
+    this.poolIndexMap = new Tensor([], [outputDim1 * outputDim2 * outputDim3, poolDim1 * poolDim2 * poolDim3], {
       type: Int32Array
     })
 
@@ -321,13 +323,44 @@ export default class _Pooling3D extends Layer {
       for (let j = 0, limit = inputDim2 - poolDim2; j <= limit; j += this.strides[1]) {
         for (let k = 0, limit = inputDim3 - poolDim3; k <= limit; k += this.strides[2]) {
           ops.assign(patchRow.tensor, rowIndices.tensor.hi(i + poolDim1, j + poolDim2, k + poolDim3).lo(i, j, k))
-          this.indexMap.tensor.data.set(patchRow.tensor.data, offset)
+          this.poolIndexMap.tensor.data.set(patchRow.tensor.data, offset)
           offset += poolDim1 * poolDim2 * poolDim3
         }
       }
     }
 
-    this.indexMap.createGLTexture({ type: '2d', format: 'int' })
+    this.poolIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
+  }
+
+  /** 
+   * Create fragment index map corresponding to poolIndexMap. The index at a particular location will direct the 
+   * fragment shader which texture fragment to transfer data from.
+   * 
+   * @param {number[][]} glTextureFragmentShapes
+   */
+  _createFragmentIndexMap(glTextureFragmentShapes) {
+    if (this.fragmentIndexMap) {
+      return
+    }
+
+    this.fragmentIndexMap = new Tensor([], this.poolIndexMap.glTextureShape, { type: Int32Array })
+
+    const fragmentRowOffsets = [0]
+    let offset = 0
+    for (let k = 0; k < glTextureFragmentShapes.length; k++) {
+      offset += glTextureFragmentShapes[k][0]
+      fragmentRowOffsets.push(offset)
+    }
+
+    for (let i = 0; i < this.poolIndexMap.tensor.shape[0]; i++) {
+      for (let j = 0; j < this.poolIndexMap.tensor.shape[1]; j++) {
+        const poolIndex = this.poolIndexMap.tensor.get(i, j)
+        const fragmentIndex = _.findLastIndex(fragmentRowOffsets, offset => poolIndex >= offset)
+        this.fragmentIndexMap.tensor.set(i, j, fragmentIndex)
+      }
+    }
+
+    this.fragmentIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
   /**
@@ -345,7 +378,7 @@ export default class _Pooling3D extends Layer {
       }
       this.inputShape = x.tensor.shape
       this._vol2col(x)
-      this.tiledInput.createGLTexture({ type: '2d', format: 'float' })
+      this.tiledInput.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
     }
     this._calcOutputShape(this.inputShape)
     this._createIndexMap()
@@ -355,7 +388,7 @@ export default class _Pooling3D extends Layer {
       const [outputDim1, outputDim2, outputDim3, inputChannels] = this.outputShape
       const outputTextureShape = [outputDim1 * outputDim2 * outputDim3, inputChannels]
       this.output = new Tensor([], outputTextureShape)
-      this.output.createGLTexture({ type: '2d', format: 'float' })
+      this.output.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       this.output.is2DReshaped = true
       this.output.originalShape = this.outputShape
       this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
@@ -366,17 +399,33 @@ export default class _Pooling3D extends Layer {
     // `true` if max pooling, `false` if average pooling
     const isMaxPooling = this.poolingFunc === 'max'
 
-    webgl2.runProgram({
-      program: this.poolingProgram,
-      output: this.output,
-      inputs: [{ input: input, name: 'x' }, { input: this.indexMap, name: 'indexMap' }],
-      uniforms: [
-        { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
-        { value: this.output.glTextureShape[1], type: 'int', name: 'cols' },
-        { value: poolSize, type: 'int', name: 'poolSize' },
-        { value: +isMaxPooling, type: 'bool', name: 'isMaxPooling' }
-      ]
-    })
+    const programUniforms = [
+      { value: this.output.glTextureShape[1], type: 'int', name: 'channels' },
+      { value: poolSize, type: 'int', name: 'poolSize' },
+      { value: +isMaxPooling, type: 'bool', name: 'isMaxPooling' }
+    ]
+    if (input.glTextureFragments) {
+      this._createFragmentIndexMap(input.glTextureFragmentShapes)
+      input.convert2DFragmentedGLTextureTo2DArray()
+      webgl2.runProgram({
+        program: this.poolingFragmentsProgram,
+        output: this.output,
+        inputs: [
+          { input: input, name: 'x' },
+          { input: this.poolIndexMap, name: 'poolIndexMap' },
+          { input: this.fragmentIndexMap, name: 'fragmentIndexMap' }
+        ],
+        uniforms: programUniforms,
+        supportsTextureFragments: true
+      })
+    } else {
+      webgl2.runProgram({
+        program: this.poolingProgram,
+        output: this.output,
+        inputs: [{ input: input, name: 'x' }, { input: this.poolIndexMap, name: 'poolIndexMap' }],
+        uniforms: programUniforms
+      })
+    }
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {

@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
+import _ from 'lodash'
 
 /**
  * _Pooling1D layer class
@@ -29,6 +30,7 @@ export default class _Pooling1D extends Layer {
     // GPU setup
     if (this.gpu) {
       this.poolingProgram = webgl2.compileProgram(require('./_Pooling.glsl'))
+      this.poolingFragmentsProgram = webgl2.compileProgram(require('./_Pooling.fragments.glsl'))
     }
   }
 
@@ -98,7 +100,7 @@ export default class _Pooling1D extends Layer {
    * Pre-compute index map for GPU pooling function
    */
   _createIndexMap() {
-    if (this.indexMap) {
+    if (this.poolIndexMap) {
       return
     }
 
@@ -109,8 +111,8 @@ export default class _Pooling1D extends Layer {
 
     this.outputShape = [stepsNew, this.inputShape[1]]
 
-    this.indexMap = new Tensor([], [stepsNew, this.poolSize], { type: Int32Array })
-    ops.assigns(this.indexMap.tensor, -1)
+    this.poolIndexMap = new Tensor([], [stepsNew, this.poolSize], { type: Int32Array })
+    ops.assigns(this.poolIndexMap.tensor, -1)
 
     // in padding same, start negative from beyond step 0
     let step =
@@ -123,11 +125,11 @@ export default class _Pooling1D extends Layer {
       let limit = this.poolSize + Math.min(0, step)
 
       let inputIndex = _step
-      this.indexMap.tensor.set(i, 0, inputIndex)
+      this.poolIndexMap.tensor.set(i, 0, inputIndex)
       for (let j = 1; j < limit; j++) {
         inputIndex = _step + j
         if (inputIndex <= this.inputShape[0] - 1) {
-          this.indexMap.tensor.set(i, j, inputIndex)
+          this.poolIndexMap.tensor.set(i, j, inputIndex)
         } else {
           break
         }
@@ -135,7 +137,38 @@ export default class _Pooling1D extends Layer {
       step += this.strides
     }
 
-    this.indexMap.createGLTexture({ type: '2d', format: 'int' })
+    this.poolIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
+  }
+
+  /** 
+   * Create fragment index map corresponding to poolIndexMap. The index at a particular location will direct the 
+   * fragment shader which texture fragment to transfer data from.
+   * 
+   * @param {number[][]} glTextureFragmentShapes
+   */
+  _createFragmentIndexMap(glTextureFragmentShapes) {
+    if (this.fragmentIndexMap) {
+      return
+    }
+
+    this.fragmentIndexMap = new Tensor([], this.poolIndexMap.glTextureShape, { type: Int32Array })
+
+    const fragmentRowOffsets = [0]
+    let offset = 0
+    for (let k = 0; k < glTextureFragmentShapes.length; k++) {
+      offset += glTextureFragmentShapes[k][0]
+      fragmentRowOffsets.push(offset)
+    }
+
+    for (let i = 0; i < this.poolIndexMap.tensor.shape[0]; i++) {
+      for (let j = 0; j < this.poolIndexMap.tensor.shape[1]; j++) {
+        const poolIndex = this.poolIndexMap.tensor.get(i, j)
+        const fragmentIndex = _.findLastIndex(fragmentRowOffsets, offset => poolIndex >= offset)
+        this.fragmentIndexMap.tensor.set(i, j, fragmentIndex)
+      }
+    }
+
+    this.fragmentIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
   /**
@@ -144,8 +177,8 @@ export default class _Pooling1D extends Layer {
    * @param {Tensor} x
    */
   _callGPU(x) {
-    if (!x.glTexture) {
-      x.createGLTexture({ type: '2d', format: 'float' })
+    if (!x.glTexture && !x.glTextureFragments) {
+      x.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
     }
     this.inputShape = x.tensor.shape
     this._createIndexMap()
@@ -153,23 +186,40 @@ export default class _Pooling1D extends Layer {
     // create output textures if doesn't already exist
     if (!this.output) {
       this.output = new Tensor([], this.outputShape)
-      this.output.createGLTexture({ type: '2d', format: 'float' })
+      this.output.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
     }
 
     // `true` if max pooling, `false` if average pooling
     const isMaxPooling = this.poolingFunc === 'max'
 
-    webgl2.runProgram({
-      program: this.poolingProgram,
-      output: this.output,
-      inputs: [{ input: x, name: 'x' }, { input: this.indexMap, name: 'indexMap' }],
-      uniforms: [
-        { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
-        { value: this.output.glTextureShape[1], type: 'int', name: 'cols' },
-        { value: this.poolSize, type: 'int', name: 'poolSize' },
-        { value: +isMaxPooling, type: 'bool', name: 'isMaxPooling' }
-      ]
-    })
+    const programUniforms = [
+      { value: this.output.glTextureShape[1], type: 'int', name: 'channels' },
+      { value: this.poolSize, type: 'int', name: 'poolSize' },
+      { value: +isMaxPooling, type: 'bool', name: 'isMaxPooling' }
+    ]
+    if (x.glTextureFragments) {
+      this._createFragmentIndexMap(x.glTextureFragmentShapes)
+      x.convert2DFragmentedGLTextureTo2DArray()
+      webgl2.runProgram({
+        program: this.poolingFragmentsProgram,
+        output: this.output,
+        inputs: [
+          { input: x, name: 'x' },
+          { input: this.poolIndexMap, name: 'poolIndexMap' },
+          { input: this.fragmentIndexMap, name: 'fragmentIndexMap' }
+        ],
+        uniforms: programUniforms,
+        supportsTextureFragments: true
+      })
+    } else {
+      webgl2.runProgram({
+        program: this.poolingProgram,
+        output: this.output,
+        inputs: [{ input: x, name: 'x' }, { input: this.poolIndexMap, name: 'poolIndexMap' }],
+        uniforms: programUniforms,
+        supportsTextureFragments: true
+      })
+    }
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {

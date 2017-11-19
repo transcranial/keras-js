@@ -156,30 +156,13 @@ class WebGL2 {
   }
 
   /**
-   * Bind input textures within program
+   * Bind input textures within program, handling inputs that are fragmented
    *
    * @param {WebGLProgram} program
    * @param {Object[]} inputs
+   * @param {number} [k]
    */
-  bindInputTextures(program, inputs) {
-    const gl = this.context
-
-    inputs.forEach(({ input, name }, i) => {
-      gl.activeTexture(gl.TEXTURE0 + i)
-      const { textureTarget } = this.getWebGLTextureOptions(input.glTextureType, input.glTextureFormat)
-      gl.bindTexture(textureTarget, input.glTexture)
-      gl.uniform1i(gl.getUniformLocation(program, name), i)
-    })
-  }
-
-  /**
-   * Bind input textures within program, where some are fragmented
-   *
-   * @param {WebGLProgram} program
-   * @param {Object[]} inputs
-   * @param {number} k
-   */
-  bindInputTexturesFragmented(program, inputs, k) {
+  bindInputTextures(program, inputs, k) {
     const gl = this.context
 
     inputs.forEach(({ input, name }, i) => {
@@ -251,7 +234,7 @@ class WebGL2 {
 
       for (let k = 0; k < numFragments; k++) {
         this.bindOutputTexture(output.glTextureFragments[k], output.glTextureFragmentShapes[k])
-        this.bindInputTexturesFragmented(program, inputs, k)
+        this.bindInputTextures(program, inputs, k)
         gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
       }
     } else {

@@ -1,10 +1,12 @@
 #version 300 es
 precision highp float;
+precision highp sampler2DArray;
 precision highp isampler2D;
 
 in vec2 outTex;
-uniform sampler2D x;
+uniform sampler2DArray x;
 uniform isampler2D poolIndexMap;
+uniform isampler2D fragmentIndexMap;
 uniform int channels;
 uniform int poolSize;
 uniform bool isMaxPooling;
@@ -18,8 +20,10 @@ void main() {
   int count = 0;
   for (int i = 0; i < poolSize; ++i) {
     int poolIndex = texelFetch(poolIndexMap, ivec2(i, out_y), 0).r;
-    if (poolIndex != -1) {
-      float val2 = texelFetch(x, ivec2(out_x, poolIndex), 0).r;
+    int fragmentIndex = texelFetch(fragmentIndexMap, ivec2(i, out_y), 0).r;
+    if (poolIndex != -1 && fragmentIndex != -1) {
+      poolIndex = int(mod(float(poolIndex), float(textureSize(x, 0)[1])));
+      float val2 = texelFetch(x, ivec3(out_x, poolIndex, fragmentIndex), 0).r;
       if (isMaxPooling) {
         if (count == 0 || val2 > val) {
           val = val2;
