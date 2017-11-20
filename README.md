@@ -34,6 +34,14 @@ Library version compatibility:
 
 - Bidirectional LSTM for IMDB sentiment classification
 
+### Clone and Setup
+  - git clone https://github.com/transcranial/keras-js.git
+  - npm i
+  - npm run proto2js
+
+### Build
+  - npm run build:browser or build (to create dist/keras.js and/or node build respectively)
+
 ### Usage
 
 See `demos/src/` for source code of real examples written in VueJS.
@@ -51,11 +59,15 @@ See `demos/src/` for source code of real examples written in VueJS.
   model = Model(input=..., output=...)
   ```
 
-  Once trained, save the weights and export model architecture config:
+  Once trained, save the whole model and the weights for the encoding step (and/or other uses):
 
   ```py
-  model.save_weights('model.hdf5')
+  model.save('model.hdf5')
   with open('model.json', 'w') as f:
+      f.write(model.to_json())
+
+  model.save_weights('model_weights.hdf5')
+  with open('model_weights.json', 'w') as f:
       f.write(model.to_json())
   ```
 
@@ -64,28 +76,34 @@ See `demos/src/` for source code of real examples written in VueJS.
   ```py
   from keras.applications import resnet50
   model = resnet50.ResNet50(include_top=True, weights='imagenet')
-  model.save_weights('resnet50.hdf5')
+  
+  model.save('resnet50.hdf5')
   with open('resnet50.json', 'w') as f:
+      f.write(model.to_json())
+  
+  model.save_weights('resnet50_weights.hdf5')
+  with open('resnet50_weights.json', 'w') as f:
       f.write(model.to_json())
   ```
 
-2. Run the encoder script on the HDF5 weights file:
+2. From the python folder run the encoder script on the HDF5 weights file:
 
   ```sh
-  $ python encoder.py /path/to/model.hdf5
+  $ cd python 
   ```
 
-  This will produce 2 files in the same folder as the HDF5 weights: `model_weights.buf` and `model_metadata.json`.
+  ```sh
+  $ python encoder.py /path/to/model.hdf5 (optional flag --quantize)
+  ```
 
-3. The 3 files required for Keras.js are:
+  This will produce 1 file in the same folder as the HDF5 weights: `model.bin`.
 
-  - the model file: `model.json`
+3. The 1 file required for Keras.js is:
 
-  - the weights file: `model_weights.buf`
+  - the full model file: `encoded_model.bin`
 
-  - the weights metadata file: `model_metadata.json`
 
-4. Include Keras.js:
+4. Include Keras.js (see build step above):
 
   ```html
   <script src="dist/keras.js"></script>
@@ -118,11 +136,7 @@ See `demos/src/` for source code of real examples written in VueJS.
   ```js
   // in browser, URLs can be relative or absolute
   const model = new KerasJS.Model({
-    filepaths: {
-      model: 'url/path/to/model.json',
-      weights: 'url/path/to/model_weights.buf',
-      metadata: 'url/path/to/model_metadata.json'
-    },
+    filepath: 'url/path/to/model.bin',
     gpu: true
   })
 
@@ -130,11 +144,7 @@ See `demos/src/` for source code of real examples written in VueJS.
   // paths can be filesystem paths or absolute URLs
   // if filesystem path, this must be specified:
   const model = new KerasJS.Model({
-    filepaths: {
-      model: 'path/to/model.json',
-      weights: 'path/to/model_weights.buf',
-      metadata: 'path/to/model_metadata.json'
-    },
+    filepath: 'url/path/to/model.bin',
     filesystem: true
   })
   ```
@@ -145,7 +155,7 @@ See `demos/src/` for source code of real examples written in VueJS.
   model.ready()
     .then(() => {
       // input data object keyed by names of the input layers
-      // or `input` for Sequential models
+      // or `input` for Sequential models, possibly `dense_2` for InceptionV3 models,
       // values are the flattened Float32Array data
       // (input tensor shapes are specified in the model config)
       const inputData = {
