@@ -160,24 +160,6 @@ export default class Model {
   }
 
   /**
-   * Makes data FS request (node only)
-   *
-   * @returns {Promise}
-   */
-  async _dataRequestFS() {
-    const readFile = Promise.promisify(require('fs').readFile)
-
-    try {
-      const file = await readFile(this.filepath)
-      this.decodeProtobuf(file.buffer)
-    } catch (err) {
-      throw err
-    }
-
-    this.dataRequestProgress = 100
-  }
-
-  /**
    * Makes data HTTP request (browser or node)
    *
    * @param {Object} [headers] - any headers to be passed along with request
@@ -204,6 +186,24 @@ export default class Model {
       } else {
         throw err
       }
+    }
+
+    this.dataRequestProgress = 100
+  }
+
+  /**
+   * Makes data FS request (node only)
+   *
+   * @returns {Promise}
+   */
+  async _dataRequestFS() {
+    const readFile = Promise.promisify(require('fs').readFile)
+
+    try {
+      const file = await readFile(this.filepath)
+      this.decodeProtobuf(file)
+    } catch (err) {
+      throw err
     }
 
     this.dataRequestProgress = 100
