@@ -15,10 +15,10 @@ const config = {
   comments: false,
   presets: [['@babel/env', envOpts]],
   plugins: [
-    '@babel/proposal-class-properties',
-    ['@babel/proposal-object-rest-spread', { useBuiltIns: true }],
+    ['babel-plugin-inline-import', { extensions: ['.glsl'] }],
     'lodash',
-    ['babel-plugin-inline-import', { extensions: ['.glsl'] }]
+    '@babel/proposal-class-properties',
+    ['@babel/proposal-object-rest-spread', { useBuiltIns: true }]
   ]
 }
 
