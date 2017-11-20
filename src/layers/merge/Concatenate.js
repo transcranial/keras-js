@@ -4,6 +4,7 @@ import { webgl2 } from '../../WebGL2'
 import * as tensorUtils from '../../utils/tensorUtils'
 import concatFirstAxis from 'ndarray-concat-rows'
 import _ from 'lodash'
+import mergeProgramSource from './Concatenate.glsl'
 
 /**
  * Concatenate merge layer class, extends abstract _Merge class
@@ -27,7 +28,7 @@ export default class Concatenate extends _Merge {
 
     // GPU setup
     if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(require('./Concatenate.glsl'))
+      this.mergeProgram = webgl2.compileProgram(mergeProgramSource)
     }
   }
 

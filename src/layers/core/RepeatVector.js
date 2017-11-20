@@ -3,6 +3,7 @@ import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import unsqueeze from 'ndarray-unsqueeze'
 import tile from 'ndarray-tile'
+import programSource from './RepeatVector.glsl'
 
 /**
  * RepeatVector layer class
@@ -25,7 +26,7 @@ export default class RepeatVector extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./RepeatVector.glsl'))
+      this.program = webgl2.compileProgram(programSource)
     }
   }
 

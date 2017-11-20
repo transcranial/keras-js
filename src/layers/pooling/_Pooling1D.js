@@ -3,6 +3,8 @@ import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
 import _ from 'lodash'
+import poolingProgramSource from './_Pooling.glsl'
+import poolingFragmentsProgramSource from './_Pooling.fragments.glsl'
 
 /**
  * _Pooling1D layer class
@@ -29,8 +31,8 @@ export default class _Pooling1D extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.poolingProgram = webgl2.compileProgram(require('./_Pooling.glsl'))
-      this.poolingFragmentsProgram = webgl2.compileProgram(require('./_Pooling.fragments.glsl'))
+      this.poolingProgram = webgl2.compileProgram(poolingProgramSource)
+      this.poolingFragmentsProgram = webgl2.compileProgram(poolingFragmentsProgramSource)
     }
   }
 

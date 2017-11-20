@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import _ from 'lodash'
+import copyTextureProgramSource from '../../webgl/copyTexture.glsl'
 
 /**
  * _Merge layer class
@@ -19,7 +20,7 @@ export default class _Merge extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.copyTextureProgram = webgl2.compileProgram(require('../../webgl/copyTexture.glsl'))
+      this.copyTextureProgram = webgl2.compileProgram(copyTextureProgramSource)
     }
   }
 

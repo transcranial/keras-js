@@ -7,6 +7,7 @@ import _ from 'lodash'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 import Conv2D from './Conv2D'
+import * as activationProgramSources from '../../activations/programSources'
 
 /**
  * _DepthwiseConv2D layer class
@@ -301,7 +302,7 @@ export default class SeparableConv2D extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
+      this.activationProgram = webgl2.compileProgram(activationProgramSources[this.activation])
     }
   }
 

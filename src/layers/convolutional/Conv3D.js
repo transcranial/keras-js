@@ -6,6 +6,10 @@ import * as tensorUtils from '../../utils/tensorUtils'
 import _ from 'lodash'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
+import mapInputProgramSource from '../../webgl/mapInput.glsl'
+import mapInputFragmentsProgramSource from '../../webgl/mapInput.fragments.glsl'
+import matMulProgramSource from '../../webgl/matMul.glsl'
+import * as activationProgramSources from '../../activations/programSources'
 
 /**
  * Conv3D layer class
@@ -81,10 +85,10 @@ export default class Conv3D extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.mapInputProgram = webgl2.compileProgram(require('../../webgl/mapInput.glsl'))
-      this.mapInputFragmentsProgram = webgl2.compileProgram(require('../../webgl/mapInput.fragments.glsl'))
-      this.matMulProgram = webgl2.compileProgram(require('../../webgl/matMul.glsl'))
-      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
+      this.mapInputProgram = webgl2.compileProgram(mapInputProgramSource)
+      this.mapInputFragmentsProgram = webgl2.compileProgram(mapInputFragmentsProgramSource)
+      this.matMulProgram = webgl2.compileProgram(matMulProgramSource)
+      this.activationProgram = webgl2.compileProgram(activationProgramSources[this.activation])
     }
   }
 

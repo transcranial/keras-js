@@ -3,6 +3,11 @@ import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
 import * as layers from '../'
+import copyTextureProgramSource from '../../webgl/copyTexture.glsl'
+import mapInputProgramSource from '../../webgl/mapInput.glsl'
+import selectSliceProgramSource from './TimeDistributed.selectSlice.glsl'
+import copySliceOutputProgramSource from './TimeDistributed.copySliceOutput.glsl'
+import mapSliceOutputProgramSource from './TimeDistributed.mapSliceOutput.glsl'
 
 /**
  * TimeDistributed wrapper layer class
@@ -31,11 +36,11 @@ export default class TimeDistributed extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.copyTextureProgram = webgl2.compileProgram(require('../../webgl/copyTexture.glsl'))
-      this.mapInputProgram = webgl2.compileProgram(require('../../webgl/mapInput.glsl'))
-      this.selectSliceProgram = webgl2.compileProgram(require('./TimeDistributed.selectSlice.glsl'))
-      this.copySliceOutputProgram = webgl2.compileProgram(require('./TimeDistributed.copySliceOutput.glsl'))
-      this.mapSliceOutputProgram = webgl2.compileProgram(require('./TimeDistributed.mapSliceOutput.glsl'))
+      this.copyTextureProgram = webgl2.compileProgram(copyTextureProgramSource)
+      this.mapInputProgram = webgl2.compileProgram(mapInputProgramSource)
+      this.selectSliceProgram = webgl2.compileProgram(selectSliceProgramSource)
+      this.copySliceOutputProgram = webgl2.compileProgram(copySliceOutputProgramSource)
+      this.mapSliceOutputProgram = webgl2.compileProgram(mapSliceOutputProgramSource)
     }
   }
 

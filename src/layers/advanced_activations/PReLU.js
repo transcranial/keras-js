@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import cwise from 'cwise'
+import programSource from './PReLU.glsl'
 
 /**
  * PReLU advanced activation layer class
@@ -28,7 +29,7 @@ export default class PReLU extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./PReLU.glsl'))
+      this.program = webgl2.compileProgram(programSource)
     }
   }
 

@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import { relu } from '../../activations'
+import programSource from './LeakyReLU.glsl'
 
 /**
  * LeakyReLU advanced activation layer class
@@ -23,7 +24,7 @@ export default class LeakyReLU extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./LeakyReLU.glsl'))
+      this.program = webgl2.compileProgram(programSource)
     }
   }
 

@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
+import poolingProgramSource from './_GlobalPooling.glsl'
 
 /**
  * _GlobalPooling2D layer class
@@ -25,7 +26,7 @@ export default class _GlobalPooling2D extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.poolingProgram = webgl2.compileProgram(require('./_GlobalPooling.glsl'))
+      this.poolingProgram = webgl2.compileProgram(poolingProgramSource)
     }
   }
 

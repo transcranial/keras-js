@@ -3,6 +3,7 @@ import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import gemm from 'ndarray-gemm'
 import ops from 'ndarray-ops'
+import mergeProgramSource from './Dot.glsl'
 
 /**
  * Dot merge layer class, extends abstract _Merge class
@@ -32,7 +33,7 @@ export default class Dot extends _Merge {
 
     // GPU setup
     if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(require('./Dot.glsl'))
+      this.mergeProgram = webgl2.compileProgram(mergeProgramSource)
     }
   }
 

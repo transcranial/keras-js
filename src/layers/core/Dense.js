@@ -4,6 +4,8 @@ import * as activations from '../../activations'
 import { webgl2 } from '../../WebGL2'
 import { gemv } from 'ndarray-blas-level2'
 import ops from 'ndarray-ops'
+import matMulProgramSource from '../../webgl/matMul.glsl'
+import * as activationProgramSources from '../../activations/programSources'
 
 /**
  * Dense layer class
@@ -41,8 +43,8 @@ export default class Dense extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.matMulProgram = webgl2.compileProgram(require('../../webgl/matMul.glsl'))
-      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
+      this.matMulProgram = webgl2.compileProgram(matMulProgramSource)
+      this.activationProgram = webgl2.compileProgram(activationProgramSources[this.activation])
       this.outputPreactiv.createGLTexture({ type: '2d', format: 'float' })
       this.output.createGLTexture({ type: '2d', format: 'float' })
     }

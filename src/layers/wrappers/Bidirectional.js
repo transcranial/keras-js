@@ -3,6 +3,11 @@ import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
 import * as recurrentLayers from '../recurrent'
+import copyTextureProgramSource from '../../webgl/copyTexture.glsl'
+import concatMergeProgramSource from './Bidirectional.concat.glsl'
+import sumMergeProgramSource from './Bidirectional.sum.glsl'
+import mulMergeProgramSource from './Bidirectional.mul.glsl'
+import aveMergeProgramSource from './Bidirectional.ave.glsl'
 
 /**
  * Bidirectional wrapper layer class
@@ -45,15 +50,15 @@ export default class Bidirectional extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.copyTextureProgram = webgl2.compileProgram(require('../../webgl/copyTexture.glsl'))
+      this.copyTextureProgram = webgl2.compileProgram(copyTextureProgramSource)
       if (this.mergeMode === 'concat') {
-        this.mergeProgram = webgl2.compileProgram(require('./Bidirectional.concat.glsl'))
+        this.mergeProgram = webgl2.compileProgram(concatMergeProgramSource)
       } else if (this.mergeMode === 'sum') {
-        this.mergeProgram = webgl2.compileProgram(require('./Bidirectional.sum.glsl'))
+        this.mergeProgram = webgl2.compileProgram(sumMergeProgramSource)
       } else if (this.mergeMode === 'mul') {
-        this.mergeProgram = webgl2.compileProgram(require('./Bidirectional.mul.glsl'))
+        this.mergeProgram = webgl2.compileProgram(mulMergeProgramSource)
       } else if (this.mergeMode === 'ave') {
-        this.mergeProgram = webgl2.compileProgram(require('./Bidirectional.ave.glsl'))
+        this.mergeProgram = webgl2.compileProgram(aveMergeProgramSource)
       }
     }
   }

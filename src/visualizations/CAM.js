@@ -3,6 +3,7 @@ import { webgl2 } from '../WebGL2'
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
 import resample from 'ndarray-resample'
+import programSource from './CAM.glsl'
 
 /**
  * Class Activation Maps
@@ -21,7 +22,7 @@ export default class CAM {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./CAM.glsl'))
+      this.program = webgl2.compileProgram(programSource)
     }
   }
 

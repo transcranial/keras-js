@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import * as activations from '../../activations'
+import * as activationProgramSources from '../../activations/programSources'
 
 /**
  * Activation layer class
@@ -24,7 +25,7 @@ export default class Activation extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
+      this.program = webgl2.compileProgram(activationProgramSources[this.activation])
     }
   }
 

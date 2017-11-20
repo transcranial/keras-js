@@ -2,6 +2,7 @@ import _Merge from './_Merge'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
+import mergeProgramSource from './Subtract.glsl'
 
 /**
  * Subtract merge layer class, extends abstract _Merge class
@@ -20,7 +21,7 @@ export default class Subtract extends _Merge {
 
     // GPU setup
     if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(require('./Subtract.glsl'))
+      this.mergeProgram = webgl2.compileProgram(mergeProgramSource)
     }
   }
 

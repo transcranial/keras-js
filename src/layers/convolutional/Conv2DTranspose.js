@@ -5,6 +5,9 @@ import { webgl2 } from '../../WebGL2'
 import * as tensorUtils from '../../utils/tensorUtils'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
+import matMulProgramSource from '../../webgl/matMul.glsl'
+import convTransposeProgramSource from './Conv2DTranspose.glsl'
+import * as activationProgramSources from '../../activations/programSources'
 
 /**
  * Conv2DTranspose layer class
@@ -65,9 +68,9 @@ export default class Conv2DTranspose extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.matMulProgram = webgl2.compileProgram(require('../../webgl/matMul.glsl'))
-      this.convTransposeProgram = webgl2.compileProgram(require('./Conv2DTranspose.glsl'))
-      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
+      this.matMulProgram = webgl2.compileProgram(matMulProgramSource)
+      this.convTransposeProgram = webgl2.compileProgram(convTransposeProgramSource)
+      this.activationProgram = webgl2.compileProgram(activationProgramSources[this.activation])
     }
   }
 

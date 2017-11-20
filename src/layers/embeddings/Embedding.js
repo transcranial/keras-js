@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
+import programSource from './Embedding.glsl'
 
 /**
  * Embedding layer class
@@ -30,7 +31,7 @@ export default class Embedding extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./Embedding.glsl'))
+      this.program = webgl2.compileProgram(programSource)
     }
   }
 

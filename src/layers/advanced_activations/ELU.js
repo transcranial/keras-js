@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import cwise from 'cwise'
+import programSource from './ELU.glsl'
 
 /**
  * ELU advanced activation layer class
@@ -23,7 +24,7 @@ export default class ELU extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.program = webgl2.compileProgram(require('./ELU.glsl'))
+      this.program = webgl2.compileProgram(programSource)
     }
   }
 

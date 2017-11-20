@@ -5,6 +5,12 @@ import { webgl2 } from '../../WebGL2'
 import { gemv } from 'ndarray-blas-level2'
 import ops from 'ndarray-ops'
 import cwise from 'cwise'
+import copyTextureProgramSource from '../../webgl/copyTexture.glsl'
+import matMulProgramSource from '../../webgl/matMul.glsl'
+import * as activationProgramSources from '../../activations/programSources'
+import gateSummationProgramSource from './gateSummation.glsl'
+import timestepReadProgramSource from './timestepRead.glsl'
+import timestepWriteProgramSource from './timestepWrite.glsl'
 
 /**
  * SimpleRNN layer class
@@ -51,12 +57,12 @@ export default class SimpleRNN extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.copyTextureProgram = webgl2.compileProgram(require('../../webgl/copyTexture.glsl'))
-      this.matMulProgram = webgl2.compileProgram(require('../../webgl/matMul.glsl'))
-      this.activationProgram = webgl2.compileProgram(require(`../../activations/${this.activation}.glsl`))
-      this.gateSummationProgram = webgl2.compileProgram(require('./gateSummation.glsl'))
-      this.timestepReadProgram = webgl2.compileProgram(require('./timestepRead.glsl'))
-      this.timestepWriteProgram = webgl2.compileProgram(require('./timestepWrite.glsl'))
+      this.copyTextureProgram = webgl2.compileProgram(copyTextureProgramSource)
+      this.matMulProgram = webgl2.compileProgram(matMulProgramSource)
+      this.activationProgram = webgl2.compileProgram(activationProgramSources[this.activation])
+      this.gateSummationProgram = webgl2.compileProgram(gateSummationProgramSource)
+      this.timestepReadProgram = webgl2.compileProgram(timestepReadProgramSource)
+      this.timestepWriteProgram = webgl2.compileProgram(timestepWriteProgramSource)
     }
   }
 

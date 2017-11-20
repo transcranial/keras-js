@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
+import mapInputProgramSource from '../../webgl/mapInput.glsl'
 
 /**
  * ZeroPadding3D layer class
@@ -37,7 +38,7 @@ export default class ZeroPadding3D extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.mapInputProgram = webgl2.compileProgram(require('../../webgl/mapInput.glsl'))
+      this.mapInputProgram = webgl2.compileProgram(mapInputProgramSource)
     }
   }
 

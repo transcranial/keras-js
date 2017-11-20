@@ -1,6 +1,8 @@
 import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
+import flattenProgramSource from './Flatten.glsl'
+import flattenFragmentsProgramSource from './Flatten.fragments.glsl'
 
 /**
  * Flatten layer class
@@ -18,8 +20,8 @@ export default class Flatten extends Layer {
 
     // GPU setup
     if (this.gpu) {
-      this.flattenProgram = webgl2.compileProgram(require('./Flatten.glsl'))
-      this.flattenFragmentsProgram = webgl2.compileProgram(require('./Flatten.fragments.glsl'))
+      this.flattenProgram = webgl2.compileProgram(flattenProgramSource)
+      this.flattenFragmentsProgram = webgl2.compileProgram(flattenFragmentsProgramSource)
     }
   }
 
