@@ -4,26 +4,27 @@ const webpack = require('webpack')
 const config = {
   entry: path.resolve(__dirname, 'src/index'),
   resolve: { extensions: ['.js', '.vue'] },
-  output: { path: path.resolve(__dirname, 'dist'), filename: 'bundle.js' },
+  output: { path: path.resolve(__dirname, 'dist'), filename: 'bundle.min.js' },
   module: {
     rules: [
       { enforce: 'pre', test: /\.vue$/, loader: 'eslint-loader', exclude: /node_modules/ },
       { enforce: 'pre', test: /\.js$/, loader: 'eslint-loader', exclude: /node_modules/ },
       { test: /\.vue$/, loader: 'vue-loader', exclude: /node_modules/ },
       { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
-      { test: /\.css$/, loader: ['style-loader', 'css-loader'] },
-      { test: /\.(glsl|frag|vert)$/, use: ['raw-loader', 'glslify-loader'], exclude: /node_modules/ }
+      { test: /\.css$/, loader: ['style-loader', 'css-loader'] }
     ]
   }
 }
 
 if (process.env.NODE_ENV === 'production') {
-  config.devtool = 'cheap-module-source-map'
   config.plugins = [
     new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') }),
     // scope hoisting
     new webpack.optimize.ModuleConcatenationPlugin(),
-    new webpack.optimize.UglifyJsPlugin({ compress: { warnings: false } })
+    new webpack.optimize.UglifyJsPlugin({
+      compress: { warnings: false },
+      output: { comments: false }
+    })
   ]
 } else {
   config.devtool = 'eval'
