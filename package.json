@@ -1,12 +1,13 @@
 {
   "name": "keras-js",
   "version": "0.3.0",
-  "description": "Run Keras models (tensorflow backend) in the browser, with GPU support",
+  "description": "Run Keras models in the browser, with GPU support using WebGL",
   "main": "lib/index.js",
+  "unpkg": "dist/keras.min.js",
   "scripts": {
     "watch": "NODE_ENV=development BABEL_ENV=browser webpack --watch --config webpack.config.js",
     "build:browser": "rm -rf dist; NODE_ENV=production BABEL_ENV=browser webpack --config webpack.config.js",
-    "build:node": "rm -rf lib; cp -r src lib; NODE_ENV=production BABEL_ENV=node babel lib --out-dir lib",
+    "build:node": "rm -rf lib; NODE_ENV=production BABEL_ENV=node babel src --out-dir lib",
     "build": "npm run build:browser && npm run build:node",
     "server": "http-server . -c-1 -p 3000",
     "demos:watch": "cd demos; NODE_ENV=development BABEL_ENV=browser webpack --watch --config webpack.config.js",
@@ -17,18 +18,7 @@
     "type": "git",
     "url": "git+https://github.com/transcranial/keras-js.git"
   },
-  "keywords": [
-    "keras",
-    "deep",
-    "learning",
-    "machine",
-    "learning",
-    "neural",
-    "networks",
-    "javascript",
-    "webgl",
-    "gpu"
-  ],
+  "keywords": ["keras", "deep", "learning", "neural", "networks", "javascript", "webgl", "webgl2", "gpu"],
   "author": "Leon Chen <leon@md.ai>",
   "license": "MIT",
   "bugs": {
@@ -36,8 +26,8 @@
   },
   "homepage": "https://github.com/transcranial/keras-js#readme",
   "dependencies": {
+    "@babel/polyfill": "7.0.0-beta.32",
     "axios": "^0.17.1",
-    "babel-polyfill": "^6.26.0",
     "bluebird": "^3.5.1",
     "cwise": "^1.0.10",
     "lodash": "^4.17.4",
@@ -55,14 +45,15 @@
     "protobufjs": "^6.8.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
+    "@babel/cli": "7.0.0-beta.32",
+    "@babel/core": "7.0.0-beta.32",
+    "@babel/plugin-proposal-class-properties": "7.0.0-beta.32",
+    "@babel/plugin-proposal-object-rest-spread": "7.0.0-beta.32",
+    "@babel/preset-env": "7.0.0-beta.32",
     "babel-eslint": "^8.0.2",
-    "babel-loader": "^7.1.2",
+    "babel-loader": "8.0.0-beta.0",
+    "babel-plugin-inline-import": "^2.0.6",
     "babel-plugin-lodash": "^3.3.2",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
     "blueimp-load-image": "^2.17.1",
     "chroma-js": "^1.3.4",
     "css-loader": "^0.28.7",

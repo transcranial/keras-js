@@ -1,4 +1,4 @@
-import 'babel-polyfill'
+import '@babel/polyfill'
 import Model from './Model'
 import Tensor from './Tensor'
 import * as activations from './activations'
