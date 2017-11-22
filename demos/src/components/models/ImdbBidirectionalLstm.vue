@@ -101,13 +101,27 @@ const ARCHITECTURE_DIAGRAM_LAYERS = [
 export default {
   props: ['hasWebGL'],
 
+  created() {
+    // store module on component instance as non-reactive object
+    this.model = new KerasJS.Model({
+      filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
+      gpu: false
+    })
+  },
+
+  async mounted() {
+    await this.model.ready()
+    this.modelLoading = false
+    this.loadAdditionalData()
+  },
+
+  beforeDestroy() {
+    this.model.cleanup()
+  },
+
   data() {
     return {
       useGPU: false,
-      model: new KerasJS.Model({
-        filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
-        gpu: false
-      }),
       modelLoading: true,
       modelRunning: false,
       input: new Float32Array(MAXLEN),
@@ -147,16 +161,6 @@ export default {
         return 'white'
       })
     }
-  },
-
-  async mounted() {
-    await this.model.ready()
-    this.modelLoading = false
-    this.loadAdditionalData()
-  },
-
-  beforeDestroy() {
-    this.model.cleanup()
   },
 
   methods: {

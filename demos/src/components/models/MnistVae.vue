@@ -101,34 +101,13 @@ const LAYER_DISPLAY_CONFIG = {
 export default {
   props: ['hasWebGL'],
 
-  data() {
-    return {
-      useGPU: this.hasWebGL,
-      model: new KerasJS.Model({
-        filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
-        gpu: this.hasWebGL,
-        transferLayerOutputs: true
-      }),
-      modelLoading: true,
-      output: new Float32Array(28 * 28),
-      crosshairsActivated: false,
-      inputCoordinates: [-0.3, -0.6],
-      position: [35, 20],
-      layerOutputImages: [],
-      layerDisplayConfig: LAYER_DISPLAY_CONFIG
-    }
-  },
-
-  watch: {
-    useGPU(value) {
-      this.model.toggleGPU(value)
-    }
-  },
-
-  computed: {
-    loadingProgress() {
-      return this.model.getLoadingProgress()
-    }
+  created() {
+    // store module on component instance as non-reactive object
+    this.model = new KerasJS.Model({
+      filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
+      gpu: this.hasWebGL,
+      transferLayerOutputs: true
+    })
   },
 
   async mounted() {
@@ -143,6 +122,31 @@ export default {
 
   beforeDestroy() {
     this.model.cleanup()
+  },
+
+  data() {
+    return {
+      useGPU: this.hasWebGL,
+      modelLoading: true,
+      output: new Float32Array(28 * 28),
+      crosshairsActivated: false,
+      inputCoordinates: [-0.3, -0.6],
+      position: [35, 20],
+      layerOutputImages: [],
+      layerDisplayConfig: LAYER_DISPLAY_CONFIG
+    }
+  },
+
+  computed: {
+    loadingProgress() {
+      return this.model.getLoadingProgress()
+    }
+  },
+
+  watch: {
+    useGPU(value) {
+      this.model.toggleGPU(value)
+    }
   },
 
   methods: {

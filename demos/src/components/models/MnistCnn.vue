@@ -107,14 +107,30 @@ const LAYER_DISPLAY_CONFIG = {
 export default {
   props: ['hasWebGL'],
 
+  created() {
+    // store module on component instance as non-reactive object
+    this.model = new KerasJS.Model({
+      filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
+      gpu: this.hasWebGL,
+      transferLayerOutputs: true
+    })
+  },
+
+  async mounted() {
+    await this.model.ready()
+    this.modelLoading = false
+    this.$nextTick(() => {
+      this.getIntermediateOutputs()
+    })
+  },
+
+  beforeDestroy() {
+    this.model.cleanup()
+  },
+
   data() {
     return {
       useGPU: this.hasWebGL,
-      model: new KerasJS.Model({
-        filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
-        gpu: this.hasWebGL,
-        transferLayerOutputs: true
-      }),
       modelLoading: true,
       input: new Float32Array(784),
       output: new Float32Array(10),
@@ -123,12 +139,6 @@ export default {
       layerDisplayConfig: LAYER_DISPLAY_CONFIG,
       drawing: false,
       strokes: []
-    }
-  },
-
-  watch: {
-    useGPU(value) {
-      this.model.toggleGPU(value)
     }
   },
 
@@ -144,16 +154,10 @@ export default {
     }
   },
 
-  async mounted() {
-    await this.model.ready()
-    this.modelLoading = false
-    this.$nextTick(() => {
-      this.getIntermediateOutputs()
-    })
-  },
-
-  beforeDestroy() {
-    this.model.cleanup()
+  watch: {
+    useGPU(value) {
+      this.model.toggleGPU(value)
+    }
   },
 
   methods: {
@@ -364,7 +368,7 @@ export default {
   padding-top: 80px;
 
   & .control {
-    width: 100%;
+    width: 100px;
     margin: 10px 0;
   }
 }

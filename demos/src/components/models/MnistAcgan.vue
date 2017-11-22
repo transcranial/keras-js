@@ -64,26 +64,39 @@ const MODEL_FILEPATH_DEV = '/demos/data/mnist_acgan/mnist_acgan.bin'
 export default {
   props: ['hasWebGL'],
 
+  created() {
+    this.createNoise()
+    // store module on component instance as non-reactive object
+    this.model = new KerasJS.Model({
+      filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
+      gpu: this.hasWebGL
+    })
+  },
+
+  async mounted() {
+    await this.model.ready()
+    this.modelLoading = false
+    this.$nextTick(() => {
+      this.drawArchitectureDiagramPaths()
+      this.runModel()
+      this.drawNoise()
+    })
+  },
+
+  beforeDestroy() {
+    this.model.cleanup()
+  },
+
   data() {
     return {
       useGPU: this.hasWebGL,
       digit: 3,
       noiseVector: [],
-      model: new KerasJS.Model({
-        filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
-        gpu: this.hasWebGL
-      }),
       modelLoading: true,
       output: new Float32Array(28 * 28),
       architectureDiagram: ARCHITECTURE_DIAGRAM,
       architectureConnections: ARCHITECTURE_CONNECTIONS,
       architectureDiagramPaths: []
-    }
-  },
-
-  watch: {
-    useGPU(value) {
-      this.model.toggleGPU(value)
     }
   },
 
@@ -100,22 +113,10 @@ export default {
     }
   },
 
-  created() {
-    this.createNoise()
-  },
-
-  async mounted() {
-    await this.model.ready()
-    this.modelLoading = false
-    this.$nextTick(() => {
-      this.drawArchitectureDiagramPaths()
-      this.runModel()
-      this.drawNoise()
-    })
-  },
-
-  beforeDestroy() {
-    this.model.cleanup()
+  watch: {
+    useGPU(value) {
+      this.model.toggleGPU(value)
+    }
   },
 
   methods: {

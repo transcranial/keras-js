@@ -41,7 +41,7 @@ export default {
     return {
       showNav: true,
       showInfoPanel: false,
-      hasWebGL: true
+      hasWebGL: KerasJS.GPU_SUPPORT
     }
   },
   computed: {
@@ -51,15 +51,6 @@ export default {
     },
     currentTitle() {
       return DEMO_TITLES[this.currentView]
-    }
-  },
-  created() {
-    const canvas = document.createElement('canvas')
-    const gl = canvas.getContext('webgl2')
-    if (gl && gl instanceof window.WebGL2RenderingContext) {
-      this.hasWebGL = true
-    } else {
-      this.hasWebGL = false
     }
   },
   methods: {

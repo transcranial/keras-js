@@ -131,14 +131,30 @@ const MODEL_FILEPATH_DEV = '/demos/data/squeezenet_v1.1/squeezenet_v1.1.bin'
 export default {
   props: ['hasWebGL'],
 
+  created() {
+    // store module on component instance as non-reactive object
+    this.model = new KerasJS.Model({
+      filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
+      gpu: this.hasWebGL,
+      visualizations: ['CAM']
+    })
+  },
+
+  async mounted() {
+    await this.model.ready()
+    this.modelLoading = false
+    this.$nextTick(() => {
+      this.drawArchitectureDiagramPaths()
+    })
+  },
+
+  beforeDestroy() {
+    this.model.cleanup()
+  },
+
   data() {
     return {
       useGPU: this.hasWebGL,
-      model: new KerasJS.Model({
-        filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
-        gpu: this.hasWebGL,
-        visualizations: ['CAM']
-      }),
       modelLoading: true,
       modelRunning: false,
       inferenceTime: null,
@@ -157,26 +173,6 @@ export default {
       architectureDiagram: ARCHITECTURE_DIAGRAM,
       architectureConnections: ARCHITECTURE_CONNECTIONS,
       architectureDiagramPaths: []
-    }
-  },
-
-  watch: {
-    imageURLSelect(newVal) {
-      this.imageURLInput = newVal
-      this.loadImageToCanvas(newVal)
-    },
-    useGPU(newVal) {
-      this.model.toggleGPU(newVal)
-    },
-    visualizationSelect(newVal) {
-      if (newVal === 'None') {
-        this.showVis = false
-      } else {
-        this.updateVis()
-      }
-    },
-    colormapSelect() {
-      this.updateVis()
     }
   },
 
@@ -207,16 +203,24 @@ export default {
     }
   },
 
-  async mounted() {
-    await this.model.ready()
-    this.modelLoading = false
-    this.$nextTick(() => {
-      this.drawArchitectureDiagramPaths()
-    })
-  },
-
-  beforeDestroy() {
-    this.model.cleanup()
+  watch: {
+    imageURLSelect(newVal) {
+      this.imageURLInput = newVal
+      this.loadImageToCanvas(newVal)
+    },
+    useGPU(newVal) {
+      this.model.toggleGPU(newVal)
+    },
+    visualizationSelect(newVal) {
+      if (newVal === 'None') {
+        this.showVis = false
+      } else {
+        this.updateVis()
+      }
+    },
+    colormapSelect() {
+      this.updateVis()
+    }
   },
 
   methods: {
