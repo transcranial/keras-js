@@ -1,4 +1,5 @@
 import Layer from '../Layer'
+import Tensor from '../Tensor'
 import _ from 'lodash'
 
 /**
@@ -44,14 +45,14 @@ export default class InputLayer extends Layer {
     if (!_.isEqual(this.inputShape, this.shape)) {
       this.throwError(`input tensor shape ${x.tensor.shape} does not match specified shape ${this.shape}.`)
     }
-    this.output = x
+    this.output = new Tensor(x.tensor.data, x.tensor.shape)
   }
 
   /**
- * GPU call
- *
- * @param {Tensor} x
- */
+   * GPU call
+   *
+   * @param {Tensor} x
+   */
   _callGPU(x) {
     if (!x.glTexture) {
       this.inputShape = x.tensor.shape
