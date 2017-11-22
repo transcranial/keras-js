@@ -69,17 +69,17 @@
     "css-loader": "^0.28.7",
     "eslint": "^4.11.0",
     "eslint-loader": "^1.9.0",
-    "eslint-plugin-html": "^4.0.0",
+    "eslint-plugin-html": "^4.0.1",
     "http-server": "^0.10.0",
     "postcss-cssnext": "^3.0.2",
     "postcss-import": "^11.0.0",
     "postcss-loader": "^2.0.8",
     "style-loader": "^0.19.0",
-    "vue": "^2.5.6",
+    "vue": "^2.5.8",
     "vue-loader": "^13.5.0",
     "vue-router": "^3.0.1",
-    "vue-template-compiler": "^2.5.6",
-    "vuetify": "^0.17.1",
+    "vue-template-compiler": "^2.5.8",
+    "vuetify": "^0.17.2",
     "webpack": "^3.8.1"
   }
 }
