@@ -2,7 +2,6 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import ops from 'ndarray-ops'
-import _ from 'lodash'
 import poolingProgramSource from './_Pooling.glsl'
 import poolingFragmentsProgramSource from './_Pooling.fragments.glsl'
 
@@ -142,37 +141,6 @@ export default class _Pooling1D extends Layer {
     this.poolIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
-  /** 
-   * Create fragment index map corresponding to poolIndexMap. The index at a particular location will direct the 
-   * fragment shader which texture fragment to transfer data from.
-   * 
-   * @param {number[][]} glTextureFragmentShapes
-   */
-  _createFragmentIndexMap(glTextureFragmentShapes) {
-    if (this.fragmentIndexMap) {
-      return
-    }
-
-    this.fragmentIndexMap = new Tensor([], this.poolIndexMap.glTextureShape, { type: Int32Array })
-
-    const fragmentRowOffsets = [0]
-    let offset = 0
-    for (let k = 0; k < glTextureFragmentShapes.length; k++) {
-      offset += glTextureFragmentShapes[k][0]
-      fragmentRowOffsets.push(offset)
-    }
-
-    for (let i = 0; i < this.poolIndexMap.tensor.shape[0]; i++) {
-      for (let j = 0; j < this.poolIndexMap.tensor.shape[1]; j++) {
-        const poolIndex = this.poolIndexMap.tensor.get(i, j)
-        const fragmentIndex = _.findLastIndex(fragmentRowOffsets, offset => poolIndex >= offset)
-        this.fragmentIndexMap.tensor.set(i, j, fragmentIndex)
-      }
-    }
-
-    this.fragmentIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
-  }
-
   /**
    * GPU call
    *
@@ -200,16 +168,11 @@ export default class _Pooling1D extends Layer {
       { value: +isMaxPooling, type: 'bool', name: 'isMaxPooling' }
     ]
     if (x.glTextureFragments) {
-      this._createFragmentIndexMap(x.glTextureFragmentShapes)
-      x.convert2DFragmentedGLTextureTo2DArray()
+      x.convert2DRowFragmentedGLTextureToColStack()
       webgl2.runProgram({
         program: this.poolingFragmentsProgram,
         output: this.output,
-        inputs: [
-          { input: x, name: 'x' },
-          { input: this.poolIndexMap, name: 'poolIndexMap' },
-          { input: this.fragmentIndexMap, name: 'fragmentIndexMap' }
-        ],
+        inputs: [{ input: x, name: 'x' }, { input: this.poolIndexMap, name: 'poolIndexMap' }],
         uniforms: programUniforms,
         supportsTextureFragments: true
       })

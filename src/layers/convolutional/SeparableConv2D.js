@@ -141,31 +141,6 @@ class _DepthwiseConv2D extends Conv2D {
     this.reshapeColIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
-  _createOutputReshapeFragmentIndexMap(glTextureFragmentShapes) {
-    if (this.reshapeFragmentIndexMap) {
-      return
-    }
-
-    this.reshapeFragmentIndexMap = new Tensor([], this.reshapeRowIndexMap.glTextureShape, { type: Int32Array })
-
-    const fragmentRowOffsets = [0]
-    let offset = 0
-    for (let k = 0; k < glTextureFragmentShapes.length; k++) {
-      offset += glTextureFragmentShapes[k][0]
-      fragmentRowOffsets.push(offset)
-    }
-
-    for (let i = 0; i < this.reshapeRowIndexMap.tensor.shape[0]; i++) {
-      for (let j = 0; j < this.reshapeRowIndexMap.tensor.shape[1]; j++) {
-        const rowIndex = this.reshapeRowIndexMap.tensor.get(i, j)
-        const fragmentIndex = _.findLastIndex(fragmentRowOffsets, offset => rowIndex >= offset)
-        this.reshapeFragmentIndexMap.tensor.set(i, j, fragmentIndex)
-      }
-    }
-
-    this.reshapeFragmentIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
-  }
-
   /**
    * @param {Tensor} x
    */
@@ -182,17 +157,16 @@ class _DepthwiseConv2D extends Conv2D {
       this.outputReshaped.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
     if (this.output.glTextureFragments) {
-      this._createOutputReshapeFragmentIndexMap(this.output.glTextureFragmentShapes)
-      this.output.convert2DFragmentedGLTextureTo2DArray()
+      this.output.convert2DRowFragmentedGLTextureToColStack()
       webgl2.runProgram({
         program: this.mapInputFragmentsProgram,
         output: this.outputReshaped,
         inputs: [
           { input: this.output, name: 'x' },
           { input: this.reshapeRowIndexMap, name: 'rowIndexMap' },
-          { input: this.reshapeColIndexMap, name: 'colIndexMap' },
-          { input: this.reshapeFragmentIndexMap, name: 'fragmentIndexMap' }
+          { input: this.reshapeColIndexMap, name: 'colIndexMap' }
         ],
+        uniforms: [{ value: this.output.glTextureFragmentShapes[0][1], type: 'int', name: 'fragmentCols' }],
         supportsTextureFragments: true
       })
     } else {

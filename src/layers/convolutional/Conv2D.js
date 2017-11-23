@@ -3,7 +3,6 @@ import Tensor from '../../Tensor'
 import * as activations from '../../activations'
 import { webgl2 } from '../../WebGL2'
 import * as tensorUtils from '../../utils/tensorUtils'
-import _ from 'lodash'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 import mapInputProgramSource from '../../webgl/mapInput.glsl'
@@ -393,37 +392,6 @@ export default class Conv2D extends Layer {
     this.colIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
-  /** 
-   * Create input fragment index map corresponding to rowIndexMap/colIndexMap. The index at a particular location will
-   * direct the fragment shader which texture fragment to transfer data from.
-   * 
-   * @param {number[][]} glTextureFragmentShapes
-   */
-  _createFragmentIndexMap(glTextureFragmentShapes) {
-    if (this.fragmentIndexMap) {
-      return
-    }
-
-    this.fragmentIndexMap = new Tensor([], this.rowIndexMap.glTextureShape, { type: Int32Array })
-
-    const fragmentRowOffsets = [0]
-    let offset = 0
-    for (let k = 0; k < glTextureFragmentShapes.length; k++) {
-      offset += glTextureFragmentShapes[k][0]
-      fragmentRowOffsets.push(offset)
-    }
-
-    for (let i = 0; i < this.rowIndexMap.tensor.shape[0]; i++) {
-      for (let j = 0; j < this.rowIndexMap.tensor.shape[1]; j++) {
-        const rowIndex = this.rowIndexMap.tensor.get(i, j)
-        const fragmentIndex = _.findLastIndex(fragmentRowOffsets, offset => rowIndex >= offset)
-        this.fragmentIndexMap.tensor.set(i, j, fragmentIndex)
-      }
-    }
-
-    this.fragmentIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
-  }
-
   /**
    * GPU call
    *
@@ -450,17 +418,16 @@ export default class Conv2D extends Layer {
       }
 
       if (x.glTextureFragments) {
-        this._createFragmentIndexMap(x.glTextureFragmentShapes)
-        x.convert2DFragmentedGLTextureTo2DArray()
+        x.convert2DRowFragmentedGLTextureToColStack()
         webgl2.runProgram({
           program: this.mapInputFragmentsProgram,
           output: this.mappedInput,
           inputs: [
             { input: x, name: 'x' },
             { input: this.rowIndexMap, name: 'rowIndexMap' },
-            { input: this.colIndexMap, name: 'colIndexMap' },
-            { input: this.fragmentIndexMap, name: 'fragmentIndexMap' }
+            { input: this.colIndexMap, name: 'colIndexMap' }
           ],
+          uniforms: [{ value: x.glTextureFragmentShapes[0][1], type: 'int', name: 'fragmentCols' }],
           supportsTextureFragments: true
         })
       } else {

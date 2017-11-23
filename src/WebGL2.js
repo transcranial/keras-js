@@ -168,9 +168,9 @@ class WebGL2 {
     inputs.forEach(({ input, name }, i) => {
       gl.activeTexture(gl.TEXTURE0 + i)
       if (input.glTextureFragments) {
-        if (input.glTextureFragmentsAs2DArray) {
-          const { textureTarget } = this.getWebGLTextureOptions('2d_array', input.glTextureFormat)
-          gl.bindTexture(textureTarget, input.glTextureFragmentsAs2DArray)
+        if (input.glTextureFragmentsAsColStack) {
+          const { textureTarget } = this.getWebGLTextureOptions(input.glTextureType, input.glTextureFormat)
+          gl.bindTexture(textureTarget, input.glTextureFragmentsAsColStack)
         } else {
           const { textureTarget } = this.getWebGLTextureOptions(input.glTextureType, input.glTextureFormat)
           gl.bindTexture(textureTarget, input.glTextureFragments[k])
@@ -225,7 +225,7 @@ class WebGL2 {
       }
 
       const inputsWithFragments = inputs.filter(
-        obj => obj.input.glTextureFragments && !obj.input.glTextureFragmentsAs2DArray
+        obj => obj.input.glTextureFragments && !obj.input.glTextureFragmentsAsColStack
       )
       const numFragments = output.glTextureFragments.length
       if (inputsWithFragments.some(obj => obj.input.glTextureFragments.length !== numFragments)) {
@@ -299,7 +299,7 @@ class WebGL2 {
 
   /**
    * Store reference to WebGL texture or buffer on class instance, useful for when we want to delete later
-   * 
+   *
    * @param {string} type
    * @param {WebGLTexture|WebGLBuffer} obj
    */

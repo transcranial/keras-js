@@ -62,7 +62,7 @@ export default class Tensor {
 
     if (type === '2d') {
       if (this.glTextureShape[0] > MAX_TEXTURE_SIZE && supportsTextureFragments) {
-        this._create2DFragmentedGLTexture()
+        this._create2DRowFragmentedGLTexture()
       } else {
         this._create2DGLTexture()
       }
@@ -100,7 +100,7 @@ export default class Tensor {
   /**
    * For 2D WebGL2 texture with first dimension exceeding MAX_TEXTURE_SIZE, creates as array of 2D textures
    */
-  _create2DFragmentedGLTexture() {
+  _create2DRowFragmentedGLTexture() {
     const gl = webgl2.context
     const textureOptions = webgl2.getWebGLTextureOptions(this.glTextureType, this.glTextureFormat)
     const { textureTarget, textureInternalFormat, textureFormat, textureType } = textureOptions
@@ -174,37 +174,29 @@ export default class Tensor {
   }
 
   /**
-   * Converts an array of gl.TEXTURE_2D glTextureFragments into a gl.TEXTURE_2D_ARRAY
+   * Converts an array of row-fragmented glTextureFragments into a single column-stacked texture
    */
-  convert2DFragmentedGLTextureTo2DArray() {
+  convert2DRowFragmentedGLTextureToColStack() {
     if (!this.glTextureFragments || !this.glTextureFragmentShapes) {
       throw new Error('[Tensor] no glTextureFragments available.')
     }
 
     const gl = webgl2.context
-    const textureOptions = webgl2.getWebGLTextureOptions('2d_array', this.glTextureFormat)
+    const textureOptions = webgl2.getWebGLTextureOptions(this.glTextureType, this.glTextureFormat)
     const { textureTarget, textureInternalFormat, textureFormat, textureType } = textureOptions
 
-    if (!this.glTextureFragmentsAs2DArray) {
-      this.glTextureFragmentsAs2DArray = gl.createTexture()
-      webgl2.storeRef('texture', this.glTextureFragmentsAs2DArray)
-      gl.bindTexture(textureTarget, this.glTextureFragmentsAs2DArray)
+    if (!this.glTextureFragmentsAsColStack) {
+      this.glTextureFragmentsAsColStack = gl.createTexture()
+      webgl2.storeRef('texture', this.glTextureFragmentsAsColStack)
+      gl.bindTexture(textureTarget, this.glTextureFragmentsAsColStack)
 
-      this.glTextureFragmentsAs2DArrayShape = [...this.glTextureFragmentShapes[0], this.glTextureFragmentShapes.length]
-      const shape = this.glTextureFragmentsAs2DArrayShape
+      const fragmentShape = this.glTextureFragmentShapes[0]
+      const numFragments = this.glTextureFragmentShapes.length
+      this.glTextureFragmentsAsColStackShape = [fragmentShape[0], fragmentShape[1] * numFragments]
+
+      const shape = this.glTextureFragmentsAsColStackShape
       const data = new this.arrayType(shape.reduce((a, b) => a * b, 1))
-      gl.texImage3D(
-        textureTarget,
-        0,
-        textureInternalFormat,
-        shape[1],
-        shape[0],
-        shape[2],
-        0,
-        textureFormat,
-        textureType,
-        data
-      )
+      gl.texImage2D(textureTarget, 0, textureInternalFormat, shape[1], shape[0], 0, textureFormat, textureType, data)
 
       // clamp to edge
       gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
@@ -213,17 +205,17 @@ export default class Tensor {
       gl.texParameteri(textureTarget, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
       gl.texParameteri(textureTarget, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
     } else {
-      gl.bindTexture(textureTarget, this.glTextureFragmentsAs2DArray)
+      gl.bindTexture(textureTarget, this.glTextureFragmentsAsColStack)
     }
 
-    const tempFramebuffer = gl.createFramebuffer()
-    gl.bindFramebuffer(gl.FRAMEBUFFER, tempFramebuffer)
+    const fbo = gl.createFramebuffer()
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, fbo)
     this.glTextureFragments.forEach((texture, k) => {
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0)
+      gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0)
       const fragmentShape = this.glTextureFragmentShapes[k]
-      gl.copyTexSubImage3D(textureTarget, 0, 0, 0, k, 0, 0, fragmentShape[1], fragmentShape[0])
+      gl.copyTexSubImage2D(textureTarget, 0, k * fragmentShape[1], 0, 0, 0, fragmentShape[1], fragmentShape[0])
     })
-    gl.deleteFramebuffer(tempFramebuffer)
+    gl.deleteFramebuffer(fbo)
   }
 
   /**

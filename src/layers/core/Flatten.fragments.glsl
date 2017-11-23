@@ -1,9 +1,8 @@
 #version 300 es
 precision highp float;
-precision highp sampler2DArray;
 
 in vec2 outTex;
-uniform sampler2DArray x;
+uniform sampler2D x;
 uniform int outputSize;
 uniform int inputRows;
 uniform int inputCols;
@@ -13,8 +12,9 @@ void main() {
   int out_x = int(float(outputSize) * outTex.x);
   int out_y = 0;
 
-  int i = int(mod(floor(float(out_x) / float(inputCols)), float(inputRows)));
-  int j = int(mod(float(out_x), float(inputCols)));
-  int k = int(floor(float(out_x) / (float(inputRows) * float(inputCols))));
-  outColor = vec4(texelFetch(x, ivec3(j, i, k), 0).r);
+  int rowIndex = int(mod(floor(float(out_x) / float(inputCols)), float(inputRows)));
+  int colIndex = int(mod(float(out_x), float(inputCols)));
+  int fragmentIndex = int(floor(float(out_x) / (float(inputRows) * float(inputCols))));
+  colIndex += fragmentIndex * inputCols;
+  outColor = vec4(texelFetch(x, ivec2(colIndex, rowIndex), 0).r);
 }

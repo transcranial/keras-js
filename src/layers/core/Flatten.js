@@ -75,7 +75,8 @@ export default class Flatten extends Layer {
     }
 
     if (x.glTextureFragments) {
-      x.convert2DFragmentedGLTextureTo2DArray()
+      x.convert2DRowFragmentedGLTextureToColStack()
+      console.log(x)
       webgl2.runProgram({
         program: this.flattenFragmentsProgram,
         output: this.output,
