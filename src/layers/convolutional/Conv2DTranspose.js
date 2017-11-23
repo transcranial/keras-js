@@ -3,11 +3,37 @@ import Tensor from '../../Tensor'
 import * as activations from '../../activations'
 import { webgl2 } from '../../WebGL2'
 import * as tensorUtils from '../../utils/tensorUtils'
+import cwise from 'cwise'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 import matMulProgramSource from '../../webgl/matMul.glsl'
 import convTransposeProgramSource from './Conv2DTranspose.glsl'
+import convTransposeFragmentsProgramSource from './Conv2DTranspose.fragments.glsl'
 import * as activationProgramSources from '../../activations/programSources'
+
+const assignToRowIndicesMap = cwise({
+  args: [{ blockIndices: -1 }, 'scalar', 'scalar'],
+  body: function(x, rowIndex, size) {
+    for (let i = 0; i < size; i++) {
+      if (x[i] === -1) {
+        x[i] = rowIndex
+        break
+      }
+    }
+  }
+})
+
+const assignToColIndicesMap = cwise({
+  args: [{ blockIndices: -1 }, 'array', 'scalar'],
+  body: function(x, colIndex, size) {
+    for (let i = 0; i < size; i++) {
+      if (x[i] === -1) {
+        x[i] = colIndex
+        break
+      }
+    }
+  }
+})
 
 /**
  * Conv2DTranspose layer class
@@ -70,6 +96,7 @@ export default class Conv2DTranspose extends Layer {
     if (this.gpu) {
       this.matMulProgram = webgl2.compileProgram(matMulProgramSource)
       this.convTransposeProgram = webgl2.compileProgram(convTransposeProgramSource)
+      this.convTransposeFragmentsProgram = webgl2.compileProgram(convTransposeFragmentsProgramSource)
       this.activationProgram = webgl2.compileProgram(activationProgramSources[this.activation])
     }
   }
@@ -298,12 +325,12 @@ export default class Conv2DTranspose extends Layer {
 
     const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.outputPadding
 
-    const indicesMapShape = [...this.outputShape, inputRows * inputCols]
+    const effectiveKernelSize = (nbRow - this.strides[0] + 1) * (nbCol - this.strides[1] + 1)
+    const indicesMapShape = [this.outputShape[0], this.outputShape[1], effectiveKernelSize]
     const indicesMapShapePadded = [
       this.outputShape[0] + paddingRowBefore + paddingRowAfter,
       this.outputShape[1] + paddingColBefore + paddingColAfter,
-      this.outputShape[2],
-      inputRows * inputCols
+      effectiveKernelSize
     ]
     const outputRowIndicesMap = new Tensor([], indicesMapShape, { type: Int32Array })
     const outputColIndicesMap = new Tensor([], indicesMapShape, { type: Int32Array })
@@ -314,7 +341,7 @@ export default class Conv2DTranspose extends Layer {
     ops.assigns(outputRowIndicesMapPadded.tensor, -1)
     ops.assigns(outputColIndicesMapPadded.tensor, -1)
 
-    const matMulColIndicesPatch = new Tensor([], [nbRow, nbCol, nbFilter, 1], { type: Int32Array })
+    const matMulColIndicesPatch = new Tensor([], [nbRow, nbCol, nbFilter], { type: Int32Array })
     for (let i = 0; i < nbRow * nbCol * nbFilter; i++) {
       matMulColIndicesPatch.tensor.data[i] = i
     }
@@ -324,17 +351,19 @@ export default class Conv2DTranspose extends Layer {
         const matMulRowIndex = i * inputCols + j
         const iOutPos = i * this.strides[0]
         const jOutPos = j * this.strides[1]
-        ops.assigns(
+        assignToRowIndicesMap(
           outputRowIndicesMapPadded.tensor
-            .hi(iOutPos + nbRow, jOutPos + nbCol, this.outputShape[2], matMulRowIndex + 1)
-            .lo(iOutPos, jOutPos, 0, matMulRowIndex),
-          matMulRowIndex
+            .hi(iOutPos + nbRow, jOutPos + nbCol, effectiveKernelSize)
+            .lo(iOutPos, jOutPos, 0),
+          matMulRowIndex,
+          effectiveKernelSize
         )
-        ops.assign(
+        assignToColIndicesMap(
           outputColIndicesMapPadded.tensor
-            .hi(iOutPos + nbRow, jOutPos + nbCol, this.outputShape[2], matMulRowIndex + 1)
-            .lo(iOutPos, jOutPos, 0, matMulRowIndex),
-          matMulColIndicesPatch.tensor
+            .hi(iOutPos + nbRow, jOutPos + nbCol, effectiveKernelSize)
+            .lo(iOutPos, jOutPos, 0),
+          matMulColIndicesPatch.tensor.pick(null, null, 0),
+          effectiveKernelSize
         )
       }
     }
@@ -343,41 +372,32 @@ export default class Conv2DTranspose extends Layer {
     ops.assign(
       outputRowIndicesMap.tensor,
       outputRowIndicesMapPadded.tensor
-        .hi(
-          this.outputShape[0] + paddingRowBefore,
-          this.outputShape[1] + paddingColBefore,
-          this.outputShape[2],
-          inputRows * inputCols
-        )
-        .lo(paddingRowBefore, paddingColBefore, 0, 0)
+        .hi(this.outputShape[0] + paddingRowBefore, this.outputShape[1] + paddingColBefore, effectiveKernelSize)
+        .lo(paddingRowBefore, paddingColBefore, 0)
     )
     ops.assign(
       outputColIndicesMap.tensor,
       outputColIndicesMapPadded.tensor
-        .hi(
-          this.outputShape[0] + paddingRowBefore,
-          this.outputShape[1] + paddingColBefore,
-          this.outputShape[2],
-          inputRows * inputCols
-        )
-        .lo(paddingRowBefore, paddingColBefore, 0, 0)
+        .hi(this.outputShape[0] + paddingRowBefore, this.outputShape[1] + paddingColBefore, effectiveKernelSize)
+        .lo(paddingRowBefore, paddingColBefore, 0)
     )
+
     // combine first two dimensions
-    const tiledIndicesMapShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2], inputRows * inputCols]
+    const tiledIndicesMapShape = [this.outputShape[0] * this.outputShape[1], effectiveKernelSize]
     this.rowIndexMap = new Tensor([], tiledIndicesMapShape, { type: Int32Array })
     this.colIndexMap = new Tensor([], tiledIndicesMapShape, { type: Int32Array })
-    const channelData = new Tensor([], [this.outputShape[2], inputRows * inputCols], { type: Int32Array })
+    const channelData = new Tensor([], [effectiveKernelSize], { type: Int32Array })
     for (let i = 0; i < this.outputShape[0]; i++) {
       for (let j = 0; j < this.outputShape[1]; j++) {
-        ops.assign(channelData.tensor, outputRowIndicesMap.tensor.pick(i, j, null, null))
-        ops.assign(this.rowIndexMap.tensor.pick(i * this.outputShape[1] + j, null, null), channelData.tensor)
-        ops.assign(channelData.tensor, outputColIndicesMap.tensor.pick(i, j, null, null))
-        ops.assign(this.colIndexMap.tensor.pick(i * this.outputShape[1] + j, null, null), channelData.tensor)
+        ops.assign(channelData.tensor, outputRowIndicesMap.tensor.pick(i, j, null))
+        ops.assign(this.rowIndexMap.tensor.pick(i * this.outputShape[1] + j, null), channelData.tensor)
+        ops.assign(channelData.tensor, outputColIndicesMap.tensor.pick(i, j, null))
+        ops.assign(this.colIndexMap.tensor.pick(i * this.outputShape[1] + j, null), channelData.tensor)
       }
     }
 
-    this.rowIndexMap.createGLTexture({ type: '2d_array', format: 'int' })
-    this.colIndexMap.createGLTexture({ type: '2d_array', format: 'int' })
+    this.rowIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
+    this.colIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
   /**
@@ -393,21 +413,21 @@ export default class Conv2DTranspose extends Layer {
       this.inputShape = x.tensor.shape
       this._calcOutputShape(this.inputShape)
       this._im2col(x)
-      this.imColsMat.createGLTexture({ type: '2d', format: 'float' })
+      this.imColsMat.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
     }
 
     const input = x.is2DReshaped || x.is2DSquareReshaped ? x : this.imColsMat
 
     // create output textures if doesn't already exist
-    if (!this.outputMatmul) {
+    if (!this.matMulResult) {
       const outputTextureShape = [input.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
-      this.outputMatmul = new Tensor([], outputTextureShape)
-      this.outputMatmul.createGLTexture({ type: '2d', format: 'float' })
+      this.matMulResult = new Tensor([], outputTextureShape)
+      this.matMulResult.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
     }
     if (!this.outputPreactiv) {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
       this.outputPreactiv = new Tensor([], outputTextureShape)
-      this.outputPreactiv.createGLTexture({ type: '2d', format: 'float' })
+      this.outputPreactiv.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       this.outputPreactiv.is2DReshaped = true
       this.outputPreactiv.originalShape = this.outputShape
       this.outputPreactiv.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
@@ -415,7 +435,7 @@ export default class Conv2DTranspose extends Layer {
     if (!this.output) {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
       this.output = new Tensor([], outputTextureShape)
-      this.output.createGLTexture({ type: '2d', format: 'float' })
+      this.output.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       this.output.is2DReshaped = true
       this.output.originalShape = this.outputShape
       this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
@@ -424,34 +444,49 @@ export default class Conv2DTranspose extends Layer {
     // Matrix Multiply with kernel
     webgl2.runProgram({
       program: this.matMulProgram,
-      output: this.outputMatmul,
+      output: this.matMulResult,
       inputs: [{ input: input, name: 'A' }, { input: this.weights['kernel'], name: 'B' }],
-      uniforms: [{ value: 0, type: 'bool', name: 'addC' }]
+      uniforms: [{ value: 0, type: 'bool', name: 'addC' }],
+      supportsTextureFragments: true
     })
 
     // Tranposed Convolution
     this._createIndexMap()
-    const test = new Tensor([], [this.outputShape[0] * this.outputShape[1], this.outputShape[2]])
-    ops.assign(test.tensor, this.rowIndexMap.tensor.pick(null, null, 0))
-    const convTransposeInputs = [
-      { input: this.outputMatmul, name: 'outputMatmul' },
-      { input: this.rowIndexMap, name: 'rowIndexMap' },
-      { input: this.colIndexMap, name: 'colIndexMap' }
-    ]
-    if (this.use_bias) {
-      convTransposeInputs.push({ input: this.weights['bias'], name: 'bias' })
+    if (this.matMulResult.glTextureFragments) {
+      this.matMulResult.convert2DRowFragmentedGLTextureToColStack()
+      webgl2.runProgram({
+        program: this.convTransposeFragmentsProgram,
+        output: this.outputPreactiv,
+        inputs: [
+          { input: this.matMulResult, name: 'matMulResult' },
+          { input: this.rowIndexMap, name: 'rowIndexMap' },
+          { input: this.colIndexMap, name: 'colIndexMap' },
+          ...(this.use_bias ? [{ input: this.weights['bias'], name: 'bias' }] : [])
+        ],
+        uniforms: [
+          { value: this.use_bias ? 1 : 0, type: 'bool', name: 'use_bias' },
+          { value: this.matMulResult.glTextureFragmentShapes[0][1], type: 'int', name: 'inputFragmentCols' },
+          { value: this.outputPreactiv.glTextureFragmentShapes[0][1], type: 'int', name: 'outputFragmentCols' }
+        ],
+        supportsTextureFragments: true
+      })
+    } else {
+      webgl2.runProgram({
+        program: this.convTransposeProgram,
+        output: this.outputPreactiv,
+        inputs: [
+          { input: this.matMulResult, name: 'matMulResult' },
+          { input: this.rowIndexMap, name: 'rowIndexMap' },
+          { input: this.colIndexMap, name: 'colIndexMap' },
+          ...(this.use_bias ? [{ input: this.weights['bias'], name: 'bias' }] : [])
+        ],
+        uniforms: [
+          { value: this.use_bias ? 1 : 0, type: 'bool', name: 'use_bias' },
+          { value: this.outputShape[2], type: 'int', name: 'cols' }
+        ],
+        supportsTextureFragments: true
+      })
     }
-    webgl2.runProgram({
-      program: this.convTransposeProgram,
-      output: this.outputPreactiv,
-      inputs: convTransposeInputs,
-      uniforms: [
-        { value: this.use_bias ? 1 : 0, type: 'bool', name: 'use_bias' },
-        { value: this.outputShape[0] * this.outputShape[1], type: 'int', name: 'rows' },
-        { value: this.outputShape[2], type: 'int', name: 'cols' },
-        { value: this.inputShape[0] * this.inputShape[1], type: 'int', name: 'summationLength' }
-      ]
-    })
 
     // Activation
     if (this.activation === 'linear') {
@@ -460,7 +495,8 @@ export default class Conv2DTranspose extends Layer {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.output,
-        inputs: [{ input: this.outputPreactiv, name: 'x' }]
+        inputs: [{ input: this.outputPreactiv, name: 'x' }],
+        supportsTextureFragments: true
       })
     }
 
