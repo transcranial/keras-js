@@ -11,8 +11,8 @@ describe('advanced activation layers', function() {
   })
 
   /*********************************************************
-  * CPU
-  *********************************************************/
+   * CPU
+   *********************************************************/
   describe('CPU', function() {
     before(function() {
       console.log('\n%cCPU', styles.h2)
@@ -93,8 +93,8 @@ describe('advanced activation layers', function() {
   })
 
   /*********************************************************
-  * GPU
-  *********************************************************/
+   * GPU
+   *********************************************************/
   describe('GPU', function() {
     before(function() {
       console.log('\n%cGPU', styles.h2)

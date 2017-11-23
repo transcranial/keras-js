@@ -13,8 +13,8 @@ describe('convolutional layer: UpSampling1D', function() {
   })
 
   /*********************************************************
-  * CPU
-  *********************************************************/
+   * CPU
+   *********************************************************/
   describe('CPU', function() {
     before(function() {
       console.log('\n%cCPU', styles.h2)
@@ -43,8 +43,8 @@ describe('convolutional layer: UpSampling1D', function() {
   })
 
   /*********************************************************
-  * GPU
-  *********************************************************/
+   * GPU
+   *********************************************************/
   describe('GPU', function() {
     before(function() {
       console.log('\n%cGPU', styles.h2)

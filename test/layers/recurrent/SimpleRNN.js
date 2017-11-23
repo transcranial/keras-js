@@ -113,8 +113,8 @@ describe('recurrent layer: SimpleRNN', function() {
   })
 
   /*********************************************************
-  * CPU
-  *********************************************************/
+   * CPU
+   *********************************************************/
   describe('CPU', function() {
     before(function() {
       console.log('\n%cCPU', styles.h2)
@@ -122,7 +122,9 @@ describe('recurrent layer: SimpleRNN', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `recurrent.SimpleRNN.${i}`
-      const title = `[${key}] [CPU] test: ${inputShape} input, activation='${attrs.activation}', use_bias=${attrs.use_bias}, return_sequences=${attrs.return_sequences}, go_backwards=${attrs.go_backwards}, stateful=${attrs.stateful}`
+      const title = `[${key}] [CPU] test: ${inputShape} input, activation='${attrs.activation}', use_bias=${
+        attrs.use_bias
+      }, return_sequences=${attrs.return_sequences}, go_backwards=${attrs.go_backwards}, stateful=${attrs.stateful}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
@@ -151,8 +153,8 @@ describe('recurrent layer: SimpleRNN', function() {
   })
 
   /*********************************************************
-  * GPU
-  *********************************************************/
+   * GPU
+   *********************************************************/
   describe('GPU', function() {
     before(function() {
       console.log('\n%cGPU', styles.h2)
@@ -160,7 +162,9 @@ describe('recurrent layer: SimpleRNN', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `recurrent.SimpleRNN.${i}`
-      const title = `[${key}] [GPU] test: ${inputShape} input, activation='${attrs.activation}', use_bias=${attrs.use_bias}, return_sequences=${attrs.return_sequences}, go_backwards=${attrs.go_backwards}, stateful=${attrs.stateful}`
+      const title = `[${key}] [GPU] test: ${inputShape} input, activation='${attrs.activation}', use_bias=${
+        attrs.use_bias
+      }, return_sequences=${attrs.return_sequences}, go_backwards=${attrs.go_backwards}, stateful=${attrs.stateful}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)

@@ -74,8 +74,8 @@ describe('convolutional layer: Conv1D', function() {
   })
 
   /*********************************************************
-  * CPU
-  *********************************************************/
+   * CPU
+   *********************************************************/
   describe('CPU', function() {
     before(function() {
       console.log('\n%cCPU', styles.h2)
@@ -83,7 +83,11 @@ describe('convolutional layer: Conv1D', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `convolutional.Conv1D.${i}`
-      const title = `[${key}] [CPU] test: ${attrs.filters} length ${attrs.kernel_size} filters on ${inputShape} input, strides=${attrs.strides}, padding='${attrs.padding}', dilation_rate=${attrs.dilation_rate}, activation='${attrs.activation}', use_bias=${attrs.use_bias}`
+      const title = `[${key}] [CPU] test: ${attrs.filters} length ${attrs.kernel_size} filters on ${
+        inputShape
+      } input, strides=${attrs.strides}, padding='${attrs.padding}', dilation_rate=${
+        attrs.dilation_rate
+      }, activation='${attrs.activation}', use_bias=${attrs.use_bias}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
@@ -105,8 +109,8 @@ describe('convolutional layer: Conv1D', function() {
   })
 
   /*********************************************************
-  * GPU
-  *********************************************************/
+   * GPU
+   *********************************************************/
   describe('GPU', function() {
     before(function() {
       console.log('\n%cGPU', styles.h2)
@@ -114,7 +118,11 @@ describe('convolutional layer: Conv1D', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `convolutional.Conv1D.${i}`
-      const title = `[${key}] [GPU] test: ${attrs.filters} length ${attrs.kernel_size} filters on ${inputShape} input, strides=${attrs.strides}, padding='${attrs.padding}', dilation_rate=${attrs.dilation_rate}, activation='${attrs.activation}', use_bias=${attrs.use_bias}`
+      const title = `[${key}] [GPU] test: ${attrs.filters} length ${attrs.kernel_size} filters on ${
+        inputShape
+      } input, strides=${attrs.strides}, padding='${attrs.padding}', dilation_rate=${
+        attrs.dilation_rate
+      }, activation='${attrs.activation}', use_bias=${attrs.use_bias}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)

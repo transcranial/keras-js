@@ -17,8 +17,8 @@ describe('embeddings layer: Embedding', function() {
   })
 
   /*********************************************************
-  * CPU
-  *********************************************************/
+   * CPU
+   *********************************************************/
   describe('CPU', function() {
     before(function() {
       console.log('\n%cCPU', styles.h2)
@@ -26,7 +26,9 @@ describe('embeddings layer: Embedding', function() {
 
     testParams.forEach(({ attrs }, i) => {
       const key = `embeddings.Embedding.${i}`
-      const title = `[${key}] [CPU] test: input_dim='${attrs.input_dim}', output_dim=${attrs.output_dim}, input_length=${attrs.input_length}, mask_zero=${attrs.mask_zero}`
+      const title = `[${key}] [CPU] test: input_dim='${attrs.input_dim}', output_dim=${
+        attrs.output_dim
+      }, input_length=${attrs.input_length}, mask_zero=${attrs.mask_zero}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
@@ -48,8 +50,8 @@ describe('embeddings layer: Embedding', function() {
   })
 
   /*********************************************************
-  * GPU
-  *********************************************************/
+   * GPU
+   *********************************************************/
   describe('GPU', function() {
     before(function() {
       console.log('\n%cGPU', styles.h2)
@@ -57,7 +59,9 @@ describe('embeddings layer: Embedding', function() {
 
     testParams.forEach(({ attrs }, i) => {
       const key = `embeddings.Embedding.${i}`
-      const title = `[${key}] [GPU] test: input_dim='${attrs.input_dim}', output_dim=${attrs.output_dim}, input_length=${attrs.input_length}, mask_zero=${attrs.mask_zero}`
+      const title = `[${key}] [GPU] test: input_dim='${attrs.input_dim}', output_dim=${
+        attrs.output_dim
+      }, input_length=${attrs.input_length}, mask_zero=${attrs.mask_zero}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)

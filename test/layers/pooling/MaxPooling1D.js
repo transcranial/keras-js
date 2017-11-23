@@ -23,8 +23,8 @@ describe('pooling layer: MaxPooling1D', function() {
   })
 
   /*********************************************************
-  * CPU
-  *********************************************************/
+   * CPU
+   *********************************************************/
   describe('CPU', function() {
     before(function() {
       console.log('\n%cCPU', styles.h2)
@@ -32,7 +32,9 @@ describe('pooling layer: MaxPooling1D', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `pooling.MaxPooling1D.${i}`
-      const title = `[${key}] [CPU] test: ${inputShape} input, pool_size='${attrs.pool_size}', strides=${attrs.strides}, padding=${attrs.padding}`
+      const title = `[${key}] [CPU] test: ${inputShape} input, pool_size='${attrs.pool_size}', strides=${
+        attrs.strides
+      }, padding=${attrs.padding}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
@@ -53,8 +55,8 @@ describe('pooling layer: MaxPooling1D', function() {
   })
 
   /*********************************************************
-  * GPU
-  *********************************************************/
+   * GPU
+   *********************************************************/
   describe('GPU', function() {
     before(function() {
       console.log('\n%cGPU', styles.h2)
@@ -62,7 +64,9 @@ describe('pooling layer: MaxPooling1D', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `pooling.MaxPooling1D.${i}`
-      const title = `[${key}] [GPU] test: ${inputShape} input, pool_size='${attrs.pool_size}', strides=${attrs.strides}, padding=${attrs.padding}`
+      const title = `[${key}] [GPU] test: ${inputShape} input, pool_size='${attrs.pool_size}', strides=${
+        attrs.strides
+      }, padding=${attrs.padding}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)

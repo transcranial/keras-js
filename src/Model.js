@@ -519,8 +519,8 @@ export default class Model {
     if (!_.isEqual(_.keys(inputData).sort(), this.inputLayerNames)) {
       this.isRunning = false
       throw new Error(
-        `[Model] predict() must take an object where the keys are the named inputs of the model: ${this
-          .inputLayerNames}.`
+        '[Model] predict() must take an object where the keys are the named inputs of the model: ' +
+          JSON.stringify(this.inputLayerNames)
       )
     }
     if (!_.every(this.inputLayerNames, name => inputData[name] instanceof Float32Array)) {
@@ -574,7 +574,7 @@ export default class Model {
 
   /**
    * Run computation on a specific layer
-   * 
+   *
    * @param {string} layerName
    * @param {Tensor|Object} input - can be Tensor instance or ndarray object
    */

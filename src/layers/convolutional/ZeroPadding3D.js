@@ -142,10 +142,10 @@ export default class ZeroPadding3D extends Layer {
   }
 
   /**
- * GPU call
- *
- * @param {Tensor} x
- */
+   * GPU call
+   *
+   * @param {Tensor} x
+   */
   _callGPU(x) {
     if (!x.glTexture) {
       x.reshapeTo2DSquare()

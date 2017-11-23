@@ -21,8 +21,8 @@ describe('normalization layer: BatchNormalization', function() {
   })
 
   /*********************************************************
-  * CPU
-  *********************************************************/
+   * CPU
+   *********************************************************/
   describe('CPU', function() {
     before(function() {
       console.log('\n%cCPU', styles.h2)
@@ -30,7 +30,9 @@ describe('normalization layer: BatchNormalization', function() {
 
     testParams.forEach(({ attrs }, i) => {
       const key = `normalization.BatchNormalization.${i}`
-      const title = `[${key}] [CPU] test: epsilon='${attrs.epsilon}', axis=${attrs.axis}, center=${attrs.center}, scale=${attrs.scale}`
+      const title = `[${key}] [CPU] test: epsilon='${attrs.epsilon}', axis=${attrs.axis}, center=${
+        attrs.center
+      }, scale=${attrs.scale}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
@@ -52,8 +54,8 @@ describe('normalization layer: BatchNormalization', function() {
   })
 
   /*********************************************************
-  * GPU
-  *********************************************************/
+   * GPU
+   *********************************************************/
   describe('GPU', function() {
     before(function() {
       console.log('\n%cGPU', styles.h2)
@@ -61,7 +63,9 @@ describe('normalization layer: BatchNormalization', function() {
 
     testParams.forEach(({ attrs }, i) => {
       const key = `normalization.BatchNormalization.${i}`
-      const title = `[${key}] [GPU] test: epsilon='${attrs.epsilon}', axis=${attrs.axis}, center=${attrs.center}, scale=${attrs.scale}`
+      const title = `[${key}] [GPU] test: epsilon='${attrs.epsilon}', axis=${attrs.axis}, center=${
+        attrs.center
+      }, scale=${attrs.scale}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)

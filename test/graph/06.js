@@ -127,8 +127,8 @@ describe('graph_06', function() {
   })
 
   /*********************************************************
-  * CPU
-  *********************************************************/
+   * CPU
+   *********************************************************/
   describe('CPU', function() {
     const title = `[CPU] ${testParams.layers.map(layer => layer.layerClass).join('-')}`
     let branch_0 = []
@@ -206,8 +206,8 @@ describe('graph_06', function() {
   })
 
   /*********************************************************
-  * GPU
-  *********************************************************/
+   * GPU
+   *********************************************************/
   describe('GPU', function() {
     const title = `[GPU] ${testParams.layers.map(layer => layer.layerClass).join('-')}`
     let branch_0 = []

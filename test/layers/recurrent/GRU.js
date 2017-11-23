@@ -122,8 +122,8 @@ describe('recurrent layer: GRU', function() {
   })
 
   /*********************************************************
-  * CPU
-  *********************************************************/
+   * CPU
+   *********************************************************/
   describe('CPU', function() {
     before(function() {
       console.log('\n%cCPU', styles.h2)
@@ -131,7 +131,11 @@ describe('recurrent layer: GRU', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `recurrent.GRU.${i}`
-      const title = `[${key}] [CPU] test: ${inputShape} input, activation='${attrs.activation}', recurrent_activation='${attrs.recurrent_activation}', use_bias=${attrs.use_bias}, return_sequences=${attrs.return_sequences}, go_backwards=${attrs.go_backwards}, stateful=${attrs.stateful}`
+      const title = `[${key}] [CPU] test: ${inputShape} input, activation='${
+        attrs.activation
+      }', recurrent_activation='${attrs.recurrent_activation}', use_bias=${attrs.use_bias}, return_sequences=${
+        attrs.return_sequences
+      }, go_backwards=${attrs.go_backwards}, stateful=${attrs.stateful}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
@@ -160,8 +164,8 @@ describe('recurrent layer: GRU', function() {
   })
 
   /*********************************************************
-  * GPU
-  *********************************************************/
+   * GPU
+   *********************************************************/
   describe('GPU', function() {
     before(function() {
       console.log('\n%cGPU', styles.h2)
@@ -169,7 +173,11 @@ describe('recurrent layer: GRU', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `recurrent.GRU.${i}`
-      const title = `[${key}] [GPU] test: ${inputShape} input, activation='${attrs.activation}', recurrent_activation='${attrs.recurrent_activation}', use_bias=${attrs.use_bias}, return_sequences=${attrs.return_sequences}, go_backwards=${attrs.go_backwards}, stateful=${attrs.stateful}`
+      const title = `[${key}] [GPU] test: ${inputShape} input, activation='${
+        attrs.activation
+      }', recurrent_activation='${attrs.recurrent_activation}', use_bias=${attrs.use_bias}, return_sequences=${
+        attrs.return_sequences
+      }, go_backwards=${attrs.go_backwards}, stateful=${attrs.stateful}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)

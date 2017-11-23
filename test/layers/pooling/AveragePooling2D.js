@@ -66,8 +66,8 @@ describe('pooling layer: AveragePooling2D', function() {
   })
 
   /*********************************************************
-  * CPU
-  *********************************************************/
+   * CPU
+   *********************************************************/
   describe('CPU', function() {
     before(function() {
       console.log('\n%cCPU', styles.h2)
@@ -75,7 +75,9 @@ describe('pooling layer: AveragePooling2D', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `pooling.AveragePooling2D.${i}`
-      const title = `[${key}] [CPU] test: ${inputShape} input, pool_size='${attrs.pool_size}', strides=${attrs.strides}, padding=${attrs.padding}, data_format=${attrs.data_format}`
+      const title = `[${key}] [CPU] test: ${inputShape} input, pool_size='${attrs.pool_size}', strides=${
+        attrs.strides
+      }, padding=${attrs.padding}, data_format=${attrs.data_format}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)
@@ -96,8 +98,8 @@ describe('pooling layer: AveragePooling2D', function() {
   })
 
   /*********************************************************
-  * GPU
-  *********************************************************/
+   * GPU
+   *********************************************************/
   describe('GPU', function() {
     before(function() {
       console.log('\n%cGPU', styles.h2)
@@ -105,7 +107,9 @@ describe('pooling layer: AveragePooling2D', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `pooling.AveragePooling2D.${i}`
-      const title = `[${key}] [GPU] test: ${inputShape} input, pool_size='${attrs.pool_size}', strides=${attrs.strides}, padding=${attrs.padding}, data_format=${attrs.data_format}`
+      const title = `[${key}] [GPU] test: ${inputShape} input, pool_size='${attrs.pool_size}', strides=${
+        attrs.strides
+      }, padding=${attrs.padding}, data_format=${attrs.data_format}`
 
       it(title, function() {
         console.log(`\n%c${title}`, styles.h3)

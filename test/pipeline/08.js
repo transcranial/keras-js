@@ -62,8 +62,8 @@ describe('pipeline_08', function() {
   })
 
   /*********************************************************
-  * CPU
-  *********************************************************/
+   * CPU
+   *********************************************************/
   describe('CPU', function() {
     const title = `[CPU] ${testParams.layers.map(layer => layer.layerClass).join('-')}`
     let modelLayers = []
@@ -110,8 +110,8 @@ describe('pipeline_08', function() {
   })
 
   /*********************************************************
-  * GPU
-  *********************************************************/
+   * GPU
+   *********************************************************/
   describe('GPU', function() {
     const title = `[GPU] ${testParams.layers.map(layer => layer.layerClass).join('-')}`
     let modelLayers = []
