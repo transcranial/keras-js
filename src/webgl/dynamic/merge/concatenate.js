@@ -16,11 +16,10 @@ export default function concatenate(numInputs, inputShape, outputShape, concatAx
   int n = int(floor(float(out_y) / float(${inputShape[0]})));
   if (n == 0) {
     outColor = vec4(texelFetch(inputs[0], ivec2(out_x, out_y), 0).r);
-  ${_.range(1, numInputs).map(
-    i => `} else if (n == ${i}) {
+  }${_.range(1, numInputs).map(
+    i => ` else if (n == ${i}) {
     outColor = vec4(texelFetch(inputs[${i}], ivec2(out_x, out_y - ${i * inputShape[0]}), 0).r);
-  }`
-  )}
+  }`).join('')}
 `
   } else if (concatAxis === 1) {
     // prettier-ignore
@@ -28,11 +27,10 @@ export default function concatenate(numInputs, inputShape, outputShape, concatAx
   int n = int(floor(float(out_x) / float(${inputShape[1]})));
   if (n == 0) {
     outColor = vec4(texelFetch(inputs[0], ivec2(out_x, out_y), 0).r);
-  ${_.range(1, numInputs).map(
-    i => `} else if (n == ${i}) {
+  }${_.range(1, numInputs).map(
+    i => ` else if (n == ${i}) {
     outColor = vec4(texelFetch(inputs[${i}], ivec2(out_x - ${i * inputShape[1]}, out_y), 0).r);
-  }`
-  )}
+  }`).join('')}
 `
   }
 

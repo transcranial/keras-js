@@ -113,7 +113,6 @@ export default class Concatenate extends _Merge {
         outputShape,
         _concatAxis
       )
-      console.log(mergeProgramSource)
       this.mergeProgram = webgl2.compileProgram(mergeProgramSource)
     }
 
