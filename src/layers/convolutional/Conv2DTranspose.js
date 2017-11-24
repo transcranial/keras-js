@@ -2,13 +2,12 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import * as activations from '../../activations'
 import { webgl2 } from '../../WebGL2'
+import createGLSLProgram from '../../webgl/dynamic/createGLSLProgram'
 import * as tensorUtils from '../../utils/tensorUtils'
 import cwise from 'cwise'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 import matMulProgramSource from '../../webgl/matMul.glsl'
-import convTransposeProgramSource from './Conv2DTranspose.glsl'
-import convTransposeFragmentsProgramSource from './Conv2DTranspose.fragments.glsl'
 import * as activationProgramSources from '../../activations/programSources'
 
 const assignToRowIndicesMap = cwise({
@@ -87,16 +86,14 @@ export default class Conv2DTranspose extends Layer {
     this.activation = activation
     this.activationFunc = activations[activation]
 
-    this.use_bias = use_bias
+    this.useBias = use_bias
 
     // Layer weights specification
-    this.params = this.use_bias ? ['kernel', 'bias'] : ['kernel']
+    this.params = this.useBias ? ['kernel', 'bias'] : ['kernel']
 
     // GPU setup
     if (this.gpu) {
       this.matMulProgram = webgl2.compileProgram(matMulProgramSource)
-      this.convTransposeProgram = webgl2.compileProgram(convTransposeProgramSource)
-      this.convTransposeFragmentsProgram = webgl2.compileProgram(convTransposeFragmentsProgramSource)
       this.activationProgram = webgl2.compileProgram(activationProgramSources[this.activation])
     }
   }
@@ -123,7 +120,7 @@ export default class Conv2DTranspose extends Layer {
     if (this.gpu) {
       this.weights['kernel'] = this.wRowsMat
       this.weights['kernel'].createGLTexture({ type: '2d', format: 'float' })
-      if (this.use_bias) {
+      if (this.useBias) {
         this.weights['bias'].createGLTexture({ type: '2d', format: 'float' })
       }
     }
@@ -294,7 +291,7 @@ export default class Conv2DTranspose extends Layer {
     )
 
     // bias
-    if (this.use_bias) {
+    if (this.useBias) {
       for (let n = 0; n < nbFilter; n++) {
         ops.addseq(this.output.tensor.pick(null, null, n), this.weights['bias'].tensor.get(n))
       }
@@ -457,40 +454,34 @@ export default class Conv2DTranspose extends Layer {
 
     // Tranposed Convolution
     this._createIndexMap()
-    if (this.matMulResult.glTextureFragments) {
+    const hasFragments = Boolean(this.matMulResult.glTextureFragments)
+    if (hasFragments) {
       this.matMulResult.convert2DRowFragmentedGLTextureToColStack()
-      webgl2.runProgram({
-        program: this.convTransposeFragmentsProgram,
-        output: this.activation === 'linear' ? this.output : this.outputPreactiv,
-        inputs: [
-          { input: this.matMulResult, name: 'matMulResult' },
-          { input: this.indexMap, name: 'indexMap' },
-          ...(this.use_bias ? [{ input: this.weights['bias'], name: 'bias' }] : [])
-        ],
-        uniforms: [
-          { value: this.use_bias ? 1 : 0, type: 'bool', name: 'use_bias' },
-          { value: this.matMulResult.glTextureShape[1], type: 'int', name: 'inputFragmentCols' },
-          { value: this.outputShape[2], type: 'int', name: 'outputFragmentCols' }
-        ],
-        supportsTextureFragments: true
-      })
-    } else {
-      webgl2.runProgram({
-        program: this.convTransposeProgram,
-        output: this.activation === 'linear' ? this.output : this.outputPreactiv,
-        inputs: [
-          { input: this.matMulResult, name: 'matMulResult' },
-          { input: this.indexMap, name: 'indexMap' },
-          ...(this.use_bias ? [{ input: this.weights['bias'], name: 'bias' }] : [])
-        ],
-        uniforms: [
-          { value: this.use_bias ? 1 : 0, type: 'bool', name: 'use_bias' },
-          { value: this.matMulResult.glTextureShape[1], type: 'int', name: 'inputCols' },
-          { value: this.outputShape[2], type: 'int', name: 'outputCols' }
-        ],
-        supportsTextureFragments: true
-      })
     }
+    if (!this.convTransposeProgram) {
+      const convTransposeProgramSource = createGLSLProgram(
+        'conv2dTranspose',
+        this.output.glTextureFragmentShape ? this.output.glTextureFragmentShape : this.output.glTextureShape,
+        this.matMulResult.glTextureFragmentShape
+          ? this.matMulResult.glTextureFragmentShape
+          : this.matMulResult.glTextureShape,
+        this.indexMap.glTextureFragmentShape ? this.indexMap.glTextureFragmentShape : this.indexMap.glTextureShape,
+        this.useBias,
+        hasFragments
+      )
+      this.convTransposeProgram = webgl2.compileProgram(convTransposeProgramSource)
+    }
+
+    webgl2.runProgram({
+      program: this.convTransposeProgram,
+      output: this.activation === 'linear' ? this.output : this.outputPreactiv,
+      inputs: [
+        { input: this.matMulResult, name: 'matMulResult' },
+        { input: this.indexMap, name: 'indexMap' },
+        ...(this.useBias ? [{ input: this.weights['bias'], name: 'bias' }] : [])
+      ],
+      supportsTextureFragments: true
+    })
 
     // Activation
     if (this.activation !== 'linear') {

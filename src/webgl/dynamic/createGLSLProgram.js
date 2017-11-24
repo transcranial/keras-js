@@ -5,6 +5,7 @@ import maximum from './merge/maximum'
 import minimum from './merge/minimum'
 import multiply from './merge/multiply'
 import subtract from './merge/subtract'
+import conv2dTranspose from './convolutional/conv2dTranspose'
 
 export default function createGLSLProgram(program, ...args) {
   switch (program) {
@@ -23,6 +24,10 @@ export default function createGLSLProgram(program, ...args) {
       return multiply(...args)
     case 'subtract':
       return subtract(...args)
+
+    // convolutional
+    case 'conv2dTranspose':
+      return conv2dTranspose(...args)
 
     default:
       throw new Error('GLSL program not found')
