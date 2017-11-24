@@ -2,6 +2,7 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import * as activations from '../../activations'
 import { webgl2 } from '../../WebGL2'
+import createGLSLProgram from '../../webgl/dynamic/createGLSLProgram'
 import * as tensorUtils from '../../utils/tensorUtils'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
@@ -77,10 +78,10 @@ export default class Conv3D extends Layer {
     this.activation = activation
     this.activationFunc = activations[activation]
 
-    this.use_bias = use_bias
+    this.useBias = use_bias
 
     // Layer weights specification
-    this.params = this.use_bias ? ['kernel', 'bias'] : ['kernel']
+    this.params = this.useBias ? ['kernel', 'bias'] : ['kernel']
 
     // GPU setup
     if (this.gpu) {
@@ -113,7 +114,7 @@ export default class Conv3D extends Layer {
     if (this.gpu) {
       this.weights['kernel'] = this.wRowsMat
       this.weights['kernel'].createGLTexture({ type: '2d', format: 'float' })
-      if (this.use_bias) {
+      if (this.useBias) {
         this.weights['bias'].createGLTexture({ type: '2d', format: 'float' })
       }
     }
@@ -342,7 +343,7 @@ export default class Conv3D extends Layer {
     const nbPatches = outputDim1 * outputDim2 * outputDim3
     const matMul = new Tensor([], [nbPatches, nbFilter])
 
-    if (this.use_bias) {
+    if (this.useBias) {
       for (let n = 0; n < nbFilter; n++) {
         ops.assigns(matMul.tensor.pick(null, n), this.weights['bias'].tensor.get(n))
       }
@@ -443,39 +444,20 @@ export default class Conv3D extends Layer {
    * @param {Tensor} x
    */
   _callGPU(x) {
+    let outputTextureShape
     if (x.is2DReshaped || x.is2DSquareReshaped) {
       this.inputShape = x.originalShape
       this._calcOutputShape(this.inputShape)
+      this._createIndexMap(x.indicesForReshaped)
+      outputTextureShape = [this.indexMap.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
     } else {
       this.inputShape = x.tensor.shape
       this._calcOutputShape(this.inputShape)
       this._padInput(x)
       this._vol2col(x)
       this.volColsMat.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
+      outputTextureShape = [this.volColsMat.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
     }
-
-    // map from 2d-reshaped input
-    if (x.is2DReshaped || x.is2DSquareReshaped) {
-      this._createIndexMap(x.indicesForReshaped)
-      if (!this.mappedInput) {
-        this.mappedInput = new Tensor([], this.indexMap.glTextureShape)
-        this.mappedInput.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
-      }
-
-      if (x.glTextureFragments) {
-        x.convert2DRowFragmentedGLTextureToColStack()
-      }
-      webgl2.runProgram({
-        program: x.glTextureFragments ? this.mapInputFragmentsProgram : this.mapInputProgram,
-        output: this.mappedInput,
-        inputs: [{ input: x, name: 'x' }, { input: this.indexMap, name: 'indexMap' }],
-        uniforms: [{ value: x.glTextureShape[1], type: 'int', name: 'inputCols' }],
-        supportsTextureFragments: true
-      })
-    }
-
-    const input = x.is2DReshaped || x.is2DSquareReshaped ? this.mappedInput : this.volColsMat
-    const outputTextureShape = [input.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
 
     // create output textures if doesn't already exist
     if (this.activation !== 'linear' && !this.outputPreactiv) {
@@ -493,18 +475,48 @@ export default class Conv3D extends Layer {
       this.output.indicesForReshaped = tensorUtils.createIndicesFor2DReshaped(this.outputShape, false, -1)
     }
 
-    // Matrix Multiply
-    const matMulInputs = [{ input: input, name: 'A' }, { input: this.weights['kernel'], name: 'B' }]
-    if (this.use_bias) {
-      matMulInputs.push({ input: this.weights['bias'], name: 'C' })
+    if (x.is2DReshaped || x.is2DSquareReshaped) {
+      // run conv2d program, which involves mapping the input using indexMap, and matrix multiply with weights
+      const hasFragments = Boolean(x.glTextureFragments)
+      if (hasFragments) {
+        x.convert2DRowFragmentedGLTextureToColStack()
+      }
+      if (!this.convProgram) {
+        const convProgramSource = createGLSLProgram(
+          'conv2d',
+          this.output.glTextureFragmentShape ? this.output.glTextureFragmentShape : this.output.glTextureShape,
+          x.glTextureFragmentShape ? x.glTextureFragmentShape : x.glTextureShape,
+          this.indexMap.glTextureFragmentShape ? this.indexMap.glTextureFragmentShape : this.indexMap.glTextureShape,
+          this.useBias,
+          hasFragments
+        )
+        this.convProgram = webgl2.compileProgram(convProgramSource)
+      }
+      webgl2.runProgram({
+        program: this.convProgram,
+        output: this.activation === 'linear' ? this.output : this.outputPreactiv,
+        inputs: [
+          { input: x, name: 'x' },
+          { input: this.indexMap, name: 'indexMap' },
+          { input: this.weights['kernel'], name: 'kernel' },
+          ...(this.useBias ? [{ input: this.weights['bias'], name: 'bias' }] : [])
+        ],
+        supportsTextureFragments: true
+      })
+    } else {
+      // run matrix multiply on result of vol2col
+      const matMulInputs = [{ input: this.volColsMat, name: 'A' }, { input: this.weights['kernel'], name: 'B' }]
+      if (this.useBias) {
+        matMulInputs.push({ input: this.weights['bias'], name: 'C' })
+      }
+      webgl2.runProgram({
+        program: this.matMulProgram,
+        output: this.activation === 'linear' ? this.output : this.outputPreactiv,
+        inputs: matMulInputs,
+        uniforms: [{ value: this.useBias ? 1 : 0, type: 'bool', name: 'addC' }],
+        supportsTextureFragments: true
+      })
     }
-    webgl2.runProgram({
-      program: this.matMulProgram,
-      output: this.activation === 'linear' ? this.output : this.outputPreactiv,
-      inputs: matMulInputs,
-      uniforms: [{ value: this.use_bias ? 1 : 0, type: 'bool', name: 'addC' }],
-      supportsTextureFragments: true
-    })
 
     // Activation
     if (this.activation !== 'linear') {

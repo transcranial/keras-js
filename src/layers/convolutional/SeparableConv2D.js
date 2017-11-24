@@ -230,10 +230,10 @@ export default class SeparableConv2D extends Layer {
       this.throwError('Invalid padding.')
     }
 
-    this.use_bias = use_bias
+    this.useBias = use_bias
 
     // Layer weights specification
-    this.params = this.use_bias
+    this.params = this.useBias
       ? ['depthwise_kernel', 'pointwise_kernel', 'bias']
       : ['depthwise_kernel', 'pointwise_kernel']
 
