@@ -3,7 +3,6 @@ import Tensor from '../../Tensor'
 import * as activations from '../../activations'
 import { webgl2 } from '../../WebGL2'
 import * as tensorUtils from '../../utils/tensorUtils'
-import _ from 'lodash'
 import ops from 'ndarray-ops'
 import gemm from 'ndarray-gemm'
 import Conv2D from './Conv2D'
@@ -120,25 +119,28 @@ class _DepthwiseConv2D extends Conv2D {
   }
 
   _createOutputReshapeIndexMap() {
-    if (this.reshapeRowIndexMap && this.reshapeColIndexMap) {
+    if (this.reshapeIndexMap) {
       return
     }
 
     const nbFilter = this.kernelShape[0]
     const reshape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
-    this.reshapeRowIndexMap = new Tensor([], reshape, { type: Int32Array })
-    this.reshapeColIndexMap = new Tensor([], reshape, { type: Int32Array })
+    const reshapeRowIndices = new Tensor([], reshape, { type: Int32Array })
+    const reshapeColIndices = new Tensor([], reshape, { type: Int32Array })
+    this.reshapeIndexMap = new Tensor([], reshape, { type: Int32Array })
     for (let j = 0; j < reshape[1]; j++) {
       for (let i = 0; i < reshape[0]; i++) {
-        ops.assigns(this.reshapeRowIndexMap.tensor.pick(i, j), i + Math.floor(j / nbFilter) * reshape[0])
+        ops.assigns(reshapeRowIndices.tensor.pick(i, j), i + Math.floor(j / nbFilter) * reshape[0])
       }
     }
     for (let j = 0; j < reshape[1]; j++) {
-      ops.assigns(this.reshapeColIndexMap.tensor.pick(null, j), j)
+      ops.assigns(reshapeColIndices.tensor.pick(null, j), j)
     }
+    // i * cols + j
+    ops.muls(this.reshapeIndexMap.tensor, reshapeRowIndices.tensor, reshape[1])
+    ops.addeq(this.reshapeIndexMap.tensor, reshapeColIndices.tensor)
 
-    this.reshapeRowIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
-    this.reshapeColIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
+    this.reshapeIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
   /**
@@ -158,29 +160,14 @@ class _DepthwiseConv2D extends Conv2D {
     }
     if (this.output.glTextureFragments) {
       this.output.convert2DRowFragmentedGLTextureToColStack()
-      webgl2.runProgram({
-        program: this.mapInputFragmentsProgram,
-        output: this.outputReshaped,
-        inputs: [
-          { input: this.output, name: 'x' },
-          { input: this.reshapeRowIndexMap, name: 'rowIndexMap' },
-          { input: this.reshapeColIndexMap, name: 'colIndexMap' }
-        ],
-        uniforms: [{ value: this.output.glTextureShape[1], type: 'int', name: 'fragmentCols' }],
-        supportsTextureFragments: true
-      })
-    } else {
-      webgl2.runProgram({
-        program: this.mapInputProgram,
-        output: this.outputReshaped,
-        inputs: [
-          { input: this.output, name: 'x' },
-          { input: this.reshapeRowIndexMap, name: 'rowIndexMap' },
-          { input: this.reshapeColIndexMap, name: 'colIndexMap' }
-        ],
-        supportsTextureFragments: true
-      })
     }
+    webgl2.runProgram({
+      program: this.output.glTextureFragments ? this.mapInputFragmentsProgram : this.mapInputProgram,
+      output: this.outputReshaped,
+      inputs: [{ input: this.output, name: 'x' }, { input: this.reshapeIndexMap, name: 'indexMap' }],
+      uniforms: [{ value: this.output.glTextureShape[1], type: 'int', name: 'inputCols' }],
+      supportsTextureFragments: true
+    })
   }
 }
 

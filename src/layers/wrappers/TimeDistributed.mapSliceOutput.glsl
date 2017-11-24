@@ -5,8 +5,7 @@ precision highp isampler2D;
 in vec2 outTex;
 uniform sampler2D outputCopy;
 uniform sampler2D sliceOutput;
-uniform isampler2D rowIndexMap;
-uniform isampler2D colIndexMap;
+uniform isampler2D indexMap;
 out vec4 outColor;
 
 void main() {
@@ -14,10 +13,11 @@ void main() {
   int out_x = int(float(size[0]) * outTex.x);
   int out_y = int(float(size[1]) * outTex.y);
 
-  int rowIndex = texelFetch(rowIndexMap, ivec2(out_x, out_y), 0).r;
-  int colIndex = texelFetch(colIndexMap, ivec2(out_x, out_y), 0).r;
+  int index = texelFetch(indexMap, ivec2(out_x, out_y), 0).r;
 
-  if (rowIndex != -1 && colIndex != -1) {
+  if (index != -1) {
+    int rowIndex = int(floor(float(index) / float(textureSize(sliceOutput, 0)[0])));
+    int colIndex = int(mod(float(index), float(textureSize(sliceOutput, 0)[0])));
     float val = texelFetch(sliceOutput, ivec2(colIndex, rowIndex), 0).r;
     outColor = vec4(val);
   } else {

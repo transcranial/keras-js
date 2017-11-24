@@ -90,15 +90,13 @@ export default class UpSampling3D extends Layer {
    * @param {Object} indicesForReshaped
    */
   _createIndexMap(indicesForReshaped) {
-    if (this.rowIndexMap && this.colIndexMap) {
+    if (this.indexMap) {
       return
     }
 
-    const indicesRow = new Tensor(indicesForReshaped.row.data, indicesForReshaped.row.shape, { type: Int32Array })
-    const indicesCol = new Tensor(indicesForReshaped.col.data, indicesForReshaped.col.shape, { type: Int32Array })
+    const indices = new Tensor(indicesForReshaped.data, indicesForReshaped.shape, { type: Int32Array })
 
-    this.rowIndexMap = new Tensor([], this.outputShape, { type: Int32Array })
-    this.colIndexMap = new Tensor([], this.outputShape, { type: Int32Array })
+    this.indexMap = new Tensor([], this.outputShape, { type: Int32Array })
 
     for (let i = 0; i < this.size[0]; i++) {
       for (let j = 0; j < this.size[1]; j++) {
@@ -108,16 +106,13 @@ export default class UpSampling3D extends Layer {
             this.dataFormat === 'channels_first'
               ? [1, this.size[0], this.size[1], this.size[2]]
               : [this.size[0], this.size[1], this.size[2], 1]
-          ops.assign(this.rowIndexMap.tensor.lo(...sliceStart).step(...step), indicesRow.tensor)
-          ops.assign(this.colIndexMap.tensor.lo(...sliceStart).step(...step), indicesCol.tensor)
+          ops.assign(this.indexMap.tensor.lo(...sliceStart).step(...step), indices.tensor)
         }
       }
     }
 
-    this.rowIndexMap.reshapeTo2DSquare()
-    this.colIndexMap.reshapeTo2DSquare()
-    this.rowIndexMap.createGLTexture({ type: '2d', format: 'int' })
-    this.colIndexMap.createGLTexture({ type: '2d', format: 'int' })
+    this.indexMap.reshapeTo2DSquare()
+    this.indexMap.createGLTexture({ type: '2d', format: 'int' })
   }
 
   /**
@@ -157,11 +152,8 @@ export default class UpSampling3D extends Layer {
     webgl2.runProgram({
       program: this.mapInputProgram,
       output: this.output,
-      inputs: [
-        { input: x, name: 'x' },
-        { input: this.rowIndexMap, name: 'rowIndexMap' },
-        { input: this.colIndexMap, name: 'colIndexMap' }
-      ]
+      inputs: [{ input: x, name: 'x' }, { input: this.indexMap, name: 'indexMap' }],
+      uniforms: [{ value: x.glTextureShape[1], type: 'int', name: 'inputCols' }]
     })
 
     // GPU -> CPU data transfer

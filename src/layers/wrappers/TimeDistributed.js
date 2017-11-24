@@ -95,29 +95,22 @@ export default class TimeDistributed extends Layer {
    * @param {Object} indicesForReshaped
    */
   _createIndexMap(indicesForReshaped) {
-    if (this.rowIndexMaps && this.colIndexMaps) {
+    if (this.indexMaps) {
       return
     }
 
-    const indicesRow = new Tensor(indicesForReshaped.row.data, indicesForReshaped.row.shape, { type: Int32Array })
-    const indicesCol = new Tensor(indicesForReshaped.col.data, indicesForReshaped.col.shape, { type: Int32Array })
+    const indices = new Tensor(indicesForReshaped.data, indicesForReshaped.shape, { type: Int32Array })
 
-    this.rowIndexMaps = []
-    this.colIndexMaps = []
+    this.indexMaps = []
 
     const timesteps = this.inputShape[0]
     const sliceShape = this.inputShape.slice(1)
     for (let t = 0; t < timesteps; t++) {
-      const sliceIndicesRow = new Tensor([], sliceShape, { type: Int32Array })
-      const sliceIndicesCol = new Tensor([], sliceShape, { type: Int32Array })
-      ops.assign(sliceIndicesRow.tensor, indicesRow.tensor.pick(t, ...Array(sliceShape.length).fill(null)))
-      ops.assign(sliceIndicesCol.tensor, indicesCol.tensor.pick(t, ...Array(sliceShape.length).fill(null)))
-      sliceIndicesRow.reshapeTo2DSquare()
-      sliceIndicesCol.reshapeTo2DSquare()
-      sliceIndicesRow.createGLTexture({ type: '2d', format: 'int' })
-      sliceIndicesCol.createGLTexture({ type: '2d', format: 'int' })
-      this.rowIndexMaps.push(sliceIndicesRow)
-      this.colIndexMaps.push(sliceIndicesCol)
+      const sliceIndices = new Tensor([], sliceShape, { type: Int32Array })
+      ops.assign(sliceIndices.tensor, indices.tensor.pick(t, ...Array(sliceShape.length).fill(null)))
+      sliceIndices.reshapeTo2DSquare()
+      sliceIndices.createGLTexture({ type: '2d', format: 'int' })
+      this.indexMaps.push(sliceIndices)
     }
   }
 
@@ -127,35 +120,23 @@ export default class TimeDistributed extends Layer {
    * @param {Object} indicesForReshaped
    */
   _createOutputIndexMap(indicesForReshaped) {
-    if (this.outputRowIndexMaps && this.outputColIndexMaps) {
+    if (this.outputIndexMaps) {
       return
     }
 
-    const outputSliceIndicesRow = new Tensor(indicesForReshaped.row.data, indicesForReshaped.row.shape, {
-      type: Int32Array
-    })
-    const outputSliceIndicesCol = new Tensor(indicesForReshaped.col.data, indicesForReshaped.col.shape, {
-      type: Int32Array
-    })
+    const outputSliceIndices = new Tensor(indicesForReshaped.data, indicesForReshaped.shape, { type: Int32Array })
 
-    this.outputRowIndexMaps = []
-    this.outputColIndexMaps = []
+    this.outputIndexMaps = []
 
     const timesteps = this.outputShape[0]
     const sliceShape = this.outputShape.slice(1)
     for (let t = 0; t < timesteps; t++) {
-      const outputIndicesRow = new Tensor([], this.outputShape, { type: Int32Array })
-      const outputIndicesCol = new Tensor([], this.outputShape, { type: Int32Array })
-      ops.assigns(outputIndicesRow.tensor, -1)
-      ops.assigns(outputIndicesCol.tensor, -1)
-      ops.assign(outputIndicesRow.tensor.pick(t, ...Array(sliceShape.length).fill(null)), outputSliceIndicesRow.tensor)
-      ops.assign(outputIndicesCol.tensor.pick(t, ...Array(sliceShape.length).fill(null)), outputSliceIndicesCol.tensor)
-      outputIndicesRow.reshapeTo2DSquare()
-      outputIndicesCol.reshapeTo2DSquare()
-      outputIndicesRow.createGLTexture({ type: '2d', format: 'int' })
-      outputIndicesCol.createGLTexture({ type: '2d', format: 'int' })
-      this.outputRowIndexMaps.push(outputIndicesRow)
-      this.outputColIndexMaps.push(outputIndicesCol)
+      const outputIndices = new Tensor([], this.outputShape, { type: Int32Array })
+      ops.assigns(outputIndices.tensor, -1)
+      ops.assign(outputIndices.tensor.pick(t, ...Array(sliceShape.length).fill(null)), outputSliceIndices.tensor)
+      outputIndices.reshapeTo2DSquare()
+      outputIndices.createGLTexture({ type: '2d', format: 'int' })
+      this.outputIndexMaps.push(outputIndices)
     }
   }
 
@@ -208,11 +189,8 @@ export default class TimeDistributed extends Layer {
       webgl2.runProgram({
         program: this.mapInputProgram,
         output: this.slice,
-        inputs: [
-          { input: x, name: 'x' },
-          { input: this.rowIndexMaps[0], name: 'rowIndexMap' },
-          { input: this.colIndexMaps[0], name: 'colIndexMap' }
-        ]
+        inputs: [{ input: x, name: 'x' }, { input: this.indexMaps[0], name: 'indexMap' }],
+        uniforms: [{ value: x.glTextureShape[1], type: 'int', name: 'inputCols' }]
       })
     }
 
@@ -259,8 +237,7 @@ export default class TimeDistributed extends Layer {
         inputs: [
           { input: this.outputCopy, name: 'outputCopy' },
           { input: this.sliceOutput, name: 'sliceOutput' },
-          { input: this.outputRowIndexMaps[0], name: 'rowIndexMap' },
-          { input: this.outputColIndexMaps[0], name: 'colIndexMap' }
+          { input: this.outputIndexMaps[0], name: 'indexMap' }
         ]
       })
     }
@@ -277,11 +254,8 @@ export default class TimeDistributed extends Layer {
         webgl2.runProgram({
           program: this.mapInputProgram,
           output: this.slice,
-          inputs: [
-            { input: x, name: 'x' },
-            { input: this.rowIndexMaps[i], name: 'rowIndexMap' },
-            { input: this.colIndexMaps[i], name: 'colIndexMap' }
-          ]
+          inputs: [{ input: x, name: 'x' }, { input: this.indexMaps[i], name: 'indexMap' }],
+          uniforms: [{ value: x.glTextureShape[1], type: 'int', name: 'inputCols' }]
         })
       }
 
@@ -308,8 +282,7 @@ export default class TimeDistributed extends Layer {
           inputs: [
             { input: this.outputCopy, name: 'outputCopy' },
             { input: this.sliceOutput, name: 'sliceOutput' },
-            { input: this.outputRowIndexMaps[i], name: 'rowIndexMap' },
-            { input: this.outputColIndexMaps[i], name: 'colIndexMap' }
+            { input: this.outputIndexMaps[i], name: 'indexMap' }
           ]
         })
       }

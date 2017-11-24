@@ -45,28 +45,32 @@ export function data3DLayoutForGL(typedarrayConstructor, arr, shape) {
  */
 export function createIndicesFor2DReshaped(shape, square = false, axis = -1) {
   const size = shape.reduce((a, b) => a * b, 1)
-  const indicesRowArr = ndarray(new Int32Array(size), shape)
-  const indicesColArr = ndarray(new Int32Array(size), shape)
+  const indicesArr = ndarray(new Int32Array(size), shape)
 
   if (square) {
     // called by Tensor.reshapeTo2DSquare
     const squareDim = Math.ceil(Math.sqrt(size))
     const indicesRowArrReshaped = ndarray(new Int32Array(squareDim ** 2), [squareDim, squareDim])
     const indicesColArrReshaped = ndarray(new Int32Array(squareDim ** 2), [squareDim, squareDim])
+    const indicesArrReshaped = ndarray(new Int32Array(squareDim ** 2), [squareDim, squareDim])
     for (let i = 0; i < squareDim; i++) {
       ops.assigns(indicesRowArrReshaped.pick(i, null), i)
     }
     for (let j = 0; j < squareDim; j++) {
       ops.assigns(indicesColArrReshaped.pick(null, j), j)
     }
-    indicesRowArr.data.set(indicesRowArrReshaped.data.subarray(0, indicesRowArr.size))
-    indicesColArr.data.set(indicesColArrReshaped.data.subarray(0, indicesColArr.size))
+    // i * cols + j
+    ops.muls(indicesArrReshaped, indicesRowArrReshaped, squareDim)
+    ops.addeq(indicesArrReshaped, indicesColArrReshaped)
+    indicesArr.data.set(indicesArrReshaped.data.subarray(0, indicesArr.size))
   } else {
     // called by Tensor.reshapeTo2D
     if (axis < 0) {
       axis = shape.length + axis
     }
     const axisSize = shape[axis]
+    const indicesRowArr = ndarray(new Int32Array(size), shape)
+    const indicesColArr = ndarray(new Int32Array(size), shape)
     const otherAxes = [...shape.slice(0, axis), ...shape.slice(axis + 1)]
     const otherAxesSize = otherAxes.reduce((a, b) => a * b, 1)
     const indicesRowArrSlice = ndarray(new Int32Array(_.range(otherAxesSize)), otherAxes)
@@ -76,8 +80,10 @@ export function createIndicesFor2DReshaped(shape, square = false, axis = -1) {
       ops.assign(indicesRowArr.pick(...axisSlices), indicesRowArrSlice)
       ops.assigns(indicesColArr.pick(...axisSlices), n)
     }
+    // i * cols + j
+    ops.muls(indicesArr, indicesRowArr, axisSize)
+    ops.addeq(indicesArr, indicesColArr)
   }
 
-  const indicesForReshaped = { row: indicesRowArr, col: indicesColArr }
-  return indicesForReshaped
+  return indicesArr
 }

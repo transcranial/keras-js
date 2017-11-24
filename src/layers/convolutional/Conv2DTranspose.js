@@ -315,7 +315,7 @@ export default class Conv2DTranspose extends Layer {
    * arrays.
    */
   _createIndexMap() {
-    if (this.rowIndexMap && this.colIndexMap) {
+    if (this.indexMap) {
       return
     }
 
@@ -384,20 +384,25 @@ export default class Conv2DTranspose extends Layer {
 
     // combine first two dimensions
     const tiledIndicesMapShape = [this.outputShape[0] * this.outputShape[1], effectiveKernelSize]
-    this.rowIndexMap = new Tensor([], tiledIndicesMapShape, { type: Int32Array })
-    this.colIndexMap = new Tensor([], tiledIndicesMapShape, { type: Int32Array })
+    this.indexMap = new Tensor([], tiledIndicesMapShape, { type: Int32Array })
     const channelData = new Tensor([], [effectiveKernelSize], { type: Int32Array })
     for (let i = 0; i < this.outputShape[0]; i++) {
       for (let j = 0; j < this.outputShape[1]; j++) {
-        ops.assign(channelData.tensor, outputRowIndicesMap.tensor.pick(i, j, null))
-        ops.assign(this.rowIndexMap.tensor.pick(i * this.outputShape[1] + j, null), channelData.tensor)
-        ops.assign(channelData.tensor, outputColIndicesMap.tensor.pick(i, j, null))
-        ops.assign(this.colIndexMap.tensor.pick(i * this.outputShape[1] + j, null), channelData.tensor)
+        for (let k = 0; k < effectiveKernelSize; k++) {
+          // i * cols + j
+          const rowIndex = outputRowIndicesMap.tensor.get(i, j, k)
+          const colIndex = outputColIndicesMap.tensor.get(i, j, k)
+          if (rowIndex !== -1 && colIndex !== -1) {
+            channelData.tensor.set(k, rowIndex * this.weights['kernel'].glTextureShape[1] + colIndex)
+          } else {
+            channelData.tensor.set(k, -1)
+          }
+        }
+        ops.assign(this.indexMap.tensor.pick(i * this.outputShape[1] + j, null), channelData.tensor)
       }
     }
 
-    this.rowIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
-    this.colIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
+    this.indexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
   /**
@@ -459,8 +464,7 @@ export default class Conv2DTranspose extends Layer {
         output: this.activation === 'linear' ? this.output : this.outputPreactiv,
         inputs: [
           { input: this.matMulResult, name: 'matMulResult' },
-          { input: this.rowIndexMap, name: 'rowIndexMap' },
-          { input: this.colIndexMap, name: 'colIndexMap' },
+          { input: this.indexMap, name: 'indexMap' },
           ...(this.use_bias ? [{ input: this.weights['bias'], name: 'bias' }] : [])
         ],
         uniforms: [
@@ -476,13 +480,13 @@ export default class Conv2DTranspose extends Layer {
         output: this.activation === 'linear' ? this.output : this.outputPreactiv,
         inputs: [
           { input: this.matMulResult, name: 'matMulResult' },
-          { input: this.rowIndexMap, name: 'rowIndexMap' },
-          { input: this.colIndexMap, name: 'colIndexMap' },
+          { input: this.indexMap, name: 'indexMap' },
           ...(this.use_bias ? [{ input: this.weights['bias'], name: 'bias' }] : [])
         ],
         uniforms: [
           { value: this.use_bias ? 1 : 0, type: 'bool', name: 'use_bias' },
-          { value: this.outputShape[2], type: 'int', name: 'cols' }
+          { value: this.matMulResult.glTextureShape[1], type: 'int', name: 'inputCols' },
+          { value: this.outputShape[2], type: 'int', name: 'outputCols' }
         ],
         supportsTextureFragments: true
       })

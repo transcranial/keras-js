@@ -66,10 +66,11 @@ export default class ZeroPadding1D extends Layer {
    * Creates row/col index mappings to map input texture to output texture
    */
   _createIndexMap() {
-    if (this.rowIndexMap && this.colIndexMap) {
+    if (this.indexMap) {
       return
     }
 
+    const indices = new Tensor([], this.inputShape, { type: Int32Array })
     const indicesRow = new Tensor([], this.inputShape, { type: Int32Array })
     const indicesCol = new Tensor([], this.inputShape, { type: Int32Array })
     for (let i = 0; i < this.inputShape[0]; i++) {
@@ -78,18 +79,17 @@ export default class ZeroPadding1D extends Layer {
     for (let j = 0; j < this.inputShape[1]; j++) {
       ops.assigns(indicesCol.tensor.pick(null, j), j)
     }
+    // i * cols + j
+    ops.muls(indices.tensor, indicesRow.tensor, this.inputShape[1])
+    ops.addeq(indices.tensor, indicesCol.tensor)
 
-    this.rowIndexMap = new Tensor([], this.outputShape, { type: Int32Array })
-    this.colIndexMap = new Tensor([], this.outputShape, { type: Int32Array })
+    this.indexMap = new Tensor([], this.outputShape, { type: Int32Array })
     const sliceStart = [this.padding[0], 0]
     const sliceEnd = [this.inputShape[0] + this.padding[0], this.inputShape[1]]
-    ops.assigns(this.rowIndexMap.tensor, -1)
-    ops.assigns(this.colIndexMap.tensor, -1)
-    ops.assign(this.rowIndexMap.tensor.hi(...sliceEnd).lo(...sliceStart), indicesRow.tensor)
-    ops.assign(this.colIndexMap.tensor.hi(...sliceEnd).lo(...sliceStart), indicesCol.tensor)
+    ops.assigns(this.indexMap.tensor, -1)
+    ops.assign(this.indexMap.tensor.hi(...sliceEnd).lo(...sliceStart), indices.tensor)
 
-    this.rowIndexMap.createGLTexture({ type: '2d', format: 'int' })
-    this.colIndexMap.createGLTexture({ type: '2d', format: 'int' })
+    this.indexMap.createGLTexture({ type: '2d', format: 'int' })
   }
 
   /**
@@ -114,11 +114,8 @@ export default class ZeroPadding1D extends Layer {
     webgl2.runProgram({
       program: this.mapInputProgram,
       output: this.output,
-      inputs: [
-        { input: x, name: 'x' },
-        { input: this.rowIndexMap, name: 'rowIndexMap' },
-        { input: this.colIndexMap, name: 'colIndexMap' }
-      ]
+      inputs: [{ input: x, name: 'x' }, { input: this.indexMap, name: 'indexMap' }],
+      uniforms: [{ value: x.glTextureShape[1], type: 'int', name: 'inputCols' }]
     })
 
     // GPU -> CPU data transfer

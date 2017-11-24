@@ -134,12 +134,8 @@ export default class BatchNormalization extends Layer {
     }
 
     if (indicesForReshaped) {
-      for (let i = 0; i < indicesForReshaped.row.data.length; i++) {
-        this.normAxisIndexMap.tensor.set(
-          indicesForReshaped.row.data[i],
-          indicesForReshaped.col.data[i],
-          _normAxisIndexMap.tensor.data[i]
-        )
+      for (let i = 0; i < indicesForReshaped.data.length; i++) {
+        this.normAxisIndexMap.tensor.data[indicesForReshaped.data[i]] = _normAxisIndexMap.tensor.data[i]
       }
     } else {
       this.normAxisIndexMap = _normAxisIndexMap

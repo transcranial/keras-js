@@ -69,10 +69,11 @@ export default class Permute extends Layer {
    * Creates row/col index mappings to map input texture to output texture
    */
   _createIndexMap() {
-    if (this.rowIndexMap && this.colIndexMap) {
+    if (this.indexMap) {
       return
     }
 
+    const indices = new Tensor([], this.inputShape, { type: Int32Array })
     const indicesRow = new Tensor([], this.inputShape, { type: Int32Array })
     const indicesCol = new Tensor([], this.inputShape, { type: Int32Array })
 
@@ -101,19 +102,18 @@ export default class Permute extends Layer {
     for (let c = 0; c < _.last(this.inputShape); c++) {
       ops.assigns(indicesCol.tensor.pick(...Array(this.inputShape.length - 1).fill(null), c), c)
     }
+    // i * cols + j
+    ops.muls(indices.tensor, indicesRow.tensor, _.last(this.inputShape))
+    ops.addeq(indices.tensor, indicesCol.tensor)
 
     const outputShape = this.dims.map(i => this.inputShape[i])
-    this.rowIndexMap = new Tensor([], outputShape, { type: Int32Array })
-    this.colIndexMap = new Tensor([], outputShape, { type: Int32Array })
-    ops.assign(this.rowIndexMap.tensor, indicesRow.tensor.transpose(...this.dims))
-    ops.assign(this.colIndexMap.tensor, indicesCol.tensor.transpose(...this.dims))
+    this.indexMap = new Tensor([], outputShape, { type: Int32Array })
+    ops.assign(this.indexMap.tensor, indices.tensor.transpose(...this.dims))
     if (outputShape.length > 2) {
-      this.rowIndexMap.reshapeTo2D()
-      this.colIndexMap.reshapeTo2D()
+      this.indexMap.reshapeTo2D()
     }
 
-    this.rowIndexMap.createGLTexture({ type: '2d', format: 'int' })
-    this.colIndexMap.createGLTexture({ type: '2d', format: 'int' })
+    this.indexMap.createGLTexture({ type: '2d', format: 'int' })
   }
 
   /**
@@ -149,11 +149,8 @@ export default class Permute extends Layer {
     webgl2.runProgram({
       program: this.mapInputProgram,
       output: this.output,
-      inputs: [
-        { input: x, name: 'x' },
-        { input: this.rowIndexMap, name: 'rowIndexMap' },
-        { input: this.colIndexMap, name: 'colIndexMap' }
-      ]
+      inputs: [{ input: x, name: 'x' }, { input: this.indexMap, name: 'indexMap' }],
+      uniforms: [{ value: x.glTextureShape[1], type: 'int', name: 'inputCols' }]
     })
 
     // GPU -> CPU data transfer

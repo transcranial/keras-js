@@ -330,14 +330,13 @@ export default class Conv2D extends Layer {
    * @param {Object} indicesForReshaped
    */
   _createIndexMap(indicesForReshaped) {
-    if (this.rowIndexMap && this.colIndexMap) {
+    if (this.indexMap) {
       return
     }
 
     let [inputRows, inputCols, inputChannels] = this.inputShape
 
-    const indicesRow = new Tensor(indicesForReshaped.row.data, indicesForReshaped.row.shape, { type: Int32Array })
-    const indicesCol = new Tensor(indicesForReshaped.col.data, indicesForReshaped.col.shape, { type: Int32Array })
+    const indices = new Tensor(indicesForReshaped.data, indicesForReshaped.shape, { type: Int32Array })
 
     // padding for border mode 'same'
     if (this.padding === 'same') {
@@ -345,8 +344,7 @@ export default class Conv2D extends Layer {
       inputRows = inputRows + paddingRowBefore + paddingRowAfter
       inputCols = inputCols + paddingColBefore + paddingColAfter
       const padValue = -1
-      this._padInput(indicesRow, padValue)
-      this._padInput(indicesCol, padValue)
+      this._padInput(indices, padValue)
     }
 
     const nbRow = this.kernelShape[1]
@@ -360,36 +358,25 @@ export default class Conv2D extends Layer {
     const nbRowDilated = nbRow + (nbRow - 1) * (this.dilationRate[0] - 1)
     const nbColDilated = nbCol + (nbCol - 1) * (this.dilationRate[1] - 1)
 
-    this.rowIndexMap = new Tensor([], [nbPatches, patchLen], { type: Int32Array })
-    this.colIndexMap = new Tensor([], [nbPatches, patchLen], { type: Int32Array })
+    this.indexMap = new Tensor([], [nbPatches, patchLen], { type: Int32Array })
 
-    const indicesRowPatch = new Tensor([], [nbRow, nbCol, inputChannels])
-    const indicesColPatch = new Tensor([], [nbRow, nbCol, inputChannels])
+    const indicesPatch = new Tensor([], [nbRow, nbCol, inputChannels])
     let offset = 0
     for (let i = 0, limit = inputRows - nbRowDilated; i <= limit; i += this.strides[0]) {
       for (let j = 0, limit = inputCols - nbColDilated; j <= limit; j += this.strides[1]) {
         ops.assign(
-          indicesRowPatch.tensor,
-          indicesRow.tensor
+          indicesPatch.tensor,
+          indices.tensor
             .hi(i + nbRowDilated, j + nbColDilated, inputChannels)
             .lo(i, j, 0)
             .step(this.dilationRate[0], this.dilationRate[1], 1)
         )
-        ops.assign(
-          indicesColPatch.tensor,
-          indicesCol.tensor
-            .hi(i + nbRowDilated, j + nbColDilated, inputChannels)
-            .lo(i, j, 0)
-            .step(this.dilationRate[0], this.dilationRate[1], 1)
-        )
-        this.rowIndexMap.tensor.data.set(indicesRowPatch.tensor.data, offset)
-        this.colIndexMap.tensor.data.set(indicesColPatch.tensor.data, offset)
+        this.indexMap.tensor.data.set(indicesPatch.tensor.data, offset)
         offset += patchLen
       }
     }
 
-    this.rowIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
-    this.colIndexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
+    this.indexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
   }
 
   /**
@@ -413,35 +400,20 @@ export default class Conv2D extends Layer {
     if (x.is2DReshaped || x.is2DSquareReshaped) {
       this._createIndexMap(x.indicesForReshaped)
       if (!this.mappedInput) {
-        this.mappedInput = new Tensor([], this.rowIndexMap.glTextureShape)
+        this.mappedInput = new Tensor([], this.indexMap.glTextureShape)
         this.mappedInput.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       }
 
       if (x.glTextureFragments) {
         x.convert2DRowFragmentedGLTextureToColStack()
-        webgl2.runProgram({
-          program: this.mapInputFragmentsProgram,
-          output: this.mappedInput,
-          inputs: [
-            { input: x, name: 'x' },
-            { input: this.rowIndexMap, name: 'rowIndexMap' },
-            { input: this.colIndexMap, name: 'colIndexMap' }
-          ],
-          uniforms: [{ value: x.glTextureShape[1], type: 'int', name: 'fragmentCols' }],
-          supportsTextureFragments: true
-        })
-      } else {
-        webgl2.runProgram({
-          program: this.mapInputProgram,
-          output: this.mappedInput,
-          inputs: [
-            { input: x, name: 'x' },
-            { input: this.rowIndexMap, name: 'rowIndexMap' },
-            { input: this.colIndexMap, name: 'colIndexMap' }
-          ],
-          supportsTextureFragments: true
-        })
       }
+      webgl2.runProgram({
+        program: x.glTextureFragments ? this.mapInputFragmentsProgram : this.mapInputProgram,
+        output: this.mappedInput,
+        inputs: [{ input: x, name: 'x' }, { input: this.indexMap, name: 'indexMap' }],
+        uniforms: [{ value: x.glTextureShape[1], type: 'int', name: 'inputCols' }],
+        supportsTextureFragments: true
+      })
     }
 
     const input = x.is2DReshaped || x.is2DSquareReshaped ? this.mappedInput : this.imColsMat
