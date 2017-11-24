@@ -506,7 +506,7 @@ export default class Conv3D extends Layer {
     const outputTextureShape = [input.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]
 
     // create output textures if doesn't already exist
-    if (!this.outputPreactiv) {
+    if (this.activation !== 'linear' && !this.outputPreactiv) {
       this.outputPreactiv = new Tensor([], outputTextureShape)
       this.outputPreactiv.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       this.outputPreactiv.is2DReshaped = true
@@ -528,16 +528,14 @@ export default class Conv3D extends Layer {
     }
     webgl2.runProgram({
       program: this.matMulProgram,
-      output: this.outputPreactiv,
+      output: this.activation === 'linear' ? this.output : this.outputPreactiv,
       inputs: matMulInputs,
       uniforms: [{ value: this.use_bias ? 1 : 0, type: 'bool', name: 'addC' }],
       supportsTextureFragments: true
     })
 
     // Activation
-    if (this.activation === 'linear') {
-      this.output = this.outputPreactiv
-    } else {
+    if (this.activation !== 'linear') {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.output,

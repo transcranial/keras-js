@@ -37,16 +37,10 @@ export default class Dense extends Layer {
       this.inputShape = [this.input_dim]
     }
 
-    // Output
-    this.outputPreactiv = new Tensor([], [this.units])
-    this.output = new Tensor([], [this.units])
-
     // GPU setup
     if (this.gpu) {
       this.matMulProgram = webgl2.compileProgram(matMulProgramSource)
       this.activationProgram = webgl2.compileProgram(activationProgramSources[this.activation])
-      this.outputPreactiv.createGLTexture({ type: '2d', format: 'float' })
-      this.output.createGLTexture({ type: '2d', format: 'float' })
     }
   }
 
@@ -71,6 +65,7 @@ export default class Dense extends Layer {
    * @param {Tensor} x
    */
   _callCPU(x) {
+    this.output = new Tensor([], [this.units])
     if (this.use_bias) {
       ops.assign(this.output.tensor, this.weights['bias'].tensor)
     }
@@ -88,6 +83,16 @@ export default class Dense extends Layer {
       x.createGLTexture({ type: '2d', format: 'float' })
     }
 
+    // create output textures if doesn't already exist
+    if (this.activation !== 'linear' && !this.outputPreactiv) {
+      this.outputPreactiv = new Tensor([], [this.units])
+      this.outputPreactiv.createGLTexture({ type: '2d', format: 'float' })
+    }
+    if (!this.output) {
+      this.output = new Tensor([], [this.units])
+      this.output.createGLTexture({ type: '2d', format: 'float' })
+    }
+
     // Matrix Multiply
     const matMulInputs = [{ input: x, name: 'A' }, { input: this.weights['kernel'], name: 'B' }]
     if (this.use_bias) {
@@ -95,15 +100,13 @@ export default class Dense extends Layer {
     }
     webgl2.runProgram({
       program: this.matMulProgram,
-      output: this.outputPreactiv,
+      output: this.activation === 'linear' ? this.output : this.outputPreactiv,
       inputs: matMulInputs,
       uniforms: [{ value: this.use_bias ? 1 : 0, type: 'bool', name: 'addC' }]
     })
 
     // Activation
-    if (this.activation === 'linear') {
-      this.output = this.outputPreactiv
-    } else {
+    if (this.activation !== 'linear') {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.output,

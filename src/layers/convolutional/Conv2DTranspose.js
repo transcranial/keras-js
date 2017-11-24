@@ -424,7 +424,7 @@ export default class Conv2DTranspose extends Layer {
       this.matMulResult = new Tensor([], outputTextureShape)
       this.matMulResult.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
     }
-    if (!this.outputPreactiv) {
+    if (this.activation !== 'linear' && !this.outputPreactiv) {
       const outputTextureShape = [this.outputShape[0] * this.outputShape[1], this.outputShape[2]]
       this.outputPreactiv = new Tensor([], outputTextureShape)
       this.outputPreactiv.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
@@ -456,7 +456,7 @@ export default class Conv2DTranspose extends Layer {
       this.matMulResult.convert2DRowFragmentedGLTextureToColStack()
       webgl2.runProgram({
         program: this.convTransposeFragmentsProgram,
-        output: this.outputPreactiv,
+        output: this.activation === 'linear' ? this.output : this.outputPreactiv,
         inputs: [
           { input: this.matMulResult, name: 'matMulResult' },
           { input: this.rowIndexMap, name: 'rowIndexMap' },
@@ -466,14 +466,14 @@ export default class Conv2DTranspose extends Layer {
         uniforms: [
           { value: this.use_bias ? 1 : 0, type: 'bool', name: 'use_bias' },
           { value: this.matMulResult.glTextureShape[1], type: 'int', name: 'inputFragmentCols' },
-          { value: this.outputPreactiv.glTextureShape[1], type: 'int', name: 'outputFragmentCols' }
+          { value: this.outputShape[2], type: 'int', name: 'outputFragmentCols' }
         ],
         supportsTextureFragments: true
       })
     } else {
       webgl2.runProgram({
         program: this.convTransposeProgram,
-        output: this.outputPreactiv,
+        output: this.activation === 'linear' ? this.output : this.outputPreactiv,
         inputs: [
           { input: this.matMulResult, name: 'matMulResult' },
           { input: this.rowIndexMap, name: 'rowIndexMap' },
@@ -489,9 +489,7 @@ export default class Conv2DTranspose extends Layer {
     }
 
     // Activation
-    if (this.activation === 'linear') {
-      this.output = this.outputPreactiv
-    } else {
+    if (this.activation !== 'linear') {
       webgl2.runProgram({
         program: this.activationProgram,
         output: this.output,
