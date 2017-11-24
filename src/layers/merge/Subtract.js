@@ -1,8 +1,8 @@
 import _Merge from './_Merge'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
+import createGLSLProgram from '../../webgl/dynamic/createGLSLProgram'
 import ops from 'ndarray-ops'
-import mergeProgramSource from './Subtract.glsl'
 
 /**
  * Subtract merge layer class, extends abstract _Merge class
@@ -18,11 +18,6 @@ export default class Subtract extends _Merge {
     this.layerClass = 'Subtract'
 
     this.mode = 'diff'
-
-    // GPU setup
-    if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(mergeProgramSource)
-    }
   }
 
   /**
@@ -39,5 +34,18 @@ export default class Subtract extends _Merge {
     this.output = new Tensor([], outputShape)
 
     ops.sub(this.output.tensor, inputs[0].tensor, inputs[1].tensor)
+  }
+
+  /**
+   * GPU call
+   *
+   * @param {Tensor[]} inputs
+   */
+  _callGPU(inputs) {
+    if (!this.mergeProgram) {
+      const mergeProgramSource = createGLSLProgram('subtract', inputs.length, inputs[0].glTextureShape)
+      this.mergeProgram = webgl2.compileProgram(mergeProgramSource)
+    }
+    super._callGPU(inputs)
   }
 }

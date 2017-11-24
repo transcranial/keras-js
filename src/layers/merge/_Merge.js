@@ -2,7 +2,6 @@ import Layer from '../../Layer'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
 import _ from 'lodash'
-import copyTextureProgramSource from '../../webgl/copyTexture.glsl'
 
 /**
  * _Merge layer class
@@ -17,11 +16,6 @@ export default class _Merge extends Layer {
     super(attrs)
     this.layerClass = '_Merge'
     this.isMergeLayer = true
-
-    // GPU setup
-    if (this.gpu) {
-      this.copyTextureProgram = webgl2.compileProgram(copyTextureProgramSource)
-    }
   }
 
   /**
@@ -84,13 +78,9 @@ export default class _Merge extends Layer {
   }
 
   /**
-   * CPU call
-   *
-   * implemented in child classes
-   *
-   * @param {Tensor[]} inputs
+   * CPU call implemented in child classes
    */
-  _callCPU(inputs) {}
+  _callCPU() {}
 
   /**
    * GPU call
@@ -125,47 +115,12 @@ export default class _Merge extends Layer {
       }
     }
 
-    const numInputs = inputs.length
-
-    const mergeUniforms = []
-    if (this.mode === 'ave') {
-      mergeUniforms.push({ value: numInputs, type: 'int', name: 'numInputs' })
-    }
     webgl2.runProgram({
       program: this.mergeProgram,
       output: this.output,
-      inputs: [{ input: inputs[0], name: 'input1' }, { input: inputs[1], name: 'input2' }],
-      uniforms: mergeUniforms,
+      inputs: inputs.map((input, i) => ({ input, name: `inputs[${i}]` })),
       supportsTextureFragments: true
     })
-
-    if (numInputs > 2) {
-      if (!this.runningOutput) {
-        this.runningOutput = new Tensor([], inputs[0].glTextureShape)
-        this.runningOutput.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
-      }
-      if (this.mode === 'ave') {
-        mergeUniforms.push({ value: 1, type: 'bool', name: 'additional' })
-      }
-
-      for (let i = 2; i < numInputs; i++) {
-        // copy output texture to intermediate output
-        webgl2.runProgram({
-          program: this.copyTextureProgram,
-          output: this.runningOutput,
-          inputs: [{ input: this.output, name: 'source' }],
-          supportsTextureFragments: true
-        })
-
-        webgl2.runProgram({
-          program: this.mergeProgram,
-          output: this.output,
-          inputs: [{ input: this.runningOutput, name: 'input1' }, { input: inputs[i], name: 'input2' }],
-          uniforms: mergeUniforms,
-          supportsTextureFragments: true
-        })
-      }
-    }
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {

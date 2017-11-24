@@ -1,8 +1,8 @@
 import _Merge from './_Merge'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
+import createGLSLProgram from '../../webgl/dynamic/createGLSLProgram'
 import ops from 'ndarray-ops'
-import mergeProgramSource from './Add.glsl'
 
 /**
  * Add merge layer class, extends abstract _Merge class
@@ -18,11 +18,6 @@ export default class Add extends _Merge {
     this.layerClass = 'Add'
 
     this.mode = 'sum'
-
-    // GPU setup
-    if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(mergeProgramSource)
-    }
   }
 
   /**
@@ -37,5 +32,18 @@ export default class Add extends _Merge {
     for (let i = 0; i < inputs.length; i++) {
       ops.addeq(this.output.tensor, inputs[i].tensor)
     }
+  }
+
+  /**
+   * GPU call
+   *
+   * @param {Tensor[]} inputs
+   */
+  _callGPU(inputs) {
+    if (!this.mergeProgram) {
+      const mergeProgramSource = createGLSLProgram('add', inputs.length, inputs[0].glTextureShape)
+      this.mergeProgram = webgl2.compileProgram(mergeProgramSource)
+    }
+    super._callGPU(inputs)
   }
 }

@@ -24,7 +24,7 @@ describe('merge layer: Subtract', function() {
       const key = `merge.Subtract.${i}`
       const title = `[${key}] [CPU] num branches merging: ${numBranches}`
       it(title, function() {
-        console.log(`\n%ctitle`, styles.h3)
+        console.log(`\n%c${title}`, styles.h3)
         const testInputs = []
         for (let i = 0; i < numBranches; i++) {
           const layer = new layers.Dense(attrs)
@@ -62,7 +62,7 @@ describe('merge layer: Subtract', function() {
       const key = `merge.Subtract.${i}`
       const title = `[${key}] [GPU] num branches merging: ${numBranches}`
       it(title, function() {
-        console.log(`\n%ctitle`, styles.h3)
+        console.log(`\n%c${title}`, styles.h3)
         const testInputs = []
         for (let i = 0; i < numBranches; i++) {
           const layer = new layers.Dense(Object.assign(attrs, { gpu: true }))

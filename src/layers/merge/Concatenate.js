@@ -1,10 +1,10 @@
 import _Merge from './_Merge'
 import Tensor from '../../Tensor'
 import { webgl2 } from '../../WebGL2'
+import createGLSLProgram from '../../webgl/dynamic/createGLSLProgram'
 import * as tensorUtils from '../../utils/tensorUtils'
 import concatFirstAxis from 'ndarray-concat-rows'
 import _ from 'lodash'
-import mergeProgramSource from './Concatenate.glsl'
 
 /**
  * Concatenate merge layer class, extends abstract _Merge class
@@ -25,11 +25,6 @@ export default class Concatenate extends _Merge {
 
     // no mini-batch axis here, so we subtract 1 if given axis > 0
     this.concatAxis = axis <= 0 ? axis : axis - 1
-
-    // GPU setup
-    if (this.gpu) {
-      this.mergeProgram = webgl2.compileProgram(mergeProgramSource)
-    }
   }
 
   /**
@@ -91,8 +86,8 @@ export default class Concatenate extends _Merge {
     }
 
     // create output textures if doesn't already exist
+    outputShape[_concatAxis] = _.sum(inputs.map(input => input.glTextureShape[_concatAxis]))
     if (!this.output) {
-      outputShape[_concatAxis] = _.sum(inputs.map(input => input.glTextureShape[_concatAxis]))
       this.output = new Tensor([], outputShape)
       this.output.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: _concatAxis === 1 })
       if (inputs[0].is1D) {
@@ -109,42 +104,25 @@ export default class Concatenate extends _Merge {
         )
       }
     }
-    if (!this.runningOutput) {
-      this.runningOutput = new Tensor([], outputShape)
-      this.runningOutput.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: _concatAxis === 1 })
+
+    if (!this.mergeProgram) {
+      const mergeProgramSource = createGLSLProgram(
+        'concatenate',
+        inputs.length,
+        inputs[0].glTextureShape,
+        outputShape,
+        _concatAxis
+      )
+      console.log(mergeProgramSource)
+      this.mergeProgram = webgl2.compileProgram(mergeProgramSource)
     }
 
-    const numInputs = inputs.length
-
-    let offsetStart = 0
-    let offsetEnd = inputs[0].glTextureShape[_concatAxis]
-    for (let i = 0; i < numInputs; i++) {
-      // copy output texture to intermediate output
-      webgl2.runProgram({
-        program: this.copyTextureProgram,
-        output: this.runningOutput,
-        inputs: [{ input: this.output, name: 'source' }],
-        supportsTextureFragments: true
-      })
-
-      // run merge program
-      webgl2.runProgram({
-        program: this.mergeProgram,
-        output: this.output,
-        inputs: [{ input: this.runningOutput, name: 'runningOutput' }, { input: inputs[i], name: 'input1' }],
-        uniforms: [
-          { value: _concatAxis, type: 'int', name: 'concatAxis' },
-          { value: offsetStart, type: 'int', name: 'offsetStart' },
-          { value: offsetEnd, type: 'int', name: 'offsetEnd' }
-        ],
-        supportsTextureFragments: true
-      })
-
-      if (i < numInputs - 1) {
-        offsetStart += inputs[i].glTextureShape[_concatAxis]
-        offsetEnd += inputs[i + 1].glTextureShape[_concatAxis]
-      }
-    }
+    webgl2.runProgram({
+      program: this.mergeProgram,
+      output: this.output,
+      inputs: inputs.map((input, i) => ({ input, name: `inputs[${i}]` })),
+      supportsTextureFragments: true
+    })
 
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {

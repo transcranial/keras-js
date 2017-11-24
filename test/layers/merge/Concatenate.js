@@ -1,4 +1,4 @@
-describe('merge layer: Concatenate', function() {
+describe.only('merge layer: Concatenate', function() {
   const assert = chai.assert
   const styles = testGlobals.styles
   const logTime = testGlobals.logTime
