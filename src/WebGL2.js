@@ -233,7 +233,7 @@ class WebGL2 {
       }
 
       for (let k = 0; k < numFragments; k++) {
-        this.bindOutputTexture(output.glTextureFragments[k], output.glTextureFragmentShapes[k])
+        this.bindOutputTexture(output.glTextureFragments[k], output.glTextureFragmentShape)
         this.bindInputTextures(program, inputs, k)
         gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
       }

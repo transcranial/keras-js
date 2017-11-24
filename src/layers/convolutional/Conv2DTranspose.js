@@ -465,8 +465,8 @@ export default class Conv2DTranspose extends Layer {
         ],
         uniforms: [
           { value: this.use_bias ? 1 : 0, type: 'bool', name: 'use_bias' },
-          { value: this.matMulResult.glTextureFragmentShapes[0][1], type: 'int', name: 'inputFragmentCols' },
-          { value: this.outputPreactiv.glTextureFragmentShapes[0][1], type: 'int', name: 'outputFragmentCols' }
+          { value: this.matMulResult.glTextureShape[1], type: 'int', name: 'inputFragmentCols' },
+          { value: this.outputPreactiv.glTextureShape[1], type: 'int', name: 'outputFragmentCols' }
         ],
         supportsTextureFragments: true
       })

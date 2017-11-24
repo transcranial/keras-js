@@ -485,7 +485,7 @@ export default class Conv3D extends Layer {
             { input: this.rowIndexMap, name: 'rowIndexMap' },
             { input: this.colIndexMap, name: 'colIndexMap' }
           ],
-          uniforms: [{ value: x.glTextureFragmentShapes[0][1], type: 'int', name: 'fragmentCols' }],
+          uniforms: [{ value: x.glTextureShape[1], type: 'int', name: 'fragmentCols' }],
           supportsTextureFragments: true
         })
       } else {

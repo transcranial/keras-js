@@ -166,7 +166,7 @@ class _DepthwiseConv2D extends Conv2D {
           { input: this.reshapeRowIndexMap, name: 'rowIndexMap' },
           { input: this.reshapeColIndexMap, name: 'colIndexMap' }
         ],
-        uniforms: [{ value: this.output.glTextureFragmentShapes[0][1], type: 'int', name: 'fragmentCols' }],
+        uniforms: [{ value: this.output.glTextureShape[1], type: 'int', name: 'fragmentCols' }],
         supportsTextureFragments: true
       })
     } else {
