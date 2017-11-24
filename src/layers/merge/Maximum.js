@@ -42,7 +42,8 @@ export default class Maximum extends _Merge {
    */
   _callGPU(inputs) {
     if (!this.mergeProgram) {
-      const mergeProgramSource = createGLSLProgram('maximum', inputs.length, inputs[0].glTextureShape)
+      const shape = inputs[0].glTextureFragments ? inputs[0].glTextureFragmentShape : inputs[0].glTextureShape
+      const mergeProgramSource = createGLSLProgram('maximum', inputs.length, shape)
       this.mergeProgram = webgl2.compileProgram(mergeProgramSource)
     }
     super._callGPU(inputs)

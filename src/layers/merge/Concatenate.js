@@ -106,10 +106,13 @@ export default class Concatenate extends _Merge {
     }
 
     if (!this.mergeProgram) {
+      const outputShape = this.output.glTextureFragments
+        ? this.output.glTextureFragmentShape
+        : this.output.glTextureShape
       const mergeProgramSource = createGLSLProgram(
         'concatenate',
         inputs.length,
-        inputs[0].glTextureShape,
+        inputs.map(input => input.glTextureShape),
         outputShape,
         _concatAxis
       )
