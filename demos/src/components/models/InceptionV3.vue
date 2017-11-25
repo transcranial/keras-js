@@ -172,7 +172,8 @@ export default {
       output: null,
       architectureDiagram: ARCHITECTURE_DIAGRAM,
       architectureConnections: ARCHITECTURE_CONNECTIONS,
-      architectureDiagramPaths: []
+      architectureDiagramPaths: [],
+      finishedLayerNames: []
     }
   },
 
@@ -190,10 +191,6 @@ export default {
         rows.push(cols)
       }
       return rows
-    },
-    finishedLayerNames() {
-      // store as computed property for reactivity
-      return this.model.finishedLayerNames
     },
     outputClasses() {
       if (!this.output) {
@@ -315,6 +312,7 @@ export default {
       this.model.predict(inputData).then(outputData => {
         this.inferenceTime = this.model.predictStats.forwardPass
         this.output = outputData['predictions']
+        this.finishedLayerNames = this.model.finishedLayerNames
         this.modelRunning = false
         this.updateVis()
       })
