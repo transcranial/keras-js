@@ -1,5 +1,33 @@
-# [Keras.js](https://transcranial.github.io/keras-js)
-[![CDNJS version](https://img.shields.io/cdnjs/v/keras-js.svg)](https://cdnjs.com/libraries/keras-js)
+<p align="center">
+  <a href="https://transcranial.github.io/keras-js">
+    <img src="https://cdn.rawgit.com/transcranial/keras-js/73aa4cca/assets/logo.svg" width="380px" />
+  </a>
+</p>
+
+<p align="center">
+  <strong>Run Keras models in the browser, with GPU support using WebGL</strong>
+</p>
+
+<div align="center">
+  <h3>
+    <a href="https://transcranial.github.io/keras-js">Interactive Demos</a>
+    <span> | </span>
+    <a href="https://transcranial.github.io/keras-js/docs">Documentation</a>
+  </h3>
+</div>
+
+<p align="center">
+  <a href="https://cdnjs.com/libraries/keras-js">
+    <img src="https://img.shields.io/cdnjs/v/keras-js.svg?style=flat-square" />
+  </a>
+  <a href="https://www.npmjs.com/package/keras-js">
+    <img src="https://img.shields.io/npm/v/keras-js.svg?style=flat-square" />
+  </a>
+</p>
+
+<br/>
+
+---
 
 Run [Keras](https://github.com/fchollet/keras) models (trained using Tensorflow backend) in your browser, with GPU support. Models are created directly from the Keras JSON-format configuration file, using weights serialized directly from the corresponding HDF5 file. Also works in node, but only in CPU mode.
 
@@ -8,8 +36,8 @@ Currently the focus of this library is on forward-pass inference only.
 Tensor operations are extended on top of the [ndarray](https://github.com/scijs/ndarray) library. GPU support is powered by WebGL 2.
 
 Library version compatibility:
-- Keras 2.0.4
-- TensorFlow 1.1.0
+- Keras 2.0.9
+- TensorFlow 1.4.0
 
 ### [Interactive Demos](https://transcranial.github.io/keras-js)
 
