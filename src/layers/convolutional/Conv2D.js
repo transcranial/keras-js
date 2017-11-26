@@ -289,6 +289,7 @@ export default class Conv2D extends Layer {
   _callCPU(x) {
     this.inputShape = x.tensor.shape
     this._calcOutputShape(this.inputShape)
+    x = new Tensor(x.tensor.data, x.tensor.shape)
     this._padInput(x)
     this._im2col(x)
 

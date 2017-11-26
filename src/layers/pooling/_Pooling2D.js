@@ -146,6 +146,7 @@ export default class _Pooling2D extends Layer {
     }
 
     this._calcOutputShape(x.tensor.shape)
+    x = new Tensor(x.tensor.data, x.tensor.shape)
     this._padInput(x)
 
     const [inputRows, inputCols, inputChannels] = x.tensor.shape
