@@ -21,7 +21,8 @@ export default class Model {
    * @param {Object} [config.headers] - any additional HTTP headers required for resource fetching
    * @param {Object} [config.filesystem] - specifies that data files are from local file system (Node.js only)
    * @param {boolean} [config.gpu] - enable GPU
-   * @param {boolean} [config.transferLayerOutputs] - in GPU mode, transfer outputs of each layer from GPU->CPU
+   * @param {boolean} [config.transferLayerOutputs] - in GPU mode, transfer outputs of each layer from GPU->CPU (warning: decreases performance)
+   * @param {boolean} [config.pauseAfterLayerCalls] - break up blocking computation by layer, to allow for intervening DOM updates, for example
    * @param {string[]} [config.visualizations] - specifies which visualizations to calculate
    */
   constructor(config = {}) {
@@ -31,6 +32,7 @@ export default class Model {
       filesystem = false,
       gpu = false,
       transferLayerOutputs = false,
+      pauseAfterLayerCalls = false,
       visualizations = []
     } = config
 
@@ -59,8 +61,11 @@ export default class Model {
     // flag to enable GPU where possible (disable in node environment)
     this.gpu = typeof window !== 'undefined' && webgl2.isSupported ? gpu : false
 
-    // in GPU mode, transfer intermediate outputs of each layer from GPU->CPU (warning: decreases performance)
+    // in GPU mode, transfer intermediate outputs of each layer from GPU->CPU
     this.transferLayerOutputs = transferLayerOutputs
+
+    // break up blocking computation by layer, to allow for intervening DOM updates, for example
+    this.pauseAfterLayerCalls = pauseAfterLayerCalls
 
     // map of model layers
     this.modelLayersMap = new Map()
@@ -464,6 +469,10 @@ export default class Model {
         currentLayer.hasOutput = true
         currentLayer.visited = true
         this.finishedLayerNames.push(currentLayer.name)
+
+        if (this.pauseAfterLayerCalls) {
+          await Promise.delay(0)
+        }
       }
 
       await this._traverseDAG(currentLayer.outbound)
