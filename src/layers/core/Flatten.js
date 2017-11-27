@@ -76,7 +76,6 @@ export default class Flatten extends Layer {
 
     if (x.glTextureFragments) {
       x.convert2DRowFragmentedGLTextureToColStack()
-      console.log(x)
       webgl2.runProgram({
         program: this.flattenFragmentsProgram,
         output: this.output,
@@ -88,6 +87,7 @@ export default class Flatten extends Layer {
         ],
         supportsTextureFragments: true
       })
+      x.removeGLTextureFragmentsAsColStack()
     } else {
       webgl2.runProgram({
         program: this.flattenProgram,

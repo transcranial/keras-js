@@ -445,6 +445,9 @@ export default class Conv2D extends Layer {
         ],
         supportsTextureFragments: true
       })
+      if (hasFragments) {
+        x.removeGLTextureFragmentsAsColStack()
+      }
     } else {
       // run matrix multiply on result of im2col
       const matMulInputs = [{ input: this.imColsMat, name: 'A' }, { input: this.weights['kernel'], name: 'B' }]

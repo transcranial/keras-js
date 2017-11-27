@@ -471,7 +471,6 @@ export default class Conv2DTranspose extends Layer {
       )
       this.convTransposeProgram = webgl2.compileProgram(convTransposeProgramSource)
     }
-
     webgl2.runProgram({
       program: this.convTransposeProgram,
       output: this.activation === 'linear' ? this.output : this.outputPreactiv,
@@ -482,6 +481,9 @@ export default class Conv2DTranspose extends Layer {
       ],
       supportsTextureFragments: true
     })
+    if (hasFragments) {
+      this.matMulResult.removeGLTextureFragmentsAsColStack()
+    }
 
     // Activation
     if (this.activation !== 'linear') {

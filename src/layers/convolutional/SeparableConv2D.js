@@ -168,6 +168,9 @@ class _DepthwiseConv2D extends Conv2D {
       uniforms: [{ value: this.output.glTextureShape[1], type: 'int', name: 'inputCols' }],
       supportsTextureFragments: true
     })
+    if (this.output.glTextureFragments) {
+      this.output.removeGLTextureFragmentsAsColStack()
+    }
   }
 }
 

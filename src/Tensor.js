@@ -228,6 +228,18 @@ export default class Tensor {
   }
 
   /**
+   * Removes glTextureFragmentsAsColStack
+   */
+  removeGLTextureFragmentsAsColStack() {
+    if (this.glTextureFragmentsAsColStack) {
+      const gl = webgl2.context
+      gl.deleteTexture(this.glTextureFragmentsAsColStack)
+      delete this.glTextureFragmentsAsColStack
+      delete this.glTextureFragmentsAsColStackShape
+    }
+  }
+
+  /**
    * Deletes WebGLTexture
    */
   deleteGLTexture() {

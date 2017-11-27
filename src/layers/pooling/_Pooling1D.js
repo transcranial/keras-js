@@ -176,6 +176,7 @@ export default class _Pooling1D extends Layer {
         uniforms: programUniforms,
         supportsTextureFragments: true
       })
+      x.removeGLTextureFragmentsAsColStack()
     } else {
       webgl2.runProgram({
         program: this.poolingProgram,
