@@ -118,7 +118,7 @@ export default class _Pooling2D extends Layer {
       const newRows = inputRows + paddingRowBefore + paddingRowAfter
       const newCols = inputCols + paddingColBefore + paddingColAfter
 
-      let _x = new Tensor([], [newRows, newCols, inputChannels])
+      const _x = new Tensor([], [newRows, newCols, inputChannels])
       if (this.poolingFunc === 'max') {
         ops.assigns(_x.tensor, Number.NEGATIVE_INFINITY)
       }
@@ -129,7 +129,7 @@ export default class _Pooling2D extends Layer {
           .lo(paddingRowBefore, paddingColBefore, 0),
         x.tensor
       )
-      x.tensor = _x.tensor
+      return _x
     }
     return x
   }
@@ -146,8 +146,7 @@ export default class _Pooling2D extends Layer {
     }
 
     this._calcOutputShape(x.tensor.shape)
-    x = new Tensor(x.tensor.data, x.tensor.shape)
-    this._padInput(x)
+    x = this._padInput(x)
 
     const [inputRows, inputCols, inputChannels] = x.tensor.shape
     const [nbRow, nbCol] = this.poolSize

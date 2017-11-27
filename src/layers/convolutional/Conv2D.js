@@ -196,7 +196,7 @@ export default class Conv2D extends Layer {
       const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.inputPadding
       const newRows = inputRows + paddingRowBefore + paddingRowAfter
       const newCols = inputCols + paddingColBefore + paddingColAfter
-      let _x = new Tensor([], [newRows, newCols, inputChannels])
+      const _x = new Tensor([], [newRows, newCols, inputChannels])
       if (padValue !== 0) {
         ops.assigns(_x.tensor, padValue)
       }
@@ -206,7 +206,7 @@ export default class Conv2D extends Layer {
           .lo(paddingRowBefore, paddingColBefore, 0),
         x.tensor
       )
-      x.tensor = _x.tensor
+      return _x
     }
     return x
   }
@@ -289,8 +289,7 @@ export default class Conv2D extends Layer {
   _callCPU(x) {
     this.inputShape = x.tensor.shape
     this._calcOutputShape(this.inputShape)
-    x = new Tensor(x.tensor.data, x.tensor.shape)
-    this._padInput(x)
+    x = this._padInput(x)
     this._im2col(x)
 
     const nbFilter = this.kernelShape[0]
@@ -338,7 +337,7 @@ export default class Conv2D extends Layer {
 
     let [inputRows, inputCols, inputChannels] = this.inputShape
 
-    const indices = new Tensor(indicesForReshaped.data, indicesForReshaped.shape, { type: Int32Array })
+    let indices = new Tensor(indicesForReshaped.data, indicesForReshaped.shape, { type: Int32Array })
 
     // padding for border mode 'same'
     if (this.padding === 'same') {
@@ -346,7 +345,7 @@ export default class Conv2D extends Layer {
       inputRows = inputRows + paddingRowBefore + paddingRowAfter
       inputCols = inputCols + paddingColBefore + paddingColAfter
       const padValue = -1
-      this._padInput(indices, padValue)
+      indices = this._padInput(indices, padValue)
     }
 
     const nbRow = this.kernelShape[1]
@@ -396,7 +395,7 @@ export default class Conv2D extends Layer {
     } else {
       this.inputShape = x.tensor.shape
       this._calcOutputShape(this.inputShape)
-      this._padInput(x)
+      x = this._padInput(x)
       this._im2col(x)
       this.imColsMat.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       outputTextureShape = [this.imColsMat.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]

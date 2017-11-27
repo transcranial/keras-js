@@ -92,7 +92,7 @@ class _DepthwiseConv2D extends Conv2D {
   _callCPU(x) {
     this.inputShape = x.tensor.shape
     this._calcOutputShape(this.inputShape)
-    this._padInput(x)
+    x = this._padInput(x)
     this._im2col(x)
 
     const nbFilter = this.kernelShape[0]

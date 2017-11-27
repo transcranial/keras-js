@@ -136,7 +136,7 @@ export default {
     // store module on component instance as non-reactive object
     this.model = new KerasJS.Model({
       filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
-      gpu: false && this.hasWebGL,
+      gpu: this.hasWebGL,
       visualizations: ['CAM']
     })
   },

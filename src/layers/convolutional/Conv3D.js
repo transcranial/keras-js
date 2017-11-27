@@ -223,7 +223,7 @@ export default class Conv3D extends Layer {
       const newDim1 = inputDim1 + paddingDim1Before + paddingDim1After
       const newDim2 = inputDim2 + paddingDim2Before + paddingDim2After
       const newDim3 = inputDim3 + paddingDim3Before + paddingDim3After
-      let _x = new Tensor([], [newDim1, newDim2, newDim3, inputChannels])
+      const _x = new Tensor([], [newDim1, newDim2, newDim3, inputChannels])
       if (padValue !== 0) {
         ops.assigns(_x.tensor, padValue)
       }
@@ -238,7 +238,7 @@ export default class Conv3D extends Layer {
           .lo(paddingDim1Before, paddingDim2Before, paddingDim3Before, 0),
         x.tensor
       )
-      x.tensor = _x.tensor
+      return _x
     }
     return x
   }
@@ -333,7 +333,7 @@ export default class Conv3D extends Layer {
   _callCPU(x) {
     this.inputShape = x.tensor.shape
     this._calcOutputShape(this.inputShape)
-    this._padInput(x)
+    x = this._padInput(x)
     this._vol2col(x)
 
     const nbFilter = this.kernelShape[0]
@@ -382,7 +382,7 @@ export default class Conv3D extends Layer {
 
     let [inputDim1, inputDim2, inputDim3, inputChannels] = this.inputShape
 
-    const indices = new Tensor(indicesForReshaped.data, indicesForReshaped.shape, { type: Int32Array })
+    let indices = new Tensor(indicesForReshaped.data, indicesForReshaped.shape, { type: Int32Array })
 
     // padding for border mode 'same'
     if (this.padding === 'same') {
@@ -398,7 +398,7 @@ export default class Conv3D extends Layer {
       inputDim2 = inputDim2 + paddingDim2Before + paddingDim2After
       inputDim3 = inputDim3 + paddingDim3Before + paddingDim3After
       const padValue = -1
-      this._padInput(indices, padValue)
+      indices = this._padInput(indices, padValue)
     }
 
     const kernelDim1 = this.kernelShape[1]
@@ -453,7 +453,7 @@ export default class Conv3D extends Layer {
     } else {
       this.inputShape = x.tensor.shape
       this._calcOutputShape(this.inputShape)
-      this._padInput(x)
+      x = this._padInput(x)
       this._vol2col(x)
       this.volColsMat.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       outputTextureShape = [this.volColsMat.glTextureShape[0], this.weights['kernel'].glTextureShape[1]]

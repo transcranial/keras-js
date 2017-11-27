@@ -142,7 +142,7 @@ export default class _Pooling3D extends Layer {
       const newDim2 = inputDim2 + paddingDim2Before + paddingDim2After
       const newDim3 = inputDim3 + paddingDim3Before + paddingDim3After
 
-      let _x = new Tensor([], [newDim1, newDim2, newDim3, inputChannels])
+      const _x = new Tensor([], [newDim1, newDim2, newDim3, inputChannels])
       if (this.poolingFunc === 'max') {
         ops.assigns(_x.tensor, Number.NEGATIVE_INFINITY)
       }
@@ -158,7 +158,7 @@ export default class _Pooling3D extends Layer {
           .lo(paddingDim1Before, paddingDim2Before, paddingDim3Before, 0),
         x.tensor
       )
-      x.tensor = _x.tensor
+      return _x
     }
     return x
   }
@@ -175,7 +175,7 @@ export default class _Pooling3D extends Layer {
     }
 
     this._calcOutputShape(x.tensor.shape)
-    this._padInput(x)
+    x = this._padInput(x)
 
     const [inputDim1, inputDim2, inputDim3, inputChannels] = x.tensor.shape
     const [poolDim1, poolDim2, poolDim3] = this.poolSize
