@@ -61,13 +61,13 @@
           >(hover over image to view)</div>
         </v-flex>
         <v-flex sm5 md3 class="canvas-container">
-          <canvas id="input-canvas" width="224" height="224"
+          <canvas id="input-canvas" :width="imageSize" :height="imageSize"
             v-on:mouseenter="showVis = true"
             v-on:mouseleave="showVis = false"
           ></canvas>
           <transition name="fade">
             <div v-show="showVis">
-              <canvas id="visualization-canvas" width="224" height="224"
+              <canvas id="visualization-canvas" :width="imageSize" :height="imageSize"
                 :style="{ opacity: colormapSelect === 'transparency' ? 1 : colormapAlpha }"
               ></canvas>
             </div>
@@ -155,6 +155,7 @@ export default {
   data() {
     return {
       useGPU: this.hasWebGL,
+      imageSize: 224,
       modelLoading: true,
       modelRunning: false,
       inferenceTime: null,
@@ -285,7 +286,14 @@ export default {
             })
           }
         },
-        { maxWidth: 224, maxHeight: 224, cover: true, crop: true, canvas: true, crossOrigin: 'Anonymous' }
+        {
+          maxWidth: this.imageSize,
+          maxHeight: this.imageSize,
+          cover: true,
+          crop: true,
+          canvas: true,
+          crossOrigin: 'Anonymous'
+        }
       )
     },
     runModel() {

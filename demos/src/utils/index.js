@@ -185,7 +185,12 @@ export function imagenetClassesTopK(classProbabilities, k = 5) {
 
   const topK = _.take(sorted, k).map(probIndex => {
     const iClass = imagenetClasses[probIndex[1]]
-    return { id: iClass[0], name: iClass[1].replace(/_/, ' '), probability: probIndex[0] }
+    return {
+      id: iClass[0],
+      index: parseInt(probIndex[1], 10),
+      name: iClass[1].replace(/_/, ' '),
+      probability: probIndex[0]
+    }
   })
   return topK
 }

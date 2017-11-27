@@ -61,13 +61,13 @@
           >(hover over image to view)</div>
         </v-flex>
         <v-flex sm6 md4 class="canvas-container">
-          <canvas id="input-canvas" width="299" height="299"
+          <canvas id="input-canvas" :width="imageSize" :height="imageSize"
             v-on:mouseenter="showVis = true"
             v-on:mouseleave="showVis = false"
           ></canvas>
           <transition name="fade">
             <div v-show="showVis">
-              <canvas id="visualization-canvas" width="299" height="299"
+              <canvas id="visualization-canvas" :width="imageSize" :height="imageSize"
                 :style="{ opacity: colormapSelect === 'transparency' ? 1 : colormapAlpha }"
               ></canvas>
             </div>
@@ -119,6 +119,7 @@
 import loadImage from 'blueimp-load-image'
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
+import resample from 'ndarray-resample'
 import _ from 'lodash'
 import * as utils from '../../utils'
 import { IMAGE_URLS } from '../../data/sample-image-urls'
@@ -135,7 +136,7 @@ export default {
     // store module on component instance as non-reactive object
     this.model = new KerasJS.Model({
       filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
-      gpu: this.hasWebGL,
+      gpu: false && this.hasWebGL,
       visualizations: ['CAM']
     })
   },
@@ -155,6 +156,7 @@ export default {
   data() {
     return {
       useGPU: this.hasWebGL,
+      imageSize: 299,
       modelLoading: true,
       modelRunning: false,
       inferenceTime: null,
@@ -216,11 +218,11 @@ export default {
       if (newVal === 'None') {
         this.showVis = false
       } else {
-        this.updateVis()
+        this.updateVis(this.outputClasses[0].index)
       }
     },
     colormapSelect() {
-      this.updateVis()
+      this.updateVis(this.outputClasses[0].index)
     }
   },
 
@@ -288,7 +290,14 @@ export default {
             })
           }
         },
-        { maxWidth: 299, maxHeight: 299, cover: true, crop: true, canvas: true, crossOrigin: 'Anonymous' }
+        {
+          maxWidth: this.imageSize,
+          maxHeight: this.imageSize,
+          cover: true,
+          crop: true,
+          canvas: true,
+          crossOrigin: 'Anonymous'
+        }
       )
     },
     runModel() {
@@ -314,26 +323,31 @@ export default {
         this.output = outputData['predictions']
         this.finishedLayerNames = this.model.finishedLayerNames
         this.modelRunning = false
-        this.updateVis()
+        this.updateVis(this.outputClasses[0].index)
       })
     },
-    updateVis() {
+    updateVis(index) {
       if (!this.output || !this.model.visMap.has(this.visualizationSelect)) return
 
       const vis = this.model.visMap.get(this.visualizationSelect)
-      const height = vis.height
-      const width = vis.width
-      const imageDataArr = ndarray(new Uint8ClampedArray(height * width * 4), [height, width, 4])
+      const height = this.imageSize
+      const width = this.imageSize
+      const visDataArr = ndarray(vis.data, vis.shape)
+      const visClassDataArr = ndarray(new Float32Array(vis.shape[0] * vis.shape[1]), [vis.shape[0], vis.shape[1]])
+      ops.assign(visClassDataArr, visDataArr.pick(null, null, index))
+      const visClassDataArrResized = ndarray(new Float32Array(height * width), [height, width])
+      resample(visClassDataArrResized, visClassDataArr)
 
+      const imageDataArr = ndarray(new Uint8ClampedArray(height * width * 4), [height, width, 4])
       if (this.colormapSelect === 'transparency') {
-        const alpha = ndarray(new Float32Array(vis.data), [height, width])
+        const alpha = visClassDataArrResized
         ops.mulseq(alpha, -255)
         ops.addseq(alpha, 255)
         ops.assign(imageDataArr.pick(null, null, 3), alpha)
       } else {
         const colormap = this.colormapSelect
-        for (let i = 0, len = vis.data.length; i < len; i++) {
-          const rgb = colormap(vis.data[i]).rgb()
+        for (let i = 0, len = visClassDataArrResized.data.length; i < len; i++) {
+          const rgb = colormap(visClassDataArrResized.data[i]).rgb()
           imageDataArr.data[4 * i] = rgb[0]
           imageDataArr.data[4 * i + 1] = rgb[1]
           imageDataArr.data[4 * i + 2] = rgb[2]
