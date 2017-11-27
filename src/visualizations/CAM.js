@@ -1,9 +1,9 @@
 import Tensor from '../Tensor'
 import { webgl2 } from '../WebGL2'
-import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
-import resample from 'ndarray-resample'
-import programSource from './CAM.glsl'
+import { gemv } from 'ndarray-blas-level2'
+import gemm from 'ndarray-gemm'
+import createGLSLProgram from '../webgl/dynamic/createGLSLProgram'
 
 /**
  * Class Activation Maps
@@ -19,21 +19,13 @@ export default class CAM {
     if (!this.modelLayersMap) {
       throw new Error(`[CAM] modelLayersMap is required`)
     }
-
-    // GPU setup
-    if (this.gpu) {
-      this.program = webgl2.compileProgram(programSource)
-    }
   }
 
   /**
    * Checks whether CAM can be computed directly (requires GlobalAveragePooling2D layer)
    * Grad-CAM generalizes this to arbitrary architectures, and may be implemented in the future.
-   *
-   * @param {number} width
-   * @param {number} height
    */
-  initialize(width, height) {
+  initialize() {
     this.modelLayersMap.forEach(layer => {
       if (layer.layerClass === 'GlobalAveragePooling2D') {
         this.enabled = true
@@ -42,9 +34,38 @@ export default class CAM {
     })
 
     if (this.enabled && !this.data) {
-      this.width = width
-      this.height = height
-      this.data = new Float32Array(this.width * this.height)
+      // get feature maps from preceding layer
+      this.featureMaps = this.modelLayersMap.get(this.poolLayer.inbound[0]).output
+
+      // traverse until we get feature map weights
+      // in Inception-V3, for example, this is the kernel weights of the final fully-connected layer
+      // in Squeezenet, for example, this is simply the output of the GlobalAveragePooling2D layer
+      let weightsFound = false
+      let finalLayerReached = false
+      let traversingLayer = this.poolLayer
+      while (!weightsFound && !finalLayerReached) {
+        traversingLayer = this.modelLayersMap.get(traversingLayer.outbound[0])
+        if (traversingLayer.weights['kernel']) {
+          this.weights = traversingLayer.weights['kernel']
+          weightsFound = true
+        } else if (!traversingLayer.outbound.length) {
+          this.weights = this.poolLayer.output
+          finalLayerReached = true
+        }
+      }
+
+      if (this.featureMaps.is2DReshaped) {
+        this.inputShape = this.featureMaps.originalShape.slice(0, 2)
+      } else {
+        this.inputShape = this.featureMaps.tensor.shape.slice(0, 2)
+      }
+      if (this.weights.tensor.shape.length === 1) {
+        this.shape = this.inputShape
+      } else {
+        const numOutputClasses = this.weights.tensor.shape[1]
+        this.shape = [...this.inputShape, numOutputClasses]
+      }
+      this.data = new Float32Array(this.shape.reduce((a, b) => a * b, 1))
     }
   }
 
@@ -54,8 +75,6 @@ export default class CAM {
   update() {
     if (!this.enabled) return
 
-    // GlobalAveragePooling2D layer provides feature map weights
-    this.weights = this.poolLayer.output
     // get feature maps from preceding layer
     this.featureMaps = this.modelLayersMap.get(this.poolLayer.inbound[0]).output
 
@@ -65,58 +84,72 @@ export default class CAM {
       this._updateCPU()
     }
 
-    const dataArr = ndarray(this.data, [this.height, this.width])
-    resample(dataArr, this.output.tensor)
+    // normalize 0-1
+    const outputMin = ops.inf(this.output.tensor)
+    const outputMax = ops.sup(this.output.tensor)
+    ops.divseq(ops.subseq(this.output.tensor, outputMin), outputMax - outputMin)
+
+    // update data
+    this.data = this.output.tensor.data
   }
 
   _updateCPU() {
-    this.inputShape = this.featureMaps.tensor.shape
-    this.outputShape = this.inputShape.slice(0, 2)
-    if (!this.output) {
-      this.output = new Tensor([], this.outputShape)
+    if (!this.featureMaps.is2DReshaped) {
+      this.featureMaps.reshapeTo2D()
     }
 
-    const channels = this.weights.tensor.shape[0]
-    const weightedFeatureMap = new Tensor([], this.outputShape)
-    ops.assigns(this.output.tensor, 0)
-    for (let c = 0; c < channels; c++) {
-      ops.muls(weightedFeatureMap.tensor, this.featureMaps.tensor.pick(null, null, c), this.weights.tensor.get(c))
-      ops.addeq(this.output.tensor, weightedFeatureMap.tensor)
+    if (this.weights.tensor.shape.length === 1) {
+      if (!this.output) {
+        this.output = new Tensor([], this.shape)
+      }
+      const matVec = new Tensor([], [this.shape[0] * this.shape[1]])
+      gemv(1, this.featureMaps.tensor, this.weights.tensor, 1, matVec.tensor)
+      ops.divseq(matVec.tensor, ops.sum(this.weights.tensor))
+      this.output.replaceTensorData(matVec.tensor.data)
+    } else {
+      if (!this.output) {
+        this.output = new Tensor([], this.shape)
+      }
+      this.output.reshapeTo2D()
+      gemm(this.output.tensor, this.featureMaps.tensor, this.weights.tensor, 1, 1)
+      this.output.reshapeFrom2D()
     }
-    ops.divseq(this.output.tensor, ops.sum(this.weights.tensor))
     ops.maxseq(this.output.tensor, 0)
 
-    // normalize 0-1
-    ops.divseq(this.output.tensor, ops.sup(this.output.tensor))
+    if (this.featureMaps.is2DReshaped) {
+      this.featureMaps.reshapeFrom2D()
+    }
   }
 
   _updateGPU() {
-    if (this.featureMaps.is2DReshaped) {
-      this.inputShape = this.featureMaps.originalShape
-    } else {
-      this.inputShape = this.featureMaps.tensor.shape
+    if (!this.output) {
+      this.output = new Tensor([], this.shape)
     }
 
-    this.outputShape = this.inputShape.slice(0, 2)
-    if (!this.output) {
-      this.output = new Tensor([], this.outputShape)
+    const isWeights1D = this.weights.is1D
+
+    if (!this.output.glTexture && isWeights1D) {
+      this.output.createGLTexture({ type: '2d', format: 'float' })
+    } else {
+      this.output.reshapeTo2D()
       this.output.createGLTexture({ type: '2d', format: 'float' })
     }
 
+    const numFeatures = isWeights1D ? this.weights.glTextureShape[1] : this.weights.glTextureShape[0]
+    if (!this.program) {
+      const programSource = createGLSLProgram('cam', this.output.glTextureShape, numFeatures, isWeights1D)
+      this.program = webgl2.compileProgram(programSource)
+    }
     webgl2.runProgram({
       program: this.program,
       output: this.output,
-      inputs: [{ input: this.featureMaps, name: 'featureMaps' }, { input: this.weights, name: 'weights' }],
-      uniforms: [
-        { value: this.output.glTextureShape[0], type: 'int', name: 'rows' },
-        { value: this.output.glTextureShape[1], type: 'int', name: 'cols' }
-      ]
+      inputs: [{ input: this.featureMaps, name: 'featureMaps' }, { input: this.weights, name: 'weights' }]
     })
 
     // GPU -> CPU data transfer
     this.output.transferFromGLTexture()
-
-    // normalize 0-1
-    ops.divseq(this.output.tensor, ops.sup(this.output.tensor))
+    if (this.output.is2DReshaped) {
+      this.output.reshapeFrom2D()
+    }
   }
 }

@@ -7,6 +7,7 @@ import multiply from './merge/multiply'
 import subtract from './merge/subtract'
 import conv2d from './convolutional/conv2d'
 import conv2dTranspose from './convolutional/conv2dTranspose'
+import cam from './visualizations/cam'
 
 export default function createGLSLProgram(program, ...args) {
   switch (program) {
@@ -31,6 +32,10 @@ export default function createGLSLProgram(program, ...args) {
       return conv2d(...args)
     case 'conv2dTranspose':
       return conv2dTranspose(...args)
+
+    // visualizations
+    case 'cam':
+      return cam(...args)
 
     default:
       throw new Error('GLSL program not found')
