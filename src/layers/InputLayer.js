@@ -54,7 +54,7 @@ export default class InputLayer extends Layer {
    * @param {Tensor} x
    */
   _callGPU(x) {
-    if (!x.glTexture) {
+    if (!x.glTexture && !x.glTextureFragments) {
       this.inputShape = x.tensor.shape
     } else {
       if (x.is2DReshaped || x.is2DSquareReshaped) {
@@ -70,10 +70,10 @@ export default class InputLayer extends Layer {
 
     if (!x.glTexture) {
       if (x.tensor.shape.length <= 2) {
-        x.createGLTexture({ type: '2d', format: 'float' })
+        x.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       } else if (x.tensor.shape.length > 2) {
-        x.reshapeTo2DSquare()
-        x.createGLTexture({ type: '2d', format: 'float' })
+        x.reshapeTo2D()
+        x.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       }
     }
 
