@@ -104,7 +104,6 @@ export default class CAM {
       }
       const matVec = new Tensor([], [this.shape[0] * this.shape[1]])
       gemv(1, this.featureMaps.tensor, this.weights.tensor, 1, matVec.tensor)
-      ops.divseq(matVec.tensor, ops.sum(this.weights.tensor))
       this.output.replaceTensorData(matVec.tensor.data)
     } else {
       if (!this.output) {

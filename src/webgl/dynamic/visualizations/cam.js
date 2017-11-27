@@ -27,16 +27,14 @@ void main() {
 
   int featureMapsRow = out_x + ${outputShape[0]} * out_y;
 
-  float f_sum = 0.;
-  float w_sum = 0.;
+  float sum = 0.;
   for (int k = 0; k < ${numFeatures}; ++k) {
     float f = texelFetch(featureMaps, ivec2(k, featureMapsRow), 0).r;
     float w = texelFetch(weights, ivec2(k, 0), 0).r;
-    f_sum += f * w;
-    w_sum += w;
+    sum += f * w;
   }
 
-  outColor = vec4(max(f_sum / w_sum, 0.0));
+  outColor = vec4(max(sum, 0.0));
 }  
 `
   } else {
@@ -56,16 +54,14 @@ void main() {
   int out_y = int(float(${outputShape[0]}) * outTex.y);
   int out_x = int(float(${outputShape[1]}) * outTex.x);
 
-  float f_sum = 0.;
-  float w_sum = 0.;
+  float sum = 0.;
   for (int k = 0; k < ${numFeatures}; ++k) {
     float f = texelFetch(featureMaps, ivec2(k, out_y), 0).r;
     float w = texelFetch(weights, ivec2(out_x, k), 0).r;
-    f_sum += f * w;
-    w_sum += w;
+    sum += f * w;
   }
 
-  outColor = vec4(max(f_sum / w_sum, 0.0));
+  outColor = vec4(max(sum, 0.0));
 }  
 `
   }
