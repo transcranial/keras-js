@@ -21,8 +21,9 @@ if (process.env.NODE_ENV === 'production') {
     new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') }),
     // scope hoisting
     new webpack.optimize.ModuleConcatenationPlugin(),
+    // uglify: unused needs to be set to false or else library will not work properly
     new webpack.optimize.UglifyJsPlugin({
-      compress: { warnings: false },
+      compress: { warnings: false, unused: false },
       output: { comments: false }
     })
   ]
