@@ -33,6 +33,12 @@
           <span class="menu-item-subheading">ImageNet</span>
         </a>
       </li>
+      <li :class="{ active: currentView === 'densenet121' }">
+        <a href="#/densenet121">
+          <span class="menu-item-heading">DenseNet-121</span>
+          <span class="menu-item-subheading">ImageNet</span>
+        </a>
+      </li>
       <li :class="{ active: currentView === 'squeezenet-v1.1' }">
         <a href="#/squeezenet-v1.1">
           <span class="menu-item-heading">SqueezeNet v1.1</span>

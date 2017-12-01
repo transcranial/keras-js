@@ -24,6 +24,7 @@ const DEMO_INFO = [
   },
   { title: '50-layer Residual Network, trained on ImageNet', path: 'resnet50', imagePath: 'demos/assets/resnet50.png' },
   { title: 'Inception v3, trained on ImageNet', path: 'inception-v3', imagePath: 'demos/assets/inception-v3.png' },
+  { title: 'DenseNet-121, trained on ImageNet', path: 'densenet121', imagePath: 'demos/assets/inception-v3.png' },
   {
     title: 'SqueezeNet v1.1, trained on ImageNet',
     path: 'squeezenet-v1.1',
