@@ -8,6 +8,9 @@
         :modelInitProgress="modelInitProgress"
       ></model-status>
     </transition>
+    <v-alert outline color="error" icon="priority_high" :value="!hasWebGL">
+      Note: this browser does not support WebGL 2 or the features necessary to run in GPU mode.
+    </v-alert>
     <div class="ui-container">
       <v-layout row justify-center class="input-label">
         Enter a valid image URL or select an image from the dropdown:

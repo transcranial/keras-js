@@ -8,6 +8,9 @@
         :modelInitProgress="modelInitProgress"
       ></model-status>
     </transition>
+    <v-alert outline color="error" icon="priority_high" :value="!hasWebGL">
+      Note: this browser does not support WebGL 2 or the features necessary to run in GPU mode.
+    </v-alert>
     <v-layout row wrap justify-center>
       <v-flex sm2 md1>
         <div class="controls-column">
