@@ -97,7 +97,7 @@
 
 <script>
 import _ from 'lodash'
-import * as utils from '../../utils'
+import { tensorUtils } from '../../utils'
 import ModelStatus from '../common/ModelStatus'
 
 const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/mnist_vae/mnist_vae.bin'
@@ -250,7 +250,7 @@ export default {
     },
     drawOutput() {
       const ctx = document.getElementById('output-canvas').getContext('2d')
-      const image = utils.image2Darray(this.output, 28, 28, [0, 0, 0])
+      const image = tensorUtils.image2Darray(this.output, 28, 28, [0, 0, 0])
       ctx.putImageData(image, 0, 0)
 
       // scale up
@@ -267,11 +267,11 @@ export default {
         if (layer.layerClass === 'InputLayer') return
         let images = []
         if (layer.hasOutput && layer.output && layer.output.tensor.shape.length === 3) {
-          images = utils.unroll3Dtensor(layer.output.tensor)
+          images = tensorUtils.unroll3Dtensor(layer.output.tensor)
         } else if (layer.hasOutput && layer.output && layer.output.tensor.shape.length === 2) {
-          images = [utils.image2Dtensor(layer.output.tensor)]
+          images = [tensorUtils.image2Dtensor(layer.output.tensor)]
         } else if (layer.hasOutput && layer.output && layer.output.tensor.shape.length === 1) {
-          images = [utils.image1Dtensor(layer.output.tensor)]
+          images = [tensorUtils.image1Dtensor(layer.output.tensor)]
         }
         outputs.push({ layerClass: layer.layerClass || '', name, images })
       })

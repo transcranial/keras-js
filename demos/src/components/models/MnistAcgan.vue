@@ -69,7 +69,7 @@
 
 <script>
 import _ from 'lodash'
-import * as utils from '../../utils'
+import { tensorUtils } from '../../utils'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/mnist-acgan-arch'
 import ModelStatus from '../common/ModelStatus'
 
@@ -220,7 +220,7 @@ export default {
     },
     drawOutput() {
       const ctx = document.getElementById('output-canvas').getContext('2d')
-      const image = utils.image2Darray(this.output, 28, 28, [0, 0, 0])
+      const image = tensorUtils.image2Darray(this.output, 28, 28, [0, 0, 0])
       ctx.putImageData(image, 0, 0)
 
       // scale up

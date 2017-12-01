@@ -108,7 +108,7 @@
 
 <script>
 import _ from 'lodash'
-import * as utils from '../../utils'
+import { mathUtils, tensorUtils } from '../../utils'
 import ModelStatus from '../common/ModelStatus'
 
 const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/mnist_cnn/mnist_cnn.bin'
@@ -219,7 +219,7 @@ export default {
       this.drawing = true
       this.strokes.push([])
       let points = this.strokes[this.strokes.length - 1]
-      points.push(utils.getCoordinates(e))
+      points.push(mathUtils.getCoordinates(e))
     },
     draw(e) {
       if (!this.drawing) return
@@ -233,7 +233,7 @@ export default {
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
       let points = this.strokes[this.strokes.length - 1]
-      points.push(utils.getCoordinates(e))
+      points.push(mathUtils.getCoordinates(e))
 
       // draw individual strokes
       for (let s = 0, slen = this.strokes.length; s < slen; s++) {
@@ -247,7 +247,7 @@ export default {
         // draw points in stroke
         // quadratic bezier curve
         for (let i = 1, len = points.length; i < len; i++) {
-          ctx.quadraticCurveTo(...p1, ...utils.getMidpoint(p1, p2))
+          ctx.quadraticCurveTo(...p1, ...mathUtils.getMidpoint(p1, p2))
           p1 = points[i]
           p2 = points[i + 1]
         }
@@ -263,7 +263,7 @@ export default {
         const ctx = document.getElementById('input-canvas').getContext('2d')
 
         // center crop
-        const imageDataCenterCrop = utils.centerCrop(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height))
+        const imageDataCenterCrop = mathUtils.centerCrop(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height))
         const ctxCenterCrop = document.getElementById('input-canvas-centercrop').getContext('2d')
         ctxCenterCrop.canvas.width = imageDataCenterCrop.width
         ctxCenterCrop.canvas.height = imageDataCenterCrop.height
@@ -299,11 +299,11 @@ export default {
         if (name === 'input') return
         let images = []
         if (layer.hasOutput && layer.output && layer.output.tensor.shape.length === 3) {
-          images = utils.unroll3Dtensor(layer.output.tensor)
+          images = tensorUtils.unroll3Dtensor(layer.output.tensor)
         } else if (layer.hasOutput && layer.output && layer.output.tensor.shape.length === 2) {
-          images = [utils.image2Dtensor(layer.output.tensor)]
+          images = [tensorUtils.image2Dtensor(layer.output.tensor)]
         } else if (layer.hasOutput && layer.output && layer.output.tensor.shape.length === 1) {
-          images = [utils.image1Dtensor(layer.output.tensor)]
+          images = [tensorUtils.image1Dtensor(layer.output.tensor)]
         }
         outputs.push({ layerClass: layer.layerClass || '', name, images })
       })

@@ -125,7 +125,7 @@ import loadImage from 'blueimp-load-image'
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
 import resample from 'ndarray-resample'
-import * as utils from '../../utils'
+import { imagenetUtils } from '../../utils'
 import { IMAGE_URLS } from '../../data/sample-image-urls'
 import { COLORMAPS } from '../../data/colormaps'
 import ModelStatus from './ModelStatus'
@@ -205,7 +205,7 @@ export default {
         }
         return empty
       }
-      return utils.imagenetClassesTopK(this.output, 5)
+      return imagenetUtils.imagenetClassesTopK(this.output, 5)
     }
   },
 
