@@ -137,6 +137,7 @@ export default {
     hasWebGL: { type: Boolean, required: true },
     imageSize: { type: Number, required: true },
     visualizations: { type: Array, required: true },
+    preprocess: { type: Function, required: true },
     drawArchitectureDiagramPaths: { type: Function, required: true }
   },
 
@@ -168,7 +169,7 @@ export default {
   data() {
     const visualizationSelect = this.visualizations[0]
     const visualizationSelectList = [{ text: 'None', value: 'None' }]
-    if (['squeezenet_v1.1', 'inception_v3'].includes(this.modelName)) {
+    if (['squeezenet_v1.1', 'inception_v3', 'densenet121'].includes(this.modelName)) {
       visualizationSelectList.push({ text: 'Class Activation Mapping', value: 'CAM' })
     }
 
@@ -286,32 +287,12 @@ export default {
     runModel() {
       const ctx = document.getElementById('input-canvas').getContext('2d')
       const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
-      const { data, width, height } = imageData
 
-      // data processing
-      // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
-      let dataTensor = ndarray(new Float32Array(data), [width, height, 4])
-      let dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3])
-
-      if (['squeezenet_v1.1', 'resnet50'].includes(this.modelName)) {
-        ops.subseq(dataTensor.pick(null, null, 2), 103.939)
-        ops.subseq(dataTensor.pick(null, null, 1), 116.779)
-        ops.subseq(dataTensor.pick(null, null, 0), 123.68)
-        ops.assign(dataProcessedTensor.pick(null, null, 0), dataTensor.pick(null, null, 2))
-        ops.assign(dataProcessedTensor.pick(null, null, 1), dataTensor.pick(null, null, 1))
-        ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 0))
-      } else if (['inception_v3'].includes(this.modelName)) {
-        ops.divseq(dataTensor, 255)
-        ops.subseq(dataTensor, 0.5)
-        ops.mulseq(dataTensor, 2)
-        ops.assign(dataProcessedTensor.pick(null, null, 0), dataTensor.pick(null, null, 0))
-        ops.assign(dataProcessedTensor.pick(null, null, 1), dataTensor.pick(null, null, 1))
-        ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 2))
-      }
+      const preprocessedData = this.preprocess(imageData)
 
       const inputName = this.model.inputLayerNames[0]
       const outputName = this.model.outputLayerNames[0]
-      const inputData = { [inputName]: dataProcessedTensor.data }
+      const inputData = { [inputName]: preprocessedData }
       this.model.predict(inputData).then(outputData => {
         this.inferenceTime = this.model.predictStats.forwardPass
         this.output = outputData[outputName]

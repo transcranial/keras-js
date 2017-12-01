@@ -6,6 +6,7 @@
       :hasWebGL="hasWebGL"
       :imageSize="227"
       :visualizations="['CAM']"
+      :preprocess="preprocess"
       :drawArchitectureDiagramPaths="drawArchitectureDiagramPaths"
     ></imagenet>
     <div v-resize="drawArchitectureDiagramPaths" class="architecture-container">
@@ -32,6 +33,8 @@
 
 <script>
 import _ from 'lodash'
+import ndarray from 'ndarray'
+import ops from 'ndarray-ops'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/squeezenet-v1.1-arch'
 import Imagenet from '../common/Imagenet'
 
@@ -63,6 +66,24 @@ export default {
   },
 
   methods: {
+    preprocess(imageData) {
+      const { data, width, height } = imageData
+
+      // data processing
+      // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
+      const dataTensor = ndarray(new Float32Array(data), [width, height, 4])
+      const dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3])
+
+      ops.subseq(dataTensor.pick(null, null, 2), 103.939)
+      ops.subseq(dataTensor.pick(null, null, 1), 116.779)
+      ops.subseq(dataTensor.pick(null, null, 0), 123.68)
+      ops.assign(dataProcessedTensor.pick(null, null, 0), dataTensor.pick(null, null, 2))
+      ops.assign(dataProcessedTensor.pick(null, null, 1), dataTensor.pick(null, null, 1))
+      ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 0))
+
+      const preprocessedData = dataProcessedTensor.data
+      return preprocessedData
+    },
     drawArchitectureDiagramPaths: _.debounce(function() {
       this.architectureDiagramPaths = []
       this.architectureConnections.forEach(conn => {

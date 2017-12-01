@@ -6,6 +6,7 @@
       :hasWebGL="hasWebGL"
       :imageSize="299"
       :visualizations="['CAM']"
+      :preprocess="preprocess"
       :drawArchitectureDiagramPaths="drawArchitectureDiagramPaths"
     ></imagenet>
     <div v-resize="drawArchitectureDiagramPaths" class="architecture-container">
@@ -32,6 +33,8 @@
 
 <script>
 import _ from 'lodash'
+import ndarray from 'ndarray'
+import ops from 'ndarray-ops'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/inception-v3-arch'
 import Imagenet from '../common/Imagenet'
 
@@ -67,6 +70,24 @@ export default {
   },
 
   methods: {
+    preprocess(imageData) {
+      const { data, width, height } = imageData
+
+      // data processing
+      // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
+      const dataTensor = ndarray(new Float32Array(data), [width, height, 4])
+      const dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3])
+
+      ops.divseq(dataTensor, 255)
+      ops.subseq(dataTensor, 0.5)
+      ops.mulseq(dataTensor, 2)
+      ops.assign(dataProcessedTensor.pick(null, null, 0), dataTensor.pick(null, null, 0))
+      ops.assign(dataProcessedTensor.pick(null, null, 1), dataTensor.pick(null, null, 1))
+      ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 2))
+
+      const preprocessedData = dataProcessedTensor.data
+      return preprocessedData
+    },
     drawArchitectureDiagramPaths: _.debounce(function() {
       this.architectureDiagramPaths = []
       this.architectureConnections.forEach(conn => {
