@@ -2,6 +2,7 @@ import Promise from 'bluebird'
 import axios from 'axios'
 import _ from 'lodash'
 import now from 'performance-now'
+import { EventEmitter } from 'eventemitter3'
 import * as layers from './layers'
 import * as visMethods from './visualizations'
 import Tensor from './Tensor'
@@ -47,8 +48,8 @@ export default class Model {
     // specifies that data files are from local file system (Node.js only)
     this.filesystem = typeof window !== 'undefined' ? false : filesystem
 
-    // data request progress
-    this.dataRequestProgress = 0
+    // event emitter
+    this.events = new EventEmitter()
 
     // Model config
     this.id = null
@@ -82,6 +83,9 @@ export default class Model {
 
     // flag while computations are being performed
     this.isRunning = false
+
+    // running progress values
+    this.runningProgress = 0
 
     // stats object for last `predict` call
     this.predictStats = {}
@@ -128,6 +132,7 @@ export default class Model {
    * @returns {Promise}
    */
   async _initialize() {
+    this.events.emit('loadingProgress', 0)
     try {
       const req = this.filesystem ? this._dataRequestFS() : this._dataRequestHTTP(this.headers)
       await req
@@ -135,6 +140,7 @@ export default class Model {
       console.log(err)
       this._interrupt()
     }
+    this.events.emit('loadingProgress', 100)
 
     // build directed acyclic graph
     this._buildDAG()
@@ -146,7 +152,15 @@ export default class Model {
       inputLayer.hasOutput = true
       inputLayer.visited = true
     })
-    await this._traverseDAG(this.inputLayerNames)
+
+    // always turn on `pauseAfterLayerCalls` during initialization
+    // this allows for DOM updates using initProgress events
+    const _pauseAfterLayerCalls = this.pauseAfterLayerCalls
+    this.pauseAfterLayerCalls = true
+    this.runningProgress = 0
+    this.events.emit('initProgress', 0)
+    await this._traverseDAG(this.inputLayerNames, 'initProgress')
+    this.pauseAfterLayerCalls = _pauseAfterLayerCalls
 
     // reset hasOutput and visited flags in all layers
     this.finishedLayerNames = []
@@ -160,6 +174,7 @@ export default class Model {
       visInstance.initialize()
     })
 
+    this.events.emit('initProgress', 100)
     return true
   }
 
@@ -177,13 +192,13 @@ export default class Model {
         onDownloadProgress: e => {
           if (e.lengthComputable) {
             const percentComplete = Math.round(100 * e.loaded / e.total)
-            this.dataRequestProgress = percentComplete
+            this.events.emit('loadingProgress', percentComplete)
           }
         },
         cancelToken: axiosSource.token
       })
 
-      this.decodeProtobuf(new Uint8Array(res.data))
+      this._decodeProtobuf(new Uint8Array(res.data))
     } catch (err) {
       if (axios.isCancel(err)) {
         console.log('[Model] Data request canceled', err.message)
@@ -191,8 +206,6 @@ export default class Model {
         throw err
       }
     }
-
-    this.dataRequestProgress = 100
   }
 
   /**
@@ -205,12 +218,10 @@ export default class Model {
 
     try {
       const file = await readFile(this.filepath)
-      this.decodeProtobuf(file)
+      this._decodeProtobuf(file)
     } catch (err) {
       throw err
     }
-
-    this.dataRequestProgress = 100
   }
 
   /**
@@ -218,7 +229,7 @@ export default class Model {
    *
    * @param {Uint8Array|Buffer} buffer
    */
-  decodeProtobuf(buffer) {
+  _decodeProtobuf(buffer) {
     const err = proto.Model.verify(buffer)
     if (err) {
       throw new Error(`[Model] Invalid model - check protobuf serialization: {err}`)
@@ -230,14 +241,6 @@ export default class Model {
     this.backend = model.backend
     this.modelConfig = JSON.parse(model.modelConfig)
     this.modelWeights = model.modelWeights
-  }
-
-  /**
-   * Loading progress calculated from all the data requests combined.
-   * @returns {number}
-   */
-  getLoadingProgress() {
-    return this.dataRequestProgress
   }
 
   /**
@@ -429,12 +432,15 @@ export default class Model {
    * Layers are retrieved from Map object `this.modelLayersMap`.
    *
    * @param {string[]} nodes - array of layer names
+   * @param {string} eventName - event to emit by this.events EventEmitter
    * @returns {Promise}
    */
-  async _traverseDAG(nodes) {
+  async _traverseDAG(nodes, eventName) {
     if (nodes.length === 0) {
       // Stopping criterion:
       // an output node will have 0 outbound nodes.
+      this.runningProgress = 100
+      this.events.emit(eventName, 100)
       return true
     } else if (nodes.length === 1) {
       // Where computational logic lives for a given layer node
@@ -474,9 +480,12 @@ export default class Model {
         }
       }
 
-      await this._traverseDAG(currentLayer.outbound)
+      this.runningProgress += 100 / this.modelLayersMap.size
+      this.events.emit(eventName, this.runningProgress)
+
+      await this._traverseDAG(currentLayer.outbound, eventName)
     } else {
-      await Promise.all(nodes.map(node => this._traverseDAG([node])))
+      await Promise.all(nodes.map(node => this._traverseDAG([node], eventName)))
     }
   }
 
@@ -523,6 +532,8 @@ export default class Model {
    */
   async predict(inputData) {
     this.isRunning = true
+    this.runningProgress = 0
+    this.events.emit('predictProgress', 0)
 
     if (!_.isEqual(_.keys(inputData).sort(), this.inputLayerNames)) {
       this.isRunning = false
@@ -550,7 +561,7 @@ export default class Model {
 
     // start traversing DAG at inputs
     start = now()
-    await this._traverseDAG(this.inputLayerNames)
+    await this._traverseDAG(this.inputLayerNames, 'predictProgress')
     this.predictStats.forwardPass = now() - start
 
     // transfer intermediate outputs if specified
@@ -577,6 +588,7 @@ export default class Model {
     this.predictStats.visualizations = now() - start
 
     this.isRunning = false
+    this.events.emit('predictProgress', 100)
     return outputData
   }
 
