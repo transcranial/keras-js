@@ -1,12 +1,23 @@
 <template>
   <div class="demo">
-    <v-progress-circular v-if="modelLoading && loadingProgress < 100" indeterminate color="primary" />
-    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">Loading...{{ loadingProgress }}%</div>
-    <v-layout v-if="!modelLoading" row wrap justify-center>
+    <transition name="fade">
+      <model-status v-if="modelLoading || modelInitializing" 
+        :modelLoading="modelLoading"
+        :modelLoadingProgress="modelLoadingProgress"
+        :modelInitializing="modelInitializing"
+        :modelInitProgress="modelInitProgress"
+      ></model-status>
+    </transition>
+    <v-layout row wrap justify-center>
       <v-flex sm2 md1>
         <div class="controls-column">
           <div class="control">
-            <v-switch label="use GPU" v-model="useGPU" :disabled="modelLoading || !hasWebGL" color="primary"></v-switch>
+            <v-switch 
+              :disabled="modelLoading || modelInitializing || !hasWebGL" 
+              label="use GPU"
+              v-model="useGPU"
+              color="primary"
+            ></v-switch>
           </div>
         </div>
       </v-flex>
@@ -54,15 +65,18 @@
 </template>
 
 <script>
-import * as utils from '../../utils'
 import _ from 'lodash'
+import * as utils from '../../utils'
 import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/mnist-acgan-arch'
+import ModelStatus from '../common/ModelStatus'
 
 const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/mnist_acgan/mnist_acgan.bin'
 const MODEL_FILEPATH_DEV = '/demos/data/mnist_acgan/mnist_acgan.bin'
 
 export default {
   props: ['hasWebGL'],
+
+  components: { ModelStatus },
 
   created() {
     this.createNoise()
@@ -71,28 +85,33 @@ export default {
       filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
       gpu: this.hasWebGL
     })
+
+    this.model.events.on('loadingProgress', this.handleLoadingProgress)
+    this.model.events.on('initProgress', this.handleInitProgress)
   },
 
   async mounted() {
     await this.model.ready()
-    this.modelLoading = false
-    this.$nextTick(() => {
-      this.drawArchitectureDiagramPaths()
-      this.runModel()
-      this.drawNoise()
-    })
+    await this.$nextTick()
+    this.drawArchitectureDiagramPaths()
+    this.runModel()
+    this.drawNoise()
   },
 
   beforeDestroy() {
     this.model.cleanup()
+    this.model.events.removeAllListeners()
   },
 
   data() {
     return {
       useGPU: this.hasWebGL,
+      modelLoading: true,
+      modelLoadingProgress: 0,
+      modelInitializing: true,
+      modelInitProgress: 0,
       digit: 3,
       noiseVector: [],
-      modelLoading: true,
       output: new Float32Array(28 * 28),
       architectureDiagram: ARCHITECTURE_DIAGRAM,
       architectureConnections: ARCHITECTURE_CONNECTIONS,
@@ -101,9 +120,6 @@ export default {
   },
 
   computed: {
-    loadingProgress() {
-      return this.model.getLoadingProgress()
-    },
     architectureDiagramRows() {
       const rows = []
       for (let row = 0; row < 12; row++) {
@@ -120,6 +136,18 @@ export default {
   },
 
   methods: {
+    handleLoadingProgress(progress) {
+      this.modelLoadingProgress = Math.round(progress)
+      if (progress === 100) {
+        this.modelLoading = false
+      }
+    },
+    handleInitProgress(progress) {
+      this.modelInitProgress = Math.round(progress)
+      if (progress === 100) {
+        this.modelInitializing = false
+      }
+    },
     drawArchitectureDiagramPaths() {
       this.architectureDiagramPaths = []
       this.$nextTick(() => {
@@ -153,6 +181,7 @@ export default {
       })
     },
     selectDigit(digit) {
+      if (this.modelLoading || this.modelInitializing) return
       this.digit = digit
       this.runModel()
     },
@@ -200,6 +229,7 @@ export default {
       ctxScaled.restore()
     },
     onGenerateNewNoise() {
+      if (this.modelLoading || this.modelInitializing) return
       this.createNoise()
       this.runModel()
       this.drawNoise()
@@ -375,5 +405,15 @@ export default {
       fill: none;
     }
   }
+}
+
+/* vue transition `fade` */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -1,12 +1,23 @@
 <template>
   <div class="demo">
-    <v-progress-circular v-if="modelLoading && loadingProgress < 100" indeterminate color="primary" />
-    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">Loading...{{ loadingProgress }}%</div>
-    <v-layout v-if="!modelLoading" row wrap justify-center>
+    <transition name="fade">
+      <model-status v-if="modelLoading || modelInitializing" 
+        :modelLoading="modelLoading"
+        :modelLoadingProgress="modelLoadingProgress"
+        :modelInitializing="modelInitializing"
+        :modelInitProgress="modelInitProgress"
+      ></model-status>
+    </transition>
+    <v-layout row wrap justify-center>
       <v-flex sm2 md1>
         <div class="controls-column">
           <div class="control">
-            <v-switch label="use GPU" v-model="useGPU" :disabled="modelLoading || !hasWebGL" color="primary"></v-switch>
+            <v-switch 
+              :disabled="modelLoading || modelInitializing || !hasWebGL"
+              label="use GPU"
+              v-model="useGPU"
+              color="primary"
+            ></v-switch>
           </div>
           <div class="coordinates">
             <div class="coordinates-x">x: {{ inputCoordinates[0] < 0 ? inputCoordinates[0].toFixed(2) : inputCoordinates[0].toFixed(3) }}</div>
@@ -84,6 +95,7 @@
 <script>
 import _ from 'lodash'
 import * as utils from '../../utils'
+import ModelStatus from '../common/ModelStatus'
 
 const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/mnist_vae/mnist_vae.bin'
 const MODEL_FILEPATH_DEV = '/demos/data/mnist_vae/mnist_vae.bin'
@@ -101,6 +113,8 @@ const LAYER_DISPLAY_CONFIG = {
 export default {
   props: ['hasWebGL'],
 
+  components: { ModelStatus },
+
   created() {
     // store module on component instance as non-reactive object
     this.model = new KerasJS.Model({
@@ -108,38 +122,37 @@ export default {
       gpu: this.hasWebGL,
       transferLayerOutputs: true
     })
+
+    this.model.events.on('loadingProgress', this.handleLoadingProgress)
+    this.model.events.on('initProgress', this.handleInitProgress)
   },
 
   async mounted() {
     await this.model.ready()
-    this.modelLoading = false
-    this.$nextTick(() => {
-      this.drawPosition()
-      this.getIntermediateOutputs()
-      this.runModel()
-    })
+    await this.$nextTick()
+    this.drawPosition()
+    this.getIntermediateOutputs()
+    this.runModel()
   },
 
   beforeDestroy() {
     this.model.cleanup()
+    this.model.events.removeAllListeners()
   },
 
   data() {
     return {
       useGPU: this.hasWebGL,
       modelLoading: true,
+      modelLoadingProgress: 0,
+      modelInitializing: true,
+      modelInitProgress: 0,
       output: new Float32Array(28 * 28),
       crosshairsActivated: false,
       inputCoordinates: [-0.3, -0.6],
       position: [35, 20],
       layerOutputImages: [],
       layerDisplayConfig: LAYER_DISPLAY_CONFIG
-    }
-  },
-
-  computed: {
-    loadingProgress() {
-      return this.model.getLoadingProgress()
     }
   },
 
@@ -150,7 +163,20 @@ export default {
   },
 
   methods: {
+    handleLoadingProgress(progress) {
+      this.modelLoadingProgress = Math.round(progress)
+      if (progress === 100) {
+        this.modelLoading = false
+      }
+    },
+    handleInitProgress(progress) {
+      this.modelInitProgress = Math.round(progress)
+      if (progress === 100) {
+        this.modelInitializing = false
+      }
+    },
     activateCrosshairs() {
+      if (this.modelLoading || this.modelInitializing) return
       this.crosshairsActivated = true
     },
     deactivateCrosshairs(e) {
@@ -200,6 +226,7 @@ export default {
     },
     selectCoordinates: _.throttle(
       function(e) {
+        if (this.modelLoading || this.modelInitializing) return
         this.draw(e)
         const [x, y] = this.getEventCanvasCoordinates(e)
         if (!this.model.isRunning) {
@@ -451,5 +478,15 @@ export default {
       }
     }
   }
+}
+
+/* vue transition `fade` */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

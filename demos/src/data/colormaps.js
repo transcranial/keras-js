@@ -3,12 +3,12 @@ import chroma from 'chroma-js'
 export const COLORMAPS = [
   { text: 'Transparency', value: 'transparency' },
   {
-    text: 'Hot',
-    value: chroma.bezier([[0, 0, 0], [230, 0, 0], [255, 210, 0], [255, 255, 255]])
-  },
-  {
     text: 'Jet',
     value: chroma.scale([[0, 0, 131], [0, 60, 170], [5, 255, 255], [255, 255, 0], [250, 0, 0], [128, 0, 0]])
+  },
+  {
+    text: 'Hot',
+    value: chroma.bezier([[0, 0, 0], [230, 0, 0], [255, 210, 0], [255, 255, 255]])
   },
   {
     text: 'Viridis',

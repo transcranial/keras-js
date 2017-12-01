@@ -1,10 +1,17 @@
 <template>
   <div class="demo">
-    <v-progress-circular v-if="modelLoading && loadingProgress < 100" indeterminate color="primary" />
-    <div class="loading-progress" v-if="modelLoading && loadingProgress < 100">Loading...{{ loadingProgress }}%</div>
-    <v-layout v-if="!modelLoading" row wrap justify-center align-center>
+    <transition name="fade">
+      <model-status v-if="modelLoading || modelInitializing" 
+        :modelLoading="modelLoading"
+        :modelLoadingProgress="modelLoadingProgress"
+        :modelInitializing="modelInitializing"
+        :modelInitProgress="modelInitProgress"
+      ></model-status>
+    </transition>
+    <v-layout row wrap justify-center align-center>
       <v-flex sm12 md6 class="input-container elevation-1">
         <v-text-field
+          :disabled="modelLoading || modelInitializing"
           label="input text"
           v-model="inputText"
           multi-line
@@ -13,10 +20,10 @@
           @input.native="inputChanged"
         ></v-text-field>
         <div class="input-buttons">
-          <v-btn flat bottom right color="primary" @click="randomSample">
+          <v-btn :disabled="modelLoading || modelInitializing" flat bottom right color="primary" @click="randomSample">
             <v-icon left>add_circle</v-icon>LOAD SAMPLE TEXT
           </v-btn>
-          <v-btn flat bottom right color="primary" @click="clear">
+          <v-btn :disabled="modelLoading || modelInitializing" flat bottom right color="primary" @click="clear">
             <v-icon left>clear</v-icon>CLEAR
           </v-btn>
         </div>
@@ -54,10 +61,11 @@
 </template>
 
 <script>
-import axios from 'axios'
 import _ from 'lodash'
+import axios from 'axios'
 import ndarray from 'ndarray'
 import ops from 'ndarray-ops'
+import ModelStatus from '../common/ModelStatus'
 
 const MODEL_FILEPATH_PROD =
   'https://transcranial.github.io/keras-js-demos-data/imdb_bidirectional_lstm/imdb_bidirectional_lstm.bin'
@@ -101,28 +109,36 @@ const ARCHITECTURE_DIAGRAM_LAYERS = [
 export default {
   props: ['hasWebGL'],
 
+  components: { ModelStatus },
+
   created() {
     // store module on component instance as non-reactive object
     this.model = new KerasJS.Model({
       filepath: process.env.NODE_ENV === 'production' ? MODEL_FILEPATH_PROD : MODEL_FILEPATH_DEV,
       gpu: false
     })
+
+    this.model.events.on('loadingProgress', this.handleLoadingProgress)
+    this.model.events.on('initProgress', this.handleInitProgress)
   },
 
   async mounted() {
     await this.model.ready()
-    this.modelLoading = false
     this.loadAdditionalData()
   },
 
   beforeDestroy() {
     this.model.cleanup()
+    this.model.events.removeAllListeners()
   },
 
   data() {
     return {
       useGPU: false,
       modelLoading: true,
+      modelLoadingProgress: 0,
+      modelInitializing: true,
+      modelInitProgress: 0,
       modelRunning: false,
       input: new Float32Array(MAXLEN),
       output: new Float32Array(1),
@@ -139,9 +155,6 @@ export default {
   },
 
   computed: {
-    loadingProgress() {
-      return this.model.getLoadingProgress()
-    },
     outputColor() {
       const p = this.output[0]
       if (p > 0 && p < 0.5) {
@@ -164,6 +177,18 @@ export default {
   },
 
   methods: {
+    handleLoadingProgress(progress) {
+      this.modelLoadingProgress = Math.round(progress)
+      if (progress === 100) {
+        this.modelLoading = false
+      }
+    },
+    handleInitProgress(progress) {
+      this.modelInitProgress = Math.round(progress)
+      if (progress === 100) {
+        this.modelInitializing = false
+      }
+    },
     clear() {
       this.inputText = ''
       this.inputTextParsed = []
@@ -387,5 +412,15 @@ export default {
     color: var(--color-darkgray);
     padding: 3px 6px;
   }
+}
+
+/* vue transition `fade` */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

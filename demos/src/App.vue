@@ -77,30 +77,16 @@ export default {
   color: var(--color-darkgray);
 }
 
-.demo {
-  font-family: var(--font-sans-serif);
-
-  & .loading-progress {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 30px;
-    color: var(--color-green);
-    font-size: 18px;
-    font-family: var(--font-monospace);
-    padding: 20px 50px;
-    margin: 30px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
-  }
-}
-
 footer {
   background: #cccccc !important;
 }
 
 a {
   text-decoration: none;
+}
+
+.demo {
+  position: relative;
 }
 
 /*******************************************************************/
