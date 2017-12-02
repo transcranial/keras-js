@@ -68,6 +68,9 @@ export default class Model {
     // break up blocking computation by layer, to allow for intervening DOM updates, for example
     this.pauseAfterLayerCalls = pauseAfterLayerCalls
 
+    // array of model layers info
+    this.modelLayersInfo = []
+
     // map of model layers
     this.modelLayersMap = new Map()
 
@@ -348,6 +351,7 @@ export default class Model {
     })
 
     this.modelLayersMap.forEach(layer => {
+      this.modelLayersInfo.push(_.pick(layer, ['name', 'description', 'layerClass', 'inbound', 'outbound']))
       if (layer.outbound.length === 0) {
         this.outputLayerNames.push(layer.name)
       }
