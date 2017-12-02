@@ -12,6 +12,7 @@ export default class Layer {
   constructor(attrs = {}) {
     this.layerClass = 'Layer'
     this.name = attrs.name
+    this.description = ''
     this.gpu = webgl2.isSupported && attrs.gpu
 
     this.params = []

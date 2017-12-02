@@ -61,6 +61,14 @@ export default class LSTM extends Layer {
     // Layer weights specification
     this.params = this.use_bias ? ['kernel', 'recurrent_kernel', 'bias'] : ['kernel', 'recurrent_kernel']
 
+    this.description = `output dimensions: ${this.units}`
+    this.description += this.activation !== 'linear' ? `, ${this.activation} activation` : ''
+    this.description +=
+      this.recurrentActivation !== 'linear' ? `, ${this.recurrentActivation} recurrent activation` : ''
+    this.description += this.returnSequences ? `, return sequences` : ''
+    this.description += this.goBackwards ? `, backward direction` : ''
+    this.description += this.stateful ? `, stateful` : ''
+
     // GPU setup
     if (this.gpu) {
       this.copyTextureProgram = webgl2.compileProgram(copyTextureProgramSource)

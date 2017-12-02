@@ -19,6 +19,8 @@ export default class SpatialDropout3D extends Layer {
 
     const { rate = 0.5, data_format = 'channels_last' } = attrs
 
+    this.description = `${rate}`
+
     this.rate = Math.min(Math.max(0, rate), 1)
     this.dataFormat = data_format
   }

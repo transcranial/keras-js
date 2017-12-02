@@ -26,6 +26,8 @@ export default class Cropping1D extends Layer {
       this.cropping = [cropping, cropping]
     }
 
+    this.description = `${JSON.stringify(this.cropping)}`
+
     // GPU setup
     if (this.gpu) {
       this.mapInputProgram = webgl2.compileProgram(mapInputProgramSource)

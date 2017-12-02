@@ -18,6 +18,8 @@ export default class InputLayer extends Layer {
     const { shape = [] } = attrs
 
     this.shape = attrs.batch_input_shape && attrs.batch_input_shape.length ? attrs.batch_input_shape.slice(1) : shape
+
+    this.description = `shape: ${JSON.stringify(this.shape)}`
   }
 
   /**

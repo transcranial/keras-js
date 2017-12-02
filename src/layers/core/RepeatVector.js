@@ -24,6 +24,8 @@ export default class RepeatVector extends Layer {
     const { n = 1 } = attrs
     this.n = n
 
+    this.description = `n = ${n}`
+
     // GPU setup
     if (this.gpu) {
       this.program = webgl2.compileProgram(programSource)

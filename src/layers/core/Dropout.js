@@ -18,6 +18,8 @@ export default class Dropout extends Layer {
 
     const { rate = 0.5 } = attrs
 
+    this.description = `${rate}`
+
     this.rate = Math.min(Math.max(0, rate), 1)
   }
 

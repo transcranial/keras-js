@@ -26,6 +26,8 @@ export default class ZeroPadding1D extends Layer {
       this.padding = [padding, padding]
     }
 
+    this.description = `${JSON.stringify(this.padding)}`
+
     // GPU setup
     if (this.gpu) {
       this.mapInputProgram = webgl2.compileProgram(mapInputProgramSource)

@@ -20,6 +20,8 @@ export default class LeakyReLU extends Layer {
 
     const { alpha = 0.3 } = attrs
 
+    this.description = `alpha: ${alpha}`
+
     this.alpha = alpha
 
     // GPU setup

@@ -200,6 +200,11 @@ export default class SeparableConv2D extends Layer {
       use_bias = true
     } = attrs
 
+    this.description = `${filters} ${kernel_size.join('x')} filters, ${strides.join('x')} striding`
+    this.description += padding === 'valid' ? `, no border padding` : ', pad to same borders'
+    this.description += depth_multiplier > 1 ? `, depth multiplier: ${depth_multiplier}` : ''
+    this.description += activation !== 'linear' ? `, ${activation} activation` : ''
+
     if (Array.isArray(kernel_size)) {
       this.kernelShape = [filters, ...kernel_size]
     } else {

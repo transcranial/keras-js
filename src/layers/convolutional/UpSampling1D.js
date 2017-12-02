@@ -21,6 +21,8 @@ export default class UpSampling1D extends Layer {
     const { size = 2 } = attrs
     this.size = size
 
+    this.description = `size ${size}`
+
     // GPU setup
     if (this.gpu) {
       this.mapInputProgram = webgl2.compileProgram(mapInputProgramSource)

@@ -20,6 +20,8 @@ export default class ThresholdedReLU extends Layer {
 
     const { theta = 1 } = attrs
 
+    this.description = `theta: ${theta}`
+
     this.theta = theta
 
     // GPU setup

@@ -42,6 +42,10 @@ export default class _Pooling2D extends Layer {
     // can be `max` or `average`
     this.poolingFunc = 'max'
 
+    this.description = `pool size ${this.poolSize.join('x')}`
+    this.description += this.strides.some(s => s > 1) ? `, ${this.strides.join('x')} striding` : ''
+    this.description += this.padding === 'valid' ? `, no border padding` : ', pad to same borders'
+
     // GPU setup
     if (this.gpu) {
       this.poolingProgram = webgl2.compileProgram(poolingProgramSource)

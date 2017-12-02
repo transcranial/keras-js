@@ -23,6 +23,8 @@ export default class Dense extends Layer {
 
     const { units = 1, activation = 'linear', input_dim = null, use_bias = true } = attrs
 
+    this.description = `${activation} activation, output dimensions: ${units}`
+
     this.activation = activation
     this.activationFunc = activations[this.activation]
     this.units = units

@@ -31,6 +31,11 @@ export default class Conv1D extends Layer {
       use_bias = true
     } = attrs
 
+    this.description = `${filters} filters of size ${kernel_size}, striding ${strides}`
+    this.description += padding === 'valid' ? `, no border padding` : ', pad to same borders'
+    this.description += dilation_rate > 1 ? `, dilation rate ${dilation_rate}` : ''
+    this.description += activation !== 'linear' ? `, ${activation} activation` : ''
+
     if (padding !== 'valid' && padding !== 'same') {
       this.throwError('Invalid padding.')
     }

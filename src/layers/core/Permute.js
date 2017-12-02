@@ -22,6 +22,9 @@ export default class Permute extends Layer {
     this.layerClass = 'Permute'
 
     const { dims = [] } = attrs
+
+    this.description = `${JSON.stringify(dims)}`
+
     this.dims = dims.map(dim => dim - 1)
 
     // GPU setup

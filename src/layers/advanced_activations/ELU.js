@@ -20,6 +20,8 @@ export default class ELU extends Layer {
 
     const { alpha = 1.0 } = attrs
 
+    this.description = `alpha: ${alpha}`
+
     this.alpha = alpha
 
     // GPU setup

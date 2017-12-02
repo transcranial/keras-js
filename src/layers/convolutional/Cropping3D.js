@@ -36,6 +36,8 @@ export default class Cropping3D extends Layer {
 
     this.dataFormat = data_format
 
+    this.description = `${JSON.stringify(this.cropping)}`
+
     // GPU setup
     if (this.gpu) {
       this.mapInputProgram = webgl2.compileProgram(mapInputProgramSource)

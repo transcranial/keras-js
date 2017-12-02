@@ -18,6 +18,8 @@ export default class SpatialDropout1D extends Layer {
 
     const { p = 0.5 } = attrs
 
+    this.description = `${p}`
+
     this.p = Math.min(Math.max(0, p), 1)
   }
 

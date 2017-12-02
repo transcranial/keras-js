@@ -19,6 +19,8 @@ export default class Embedding extends Layer {
 
     const { input_dim = 1, output_dim = 1, input_length = 0, mask_zero = false } = attrs
 
+    this.description = `output dimensions: ${output_dim}`
+
     this.inputDim = input_dim
     this.outputDim = output_dim
     this.inputLength = input_length

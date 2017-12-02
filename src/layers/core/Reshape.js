@@ -23,6 +23,8 @@ export default class Reshape extends Layer {
     const { target_shape = [] } = attrs
     this.targetShape = target_shape
 
+    this.description = `target shape: ${JSON.stringify(this.targetShape)}`
+
     // GPU setup
     if (this.gpu) {
       this.mapInputProgram = webgl2.compileProgram(mapInputProgramSource)

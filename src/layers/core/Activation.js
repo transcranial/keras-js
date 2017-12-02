@@ -23,6 +23,8 @@ export default class Activation extends Layer {
     this.activation = activation
     this.activationFunc = activations[activation]
 
+    this.description = `${this.activation}`
+
     // GPU setup
     if (this.gpu) {
       this.program = webgl2.compileProgram(activationProgramSources[this.activation])

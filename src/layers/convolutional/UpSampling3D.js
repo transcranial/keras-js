@@ -29,6 +29,8 @@ export default class UpSampling3D extends Layer {
 
     this.dataFormat = data_format
 
+    this.description = `size ${this.size.join('x')}`
+
     // GPU setup
     if (this.gpu) {
       this.mapInputProgram = webgl2.compileProgram(mapInputProgramSource)

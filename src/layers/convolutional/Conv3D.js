@@ -83,6 +83,12 @@ export default class Conv3D extends Layer {
     // Layer weights specification
     this.params = this.useBias ? ['kernel', 'bias'] : ['kernel']
 
+    this.description = `${this.kernelShape[0]} ${this.kernelShape.slice(1).join('x')} filters`
+    this.description += this.strides.some(s => s > 1) ? `, ${this.strides.join('x')} striding` : ''
+    this.description += this.padding === 'valid' ? `, no border padding` : ', pad to same borders'
+    this.description += this.dilationRate.some(r => r > 1) ? `, ${this.dilationRate.join('x')} dilation` : ''
+    this.description += this.activation !== 'linear' ? `, ${this.activation} activation` : ''
+
     // GPU setup
     if (this.gpu) {
       this.mapInputProgram = webgl2.compileProgram(mapInputProgramSource)

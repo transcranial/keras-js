@@ -91,6 +91,11 @@ export default class Conv2DTranspose extends Layer {
     // Layer weights specification
     this.params = this.useBias ? ['kernel', 'bias'] : ['kernel']
 
+    this.description = `${this.kernelShape[0]} ${this.kernelShape.slice(1).join('x')} filters`
+    this.description += this.strides.some(s => s > 1) ? `, ${this.strides.join('x')} striding` : ''
+    this.description += this.padding === 'valid' ? `, no border padding` : ', pad to same borders'
+    this.description += this.activation !== 'linear' ? `, ${this.activation} activation` : ''
+
     // GPU setup
     if (this.gpu) {
       this.matMulProgram = webgl2.compileProgram(matMulProgramSource)
