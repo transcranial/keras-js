@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import os
 import h5py
 import numpy as np
@@ -70,7 +76,7 @@ class Encoder:
                 w.layer_name = layer_name
                 w.weight_name = weight_name
                 w.shape.extend(list(weight_value.shape))
-                if quantize:
+                if self.quantize:
                     w.type = 'uint8'
                     quantized, min_val, max_val = quantize_arr(weight_value)
                     w.data = quantized.astype(np.uint8).tobytes()
