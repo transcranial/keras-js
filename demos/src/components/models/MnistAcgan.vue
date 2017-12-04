@@ -49,29 +49,14 @@
         </div>
       </v-flex>
     </v-layout>
-    <div class="architecture-container" v-if="!modelLoading">
-      <div v-for="(row, rowIndex) in architectureDiagramRows" :key="`row-${rowIndex}`" class="layers-row">
-        <div v-for="layer in row" :key="`layer-${layer.name}`" class="layer-column">
-          <div v-if="layer.className" class="layer" :id="layer.name">
-            <div class="layer-class-name">{{ layer.className }}</div>
-            <div class="layer-details"> {{ layer.details }}</div>
-          </div>
-        </div>
-      </div>
-      <svg class="architecture-connections" width="100%" height="100%">
-        <g>
-          <path v-for="(path, pathIndex) in architectureDiagramPaths" :key="`path-${pathIndex}`" :d="path" />
-        </g>
-      </svg>
-    </div>
+    <architecture-diagram :modelLayersInfo="modelLayersInfo"></architecture-diagram>
   </div>
 </template>
 
 <script>
-import _ from 'lodash'
 import { tensorUtils } from '../../utils'
-import { ARCHITECTURE_DIAGRAM, ARCHITECTURE_CONNECTIONS } from '../../data/mnist-acgan-arch'
 import ModelStatus from '../common/ModelStatus'
+import ArchitectureDiagram from '../common/ArchitectureDiagram'
 
 const MODEL_FILEPATH_PROD = 'https://transcranial.github.io/keras-js-demos-data/mnist_acgan/mnist_acgan.bin'
 const MODEL_FILEPATH_DEV = '/demos/data/mnist_acgan/mnist_acgan.bin'
@@ -79,7 +64,7 @@ const MODEL_FILEPATH_DEV = '/demos/data/mnist_acgan/mnist_acgan.bin'
 export default {
   props: ['hasWebGL'],
 
-  components: { ModelStatus },
+  components: { ModelStatus, ArchitectureDiagram },
 
   created() {
     this.createNoise()
@@ -96,7 +81,7 @@ export default {
   async mounted() {
     await this.model.ready()
     await this.$nextTick()
-    this.drawArchitectureDiagramPaths()
+    this.modelLayersInfo = this.model.modelLayersInfo
     this.runModel()
     this.drawNoise()
   },
@@ -113,22 +98,10 @@ export default {
       modelLoadingProgress: 0,
       modelInitializing: true,
       modelInitProgress: 0,
+      modelLayersInfo: [],
       digit: 3,
       noiseVector: [],
-      output: new Float32Array(28 * 28),
-      architectureDiagram: ARCHITECTURE_DIAGRAM,
-      architectureConnections: ARCHITECTURE_CONNECTIONS,
-      architectureDiagramPaths: []
-    }
-  },
-
-  computed: {
-    architectureDiagramRows() {
-      const rows = []
-      for (let row = 0; row < 12; row++) {
-        rows.push(_.filter(this.architectureDiagram, { row }))
-      }
-      return rows
+      output: new Float32Array(28 * 28)
     }
   },
 
@@ -150,38 +123,6 @@ export default {
       if (progress === 100) {
         this.modelInitializing = false
       }
-    },
-    drawArchitectureDiagramPaths() {
-      this.architectureDiagramPaths = []
-      this.$nextTick(() => {
-        this.architectureConnections.forEach(conn => {
-          const containerElem = document.getElementsByClassName('architecture-container')[0]
-          const fromElem = document.getElementById(conn.from)
-          const toElem = document.getElementById(conn.to)
-          const containerElemCoords = containerElem.getBoundingClientRect()
-          const fromElemCoords = fromElem.getBoundingClientRect()
-          const toElemCoords = toElem.getBoundingClientRect()
-          const xContainer = containerElemCoords.left
-          const yContainer = containerElemCoords.top
-          const xFrom = fromElemCoords.left + fromElemCoords.width / 2 - xContainer
-          const yFrom = fromElemCoords.top + fromElemCoords.height / 2 - yContainer
-          const xTo = toElemCoords.left + toElemCoords.width / 2 - xContainer
-          const yTo = toElemCoords.top + toElemCoords.height / 2 - yContainer
-
-          let path = `M${xFrom},${yFrom} L${xTo},${yTo}`
-          if (conn.corner === 'top-right') {
-            path = `M${xFrom},${yFrom} L${xTo - 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
-          } else if (conn.corner === 'bottom-left') {
-            path = `M${xFrom},${yFrom} L${xFrom},${yTo - 10} Q${xFrom},${yTo} ${xFrom + 10},${yTo} L${xTo},${yTo}`
-          } else if (conn.corner === 'top-left') {
-            path = `M${xFrom},${yFrom} L${xTo + 10},${yFrom} Q${xTo},${yFrom} ${xTo},${yFrom + 10} L${xTo},${yTo}`
-          } else if (conn.corner === 'bottom-right') {
-            path = `M${xFrom},${yFrom} L${xFrom},${yTo - 10} Q${xFrom},${yTo} ${xFrom - 10},${yTo} L${xTo},${yTo}`
-          }
-
-          this.architectureDiagramPaths.push(path)
-        })
-      })
     },
     selectDigit(digit) {
       if (this.modelLoading || this.modelInitializing) return

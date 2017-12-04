@@ -117,6 +117,7 @@
         </v-flex>
       </v-layout>
     </div>
+    <architecture-diagram :modelLayersInfo="modelLayersInfo"></architecture-diagram>
   </div>
 </template>
 
@@ -129,6 +130,7 @@ import { imagenetUtils } from '../../utils'
 import { IMAGE_URLS } from '../../data/sample-image-urls'
 import { COLORMAPS } from '../../data/colormaps'
 import ModelStatus from './ModelStatus'
+import ArchitectureDiagram from './ArchitectureDiagram'
 
 export default {
   props: {
@@ -137,11 +139,10 @@ export default {
     hasWebGL: { type: Boolean, required: true },
     imageSize: { type: Number, required: true },
     visualizations: { type: Array, required: true },
-    preprocess: { type: Function, required: true },
-    drawArchitectureDiagramPaths: { type: Function, required: true }
+    preprocess: { type: Function, required: true }
   },
 
-  components: { ModelStatus },
+  components: { ModelStatus, ArchitectureDiagram },
 
   created() {
     // store module on component instance as non-reactive object
@@ -158,7 +159,7 @@ export default {
   async mounted() {
     await this.model.ready()
     await this.$nextTick()
-    this.drawArchitectureDiagramPaths()
+    this.modelLayersInfo = this.model.modelLayersInfo
   },
 
   beforeDestroy() {
@@ -179,6 +180,7 @@ export default {
       modelLoadingProgress: 0,
       modelInitializing: true,
       modelInitProgress: 0,
+      modelLayersInfo: [],
       modelRunning: false,
       inferenceTime: null,
       imageURLInput: '',
@@ -496,68 +498,6 @@ export default {
 
     & .output-value {
       color: var(--color-green);
-    }
-  }
-}
-
-.architecture-container {
-  min-width: 700px;
-  max-width: 900px;
-  margin: 0 auto;
-  position: relative;
-
-  & .layers-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 5px;
-    position: relative;
-    z-index: 1;
-
-    & .layer-column {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 5px;
-
-      & .layer {
-        display: inline-block;
-        background: whitesmoke;
-        border: 2px solid whitesmoke;
-        border-radius: 5px;
-        padding: 2px 5px 0px;
-
-        & .layer-class-name {
-          color: var(--color-green);
-          font-size: 12px;
-          font-weight: bold;
-        }
-
-        & .layer-details {
-          color: #999999;
-          font-size: 11px;
-          font-weight: bold;
-        }
-      }
-
-      & .layer.has-output {
-        border-color: var(--color-green);
-      }
-    }
-  }
-
-  & .architecture-connections {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 0;
-
-    & path {
-      stroke-width: 4px;
-      stroke: #aaaaaa;
-      fill: none;
     }
   }
 }
