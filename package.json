@@ -70,7 +70,7 @@
     "vue-loader": "^13.5.0",
     "vue-router": "^3.0.1",
     "vue-template-compiler": "^2.5.9",
-    "vuetify": "^0.17.3",
-    "webpack": "^3.9.1"
+    "vuetify": "^0.17.4",
+    "webpack": "^3.10.0"
   }
 }
