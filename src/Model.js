@@ -390,7 +390,7 @@ export default class Model {
     if (weightNames && weightNames.length) {
       const weights = weightNames.map(weightName => {
         const weightDef = _.find(this.modelWeights, w => {
-          const weightRE = new RegExp(`^${weightName}`)
+          const weightRE = new RegExp(`^.*${weightName}`)
           return weightRE.test(w.weightName)
         })
 
