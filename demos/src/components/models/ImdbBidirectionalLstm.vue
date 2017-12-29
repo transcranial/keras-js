@@ -89,7 +89,7 @@ const ADDITIONAL_DATA_FILEPATHS =
 const MAXLEN = 200
 
 // start index, out-of-vocabulary index
-// see https://github.com/fchollet/keras/blob/master/keras/datasets/imdb.py
+// see https://github.com/keras-team/keras/blob/master/keras/datasets/imdb.py
 const START_WORD_INDEX = 1
 const OOV_WORD_INDEX = 2
 const INDEX_FROM = 3
@@ -255,7 +255,7 @@ export default {
       this.input = new Float32Array(MAXLEN)
       // by convention, use 2 as OOV word
       // reserve 'index_from' (=3 by default) characters: 0 (padding), 1 (start), 2 (OOV)
-      // see https://github.com/fchollet/keras/blob/master/keras/datasets/imdb.py
+      // see https://github.com/keras-team/keras/blob/master/keras/datasets/imdb.py
       let indices = this.inputTextParsed.map(word => {
         const index = this.wordIndex[word]
         return !index ? OOV_WORD_INDEX : index + INDEX_FROM

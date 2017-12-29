@@ -29,7 +29,7 @@
 
 ---
 
-Run [Keras](https://github.com/fchollet/keras) models in the browser, with GPU support provided by WebGL 2. Models can be run in Node.js as well, but only in CPU mode. Because Keras abstracts away a number of frameworks as backends, the models can be trained in any backend, including TensorFlow, CNTK, etc.
+Run [Keras](https://github.com/keras-team/keras) models in the browser, with GPU support provided by WebGL 2. Models can be run in Node.js as well, but only in CPU mode. Because Keras abstracts away a number of frameworks as backends, the models can be trained in any backend, including TensorFlow, CNTK, etc.
 
 Library version compatibility: Keras 2.1.2
 

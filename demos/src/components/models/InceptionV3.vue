@@ -35,7 +35,7 @@ export default {
       const { data, width, height } = imageData
 
       // data processing
-      // see https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py
+      // see https://github.com/keras-team/keras/blob/master/keras/applications/imagenet_utils.py
       const dataTensor = ndarray(new Float32Array(data), [width, height, 4])
       const dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3])
 

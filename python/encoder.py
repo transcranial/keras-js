@@ -59,7 +59,7 @@ class Encoder:
         """serialize method.
         Strategy for extracting the weights is adapted from the
         load_weights_from_hdf5_group method of the Container class:
-        see https://github.com/fchollet/keras/blob/master/keras/engine/topology.py#L2505-L2585
+        see https://github.com/keras-team/keras/blob/master/keras/engine/topology.py#L2505-L2585
         """
         hdf5_file = h5py.File(self.hdf5_model_filepath, mode='r')
 
