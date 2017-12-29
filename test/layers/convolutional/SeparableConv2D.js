@@ -114,9 +114,9 @@ describe('convolutional layer: SeparableConv2D', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `convolutional.SeparableConv2D.${i}`
-      const title = `[${key}] [CPU] test: ${attrs.filters} ${attrs.kernel_size} filters on ${
-        inputShape
-      } input, strides=${attrs.strides}, padding='${attrs.padding}', data_format='${
+      const title = `[${key}] [CPU] test: ${attrs.filters} ${
+        attrs.kernel_size
+      } filters on ${inputShape} input, strides=${attrs.strides}, padding='${attrs.padding}', data_format='${
         attrs.data_format
       }', depth_multiplier=${attrs.depth_multiplier}, activation='${attrs.activation}', use_bias=${attrs.use_bias}`
 
@@ -149,9 +149,9 @@ describe('convolutional layer: SeparableConv2D', function() {
 
     testParams.forEach(({ inputShape, attrs }, i) => {
       const key = `convolutional.SeparableConv2D.${i}`
-      const title = `[${key}] [GPU] test: ${attrs.filters} ${attrs.kernel_size} filters on ${
-        inputShape
-      } input, strides=${attrs.strides}, padding='${attrs.padding}', data_format='${
+      const title = `[${key}] [GPU] test: ${attrs.filters} ${
+        attrs.kernel_size
+      } filters on ${inputShape} input, strides=${attrs.strides}, padding='${attrs.padding}', data_format='${
         attrs.data_format
       }', depth_multiplier=${attrs.depth_multiplier}, activation='${attrs.activation}', use_bias=${attrs.use_bias}`
 
