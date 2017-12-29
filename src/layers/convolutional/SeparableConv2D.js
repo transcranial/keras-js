@@ -118,6 +118,51 @@ class _DepthwiseConv2D extends Conv2D {
     this.output.replaceTensorData(dataFiltered)
   }
 
+  /**
+   * @param {Object} indicesForReshaped
+   */
+  _createIndexMap(indicesForReshaped) {
+    if (this.indexMap) {
+      return
+    }
+
+    let [inputRows, inputCols, inputChannels] = this.inputShape
+
+    let indices = new Tensor(indicesForReshaped.data, indicesForReshaped.shape, { type: Int32Array })
+
+    // padding for border mode 'same'
+    if (this.padding === 'same') {
+      const [paddingRowBefore, paddingRowAfter, paddingColBefore, paddingColAfter] = this.inputPadding
+      inputRows = inputRows + paddingRowBefore + paddingRowAfter
+      inputCols = inputCols + paddingColBefore + paddingColAfter
+      const padValue = -1
+      indices = this._padInput(indices, padValue)
+    }
+
+    const nbRow = this.kernelShape[1]
+    const nbCol = this.kernelShape[2]
+    const outputRows = this.outputShape[0]
+    const outputCols = this.outputShape[1]
+    const nbPatches = outputRows * outputCols
+    const patchLen = nbRow * nbCol
+
+    this.indexMap = new Tensor([], [nbPatches * inputChannels, patchLen], { type: Int32Array })
+
+    const indicesPatch = new Tensor([], [nbRow, nbCol, 1])
+    let offset = 0
+    for (let c = 0; c < inputChannels; c++) {
+      for (let i = 0, limit = inputRows - nbRow; i <= limit; i += this.strides[0]) {
+        for (let j = 0, limit = inputCols - nbCol; j <= limit; j += this.strides[1]) {
+          ops.assign(indicesPatch.tensor, indices.tensor.hi(i + nbRow, j + nbCol, c + 1).lo(i, j, c))
+          this.indexMap.tensor.data.set(indicesPatch.tensor.data, offset)
+          offset += patchLen
+        }
+      }
+    }
+
+    this.indexMap.createGLTexture({ type: '2d', format: 'int', supportsTextureFragments: true })
+  }
+
   _createOutputReshapeIndexMap() {
     if (this.reshapeIndexMap) {
       return
@@ -200,11 +245,6 @@ export default class SeparableConv2D extends Layer {
       use_bias = true
     } = attrs
 
-    this.description = `${filters} ${kernel_size.join('x')} filters, ${strides.join('x')} striding`
-    this.description += padding === 'valid' ? `, no border padding` : ', pad to same borders'
-    this.description += depth_multiplier > 1 ? `, depth multiplier: ${depth_multiplier}` : ''
-    this.description += activation !== 'linear' ? `, ${activation} activation` : ''
-
     if (Array.isArray(kernel_size)) {
       this.kernelShape = [filters, ...kernel_size]
     } else {
@@ -268,6 +308,12 @@ export default class SeparableConv2D extends Layer {
       use_bias,
       gpu: attrs.gpu
     }
+
+    this.description = `${this.kernelShape[0]} ${this.kernelShape.slice(1).join('x')} filters`
+    this.description += this.strides.some(s => s > 1) ? `, ${this.strides.join('x')} striding` : ''
+    this.description += this.padding === 'valid' ? `, no border padding` : ', pad to same borders'
+    this.description += depth_multiplier > 1 ? `, depth multiplier: ${depth_multiplier}` : ''
+    this.description += this.activation !== 'linear' ? `, ${this.activation} activation` : ''
 
     // GPU setup
     if (this.gpu) {
