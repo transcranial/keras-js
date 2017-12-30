@@ -165,6 +165,7 @@ export default class BatchNormalization extends Layer {
       if (x.tensor.shape.length <= 2) {
         x.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       } else if (x.tensor.shape.length > 2 && !x.is2DReshaped) {
+        // defaults to square reshaped
         x.reshapeTo2DSquare()
         x.createGLTexture({ type: '2d', format: 'float', supportsTextureFragments: true })
       }

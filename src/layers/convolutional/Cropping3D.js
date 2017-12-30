@@ -101,8 +101,9 @@ export default class Cropping3D extends Layer {
    * Creates row/col index mappings to map input texture to output texture
    *
    * @param {Object} indicesForReshaped
+   * @param {boolean} is2DReshaped
    */
-  _createIndexMap(indicesForReshaped) {
+  _createIndexMap(indicesForReshaped, is2DReshaped) {
     if (this.indexMap) {
       return
     }
@@ -132,7 +133,11 @@ export default class Cropping3D extends Layer {
 
     ops.assign(this.indexMap.tensor, indices.tensor.hi(...sliceEnd).lo(...sliceStart))
 
-    this.indexMap.reshapeTo2DSquare()
+    if (is2DReshaped) {
+      this.indexMap.reshapeTo2D()
+    } else {
+      this.indexMap.reshapeTo2DSquare()
+    }
     this.indexMap.createGLTexture({ type: '2d', format: 'int' })
   }
 
@@ -143,6 +148,7 @@ export default class Cropping3D extends Layer {
    */
   _callGPU(x) {
     if (!x.glTexture) {
+      // defaults to square reshaped
       x.reshapeTo2DSquare()
       x.createGLTexture({ type: '2d', format: 'float' })
     }
@@ -162,11 +168,15 @@ export default class Cropping3D extends Layer {
             this.inputShape[3]
           ]
 
-    this._createIndexMap(x.indicesForReshaped)
+    this._createIndexMap(x.indicesForReshaped, x.is2DReshaped)
 
     if (!this.output) {
       this.output = new Tensor([], this.outputShape)
-      this.output.reshapeTo2DSquare()
+      if (x.is2DReshaped) {
+        this.output.reshapeTo2D()
+      } else {
+        this.output.reshapeTo2DSquare()
+      }
       this.output.createGLTexture({ type: '2d', format: 'float' })
     }
 
@@ -180,7 +190,11 @@ export default class Cropping3D extends Layer {
     // GPU -> CPU data transfer
     if (this.outbound.length === 0) {
       this.output.transferFromGLTexture()
-      this.output.reshapeFrom2DSquare()
+      if (this.output.is2DReshaped) {
+        this.output.reshapeFrom2D()
+      } else {
+        this.output.reshapeFrom2DSquare()
+      }
     }
   }
 }
