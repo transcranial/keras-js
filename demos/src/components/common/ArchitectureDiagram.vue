@@ -1,7 +1,7 @@
 <template>
   <div v-resize="drawDiagramPaths" class="architecture-container">
-    <div v-for="(row, rowIndex) in diagramRows" :key="`row-${rowIndex}`" class="layers-row">
-      <div v-for="layer in row" :key="`layer-${layer.name}`" class="layer-column">
+    <div v-for="(row, rowIndex) in diagramRows" :key="`row:${rowIndex}`" class="layers-row">
+      <div v-for="(layer, colIndex) in row" :key="`layer:${rowIndex},${colIndex}`" class="layer-column">
         <div v-if="layer.layerClass" class="layer" :id="layer.name">
           <div class="layer-class-name">{{ layer.layerClass }}</div>
           <div class="layer-description"> {{ layer.description }}</div>

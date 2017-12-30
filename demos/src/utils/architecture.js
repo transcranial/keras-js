@@ -22,9 +22,10 @@ export function createDiagramData(modelLayersInfo) {
 
       let row = maxRow + 1
       let col = maxCol + i
-      const existing = _.find(diagramLayers, { row, col })
-      if (existing) {
-        col = existing.col + 1
+      let existing = _.find(diagramLayers, { row, col })
+      while (existing) {
+        col += 1
+        existing = _.find(diagramLayers, { row, col })
       }
 
       const diagramLayer = { ...layerInfo, row, col }
