@@ -39,9 +39,8 @@ export default {
       const dataTensor = ndarray(new Float32Array(data), [width, height, 4])
       const dataProcessedTensor = ndarray(new Float32Array(width * height * 3), [width, height, 3])
 
-      ops.divseq(dataTensor, 255)
-      ops.subseq(dataTensor, 0.5)
-      ops.mulseq(dataTensor, 2)
+      ops.divseq(dataTensor, 127.5)
+      ops.subseq(dataTensor, 1)
       ops.assign(dataProcessedTensor.pick(null, null, 0), dataTensor.pick(null, null, 0))
       ops.assign(dataProcessedTensor.pick(null, null, 1), dataTensor.pick(null, null, 1))
       ops.assign(dataProcessedTensor.pick(null, null, 2), dataTensor.pick(null, null, 2))
