@@ -1,11 +1,13 @@
 <template>
   <div class="demo home text-xs-center">
-    <a v-for="info in demoInfo" :key="info.path" :href="`#/${info.path}`">
-      <div class="demo-card">
-        <div class="demo-card-image"><img :src="info.imagePath" /></div>
-        <div class="demo-card-heading">{{ info.title }}</div>
-      </div>
-    </a>
+    <div v-for="info in demoInfo" :key="info.path" style="width:100%">
+      <a :href="`#/${info.path}`">
+        <div class="demo-card">
+          <div class="demo-card-image"><img :src="info.imagePath" /></div>
+          <div class="demo-card-heading">{{ info.title }}</div>
+        </div>
+      </a>
+    </div>
   </div>
 </template>
 

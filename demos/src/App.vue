@@ -7,7 +7,7 @@
       <v-toolbar app dark color="primary">
         <v-toolbar-side-icon @click.stop="showNav = !showNav"></v-toolbar-side-icon>
         <v-toolbar-title>{{ currentTitle }}</v-toolbar-title>
-        <v-btn icon @click.stop="showInfoPanel = true">
+        <v-btn v-if="currentTitle" icon @click.stop="showInfoPanel = true">
           <v-icon>fa-info-circle</v-icon>
         </v-btn>
         <v-spacer></v-spacer>

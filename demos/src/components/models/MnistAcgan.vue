@@ -293,64 +293,6 @@ export default {
   }
 }
 
-.architecture-container {
-  min-width: 700px;
-  max-width: 900px;
-  margin: 0 auto;
-  position: relative;
-
-  & .layers-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 5px;
-    position: relative;
-    z-index: 1;
-
-    & .layer-column {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 5px;
-
-      & .layer {
-        display: inline-block;
-        background: whitesmoke;
-        border: 2px solid var(--color-green);
-        border-radius: 5px;
-        padding: 2px 5px 0px;
-
-        & .layer-class-name {
-          color: var(--color-green);
-          font-size: 12px;
-          font-weight: bold;
-        }
-
-        & .layer-details {
-          color: #999999;
-          font-size: 11px;
-          font-weight: bold;
-        }
-      }
-    }
-  }
-
-  & .architecture-connections {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 0;
-
-    & path {
-      stroke-width: 4px;
-      stroke: #aaaaaa;
-      fill: none;
-    }
-  }
-}
-
 /* vue transition `fade` */
 .fade-enter-active,
 .fade-leave-active {
