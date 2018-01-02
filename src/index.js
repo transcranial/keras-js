@@ -9,3 +9,6 @@ import * as testUtils from './utils/testUtils'
 const GPU_SUPPORT = webgl2.isSupported
 
 export { Model, Tensor, GPU_SUPPORT, activations, layers, testUtils }
+
+const KerasJS = { Model, Tensor, GPU_SUPPORT, activations, layers, testUtils }
+export { KerasJS as default }

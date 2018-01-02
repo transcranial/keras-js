@@ -1,6 +1,6 @@
 {
   "name": "keras-js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Run Keras models in the browser, with GPU support using WebGL",
   "main": "lib/index.js",
   "unpkg": "dist/keras.min.js",
