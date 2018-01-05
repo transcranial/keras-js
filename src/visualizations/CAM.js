@@ -40,17 +40,16 @@ export default class CAM {
       // traverse until we get feature map weights
       // in Inception-V3, for example, this is the kernel weights of the final fully-connected layer
       // in Squeezenet, for example, this is simply the output of the GlobalAveragePooling2D layer
-      let weightsFound = false
-      let finalLayerReached = false
       let traversingLayer = this.poolLayer
-      while (!weightsFound && !finalLayerReached) {
+      if (!traversingLayer.outbound.length) {
+        this.weights = this.poolLayer.output
+      }
+      while (traversingLayer.outbound.length) {
         traversingLayer = this.modelLayersMap.get(traversingLayer.outbound[0])
         if (traversingLayer.weights['kernel']) {
           this.weights = traversingLayer.weights['kernel']
-          weightsFound = true
-        } else if (!traversingLayer.outbound.length) {
+        } else {
           this.weights = this.poolLayer.output
-          finalLayerReached = true
         }
       }
 
