@@ -295,4 +295,8 @@ export default class SimpleRNN extends Layer {
       this.output.transferFromGLTexture()
     }
   }
+
+  resetStates() {
+    this.currentHiddenState = null
+  }
 }

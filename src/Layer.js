@@ -71,4 +71,11 @@ export default class Layer {
     this.output = x
     return this.output
   }
+
+  /**
+   * Reset presistent state in the mode. Only applies with stateful rnns.
+   */
+  resetStates() {
+    return
+  }
 }

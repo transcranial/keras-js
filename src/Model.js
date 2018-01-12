@@ -616,6 +616,15 @@ export default class Model {
   }
 
   /**
+   * Reset presistent state in the mode. Only applies with stateful rnns.
+   */
+  resetStates() {
+    this.modelLayersMap.forEach(layer => {
+      layer.resetStates()
+    })
+  }
+
+  /**
    * Cleanup - important for memory management
    */
   cleanup() {
