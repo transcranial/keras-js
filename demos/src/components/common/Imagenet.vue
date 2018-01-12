@@ -21,6 +21,7 @@
             v-model="imageURLInput"
             :disabled="modelLoading || modelInitializing"
             label="enter image url"
+            :spellcheck="false"
             @keyup.native.enter="onImageURLInputEnter"
           ></v-text-field>
         </v-flex>

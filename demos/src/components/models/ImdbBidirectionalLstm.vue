@@ -17,6 +17,7 @@
           multi-line
           rows="10"
           color="primary"
+          :spellcheck="false"
           @input.native="inputChanged"
         ></v-text-field>
         <div class="input-buttons">

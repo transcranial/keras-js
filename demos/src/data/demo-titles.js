@@ -6,5 +6,6 @@ export const DEMO_TITLES = {
   'inception-v3': 'Inception v3, trained on ImageNet',
   densenet121: 'DenseNet-121, trained on ImageNet',
   'squeezenet-v1.1': 'SqueezeNet v1.1, trained on ImageNet',
-  'imdb-bidirectional-lstm': 'Bidirectional LSTM for IMDB sentiment classification'
+  'imdb-bidirectional-lstm': 'Bidirectional LSTM for IMDB sentiment classification',
+  'image-super-resolution': 'Image Super-Resolution CNNs'
 }

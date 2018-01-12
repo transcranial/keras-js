@@ -51,6 +51,12 @@
           <span class="menu-item-subheading">IMDB</span>
         </a>
       </li>
+      <li :class="{ active: currentView === 'image-super-resolution' }">
+        <a href="#/image-super-resolution">
+          <span class="menu-item-heading">Image Super-Resolution</span>
+          <span class="menu-item-subheading"></span>
+        </a>
+      </li>
     </ul>
     <p class="menu-label">Links</p>
     <ul class="menu-list github">

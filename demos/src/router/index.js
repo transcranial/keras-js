@@ -9,6 +9,7 @@ import InceptionV3 from '../components/models/InceptionV3'
 import DenseNet121 from '../components/models/DenseNet121'
 import SqueezenetV1 from '../components/models/SqueezenetV1'
 import ImdbBidirectionalLstm from '../components/models/ImdbBidirectionalLstm'
+import ImageSuperResolution from '../components/models/ImageSuperResolution'
 
 Vue.use(VueRouter)
 
@@ -22,7 +23,8 @@ const router = new VueRouter({
     { path: '/inception-v3', component: InceptionV3 },
     { path: '/densenet121', component: DenseNet121 },
     { path: '/squeezenet-v1.1', component: SqueezenetV1 },
-    { path: '/imdb-bidirectional-lstm', component: ImdbBidirectionalLstm }
+    { path: '/imdb-bidirectional-lstm', component: ImdbBidirectionalLstm },
+    { path: '/image-super-resolution', component: ImageSuperResolution }
   ]
 })
 

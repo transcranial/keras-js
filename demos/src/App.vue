@@ -62,7 +62,7 @@ export default {
 </script>
 
 <style lang="postcss">
-@import 'https://fonts.googleapis.com/css?family=Open+Sans';
+@import 'https://fonts.googleapis.com/css?family=Open+Sans:300, 400, 600, 700';
 @import 'https://fonts.googleapis.com/css?family=Share+Tech+Mono';
 @import 'https://fonts.googleapis.com/css?family=Nothing+You+Could+Do';
 
