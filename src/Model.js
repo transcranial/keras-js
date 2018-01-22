@@ -382,7 +382,7 @@ export default class Model {
       )
       weightNames = forwardWeightNames.concat(backwardWeightNames)
     } else if (layerClass === 'TimeDistributed') {
-      weightNames = layer.layer.params.map(param => `${layerConfig.name}/${param}`)
+      weightNames = layer.wrappedLayer.params.map(param => `${layerConfig.name}/${param}`)
     } else {
       weightNames = layer.params.map(param => `${layerConfig.name}/${param}`)
     }
