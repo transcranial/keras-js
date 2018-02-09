@@ -65,6 +65,11 @@
           <span class="menu-item-heading"><v-icon>fa-github</v-icon> GitHub repo</span>
         </a>
       </li>
+      <li>
+        <a href="https://www.md.ai" target="_blank" rel="noopener noreferrer">
+          <span class="menu-item-heading"><v-icon>link</v-icon> MD.ai</span>
+        </a>
+      </li>
     </ul>
     <p class="menu-label">Contact</p>
     <ul class="menu-list contact">
