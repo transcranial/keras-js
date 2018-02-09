@@ -1,6 +1,6 @@
 {
   "name": "keras-js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Run Keras models in the browser, with GPU support using WebGL",
   "main": "lib/index.js",
   "unpkg": "dist/keras.min.js",
@@ -18,17 +18,7 @@
     "type": "git",
     "url": "git+https://github.com/transcranial/keras-js.git"
   },
-  "keywords": [
-    "keras",
-    "deep",
-    "learning",
-    "neural",
-    "networks",
-    "javascript",
-    "webgl",
-    "webgl2",
-    "gpu"
-  ],
+  "keywords": ["keras", "deep", "learning", "neural", "networks", "javascript", "webgl", "webgl2", "gpu"],
   "author": "Leon Chen <leon@md.ai>",
   "license": "MIT",
   "bugs": {
