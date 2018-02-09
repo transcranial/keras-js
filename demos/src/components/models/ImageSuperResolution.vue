@@ -86,7 +86,7 @@ import ImageComparison from '../common/ImageComparison'
 import ArchitectureDiagram from '../common/ArchitectureDiagram'
 
 const MODEL_SELECT_LIST = [
-  { text: 'Distilled ResNet SR', value: 'distilled_rnsr' },
+  { text: 'Distilled ResNet SR', value: 'drnsr' },
   { text: 'SR CNN', value: 'sr' },
   { text: 'Expanded SR CNN', value: 'esr' },
   { text: 'ResNet SR', value: 'rnsr' },
@@ -157,7 +157,7 @@ export default {
 
   computed: {
     trueUpscaling() {
-      return ['rnsr', 'distilled_rnsr'].includes(this.modelSelect)
+      return ['rnsr', 'drnsr'].includes(this.modelSelect)
     }
   },
 
