@@ -28,6 +28,7 @@ export default class Model {
    */
   constructor(config = {}) {
     const {
+      adjustment = null,
       filepath = null,
       headers = {},
       filesystem = false,
@@ -40,6 +41,9 @@ export default class Model {
     if (!filepath) {
       throw new Error('[Model] path to protobuf-serialized model definition file is missing.')
     }
+
+    this.adjustment = adjustment;
+
     this.filepath = filepath
 
     // HTTP(S) headers used during data fetching
@@ -143,6 +147,9 @@ export default class Model {
       console.log(err)
       this._interrupt()
     }
+
+    this.modelConfig = this.adjustment(this.modelConfig);
+
     this.events.emit('loadingProgress', 100)
 
     // build directed acyclic graph
