@@ -23,6 +23,9 @@
   <a href="https://www.npmjs.com/package/keras-js">
     <img src="https://img.shields.io/npm/v/keras-js.svg?style=flat-square" />
   </a>
+  <a href="https://slack.bri.im">
+    <img src="https://slack.bri.im/badge.svg" />
+  </a>
 </p>
 
 <br/>
