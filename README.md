@@ -1,4 +1,8 @@
 <p align="center">
+  <strong>**This project is no longer active. Please check out <a href="http://js.tensorflow.org">TensorFlow.js</a>.**<br/>The <a href="https://transcranial.github.io/keras-js">Keras.js demos</a> still work but is no longer updated.</strong>
+</p>
+
+<p align="center">
   <a href="https://transcranial.github.io/keras-js">
     <img src="https://cdn.rawgit.com/transcranial/keras-js/73aa4cca/assets/logo.svg" width="300px" />
   </a>
@@ -15,15 +19,6 @@
     <a href="https://transcranial.github.io/keras-js-docs">Documentation</a>
   </h3>
 </div>
-
-<p align="center">
-  <a href="https://cdnjs.com/libraries/keras-js">
-    <img src="https://img.shields.io/cdnjs/v/keras-js.svg?style=flat-square" />
-  </a>
-  <a href="https://www.npmjs.com/package/keras-js">
-    <img src="https://img.shields.io/npm/v/keras-js.svg?style=flat-square" />
-  </a>
-</p>
 
 <br/>
 
@@ -44,14 +39,14 @@ Library version compatibility: Keras 2.1.2
 
 Check out the `demos/` directory for real examples running Keras.js in VueJS.
 
-* Basic Convnet for MNIST
-* Convolutional Variational Autoencoder, trained on MNIST
-* Auxiliary Classifier Generative Adversarial Networks (AC-GAN) on MNIST
-* 50-layer Residual Network, trained on ImageNet
-* Inception v3, trained on ImageNet
-* DenseNet-121, trained on ImageNet
-* SqueezeNet v1.1, trained on ImageNet
-* Bidirectional LSTM for IMDB sentiment classification
+- Basic Convnet for MNIST
+- Convolutional Variational Autoencoder, trained on MNIST
+- Auxiliary Classifier Generative Adversarial Networks (AC-GAN) on MNIST
+- 50-layer Residual Network, trained on ImageNet
+- Inception v3, trained on ImageNet
+- DenseNet-121, trained on ImageNet
+- SqueezeNet v1.1, trained on ImageNet
+- Bidirectional LSTM for IMDB sentiment classification
 
 ## [Documentation](https://transcranial.github.io/keras-js-docs)
 
