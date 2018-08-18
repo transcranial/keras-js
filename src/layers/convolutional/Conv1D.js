@@ -36,6 +36,18 @@ export default class Conv1D extends Layer {
     this.description += dilation_rate > 1 ? `, dilation rate ${dilation_rate}` : ''
     this.description += activation !== 'linear' ? `, ${activation} activation` : ''
 
+    // Checks to convert tuples into scalars
+    if (Array.isArray(strides)) {
+      this.strides = strides[0]
+    }
+    if (Array.isArray(dilation_rate)) {
+      this.dilation_rate = dilation_rate[0]
+    }
+
+    if (Array.isArray(kernel_size)) {
+      this.kernel_size = kernel_size[0]
+    }
+    
     if (padding !== 'valid' && padding !== 'same') {
       this.throwError('Invalid padding.')
     }
@@ -55,13 +67,15 @@ export default class Conv1D extends Layer {
     // Conv1D is actually a shim on top of Conv2D, where
     // all of the computational action is performed
     // Note that we use `channels_first` dim ordering here.
+    // Note dilation_rate_temp is necessary due to strange this call.
+    var dilation_rate_temp = this.dilation_rate;
     const conv2dAttrs = {
       filters,
-      kernel_size: [kernel_size, 1],
-      strides: [strides, 1],
+      kernel_size: [this.kernel_size, 1],
+      strides: [this.strides, 1],
       padding,
       data_format: 'channels_first',
-      dilation_rate,
+      dilation_rate_temp,
       activation,
       use_bias
     }
