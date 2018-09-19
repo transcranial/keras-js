@@ -20,6 +20,16 @@ export default function softmax(x) {
       const sum = ops.sum(x.tensor.pick(i, null))
       ops.divseq(x.tensor.pick(i, null), sum)
     }
+  } else if (x.tensor.shape.length === 3) {
+    for (let i=0; i< x.tensor.shape[0]; i++){
+      for(let j=0;j<x.tensor.shape[1]; j++){
+        const maxval = _ndarrayOps.default.sup(x.tensor.pick(i,j,null));
+        _ndarrayOps.default.subseq(x.tensor.pick(i,j, null), maxval);
+        _ndarrayOps.default.expeq(x.tensor.pick(i,j, null));
+        const sum = _ndarrayOps.default.sum(x.tensor.pick(i,j, null));
+        _ndarrayOps.default.divseq(x.tensor.pick(i,j, null), sum);
+      }
+    }
   } else {
     throw new Error(`[activations.softmax] tensor shape ${x.tensor.shape} not supported.`)
   }
