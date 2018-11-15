@@ -5,6 +5,7 @@ import SpatialDropout1D from './SpatialDropout1D'
 import SpatialDropout2D from './SpatialDropout2D'
 import SpatialDropout3D from './SpatialDropout3D'
 import Flatten from './Flatten'
+import Lambda from './Lambda'
 import Reshape from './Reshape'
 import Permute from './Permute'
 import RepeatVector from './RepeatVector'
@@ -17,6 +18,7 @@ export {
   SpatialDropout2D,
   SpatialDropout3D,
   Flatten,
+  Lambda,
   Reshape,
   Permute,
   RepeatVector
