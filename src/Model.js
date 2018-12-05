@@ -395,7 +395,7 @@ export default class Model {
         })
 
         if (!weightDef) {
-          throw new Error(`[Model] error loading weights.`)
+          throw new Error(`[Model] error loading weights `+weightNames+`for `+layerClass)
         }
 
         const { data, shape, type } = weightDef
