@@ -525,4 +525,8 @@ export default class GRU extends Layer {
       this.output.transferFromGLTexture()
     }
   }
+
+  resetStates() {
+    this.currentHiddenState = null
+  }
 }
